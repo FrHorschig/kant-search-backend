@@ -8,7 +8,6 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/FrHorschig/kant-search-backend/handlers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -40,20 +39,23 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerTextHandlers(e *echo.Echo, handler handlers.TextHandler) {
-	e.GET("/api/v1/text/:id", func(ctx echo.Context) error {
-		return handler.GetTextById(ctx)
+func registerTextHandlers(e *echo.Echo, debugHandler handlers.DebugHandler, addWorkHandler handlers.AddWorkHandler) {
+	e.GET("/api/v1/debug", func(ctx echo.Context) error {
+		return debugHandler.GetDebugInfo(ctx)
+	})
+	e.POST("/api/v1/upload/work", func(ctx echo.Context) error {
+		return addWorkHandler.PostWork(ctx)
 	})
 }
 
 func main() {
 	db := initDbConnection()
 	defer db.Close()
-	textRepo := repository.NewTextRepo(db)
 
-	textHandler := handlers.NewTextHandler(textRepo)
+	debugHandler := handlers.NewDebugHandler()
+	addWorkHandler := handlers.NewAddWorkHandler()
 
 	e := initEchoServer()
-	registerTextHandlers(e, textHandler)
+	registerTextHandlers(e, debugHandler, addWorkHandler)
 	e.Logger.Fatal(e.StartTLS(":3000", "ssl/cert.pem", "ssl/key.pem"))
 }
