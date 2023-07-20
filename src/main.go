@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/lib/pq"
 
+	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/FrHorschig/kant-search-backend/handlers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -48,8 +49,11 @@ func registerTextHandlers(e *echo.Echo, addWorkHandler handlers.AddWorkHandler) 
 func main() {
 	db := initDbConnection()
 	defer db.Close()
+	workRepo := repository.NewWorkRepo(db)
+	paragraphRepo := repository.NewParagraphRepo(db)
+	sentenceRepo := repository.NewSentenceRepo(db)
 
-	addWorkHandler := handlers.NewAddWorkHandler()
+	addWorkHandler := handlers.NewAddWorkHandler(workRepo, paragraphRepo, sentenceRepo)
 
 	e := initEchoServer()
 	registerTextHandlers(e, addWorkHandler)

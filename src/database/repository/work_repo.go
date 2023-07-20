@@ -11,7 +11,7 @@ import (
 type WorkRepo interface {
 	Select(ctx context.Context, id int32) (model.Work, error)
 	SelectAll(ctx context.Context) ([]model.Work, error)
-	Add(ctx context.Context, work model.Work) (int32, error)
+	Insert(ctx context.Context, work model.Work) (int32, error)
 }
 
 type WorkRepoImpl struct {
@@ -29,7 +29,7 @@ func (repo *WorkRepoImpl) Select(ctx context.Context, id int32) (model.Work, err
 	query := `SELECT * FROM works WHERE id=$1`
 	row := repo.db.QueryRowContext(ctx, query, id)
 
-	err := row.Scan(&work.Id, &work.Title, &work.Abbrev, &work.AaVolume)
+	err := row.Scan(&work.Id, &work.Title, &work.Abbrev, &work.Volume)
 	if err != nil {
 		return work, err
 	}
@@ -52,9 +52,9 @@ func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
 	return works, nil
 }
 
-func (repo *WorkRepoImpl) Add(ctx context.Context, work model.Work) (int32, error) {
+func (repo *WorkRepoImpl) Insert(ctx context.Context, work model.Work) (int32, error) {
 	query := `INSERT INTO works (title, abbrev, aa_volume) VALUES ($1, $2, $3) RETURNING id`
-	row := repo.db.QueryRowContext(ctx, query, work.Title, work.Abbrev, work.AaVolume)
+	row := repo.db.QueryRowContext(ctx, query, work.Title, work.Abbrev, work.Volume)
 
 	var id int32
 	err := row.Scan(&id)
@@ -69,7 +69,7 @@ func scanWorkRows(rows *sql.Rows) ([]model.Work, error) {
 	works := make([]model.Work, 0)
 	for rows.Next() {
 		var work model.Work
-		err := rows.Scan(&work.Id, &work.Title, &work.Abbrev, &work.AaVolume)
+		err := rows.Scan(&work.Id, &work.Title, &work.Abbrev, &work.Volume)
 		if err != nil {
 			return nil, fmt.Errorf("query row scan failed: %v", err)
 		}
