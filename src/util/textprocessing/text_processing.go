@@ -28,7 +28,7 @@ func SplitIntoSentences(text string) ([]string, error) {
 		return nil, err
 	}
 
-	var sentences []string
+	sentences := make([]string, 0)
 	err = json.Unmarshal(output, &sentences)
 	if err != nil {
 		return nil, err
