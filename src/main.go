@@ -39,10 +39,7 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerTextHandlers(e *echo.Echo, debugHandler handlers.DebugHandler, addWorkHandler handlers.AddWorkHandler) {
-	e.GET("/api/v1/debug", func(ctx echo.Context) error {
-		return debugHandler.GetDebugInfo(ctx)
-	})
+func registerTextHandlers(e *echo.Echo, addWorkHandler handlers.AddWorkHandler) {
 	e.POST("/api/v1/upload/work", func(ctx echo.Context) error {
 		return addWorkHandler.PostWork(ctx)
 	})
@@ -52,10 +49,9 @@ func main() {
 	db := initDbConnection()
 	defer db.Close()
 
-	debugHandler := handlers.NewDebugHandler()
 	addWorkHandler := handlers.NewAddWorkHandler()
 
 	e := initEchoServer()
-	registerTextHandlers(e, debugHandler, addWorkHandler)
+	registerTextHandlers(e, addWorkHandler)
 	e.Logger.Fatal(e.StartTLS(":3000", "ssl/cert.pem", "ssl/key.pem"))
 }
