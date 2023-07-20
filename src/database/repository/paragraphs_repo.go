@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/lib/pq"
 )
 
 type ParagraphRepo interface {
@@ -56,7 +57,7 @@ func (repo *ParagraphRepoImpl) SelectRange(ctx context.Context, start_id int32, 
 func (repo *ParagraphRepoImpl) Insert(ctx context.Context, paragraphs model.Paragraph) (int32, error) {
 	var id int32
 	query := `INSERT INTO paragraphs (text, pages, work_id) VALUES ($1, $2, $3) RETURNING id`
-	row := repo.db.QueryRowContext(ctx, query, paragraphs.Text, paragraphs.Pages, paragraphs.WorkId)
+	row := repo.db.QueryRowContext(ctx, query, paragraphs.Text, pq.Array(paragraphs.Pages), paragraphs.WorkId)
 
 	err := row.Scan(&id)
 	if err != nil {

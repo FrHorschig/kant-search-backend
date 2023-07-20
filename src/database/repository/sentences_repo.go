@@ -23,16 +23,17 @@ func NewSentenceRepo(db *sql.DB) SentenceRepo {
 }
 
 func (repo *SentenceRepoImpl) Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error) {
-	query := `INSERT INTO sentences (text, paragraph_id) VALUES `
+	query := `INSERT INTO sentences (text, paragraph_id, work_id) VALUES `
 	values := make([]interface{}, 0)
 	for i, sentence := range sentences {
 		if i > 0 {
 			query += `, `
 		}
-		query += `($` + fmt.Sprint(i*2+1) + `, $` + fmt.Sprint(i*2+2) + `)`
+		query += `($` + fmt.Sprint(i*3+1) + `, $` + fmt.Sprint(i*3+2) + `, $` + fmt.Sprint(i*3+3) + `)`
 
 		values = append(values, sentence.Text)
 		values = append(values, sentence.ParagraphId)
+		values = append(values, sentence.WorkId)
 	}
 	query += ` RETURNING id`
 
