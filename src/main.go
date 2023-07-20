@@ -40,9 +40,9 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerTextHandlers(e *echo.Echo, addWorkHandler handlers.AddWorkHandler) {
+func registerTextHandlers(e *echo.Echo, uploadHandler handlers.UploadHandler) {
 	e.POST("/api/v1/upload/work", func(ctx echo.Context) error {
-		return addWorkHandler.PostWork(ctx)
+		return uploadHandler.PostWork(ctx)
 	})
 }
 
@@ -53,9 +53,9 @@ func main() {
 	paragraphRepo := repository.NewParagraphRepo(db)
 	sentenceRepo := repository.NewSentenceRepo(db)
 
-	addWorkHandler := handlers.NewAddWorkHandler(workRepo, paragraphRepo, sentenceRepo)
+	uploadHandler := handlers.NewUploadHandler(workRepo, paragraphRepo, sentenceRepo)
 
 	e := initEchoServer()
-	registerTextHandlers(e, addWorkHandler)
+	registerTextHandlers(e, uploadHandler)
 	e.Logger.Fatal(e.StartTLS(":3000", "ssl/cert.pem", "ssl/key.pem"))
 }

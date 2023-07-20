@@ -12,18 +12,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type AddWorkHandler interface {
+type UploadHandler interface {
 	PostWork(ctx echo.Context) error
 }
 
-type AddWorkHandlerImpl struct {
+type UploadHandlerImpl struct {
 	workRepo      repository.WorkRepo
 	paragraphRepo repository.ParagraphRepo
 	sentenceRepo  repository.SentenceRepo
 }
 
-func NewAddWorkHandler(workRepo repository.WorkRepo, paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) AddWorkHandler {
-	handlers := AddWorkHandlerImpl{
+func NewUploadHandler(workRepo repository.WorkRepo, paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) UploadHandler {
+	handlers := UploadHandlerImpl{
 		workRepo:      workRepo,
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
@@ -31,7 +31,7 @@ func NewAddWorkHandler(workRepo repository.WorkRepo, paragraphRepo repository.Pa
 	return &handlers
 }
 
-func (handler *AddWorkHandlerImpl) PostWork(ctx echo.Context) error {
+func (handler *UploadHandlerImpl) PostWork(ctx echo.Context) error {
 	work := new(models.Work)
 	if err := ctx.Bind(work); err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
@@ -66,7 +66,7 @@ func (handler *AddWorkHandlerImpl) PostWork(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, "Hello World")
 }
 
-func (handler *AddWorkHandlerImpl) insertParagraph(ctx echo.Context, text string, workId int32) (int32, error) {
+func (handler *UploadHandlerImpl) insertParagraph(ctx echo.Context, text string, workId int32) (int32, error) {
 	pages, err := textprocessing.GetPages(text)
 	if err != nil {
 		return -1, err
@@ -79,7 +79,7 @@ func (handler *AddWorkHandlerImpl) insertParagraph(ctx echo.Context, text string
 	return id, nil
 }
 
-func (handler *AddWorkHandlerImpl) insertSentences(ctx echo.Context, sentences []string, paragraphId int32, workId int32) error {
+func (handler *UploadHandlerImpl) insertSentences(ctx echo.Context, sentences []string, paragraphId int32, workId int32) error {
 	sModels := make([]model.Sentence, 0)
 	for _, s := range sentences {
 		sModels = append(sModels, model.Sentence{Text: s, ParagraphId: paragraphId, WorkId: workId})
