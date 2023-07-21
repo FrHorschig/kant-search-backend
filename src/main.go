@@ -40,9 +40,15 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerTextHandlers(e *echo.Echo, uploadHandler handlers.UploadHandler) {
+func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHandler handlers.SectionHandler) {
 	e.POST("/api/v1/works", func(ctx echo.Context) error {
-		return uploadHandler.PostWork(ctx)
+		return workHandler.PostWork(ctx)
+	})
+	e.GET("/api/v1/works", func(ctx echo.Context) error {
+		return workHandler.GetWork(ctx)
+	})
+	e.GET("/api/v1/work/:id/section", func(ctx echo.Context) error {
+		return sectionHandler.GetSection(ctx)
 	})
 }
 
@@ -53,9 +59,10 @@ func main() {
 	paragraphRepo := repository.NewParagraphRepo(db)
 	sentenceRepo := repository.NewSentenceRepo(db)
 
-	uploadHandler := handlers.NewUploadHandler(workRepo, paragraphRepo, sentenceRepo)
+	workHandler := handlers.NewWorkHandler(workRepo, paragraphRepo, sentenceRepo)
+	sectionHandler := handlers.NewSectionHandler(paragraphRepo)
 
 	e := initEchoServer()
-	registerTextHandlers(e, uploadHandler)
+	registerHandlers(e, workHandler, sectionHandler)
 	e.Logger.Fatal(e.StartTLS(":3000", "ssl/cert.pem", "ssl/key.pem"))
 }

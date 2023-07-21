@@ -12,18 +12,19 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type UploadHandler interface {
+type WorkHandler interface {
 	PostWork(ctx echo.Context) error
+	GetWork(ctx echo.Context) error
 }
 
-type UploadHandlerImpl struct {
+type WorkHandlerImpl struct {
 	workRepo      repository.WorkRepo
 	paragraphRepo repository.ParagraphRepo
 	sentenceRepo  repository.SentenceRepo
 }
 
-func NewUploadHandler(workRepo repository.WorkRepo, paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) UploadHandler {
-	handlers := UploadHandlerImpl{
+func NewWorkHandler(workRepo repository.WorkRepo, paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) WorkHandler {
+	handlers := WorkHandlerImpl{
 		workRepo:      workRepo,
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
@@ -31,7 +32,7 @@ func NewUploadHandler(workRepo repository.WorkRepo, paragraphRepo repository.Par
 	return &handlers
 }
 
-func (handler *UploadHandlerImpl) PostWork(ctx echo.Context) error {
+func (handler *WorkHandlerImpl) PostWork(ctx echo.Context) error {
 	work := new(models.Work)
 	if err := ctx.Bind(work); err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
@@ -66,7 +67,12 @@ func (handler *UploadHandlerImpl) PostWork(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, nil)
 }
 
-func (handler *UploadHandlerImpl) insertParagraph(ctx echo.Context, text string, workId int32) (int32, error) {
+func (handler *WorkHandlerImpl) GetWork(ctx echo.Context) error {
+	// TODO implement me
+	return nil
+}
+
+func (handler *WorkHandlerImpl) insertParagraph(ctx echo.Context, text string, workId int32) (int32, error) {
 	pages, err := textprocessing.GetPages(text)
 	if err != nil {
 		return -1, err
@@ -79,7 +85,7 @@ func (handler *UploadHandlerImpl) insertParagraph(ctx echo.Context, text string,
 	return id, nil
 }
 
-func (handler *UploadHandlerImpl) insertSentences(ctx echo.Context, sentences []string, paragraphId int32, workId int32) error {
+func (handler *WorkHandlerImpl) insertSentences(ctx echo.Context, sentences []string, paragraphId int32, workId int32) error {
 	sModels := make([]model.Sentence, 0)
 	for _, s := range sentences {
 		sModels = append(sModels, model.Sentence{Text: s, ParagraphId: paragraphId, WorkId: workId})
