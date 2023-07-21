@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
+	"sort"
 
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/database/model"
@@ -52,7 +53,13 @@ func (handler *WorkHandlerImpl) PostWork(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, "Error processing text")
 	}
 
-	for n, text := range pByNumber {
+	sortedKeys := make([]int, 0)
+	for k := range pByNumber {
+		sortedKeys = append(sortedKeys, k)
+	}
+	sort.Ints(sortedKeys)
+	for n := range sortedKeys {
+		text := pByNumber[n]
 		paragraphId, err := handler.insertParagraph(ctx, text, workId)
 		if err != nil {
 			log.Error().Err(err).Msg("Error inserting paragraph")
