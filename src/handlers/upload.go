@@ -32,8 +32,6 @@ func NewUploadHandler(workRepo repository.WorkRepo, paragraphRepo repository.Par
 }
 
 func (handler *UploadHandlerImpl) PostWork(ctx echo.Context) error {
-	// Workaround: generated typescript client sets content-type to text/plain
-	ctx.Request().Header.Set("Content-Type", "application/json")
 	work := new(models.Work)
 	if err := ctx.Bind(work); err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
