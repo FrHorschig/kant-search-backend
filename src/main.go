@@ -41,7 +41,7 @@ func initEchoServer() *echo.Echo {
 }
 
 func registerTextHandlers(e *echo.Echo, uploadHandler handlers.UploadHandler) {
-	e.POST("/api/v1/upload/work", func(ctx echo.Context) error {
+	e.POST("/api/v1/works", func(ctx echo.Context) error {
 		return uploadHandler.PostWork(ctx)
 	})
 }
