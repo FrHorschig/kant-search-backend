@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/FrHorschig/kant-search-api/models"
@@ -68,8 +69,20 @@ func (handler *WorkHandlerImpl) PostWork(ctx echo.Context) error {
 }
 
 func (handler *WorkHandlerImpl) GetWork(ctx echo.Context) error {
-	// TODO implement me
-	return nil
+	works, err := handler.workRepo.SelectAll(ctx.Request().Context())
+	result := make([]models.WorkMetadata, 0)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ctx.JSON(http.StatusOK, result)
+		}
+		log.Error().Err(err).Msg("Error selecting works")
+		return errors.InternalServerError(ctx)
+	}
+
+	for _, w := range works {
+		result = append(result, models.WorkMetadata{Id: w.Id, Title: w.Title, Abbreviation: w.Abbrev, Volume: w.Volume})
+	}
+	return ctx.JSON(http.StatusOK, works)
 }
 
 func (handler *WorkHandlerImpl) insertParagraph(ctx echo.Context, text string, workId int32) (int32, error) {
