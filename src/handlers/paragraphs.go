@@ -33,13 +33,13 @@ func (handler *ParagraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 	workId, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
-		return errors.InternalServerError(ctx)
+		return errors.BadRequest(ctx, "Invalid work id")
 	}
 
-	start, end, err := findPages(ctx.QueryParam("range"))
+	start, end, err := findPages(ctx.QueryParam("pages"))
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing page range: %v", err)
-		return errors.InternalServerError(ctx)
+		return errors.BadRequest(ctx, "Invalid page range")
 	}
 
 	paragraphs, err := handler.paragraphRepo.SelectRange(ctx.Request().Context(), int32(workId), start, end)
@@ -61,22 +61,26 @@ func (handler *ParagraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 		})
 	}
 
+	for _, r := range results {
+		println(r.Id, r.Text, r.Pages, r.WorkId)
+	}
+
 	return ctx.JSON(http.StatusOK, results)
 }
 
 func findPages(pageRange string) (start int32, end int32, err error) {
-	onError := fmt.Errorf("invalid page range: %s", pageRange)
+	parseError := fmt.Errorf("invalid page range: %s", pageRange)
 	parts := strings.Split(pageRange, "-")
 	if len(parts) != 2 {
-		return -1, -1, onError
+		return -1, -1, parseError
 	}
 	s, err := strconv.ParseInt(parts[0], 10, 32)
 	if err != nil {
-		return -1, -1, onError
+		return -1, -1, parseError
 	}
 	e, err := strconv.ParseInt(parts[1], 10, 32)
 	if err != nil {
-		return -1, -1, onError
+		return -1, -1, parseError
 	}
 	return int32(s), int32(e), nil
 }
