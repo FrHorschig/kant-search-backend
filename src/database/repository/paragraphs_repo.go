@@ -11,7 +11,7 @@ import (
 
 type ParagraphRepo interface {
 	Select(ctx context.Context, id int32) (model.Paragraph, error)
-	SelectRange(ctx context.Context, start_id int32, end_id int32) ([]model.Paragraph, error)
+	SelectRange(ctx context.Context, workId int32, start_id int32, end_id int32) ([]model.Paragraph, error)
 	Insert(ctx context.Context, paragraph model.Paragraph) (int32, error)
 }
 
@@ -38,10 +38,10 @@ func (repo *ParagraphRepoImpl) Select(ctx context.Context, id int32) (model.Para
 	return paragraph, nil
 }
 
-func (repo *ParagraphRepoImpl) SelectRange(ctx context.Context, start_id int32, end_id int32) ([]model.Paragraph, error) {
+func (repo *ParagraphRepoImpl) SelectRange(ctx context.Context, workId int32, start_id int32, end_id int32) ([]model.Paragraph, error) {
 	var paragraphs []model.Paragraph
-	query := `SELECT * FROM paragraphs WHERE id BETWEEN $1 AND $2`
-	rows, err := repo.db.QueryContext(ctx, query, start_id, end_id)
+	query := `SELECT * FROM paragraphs WHERE work_id = $1 AND id BETWEEN $2 AND $3`
+	rows, err := repo.db.QueryContext(ctx, query, workId, start_id, end_id)
 	if err != nil {
 		return nil, err
 	}
