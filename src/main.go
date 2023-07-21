@@ -40,15 +40,15 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHandler handlers.SectionHandler) {
+func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHandler handlers.ParagraphHandler) {
 	e.POST("/api/v1/works", func(ctx echo.Context) error {
 		return workHandler.PostWork(ctx)
 	})
 	e.GET("/api/v1/works", func(ctx echo.Context) error {
 		return workHandler.GetWork(ctx)
 	})
-	e.GET("/api/v1/work/:id/section", func(ctx echo.Context) error {
-		return sectionHandler.GetSection(ctx)
+	e.GET("/api/v1/work/:id/paragraphs", func(ctx echo.Context) error {
+		return sectionHandler.GetParagraphs(ctx)
 	})
 }
 
@@ -60,9 +60,9 @@ func main() {
 	sentenceRepo := repository.NewSentenceRepo(db)
 
 	workHandler := handlers.NewWorkHandler(workRepo, paragraphRepo, sentenceRepo)
-	sectionHandler := handlers.NewSectionHandler(paragraphRepo)
+	paragraphHandler := handlers.NewParagraphHandler(paragraphRepo)
 
 	e := initEchoServer()
-	registerHandlers(e, workHandler, sectionHandler)
+	registerHandlers(e, workHandler, paragraphHandler)
 	e.Logger.Fatal(e.StartTLS(":3000", "ssl/cert.pem", "ssl/key.pem"))
 }

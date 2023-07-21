@@ -82,7 +82,7 @@ func (handler *WorkHandlerImpl) GetWork(ctx echo.Context) error {
 	for _, w := range works {
 		result = append(result, models.WorkMetadata{Id: w.Id, Title: w.Title, Abbreviation: w.Abbrev, Volume: w.Volume})
 	}
-	return ctx.JSON(http.StatusOK, works)
+	return ctx.JSON(http.StatusOK, result)
 }
 
 func (handler *WorkHandlerImpl) insertParagraph(ctx echo.Context, text string, workId int32) (int32, error) {
