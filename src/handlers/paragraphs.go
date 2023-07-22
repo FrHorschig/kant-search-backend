@@ -61,10 +61,6 @@ func (handler *ParagraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 		})
 	}
 
-	for _, r := range results {
-		println(r.Id, r.Text, r.Pages, r.WorkId)
-	}
-
 	return ctx.JSON(http.StatusOK, results)
 }
 
