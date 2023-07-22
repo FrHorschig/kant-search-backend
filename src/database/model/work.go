@@ -5,4 +5,5 @@ type Work struct {
 	Title  string
 	Abbrev string
 	Volume int32
+	Year   int32
 }

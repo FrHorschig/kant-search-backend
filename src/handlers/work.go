@@ -41,7 +41,7 @@ func (handler *WorkHandlerImpl) PostWork(ctx echo.Context) error {
 		return errors.BadRequest(ctx, "Error reading request body")
 	}
 
-	workId, err := handler.workRepo.Insert(ctx.Request().Context(), model.Work{Title: work.Title, Abbrev: work.Abbreviation, Volume: work.Volume})
+	workId, err := handler.workRepo.Insert(ctx.Request().Context(), model.Work{Title: work.Title, Abbrev: work.Abbreviation, Volume: work.Volume, Year: work.Year})
 	if err != nil {
 		log.Error().Err(err).Msg("Error inserting work")
 		return errors.InternalServerError(ctx)
@@ -87,7 +87,7 @@ func (handler *WorkHandlerImpl) GetWork(ctx echo.Context) error {
 	}
 
 	for _, w := range works {
-		result = append(result, models.WorkMetadata{Id: w.Id, Title: w.Title, Abbreviation: w.Abbrev, Volume: w.Volume})
+		result = append(result, models.WorkMetadata{Id: w.Id, Title: w.Title, Abbreviation: w.Abbrev, Volume: w.Volume, Year: w.Year})
 	}
 	return ctx.JSON(http.StatusOK, result)
 }
