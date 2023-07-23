@@ -21,6 +21,9 @@ func NewParagraphReader(paragraphRepo repository.ParagraphRepo) ParagraphReader 
 }
 
 func (rec *ParagraphReaderImpl) FindOfPages(ctx context.Context, workId int32, startPage int32, endPage int32) ([]model.Paragraph, error) {
-	// TODO implement me
-	return nil, nil
+	paras, err := rec.paragraphRepo.SelectOfPages(ctx, workId, startPage, endPage)
+	if err != nil {
+		return nil, err
+	}
+	return paras, nil
 }

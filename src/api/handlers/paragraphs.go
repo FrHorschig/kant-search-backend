@@ -46,6 +46,9 @@ func (rec *ParagraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 		log.Error().Err(err).Msgf("Error reading paragraphs: %v", err)
 		return errors.InternalServerError(ctx)
 	}
+	if len(paragraphs) == 0 {
+		return errors.NotFound(ctx, "No paragraphs found")
+	}
 
 	apiParas := mapper.ParagraphsToApiModel(paragraphs)
 	return ctx.JSON(http.StatusOK, apiParas)
