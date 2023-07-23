@@ -35,17 +35,38 @@ func (proc *WorkProcessorImpl) Process(ctx context.Context, work model.Work) err
 		return err
 	}
 
-	rawParas := strings.Split(work.Text, "{pr}")
-	paras := make([]model.Paragraph, len(rawParas))
-	for i, rawPara := range rawParas {
+	paras := make([]model.Paragraph, 0)
+	lastTextPara := int32(0)
+	lastPage := int32(0)
+	for i, rawPara := range strings.Split(work.Text, "{pr}") {
 		para := strings.TrimSpace(rawPara)
 		p, err := extractModelData(para, workId)
 		if err != nil {
 			return err
 		}
-		paras[i] = p
+
+		if len(p.Pages) == 0 {
+			p.Pages = append(p.Pages, lastPage)
+		} else {
+			lastPage = p.Pages[len(p.Pages)-1]
+		}
+
+		if isFn(p) {
+			paras = append(paras, p)
+		} else {
+			var lastAdded model.Paragraph
+			if len(paras) > 0 {
+				lastAdded = paras[len(paras)-1]
+			}
+			if isFn(lastAdded) {
+				paras[lastTextPara].Text += " " + p.Text
+				paras[lastTextPara].Pages = append(paras[lastTextPara].Pages, p.Pages...)
+			} else {
+				paras = append(paras, p)
+				lastTextPara = int32(i)
+			}
+		}
 	}
-	paras = mergeParasAroundFootnotes(paras)
 	paras = removeEmptyParas(paras)
 
 	// For now remove all line numbering
@@ -54,12 +75,17 @@ func (proc *WorkProcessorImpl) Process(ctx context.Context, work model.Work) err
 		paras[i].Text = r.ReplaceAllString(paras[i].Text, " ")
 	}
 
-	// TODO write paragraphs to db
 	for _, p := range paras {
-		println(p.Text)
-		println("-------------------")
+		_, err := proc.paragraphRepo.Insert(ctx, p)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+func isFn(p model.Paragraph) bool {
+	return p.FootnoteName != ""
 }
 
 func extractModelData(p string, workId int32) (model.Paragraph, error) {
@@ -73,10 +99,7 @@ func extractModelData(p string, workId int32) (model.Paragraph, error) {
 		return model.Paragraph{}, err
 	}
 
-	para := model.Paragraph{Text: text, WorkId: workId, Pages: pages}
-	if footnoteName != "" {
-		para.FootnoteName = footnoteName
-	}
+	para := model.Paragraph{Text: text, WorkId: workId, Pages: pages, FootnoteName: footnoteName}
 	return para, nil
 }
 
@@ -96,39 +119,12 @@ func findPages(p string) ([]int32, error) {
 }
 
 func findTextOrFootnote(p string) (string, string, error) {
-	r, _ := regexp.Compile(`\{fn(\d+\.\d+)\}\{(\w+)\}`)
+	r, _ := regexp.Compile(`\{fn(\d+\.\d+)\}\{([^}]+)\}`)
 	match := r.FindStringSubmatch(p)
 	if len(match) > 0 {
 		return match[2], match[1], nil
 	}
 	return p, "", nil
-}
-
-func mergeParasAroundFootnotes(paras []model.Paragraph) []model.Paragraph {
-	merged := make([]model.Paragraph, 0)
-	for i, p := range paras {
-		if p.FootnoteName == "" && i > 0 && paras[i-1].FootnoteName != "" {
-			lastNormal := findLastNonFootnote(merged)
-			if lastNormal == -1 {
-				merged = append(merged, model.Paragraph{Text: p.Text, WorkId: p.WorkId, Pages: p.Pages})
-				continue
-			}
-			merged[lastNormal].Text += " " + p.Text
-			merged[lastNormal].Pages = append(merged[lastNormal].Pages, p.Pages...)
-		} else {
-			merged = append(merged, model.Paragraph{Text: p.Text, WorkId: p.WorkId, Pages: p.Pages})
-		}
-	}
-	return merged
-}
-
-func findLastNonFootnote(paras []model.Paragraph) int {
-	for i := len(paras) - 1; i >= 0; i-- {
-		if paras[i].FootnoteName == "" {
-			return i
-		}
-	}
-	return -1
 }
 
 func removeEmptyParas(paras []model.Paragraph) []model.Paragraph {
