@@ -5,12 +5,12 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/FrHorschig/kant-search-backend/core/model"
 )
 
 type WorkRepo interface {
-	Select(ctx context.Context, id int32) (model.Work, error)
-	SelectAll(ctx context.Context) ([]model.Work, error)
+	Select(ctx context.Context, id int32) (model.WorkMetadata, error)
+	SelectAll(ctx context.Context) ([]model.WorkMetadata, error)
 	Insert(ctx context.Context, work model.Work) (int32, error)
 }
 
@@ -24,12 +24,12 @@ func NewWorkRepo(db *sql.DB) WorkRepo {
 	}
 }
 
-func (repo *WorkRepoImpl) Select(ctx context.Context, id int32) (model.Work, error) {
-	var work model.Work
+func (repo *WorkRepoImpl) Select(ctx context.Context, id int32) (model.WorkMetadata, error) {
+	var work model.WorkMetadata
 	query := `SELECT * FROM works WHERE id=$1`
 	row := repo.db.QueryRowContext(ctx, query, id)
 
-	err := row.Scan(&work.Id, &work.Title, &work.Abbrev, &work.Volume, &work.Year)
+	err := row.Scan(&work.Id, &work.Title, &work.Abbreviation, &work.Volume, &work.Year)
 	if err != nil {
 		return work, err
 	}
@@ -37,7 +37,7 @@ func (repo *WorkRepoImpl) Select(ctx context.Context, id int32) (model.Work, err
 	return work, nil
 }
 
-func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
+func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.WorkMetadata, error) {
 	query := `SELECT * FROM works`
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
@@ -54,7 +54,7 @@ func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
 
 func (repo *WorkRepoImpl) Insert(ctx context.Context, work model.Work) (int32, error) {
 	query := `INSERT INTO works (title, abbrev, aa_volume, year) VALUES ($1, $2, $3, $4) RETURNING id`
-	row := repo.db.QueryRowContext(ctx, query, work.Title, work.Abbrev, work.Volume, work.Year)
+	row := repo.db.QueryRowContext(ctx, query, work.Title, work.Abbreviation, work.Volume, work.Year)
 
 	var id int32
 	err := row.Scan(&id)
@@ -65,11 +65,11 @@ func (repo *WorkRepoImpl) Insert(ctx context.Context, work model.Work) (int32, e
 	return id, nil
 }
 
-func scanWorkRows(rows *sql.Rows) ([]model.Work, error) {
-	works := make([]model.Work, 0)
+func scanWorkRows(rows *sql.Rows) ([]model.WorkMetadata, error) {
+	works := make([]model.WorkMetadata, 0)
 	for rows.Next() {
-		var work model.Work
-		err := rows.Scan(&work.Id, &work.Title, &work.Abbrev, &work.Volume, &work.Year)
+		var work model.WorkMetadata
+		err := rows.Scan(&work.Id, &work.Title, &work.Abbreviation, &work.Volume, &work.Year)
 		if err != nil {
 			return nil, fmt.Errorf("query row scan failed: %v", err)
 		}

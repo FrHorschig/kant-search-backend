@@ -8,8 +8,10 @@ import (
 
 	_ "github.com/lib/pq"
 
+	"github.com/FrHorschig/kant-search-backend/api/handlers"
+	"github.com/FrHorschig/kant-search-backend/core/read"
+	"github.com/FrHorschig/kant-search-backend/core/upload"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
-	"github.com/FrHorschig/kant-search-backend/handlers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -55,12 +57,17 @@ func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHan
 func main() {
 	db := initDbConnection()
 	defer db.Close()
+
 	workRepo := repository.NewWorkRepo(db)
 	paragraphRepo := repository.NewParagraphRepo(db)
 	sentenceRepo := repository.NewSentenceRepo(db)
 
-	workHandler := handlers.NewWorkHandler(workRepo, paragraphRepo, sentenceRepo)
-	paragraphHandler := handlers.NewParagraphHandler(paragraphRepo)
+	workProcessor := upload.NewWorkProcessor(workRepo, paragraphRepo, sentenceRepo)
+	workReader := read.NewWorkReader(workRepo)
+	paragraphReader := read.NewParagraphReader(paragraphRepo)
+
+	workHandler := handlers.NewWorkHandler(workProcessor, workReader)
+	paragraphHandler := handlers.NewParagraphHandler(paragraphReader)
 
 	e := initEchoServer()
 	registerHandlers(e, workHandler, paragraphHandler)

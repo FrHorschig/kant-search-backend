@@ -1,15 +1,14 @@
 package handlers
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/database/repository"
-	"github.com/FrHorschig/kant-search-backend/util/errors"
+	"github.com/FrHorschig/kant-search-backend/api/errors"
+	"github.com/FrHorschig/kant-search-backend/api/mapper"
+	"github.com/FrHorschig/kant-search-backend/core/read"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -19,17 +18,17 @@ type ParagraphHandler interface {
 }
 
 type ParagraphHandlerImpl struct {
-	paragraphRepo repository.ParagraphRepo
+	paragraphReader read.ParagraphReader
 }
 
-func NewParagraphHandler(paragraphRepo repository.ParagraphRepo) ParagraphHandler {
+func NewParagraphHandler(paragraphReader read.ParagraphReader) ParagraphHandler {
 	handlers := ParagraphHandlerImpl{
-		paragraphRepo: paragraphRepo,
+		paragraphReader: paragraphReader,
 	}
 	return &handlers
 }
 
-func (handler *ParagraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
+func (rec *ParagraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 	workId, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
@@ -42,26 +41,14 @@ func (handler *ParagraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 		return errors.BadRequest(ctx, "Invalid page range")
 	}
 
-	paragraphs, err := handler.paragraphRepo.SelectRange(ctx.Request().Context(), int32(workId), start, end)
-	results := make([]models.Paragraph, 0)
+	paragraphs, err := rec.paragraphReader.FindOfPages(ctx.Request().Context(), int32(workId), start, end)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return ctx.JSON(http.StatusOK, results)
-		}
-		log.Error().Err(err).Msgf("Error selecting paragraphs: %v", err)
+		log.Error().Err(err).Msgf("Error reading paragraphs: %v", err)
 		return errors.InternalServerError(ctx)
 	}
 
-	for _, paragraph := range paragraphs {
-		results = append(results, models.Paragraph{
-			Id:     paragraph.Id,
-			Text:   paragraph.Text,
-			Pages:  paragraph.Pages,
-			WorkId: paragraph.WorkId,
-		})
-	}
-
-	return ctx.JSON(http.StatusOK, results)
+	apiParas := mapper.ParagraphsToApiModel(paragraphs)
+	return ctx.JSON(http.StatusOK, apiParas)
 }
 
 func findPages(pageRange string) (start int32, end int32, err error) {
