@@ -38,7 +38,8 @@ func (proc *WorkProcessorImpl) Process(ctx context.Context, work model.Work) err
 	paras := make([]model.Paragraph, 0)
 	lastTextPara := int32(0)
 	lastPage := int32(0)
-	for i, rawPara := range strings.Split(work.Text, "{pr}") {
+	lastIsFn := false
+	for _, rawPara := range strings.Split(work.Text, "{pr}") {
 		para := strings.TrimSpace(rawPara)
 		p, err := extractModelData(para, workId)
 		if err != nil {
@@ -53,18 +54,16 @@ func (proc *WorkProcessorImpl) Process(ctx context.Context, work model.Work) err
 
 		if isFn(p) {
 			paras = append(paras, p)
+			lastIsFn = true
 		} else {
-			var lastAdded model.Paragraph
-			if len(paras) > 0 {
-				lastAdded = paras[len(paras)-1]
-			}
-			if isFn(lastAdded) {
+			if lastIsFn {
 				paras[lastTextPara].Text += " " + p.Text
 				paras[lastTextPara].Pages = append(paras[lastTextPara].Pages, p.Pages...)
 			} else {
 				paras = append(paras, p)
-				lastTextPara = int32(i)
+				lastTextPara = int32(len(paras) - 1)
 			}
+			lastIsFn = false
 		}
 	}
 	paras = removeEmptyParas(paras)
