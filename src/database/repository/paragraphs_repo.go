@@ -40,7 +40,7 @@ func (repo *ParagraphRepoImpl) Select(ctx context.Context, id int32) (model.Para
 
 func (repo *ParagraphRepoImpl) SelectOfPages(ctx context.Context, workId int32, start_id int32, end_id int32) ([]model.Paragraph, error) {
 	var paragraphs []model.Paragraph
-	query := `SELECT * FROM paragraphs WHERE work_id = $1 AND $2 <= ANY(pages) AND $3 >= ANY(pages)`
+	query := `SELECT * FROM paragraphs WHERE work_id = $1 AND $2 <= ANY(pages) AND $3 >= ANY(pages) ORDER BY id ASC`
 	rows, err := repo.db.QueryContext(ctx, query, workId, start_id, end_id)
 	if err != nil {
 		return nil, err
