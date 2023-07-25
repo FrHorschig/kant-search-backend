@@ -12,8 +12,8 @@ func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
 	}
 }
 
-func ResultToApiModel(result model.SearchResult) models.SearchResult {
-	return models.SearchResult{
+func ResultToApiModel(result model.ParagraphResults) models.ParagraphResults {
+	return models.ParagraphResults{
 		Paragraphs: ParagraphsToApiModel(result.Paragraphs),
 	}
 }
