@@ -10,6 +10,7 @@ import (
 
 	"github.com/FrHorschig/kant-search-backend/api/handlers"
 	"github.com/FrHorschig/kant-search-backend/core/read"
+	"github.com/FrHorschig/kant-search-backend/core/search"
 	"github.com/FrHorschig/kant-search-backend/core/upload"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/labstack/echo/v4"
@@ -42,7 +43,7 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHandler handlers.ParagraphHandler) {
+func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHandler handlers.ParagraphHandler, searchHander handlers.SearchHandler) {
 	e.POST("/api/v1/works", func(ctx echo.Context) error {
 		return workHandler.PostWork(ctx)
 	})
@@ -51,6 +52,9 @@ func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHan
 	})
 	e.GET("/api/v1/work/:id/paragraphs", func(ctx echo.Context) error {
 		return sectionHandler.GetParagraphs(ctx)
+	})
+	e.POST("/api/v1/search/paragraphs", func(ctx echo.Context) error {
+		return searchHander.SearchParagraphs(ctx)
 	})
 }
 
@@ -65,11 +69,13 @@ func main() {
 	workProcessor := upload.NewWorkProcessor(workRepo, paragraphRepo, sentenceRepo)
 	workReader := read.NewWorkReader(workRepo)
 	paragraphReader := read.NewParagraphReader(paragraphRepo)
+	paragraphSearcher := search.NewParagraphSearcher(paragraphRepo)
 
 	workHandler := handlers.NewWorkHandler(workProcessor, workReader)
 	paragraphHandler := handlers.NewParagraphHandler(paragraphReader)
+	searchHandler := handlers.NewSearchHandler(paragraphSearcher)
 
 	e := initEchoServer()
-	registerHandlers(e, workHandler, paragraphHandler)
+	registerHandlers(e, workHandler, paragraphHandler, searchHandler)
 	e.Logger.Fatal(e.StartTLS(":3000", "ssl/cert.pem", "ssl/key.pem"))
 }
