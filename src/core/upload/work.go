@@ -34,16 +34,36 @@ func (proc *WorkProcessorImpl) Process(ctx context.Context, work model.Work) err
 	if err != nil {
 		return err
 	}
+	paras, err := parseParas(work.Text, workId)
+	if err != nil {
+		return err
+	}
 
+	// For now remove all line numbering
+	r, _ := regexp.Compile(`\s*\{l\d+\}\s*`)
+	for i := range paras {
+		paras[i].Text = r.ReplaceAllString(paras[i].Text, " ")
+	}
+
+	for _, p := range paras {
+		_, err := proc.paragraphRepo.Insert(ctx, p)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func parseParas(text string, workId int32) ([]model.Paragraph, error) {
 	paras := make([]model.Paragraph, 0)
 	lastTextPara := int32(0)
 	lastPage := int32(0)
 	lastIsFn := false
-	for _, rawPara := range strings.Split(work.Text, "{pr}") {
+	for _, rawPara := range strings.Split(text, "{pr}") {
 		para := strings.TrimSpace(rawPara)
 		p, err := extractModelData(para, workId)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if len(p.Pages) == 0 {
@@ -66,21 +86,7 @@ func (proc *WorkProcessorImpl) Process(ctx context.Context, work model.Work) err
 			lastIsFn = false
 		}
 	}
-	paras = removeEmptyParas(paras)
-
-	// For now remove all line numbering
-	r, _ := regexp.Compile(`\s*\{l\d+\}\s*`)
-	for i := range paras {
-		paras[i].Text = r.ReplaceAllString(paras[i].Text, " ")
-	}
-
-	for _, p := range paras {
-		_, err := proc.paragraphRepo.Insert(ctx, p)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return removeEmptyParas(paras), nil
 }
 
 func isFn(p model.Paragraph) bool {
