@@ -48,7 +48,7 @@ func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHan
 		return workHandler.PostWork(ctx)
 	})
 	e.GET("/api/v1/works", func(ctx echo.Context) error {
-		return workHandler.GetWork(ctx)
+		return workHandler.GetWorks(ctx)
 	})
 	e.GET("/api/v1/work/:id/paragraphs", func(ctx echo.Context) error {
 		return sectionHandler.GetParagraphs(ctx)

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/FrHorschig/kant-search-api/models"
@@ -14,7 +15,7 @@ import (
 
 type WorkHandler interface {
 	PostWork(ctx echo.Context) error
-	GetWork(ctx echo.Context) error
+	GetWorks(ctx echo.Context) error
 }
 
 type WorkHandlerImpl struct {
@@ -44,12 +45,16 @@ func (rec *WorkHandlerImpl) PostWork(ctx echo.Context) error {
 		log.Error().Err(err).Msgf("Error processing work: %v", err)
 		return errors.InternalServerError(ctx)
 	}
+
 	return ctx.NoContent(http.StatusOK)
 }
 
-func (rec *WorkHandlerImpl) GetWork(ctx echo.Context) error {
+func (rec *WorkHandlerImpl) GetWorks(ctx echo.Context) error {
 	works, err := rec.workReader.FindAll(ctx.Request().Context())
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.NotFound(ctx, "No works found")
+		}
 		log.Error().Err(err).Msgf("Error reading works: %v", err)
 		return errors.InternalServerError(ctx)
 	}
