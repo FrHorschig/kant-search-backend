@@ -27,11 +27,11 @@ func (rec *SearchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 		return errors.BadRequest(ctx, err.Error())
 	}
 
-	paragraphs, err := rec.paragraphSearcher.Search(ctx.Request().Context(), criteria.WorkIds)
+	c := mapper.CriteriaToCoreModel(*criteria)
+	result, err := rec.paragraphSearcher.Search(ctx.Request().Context(), c)
 	if err != nil {
 		return errors.InternalServerError(ctx)
 	}
 
-	apiParas := mapper.ParagraphsToApiModel(paragraphs)
-	return ctx.JSON(200, apiParas)
+	return ctx.JSON(200, mapper.ResultToApiModel(result))
 }

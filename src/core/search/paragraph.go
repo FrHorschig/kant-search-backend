@@ -8,7 +8,7 @@ import (
 )
 
 type ParagraphSearcher interface {
-	Search(ctx context.Context, workIds []int32) ([]model.Paragraph, error)
+	Search(ctx context.Context, criteria model.SearchCriteria) (model.SearchResult, error)
 }
 
 type ParagraphSearcherImpl struct {
@@ -20,7 +20,7 @@ func NewParagraphSearcher(paragraphRepo repository.ParagraphRepo) ParagraphSearc
 	return &impl
 }
 
-func (rec *ParagraphSearcherImpl) Search(ctx context.Context, workIds []int32) ([]model.Paragraph, error) {
+func (rec *ParagraphSearcherImpl) Search(ctx context.Context, criteria model.SearchCriteria) (model.SearchResult, error) {
 	// TODO implement me
-	return nil, nil
+	return model.SearchResult{}, nil
 }
