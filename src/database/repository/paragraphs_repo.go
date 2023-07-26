@@ -13,6 +13,7 @@ type ParagraphRepo interface {
 	Select(ctx context.Context, id int32) (model.Paragraph, error)
 	SelectOfPages(ctx context.Context, workId int32, start_id int32, end_id int32) ([]model.Paragraph, error)
 	Insert(ctx context.Context, paragraph model.Paragraph) (int32, error)
+	UpdateText(ctx context.Context, paragraph model.Paragraph, reindex bool) error
 }
 
 type ParagraphRepoImpl struct {
@@ -65,6 +66,12 @@ func (repo *ParagraphRepoImpl) Insert(ctx context.Context, paragraphs model.Para
 	}
 
 	return id, nil
+}
+
+func (repo *ParagraphRepoImpl) UpdateText(ctx context.Context, paragraph model.Paragraph, reindex bool) error {
+	query := `UPDATE paragraphs SET text = $1, reindex = $2 where id = $3`
+	repo.db.QueryRowContext(ctx, query, paragraph.Text, reindex, paragraph.Id)
+	return nil
 }
 
 func scanParagraphRows(rows *sql.Rows) ([]model.Paragraph, error) {

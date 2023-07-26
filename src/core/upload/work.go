@@ -29,8 +29,8 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 	return &processor
 }
 
-func (proc *WorkProcessorImpl) Process(ctx context.Context, work model.Work) error {
-	workId, err := proc.workRepo.Insert(ctx, work)
+func (rec *WorkProcessorImpl) Process(ctx context.Context, work model.Work) error {
+	workId, err := rec.workRepo.Insert(ctx, work)
 	if err != nil {
 		return err
 	}
@@ -45,8 +45,25 @@ func (proc *WorkProcessorImpl) Process(ctx context.Context, work model.Work) err
 		paras[i].Text = r.ReplaceAllString(paras[i].Text, " ")
 	}
 
-	for _, p := range paras {
-		_, err := proc.paragraphRepo.Insert(ctx, p)
+	rec.insertParagraphs(ctx, paras)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (rec *WorkProcessorImpl) insertParagraphs(ctx context.Context, paragraphs []model.Paragraph) error {
+	for _, p := range paragraphs {
+		text := p.Text
+		p.Text = removeFormatting(p.Text)
+		id, err := rec.paragraphRepo.Insert(ctx, p)
+		if err != nil {
+			return err
+		}
+		p.Id = id
+		p.Text = text
+		err = rec.paragraphRepo.UpdateText(ctx, p, false)
 		if err != nil {
 			return err
 		}
@@ -140,4 +157,13 @@ func removeEmptyParas(paras []model.Paragraph) []model.Paragraph {
 		}
 	}
 	return filtered
+}
+
+func removeFormatting(text string) string {
+	re := regexp.MustCompile("<[^>]*>")
+	text = re.ReplaceAllString(text, " ")
+	re = regexp.MustCompile(`\{[^}]*\}`)
+	text = re.ReplaceAllString(text, " ")
+	re = regexp.MustCompile(`\s+`)
+	return re.ReplaceAllString(text, " ")
 }
