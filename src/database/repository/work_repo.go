@@ -46,6 +46,9 @@ func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.WorkMetadata, 
 
 	works, err := scanWorkRows(rows)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return []model.WorkMetadata{}, nil
+		}
 		return nil, err
 	}
 

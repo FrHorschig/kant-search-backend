@@ -1,5 +1,6 @@
 package model
 
 type ParagraphResults struct {
-	Paragraphs []Paragraph
+	Paragraphs   []Paragraph
+	MatchedWords []string
 }

@@ -21,6 +21,14 @@ func NewParagraphSearcher(paragraphRepo repository.ParagraphRepo) ParagraphSearc
 }
 
 func (rec *ParagraphSearcherImpl) Search(ctx context.Context, criteria model.SearchCriteria) (model.ParagraphResults, error) {
-	// TODO implement me
-	return model.ParagraphResults{}, nil
+	paras, err := rec.paragraphRepo.Search(ctx, criteria)
+	if err != nil {
+		return model.ParagraphResults{}, err
+	}
+
+	results := model.ParagraphResults{
+		Paragraphs:   paras,
+		MatchedWords: criteria.SearchWords,
+	}
+	return results, nil
 }

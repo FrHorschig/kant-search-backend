@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/FrHorschig/kant-search-api/models"
@@ -52,11 +51,12 @@ func (rec *WorkHandlerImpl) PostWork(ctx echo.Context) error {
 func (rec *WorkHandlerImpl) GetWorks(ctx echo.Context) error {
 	works, err := rec.workReader.FindAll(ctx.Request().Context())
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return errors.NotFound(ctx, "No works found")
-		}
 		log.Error().Err(err).Msgf("Error reading works: %v", err)
 		return errors.InternalServerError(ctx)
+	}
+
+	if len(works) == 0 {
+		return errors.NotFound(ctx, "No works found")
 	}
 
 	apiWorks := mapper.WorkMetadataToApiModel(works)
