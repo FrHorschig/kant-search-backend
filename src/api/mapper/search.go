@@ -14,6 +14,7 @@ func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
 
 func ResultToApiModel(result model.ParagraphResults) models.ParagraphResults {
 	return models.ParagraphResults{
-		Paragraphs: ParagraphsToApiModel(result.Paragraphs),
+		Paragraphs:  ParagraphsToApiModel(result.Paragraphs),
+		SearchWords: result.MatchedWords,
 	}
 }
