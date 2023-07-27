@@ -69,9 +69,6 @@ func (repo *ParagraphRepoImpl) Search(ctx context.Context, searchCriteria model.
 	}
 
 	paras, err := scanParagraphRows(rows)
-	for _, para := range paras {
-		println(para.Text)
-	}
 	if err == sql.ErrNoRows {
 		return []model.Paragraph{}, nil
 	}
