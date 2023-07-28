@@ -7,28 +7,23 @@ import (
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 )
 
-type ParagraphSearcher interface {
-	Search(ctx context.Context, criteria model.SearchCriteria) (model.ParagraphResults, error)
+type Searcher interface {
+	SearchParagraphs(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchMatch, error)
 }
 
-type ParagraphSearcherImpl struct {
-	paragraphRepo repository.ParagraphRepo
+type SearcherImpl struct {
+	searchRepo repository.SearchRepo
 }
 
-func NewParagraphSearcher(paragraphRepo repository.ParagraphRepo) ParagraphSearcher {
-	impl := ParagraphSearcherImpl{paragraphRepo: paragraphRepo}
+func NewSearcher(searchRepo repository.SearchRepo) Searcher {
+	impl := SearcherImpl{searchRepo: searchRepo}
 	return &impl
 }
 
-func (rec *ParagraphSearcherImpl) Search(ctx context.Context, criteria model.SearchCriteria) (model.ParagraphResults, error) {
-	paras, err := rec.paragraphRepo.Search(ctx, criteria)
+func (rec *SearcherImpl) SearchParagraphs(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchMatch, error) {
+	matches, err := rec.searchRepo.SearchParagraphs(ctx, criteria)
 	if err != nil {
-		return model.ParagraphResults{}, err
+		return nil, err
 	}
-
-	results := model.ParagraphResults{
-		Paragraphs:   paras,
-		MatchedWords: criteria.SearchWords,
-	}
-	return results, nil
+	return matches, nil
 }

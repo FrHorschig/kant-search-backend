@@ -13,11 +13,11 @@ type SearchHandler interface {
 }
 
 type SearchHandlerImpl struct {
-	paragraphSearcher search.ParagraphSearcher
+	searcher search.Searcher
 }
 
-func NewSearchHandler(paragraphSearcher search.ParagraphSearcher) SearchHandler {
-	impl := SearchHandlerImpl{paragraphSearcher: paragraphSearcher}
+func NewSearchHandler(searcher search.Searcher) SearchHandler {
+	impl := SearchHandlerImpl{searcher: searcher}
 	return &impl
 }
 
@@ -28,10 +28,10 @@ func (rec *SearchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 	}
 
 	c := mapper.CriteriaToCoreModel(*criteria)
-	result, err := rec.paragraphSearcher.Search(ctx.Request().Context(), c)
+	matches, err := rec.searcher.SearchParagraphs(ctx.Request().Context(), c)
 	if err != nil {
 		return errors.InternalServerError(ctx)
 	}
 
-	return ctx.JSON(200, mapper.ResultToApiModel(result))
+	return ctx.JSON(200, mapper.ResultToApiModel(matches))
 }

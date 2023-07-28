@@ -5,20 +5,21 @@ import (
 	"github.com/FrHorschig/kant-search-backend/core/model"
 )
 
-func WorkToCoreModel(work models.Work) model.Work {
+func WorkUploadToCoreModel(work models.WorkUpload) model.Work {
 	return model.Work{
 		Title:        work.Title,
 		Abbreviation: work.Abbreviation,
 		Text:         work.Text,
 		Volume:       work.Volume,
+		Ordinal:      work.Ordinal,
 		Year:         work.Year,
 	}
 }
 
-func WorkMetadataToApiModel(works []model.WorkMetadata) []models.WorkMetadata {
-	apiModels := make([]models.WorkMetadata, 0)
+func WorkToApiModel(works []model.Work) []models.Work {
+	apiModels := make([]models.Work, 0)
 	for _, work := range works {
-		apiModels = append(apiModels, models.WorkMetadata{
+		apiModels = append(apiModels, models.Work{
 			Id:           work.Id,
 			Title:        work.Title,
 			Abbreviation: work.Abbreviation,

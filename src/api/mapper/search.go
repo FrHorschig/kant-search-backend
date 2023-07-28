@@ -12,9 +12,8 @@ func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
 	}
 }
 
-func ResultToApiModel(result model.ParagraphResults) models.ParagraphResults {
-	return models.ParagraphResults{
-		Paragraphs:  ParagraphsToApiModel(result.Paragraphs),
-		SearchWords: result.MatchedWords,
-	}
+func ResultToApiModel(result []model.SearchMatch) []models.SearchResult {
+	results := make([]models.SearchResult, len(result))
+	// TODO implement me
+	return results
 }

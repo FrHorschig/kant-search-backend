@@ -9,8 +9,7 @@ import (
 )
 
 type WorkRepo interface {
-	Select(ctx context.Context, id int32) (model.WorkMetadata, error)
-	SelectAll(ctx context.Context) ([]model.WorkMetadata, error)
+	SelectAll(ctx context.Context) ([]model.Work, error)
 	Insert(ctx context.Context, work model.Work) (int32, error)
 }
 
@@ -24,20 +23,7 @@ func NewWorkRepo(db *sql.DB) WorkRepo {
 	}
 }
 
-func (repo *WorkRepoImpl) Select(ctx context.Context, id int32) (model.WorkMetadata, error) {
-	var work model.WorkMetadata
-	query := `SELECT * FROM works WHERE id=$1`
-	row := repo.db.QueryRowContext(ctx, query, id)
-
-	err := row.Scan(&work.Id, &work.Title, &work.Abbreviation, &work.Volume, &work.Year)
-	if err != nil {
-		return work, err
-	}
-
-	return work, nil
-}
-
-func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.WorkMetadata, error) {
+func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
 	query := `SELECT * FROM works`
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
@@ -47,7 +33,7 @@ func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.WorkMetadata, 
 	works, err := scanWorkRows(rows)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return []model.WorkMetadata{}, nil
+			return []model.Work{}, nil
 		}
 		return nil, err
 	}
@@ -68,10 +54,10 @@ func (repo *WorkRepoImpl) Insert(ctx context.Context, work model.Work) (int32, e
 	return id, nil
 }
 
-func scanWorkRows(rows *sql.Rows) ([]model.WorkMetadata, error) {
-	works := make([]model.WorkMetadata, 0)
+func scanWorkRows(rows *sql.Rows) ([]model.Work, error) {
+	works := make([]model.Work, 0)
 	for rows.Next() {
-		var work model.WorkMetadata
+		var work model.Work
 		err := rows.Scan(&work.Id, &work.Title, &work.Abbreviation, &work.Volume, &work.Year)
 		if err != nil {
 			return nil, fmt.Errorf("query row scan failed: %v", err)

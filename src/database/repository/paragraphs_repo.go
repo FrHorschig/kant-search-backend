@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strings"
 
 	"github.com/FrHorschig/kant-search-backend/core/model"
 	"github.com/lib/pq"
@@ -13,8 +12,7 @@ import (
 type ParagraphRepo interface {
 	Insert(ctx context.Context, paragraph model.Paragraph) (int32, error)
 	UpdateText(ctx context.Context, paragraph model.Paragraph, reindex bool) error
-	SelectOfPages(ctx context.Context, workId int32, start_id int32, end_id int32) ([]model.Paragraph, error)
-	Search(ctx context.Context, searchTerms model.SearchCriteria) ([]model.Paragraph, error)
+	SelectOfPages(ctx context.Context, workId int32, page_start int32, page_end int32) ([]model.Paragraph, error)
 }
 
 type ParagraphRepoImpl struct {
@@ -46,24 +44,9 @@ func (repo *ParagraphRepoImpl) UpdateText(ctx context.Context, paragraph model.P
 	return nil
 }
 
-func (repo *ParagraphRepoImpl) SelectOfPages(ctx context.Context, workId int32, start_id int32, end_id int32) ([]model.Paragraph, error) {
+func (repo *ParagraphRepoImpl) SelectOfPages(ctx context.Context, workId int32, page_start int32, page_end int32) ([]model.Paragraph, error) {
 	query := `SELECT id, text, pages, work_id FROM paragraphs WHERE work_id = $1 AND $2 <= ANY(pages) AND $3 >= ANY(pages) ORDER BY id ASC`
-	rows, err := repo.db.QueryContext(ctx, query, workId, start_id, end_id)
-	if err != nil {
-		return nil, err
-	}
-
-	paras, err := scanParagraphRows(rows)
-	if err == sql.ErrNoRows {
-		return []model.Paragraph{}, nil
-	}
-	return paras, err
-}
-
-func (repo *ParagraphRepoImpl) Search(ctx context.Context, searchCriteria model.SearchCriteria) ([]model.Paragraph, error) {
-	searchString := strings.Join(searchCriteria.SearchWords, " & ")
-	query := `SELECT id, text, pages, work_id FROM paragraphs WHERE work_id = ANY($1) AND search @@ to_tsquery('german', $2)`
-	rows, err := repo.db.QueryContext(ctx, query, pq.Array(searchCriteria.WorkIds), searchString)
+	rows, err := repo.db.QueryContext(ctx, query, workId, page_start, page_end)
 	if err != nil {
 		return nil, err
 	}

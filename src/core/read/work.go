@@ -8,7 +8,7 @@ import (
 )
 
 type WorkReader interface {
-	FindAll(ctx context.Context) ([]model.WorkMetadata, error)
+	FindAll(ctx context.Context) ([]model.Work, error)
 }
 
 type WorkReaderImpl struct {
@@ -20,7 +20,7 @@ func NewWorkReader(workRepo repository.WorkRepo) WorkReader {
 	return &impl
 }
 
-func (rec *WorkReaderImpl) FindAll(ctx context.Context) ([]model.WorkMetadata, error) {
+func (rec *WorkReaderImpl) FindAll(ctx context.Context) ([]model.Work, error) {
 	works, err := rec.workRepo.SelectAll(ctx)
 	if err != nil {
 		return nil, err

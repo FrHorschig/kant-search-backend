@@ -31,14 +31,14 @@ func NewWorkHandler(workProcessor processing.WorkProcessor, workReader read.Work
 }
 
 func (rec *WorkHandlerImpl) PostWork(ctx echo.Context) error {
-	work := new(models.Work)
+	work := new(models.WorkUpload)
 	if err := ctx.Bind(work); err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
 		return errors.BadRequest(ctx, "Error reading request body")
 	}
 
 	context := ctx.Request().Context()
-	coreModel := mapper.WorkToCoreModel(*work)
+	coreModel := mapper.WorkUploadToCoreModel(*work)
 	err := rec.workProcessor.Process(context, coreModel)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error processing work: %v", err)
@@ -59,6 +59,6 @@ func (rec *WorkHandlerImpl) GetWorks(ctx echo.Context) error {
 		return errors.NotFound(ctx, "No works found")
 	}
 
-	apiWorks := mapper.WorkMetadataToApiModel(works)
+	apiWorks := mapper.WorkToApiModel(works)
 	return ctx.JSON(http.StatusOK, apiWorks)
 }

@@ -65,15 +65,16 @@ func main() {
 	workRepo := repository.NewWorkRepo(db)
 	paragraphRepo := repository.NewParagraphRepo(db)
 	sentenceRepo := repository.NewSentenceRepo(db)
+	searchRepo := repository.NewSearchRepo(db)
 
 	workProcessor := upload.NewWorkProcessor(workRepo, paragraphRepo, sentenceRepo)
 	workReader := read.NewWorkReader(workRepo)
 	paragraphReader := read.NewParagraphReader(paragraphRepo)
-	paragraphSearcher := search.NewParagraphSearcher(paragraphRepo)
+	searcher := search.NewSearcher(searchRepo)
 
 	workHandler := handlers.NewWorkHandler(workProcessor, workReader)
 	paragraphHandler := handlers.NewParagraphHandler(paragraphReader)
-	searchHandler := handlers.NewSearchHandler(paragraphSearcher)
+	searchHandler := handlers.NewSearchHandler(searcher)
 
 	e := initEchoServer()
 	registerHandlers(e, workHandler, paragraphHandler, searchHandler)
