@@ -7,7 +7,7 @@ import (
 
 func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
 	return model.SearchCriteria{
-		SearchWords: criteria.SearchWords,
+		SearchTerms: criteria.SearchTerms,
 		WorkIds:     criteria.WorkIds,
 	}
 }
