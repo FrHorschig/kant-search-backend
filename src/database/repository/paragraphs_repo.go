@@ -45,7 +45,7 @@ func (repo *ParagraphRepoImpl) UpdateText(ctx context.Context, paragraph model.P
 }
 
 func (repo *ParagraphRepoImpl) SelectOfPages(ctx context.Context, workId int32, page_start int32, page_end int32) ([]model.Paragraph, error) {
-	query := `SELECT id, text, pages, work_id FROM paragraphs WHERE work_id = $1 AND $2 <= ANY(pages) AND $3 >= ANY(pages) ORDER BY id ASC`
+	query := `SELECT id, text, pages, work_id FROM paragraphs WHERE work_id = $1 AND $2 <= ANY(pages) AND $3 >= ANY(pages) ORDER BY id`
 	rows, err := repo.db.QueryContext(ctx, query, workId, page_start, page_end)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func scanParagraphRows(rows *sql.Rows) ([]model.Paragraph, error) {
 		var pages pq.Int64Array
 		err := rows.Scan(&work.Id, &work.Text, &pages, &work.WorkId)
 		if err != nil {
-			return nil, fmt.Errorf("query row scan failed: %v", err)
+			return nil, fmt.Errorf("paragraph row scan failed: %v", err)
 		}
 		work.Pages = make([]int32, len(pages))
 		for i, page := range pages {
