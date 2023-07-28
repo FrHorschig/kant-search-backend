@@ -17,7 +17,7 @@ func MatchesToApiModel(matches []model.SearchMatch) []models.SearchResult {
 	var currentResult *models.SearchResult
 
 	for _, coreMatch := range matches {
-		if isNewVolume(currentResult, coreMatch) {
+		if isNewWork(currentResult, coreMatch) {
 			if currentResult != nil {
 				results = append(results, *currentResult)
 			}
@@ -42,6 +42,6 @@ func MatchesToApiModel(matches []model.SearchMatch) []models.SearchResult {
 	return results
 }
 
-func isNewVolume(currentResult *models.SearchResult, match model.SearchMatch) bool {
-	return currentResult == nil || currentResult.Volume != match.Volume
+func isNewWork(currentResult *models.SearchResult, match model.SearchMatch) bool {
+	return currentResult == nil || currentResult.WorkTitle != match.WorkTitle
 }
