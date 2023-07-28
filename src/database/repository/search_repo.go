@@ -31,7 +31,7 @@ func (repo *SearchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria
 		FROM paragraphs p 
 		JOIN works w ON p.work_id = w.id 
 		WHERE work_id = ANY($1) AND search @@ to_tsquery('german', $2)
-		ORDER BY w.volume, w.title, p.id`
+		ORDER BY w.volume, w.ordinal, p.id`
 	rows, err := repo.db.QueryContext(ctx, query, pq.Array(searchCriteria.WorkIds), searchString)
 	if err != nil {
 		return nil, err
