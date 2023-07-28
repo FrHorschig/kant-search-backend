@@ -24,7 +24,7 @@ func NewWorkRepo(db *sql.DB) WorkRepo {
 }
 
 func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
-	query := `SELECT * FROM works`
+	query := `SELECT * FROM works ORDER BY ordinal`
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
@@ -42,8 +42,8 @@ func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
 }
 
 func (repo *WorkRepoImpl) Insert(ctx context.Context, work model.Work) (int32, error) {
-	query := `INSERT INTO works (title, abbrev, aa_volume, year) VALUES ($1, $2, $3, $4) RETURNING id`
-	row := repo.db.QueryRowContext(ctx, query, work.Title, work.Abbreviation, work.Volume, work.Year)
+	query := `INSERT INTO works (title, abbreviation, volume, ordinal, year) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	row := repo.db.QueryRowContext(ctx, query, work.Title, work.Abbreviation, work.Volume, work.Ordinal, work.Year)
 
 	var id int32
 	err := row.Scan(&id)
@@ -58,7 +58,7 @@ func scanWorkRows(rows *sql.Rows) ([]model.Work, error) {
 	works := make([]model.Work, 0)
 	for rows.Next() {
 		var work model.Work
-		err := rows.Scan(&work.Id, &work.Title, &work.Abbreviation, &work.Volume, &work.Year)
+		err := rows.Scan(&work.Id, &work.Title, &work.Abbreviation, &work.Volume, &work.Ordinal, &work.Year)
 		if err != nil {
 			return nil, fmt.Errorf("query row scan failed: %v", err)
 		}
