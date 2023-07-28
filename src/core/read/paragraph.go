@@ -11,16 +11,16 @@ type ParagraphReader interface {
 	FindOfPages(ctx context.Context, workId int32, startPage int32, endPage int32) ([]model.Paragraph, error)
 }
 
-type ParagraphReaderImpl struct {
+type paragraphReaderImpl struct {
 	paragraphRepo repository.ParagraphRepo
 }
 
 func NewParagraphReader(paragraphRepo repository.ParagraphRepo) ParagraphReader {
-	impl := ParagraphReaderImpl{paragraphRepo: paragraphRepo}
+	impl := paragraphReaderImpl{paragraphRepo: paragraphRepo}
 	return &impl
 }
 
-func (rec *ParagraphReaderImpl) FindOfPages(ctx context.Context, workId int32, startPage int32, endPage int32) ([]model.Paragraph, error) {
+func (rec *paragraphReaderImpl) FindOfPages(ctx context.Context, workId int32, startPage int32, endPage int32) ([]model.Paragraph, error) {
 	paras, err := rec.paragraphRepo.SelectOfPages(ctx, workId, startPage, endPage)
 	if err != nil {
 		return nil, err

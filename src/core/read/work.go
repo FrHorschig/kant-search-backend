@@ -11,16 +11,16 @@ type WorkReader interface {
 	FindAll(ctx context.Context) ([]model.Work, error)
 }
 
-type WorkReaderImpl struct {
+type workReaderImpl struct {
 	workRepo repository.WorkRepo
 }
 
 func NewWorkReader(workRepo repository.WorkRepo) WorkReader {
-	impl := WorkReaderImpl{workRepo: workRepo}
+	impl := workReaderImpl{workRepo: workRepo}
 	return &impl
 }
 
-func (rec *WorkReaderImpl) FindAll(ctx context.Context) ([]model.Work, error) {
+func (rec *workReaderImpl) FindAll(ctx context.Context) ([]model.Work, error) {
 	works, err := rec.workRepo.SelectAll(ctx)
 	if err != nil {
 		return nil, err

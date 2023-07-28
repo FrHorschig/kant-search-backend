@@ -13,14 +13,14 @@ type WorkProcessor interface {
 	Process(ctx context.Context, work model.Work) error
 }
 
-type WorkProcessorImpl struct {
+type workProcessorImpl struct {
 	workRepo      repository.WorkRepo
 	paragraphRepo repository.ParagraphRepo
 	sentenceRepo  repository.SentenceRepo
 }
 
 func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) WorkProcessor {
-	processor := WorkProcessorImpl{
+	processor := workProcessorImpl{
 		workRepo:      workRepo,
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
@@ -28,7 +28,7 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 	return &processor
 }
 
-func (rec *WorkProcessorImpl) Process(ctx context.Context, work model.Work) error {
+func (rec *workProcessorImpl) Process(ctx context.Context, work model.Work) error {
 	workId, err := rec.workRepo.Insert(ctx, work)
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func (rec *WorkProcessorImpl) Process(ctx context.Context, work model.Work) erro
 	return nil
 }
 
-func (rec *WorkProcessorImpl) insertParagraphs(ctx context.Context, paragraphs []model.Paragraph) error {
+func (rec *workProcessorImpl) insertParagraphs(ctx context.Context, paragraphs []model.Paragraph) error {
 	for _, p := range paragraphs {
 		text := p.Text
 		p.Text = processing.RemoveFormatting(p.Text)

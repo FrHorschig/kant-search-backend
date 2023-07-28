@@ -14,18 +14,18 @@ type SearchRepo interface {
 	SearchParagraphs(ctx context.Context, searchTerms model.SearchCriteria) ([]model.SearchMatch, error)
 }
 
-type SearchRepoImpl struct {
+type searchRepoImpl struct {
 	db *sql.DB
 }
 
 func NewSearchRepo(db *sql.DB) SearchRepo {
-	impl := SearchRepoImpl{
+	impl := searchRepoImpl{
 		db: db,
 	}
 	return &impl
 }
 
-func (repo *SearchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria model.SearchCriteria) ([]model.SearchMatch, error) {
+func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria model.SearchCriteria) ([]model.SearchMatch, error) {
 	searchString := strings.Join(searchCriteria.SearchTerms, " & ")
 	query := `SELECT w.volume, w.title, p.text, p.pages, p.id
 		FROM paragraphs p 

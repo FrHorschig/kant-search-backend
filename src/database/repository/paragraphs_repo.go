@@ -15,17 +15,17 @@ type ParagraphRepo interface {
 	SelectOfPages(ctx context.Context, workId int32, page_start int32, page_end int32) ([]model.Paragraph, error)
 }
 
-type ParagraphRepoImpl struct {
+type paragraphRepoImpl struct {
 	db *sql.DB
 }
 
 func NewParagraphRepo(db *sql.DB) ParagraphRepo {
-	return &ParagraphRepoImpl{
+	return &paragraphRepoImpl{
 		db: db,
 	}
 }
 
-func (repo *ParagraphRepoImpl) Insert(ctx context.Context, paragraphs model.Paragraph) (int32, error) {
+func (repo *paragraphRepoImpl) Insert(ctx context.Context, paragraphs model.Paragraph) (int32, error) {
 	var id int32
 	query := `INSERT INTO paragraphs (text, pages, work_id, reindex) VALUES ($1, $2, $3, $4) RETURNING id`
 	row := repo.db.QueryRowContext(ctx, query, paragraphs.Text, pq.Array(paragraphs.Pages), paragraphs.WorkId, true)
@@ -38,13 +38,13 @@ func (repo *ParagraphRepoImpl) Insert(ctx context.Context, paragraphs model.Para
 	return id, nil
 }
 
-func (repo *ParagraphRepoImpl) UpdateText(ctx context.Context, paragraph model.Paragraph, reindex bool) error {
+func (repo *paragraphRepoImpl) UpdateText(ctx context.Context, paragraph model.Paragraph, reindex bool) error {
 	query := `UPDATE paragraphs SET text = $1, reindex = $2 where id = $3`
 	repo.db.ExecContext(ctx, query, paragraph.Text, reindex, paragraph.Id)
 	return nil
 }
 
-func (repo *ParagraphRepoImpl) SelectOfPages(ctx context.Context, workId int32, page_start int32, page_end int32) ([]model.Paragraph, error) {
+func (repo *paragraphRepoImpl) SelectOfPages(ctx context.Context, workId int32, page_start int32, page_end int32) ([]model.Paragraph, error) {
 	query := `SELECT id, text, pages, work_id FROM paragraphs WHERE work_id = $1 AND $2 <= ANY(pages) AND $3 >= ANY(pages) ORDER BY id`
 	rows, err := repo.db.QueryContext(ctx, query, workId, page_start, page_end)
 	if err != nil {

@@ -12,16 +12,16 @@ type SearchHandler interface {
 	SearchParagraphs(ctx echo.Context) error
 }
 
-type SearchHandlerImpl struct {
+type searchHandlerImpl struct {
 	searcher search.Searcher
 }
 
 func NewSearchHandler(searcher search.Searcher) SearchHandler {
-	impl := SearchHandlerImpl{searcher: searcher}
+	impl := searchHandlerImpl{searcher: searcher}
 	return &impl
 }
 
-func (rec *SearchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
+func (rec *searchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 	criteria := new(models.SearchCriteria)
 	if err := ctx.Bind(criteria); err != nil {
 		return errors.BadRequest(ctx, err.Error())

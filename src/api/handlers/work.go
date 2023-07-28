@@ -17,20 +17,20 @@ type WorkHandler interface {
 	GetWorks(ctx echo.Context) error
 }
 
-type WorkHandlerImpl struct {
+type workHandlerImpl struct {
 	workProcessor processing.WorkProcessor
 	workReader    read.WorkReader
 }
 
 func NewWorkHandler(workProcessor processing.WorkProcessor, workReader read.WorkReader) WorkHandler {
-	impl := WorkHandlerImpl{
+	impl := workHandlerImpl{
 		workProcessor: workProcessor,
 		workReader:    workReader,
 	}
 	return &impl
 }
 
-func (rec *WorkHandlerImpl) PostWork(ctx echo.Context) error {
+func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 	work := new(models.WorkUpload)
 	if err := ctx.Bind(work); err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
@@ -48,7 +48,7 @@ func (rec *WorkHandlerImpl) PostWork(ctx echo.Context) error {
 	return ctx.NoContent(http.StatusOK)
 }
 
-func (rec *WorkHandlerImpl) GetWorks(ctx echo.Context) error {
+func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {
 	works, err := rec.workReader.FindAll(ctx.Request().Context())
 	if err != nil {
 		log.Error().Err(err).Msgf("Error reading works: %v", err)

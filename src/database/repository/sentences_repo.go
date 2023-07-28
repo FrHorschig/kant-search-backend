@@ -12,17 +12,17 @@ type SentenceRepo interface {
 	Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error)
 }
 
-type SentenceRepoImpl struct {
+type sentenceRepoImpl struct {
 	db *sql.DB
 }
 
 func NewSentenceRepo(db *sql.DB) SentenceRepo {
-	return &SentenceRepoImpl{
+	return &sentenceRepoImpl{
 		db: db,
 	}
 }
 
-func (repo *SentenceRepoImpl) Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error) {
+func (repo *sentenceRepoImpl) Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error) {
 	query := `INSERT INTO sentences (text, paragraph_id, work_id) VALUES `
 	values := make([]interface{}, 0)
 	for i, sentence := range sentences {

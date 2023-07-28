@@ -13,17 +13,17 @@ type WorkRepo interface {
 	Insert(ctx context.Context, work model.Work) (int32, error)
 }
 
-type WorkRepoImpl struct {
+type workRepoImpl struct {
 	db *sql.DB
 }
 
 func NewWorkRepo(db *sql.DB) WorkRepo {
-	return &WorkRepoImpl{
+	return &workRepoImpl{
 		db: db,
 	}
 }
 
-func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
+func (repo *workRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
 	query := `SELECT * FROM works ORDER BY ordinal`
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
@@ -41,7 +41,7 @@ func (repo *WorkRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
 	return works, nil
 }
 
-func (repo *WorkRepoImpl) Insert(ctx context.Context, work model.Work) (int32, error) {
+func (repo *workRepoImpl) Insert(ctx context.Context, work model.Work) (int32, error) {
 	query := `INSERT INTO works (title, abbreviation, volume, ordinal, year) VALUES ($1, $2, $3, $4, $5) RETURNING id`
 	row := repo.db.QueryRowContext(ctx, query, work.Title, work.Abbreviation, work.Volume, work.Ordinal, work.Year)
 

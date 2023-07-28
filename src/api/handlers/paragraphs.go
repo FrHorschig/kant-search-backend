@@ -17,18 +17,18 @@ type ParagraphHandler interface {
 	GetParagraphs(ctx echo.Context) error
 }
 
-type ParagraphHandlerImpl struct {
+type paragraphHandlerImpl struct {
 	paragraphReader read.ParagraphReader
 }
 
 func NewParagraphHandler(paragraphReader read.ParagraphReader) ParagraphHandler {
-	handlers := ParagraphHandlerImpl{
+	handlers := paragraphHandlerImpl{
 		paragraphReader: paragraphReader,
 	}
 	return &handlers
 }
 
-func (rec *ParagraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
+func (rec *paragraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 	workId, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing work id: %v", err)

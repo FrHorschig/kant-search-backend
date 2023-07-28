@@ -11,16 +11,16 @@ type Searcher interface {
 	SearchParagraphs(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchMatch, error)
 }
 
-type SearcherImpl struct {
+type searcherImpl struct {
 	searchRepo repository.SearchRepo
 }
 
 func NewSearcher(searchRepo repository.SearchRepo) Searcher {
-	impl := SearcherImpl{searchRepo: searchRepo}
+	impl := searcherImpl{searchRepo: searchRepo}
 	return &impl
 }
 
-func (rec *SearcherImpl) SearchParagraphs(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchMatch, error) {
+func (rec *searcherImpl) SearchParagraphs(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchMatch, error) {
 	matches, err := rec.searchRepo.SearchParagraphs(ctx, criteria)
 	if err != nil {
 		return nil, err
