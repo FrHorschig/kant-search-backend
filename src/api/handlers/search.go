@@ -33,5 +33,5 @@ func (rec *SearchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 		return errors.InternalServerError(ctx)
 	}
 
-	return ctx.JSON(200, mapper.ResultToApiModel(matches))
+	return ctx.JSON(200, mapper.MatchesToApiModel(matches))
 }
