@@ -27,7 +27,7 @@ func NewSearchRepo(db *sql.DB) SearchRepo {
 
 func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria model.SearchCriteria) ([]model.SearchMatch, error) {
 	searchString := strings.Join(searchCriteria.SearchTerms, " & ")
-	query := `SELECT w.volume, w.title, p.text, p.pages, p.id
+	query := `SELECT w.volume, w.title, ts_headline('german', p.text, to_tsquery('german', $2), 'FragmentDelimiter=" ... ", MaxFragments=10, MaxWords=10, MinWords=3'), p.pages, p.id
 		FROM paragraphs p 
 		JOIN works w ON p.work_id = w.id 
 		WHERE work_id = ANY($1) AND search @@ to_tsquery('german', $2)
