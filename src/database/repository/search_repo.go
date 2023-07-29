@@ -48,8 +48,7 @@ func scanSearchMatchRow(rows *sql.Rows) ([]model.SearchMatch, error) {
 	matches := make([]model.SearchMatch, 0)
 	for rows.Next() {
 		var match model.SearchMatch
-		var pages pq.Int64Array
-		err := rows.Scan(&match.Volume, &match.WorkTitle, &match.Snippet, &pages, &match.MatchId)
+		err := rows.Scan(&match.Volume, &match.WorkTitle, &match.Snippet, pq.Array(&match.Pages), &match.MatchId)
 		if err != nil {
 			return nil, fmt.Errorf("search match row scan failed: %v", err)
 		}
