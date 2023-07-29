@@ -1,15 +1,10 @@
 package repository
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
-
-	"github.com/FrHorschig/kant-search-backend/core/model"
 )
 
 type SentenceRepo interface {
-	Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error)
 }
 
 type sentenceRepoImpl struct {
@@ -22,8 +17,9 @@ func NewSentenceRepo(db *sql.DB) SentenceRepo {
 	}
 }
 
+/*
 func (repo *sentenceRepoImpl) Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error) {
-	query := `INSERT INTO sentences (text, paragraph_id, work_id) VALUES `
+	query := `INSERT INTO sentences (content, paragraph_id, work_id) VALUES `
 	values := make([]interface{}, 0)
 	for i, sentence := range sentences {
 		if i > 0 {
@@ -55,7 +51,6 @@ func (repo *sentenceRepoImpl) Insert(ctx context.Context, sentences []model.Sent
 	return ids, nil
 }
 
-/*
 func scanSentenceRows(rows *sql.Rows) ([]model.Sentence, error) {
 	paragraphs := make([]model.Sentence, 0)
 	for rows.Next() {

@@ -44,28 +44,12 @@ func (rec *workProcessorImpl) Process(ctx context.Context, work model.Work) erro
 		paras[i].Text = r.ReplaceAllString(paras[i].Text, " ")
 	}
 
-	rec.insertParagraphs(ctx, paras)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (rec *workProcessorImpl) insertParagraphs(ctx context.Context, paragraphs []model.Paragraph) error {
-	for _, p := range paragraphs {
-		text := p.Text
-		p.Text = processing.RemoveFormatting(p.Text)
-		id, err := rec.paragraphRepo.Insert(ctx, p)
-		if err != nil {
-			return err
-		}
-		p.Id = id
-		p.Text = text
-		err = rec.paragraphRepo.UpdateText(ctx, p, false)
+	for _, p := range paras {
+		_, err := rec.paragraphRepo.Insert(ctx, p)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
