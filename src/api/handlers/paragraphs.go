@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 )
 
 type ParagraphHandler interface {
+	GetParagraph(ctx echo.Context) error
 	GetParagraphs(ctx echo.Context) error
 }
 
@@ -28,13 +30,35 @@ func NewParagraphHandler(paragraphReader read.ParagraphReader) ParagraphHandler 
 	return &handlers
 }
 
+func (rec *paragraphHandlerImpl) GetParagraph(ctx echo.Context) error {
+	workId, err := strconv.ParseInt(ctx.Param("workId"), 10, 32)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
+		return errors.BadRequest(ctx, "Invalid work id")
+	}
+	paragraphId, err := strconv.ParseInt(ctx.Param("paragraphId"), 10, 32)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error parsing paragraph id: %v", err)
+		return errors.BadRequest(ctx, "Invalid paragraph id")
+	}
+
+	paragraph, err := rec.paragraphReader.Find(ctx.Request().Context(), int32(workId), int32(paragraphId))
+	if err == sql.ErrNoRows {
+		return errors.NotFound(ctx, fmt.Sprintf("Paragraph with id %d not found", paragraphId))
+	}
+	if err != nil {
+		log.Error().Err(err).Msgf("Error reading paragraph: %v", err)
+		return errors.InternalServerError(ctx)
+	}
+	return ctx.JSON(http.StatusOK, mapper.ParagraphToApiModel(paragraph))
+}
+
 func (rec *paragraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 	workId, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
 		return errors.BadRequest(ctx, "Invalid work id")
 	}
-
 	start, end, err := findPages(ctx.QueryParam("pages"))
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing page range: %v", err)

@@ -50,7 +50,10 @@ func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHan
 	e.GET("/api/v1/works", func(ctx echo.Context) error {
 		return workHandler.GetWorks(ctx)
 	})
-	e.GET("/api/v1/work/:id/paragraphs", func(ctx echo.Context) error {
+	e.GET("/api/v1/works/:workId/paragraphs/:paragraphId", func(ctx echo.Context) error {
+		return sectionHandler.GetParagraph(ctx)
+	})
+	e.GET("/api/v1/works/:id/paragraphs", func(ctx echo.Context) error {
 		return sectionHandler.GetParagraphs(ctx)
 	})
 	e.POST("/api/v1/search/paragraphs", func(ctx echo.Context) error {

@@ -29,9 +29,10 @@ func MatchesToApiModel(matches []model.SearchMatch) []models.SearchResult {
 		}
 
 		apiMatch := &models.Match{
-			Snippet: coreMatch.Snippet,
-			Pages:   coreMatch.Pages,
-			MatchId: coreMatch.MatchId,
+			Snippet:   coreMatch.Snippet,
+			Pages:     coreMatch.Pages,
+			WorkId:    coreMatch.WorkId,
+			ElementId: coreMatch.ElementId,
 		}
 		currentResult.Matches = append(currentResult.Matches, *apiMatch)
 	}

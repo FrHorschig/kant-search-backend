@@ -5,5 +5,6 @@ type SearchMatch struct {
 	WorkTitle string
 	Snippet   string
 	Pages     []int32
-	MatchId   int32
+	WorkId    int32
+	ElementId int32
 }

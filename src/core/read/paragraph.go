@@ -8,6 +8,7 @@ import (
 )
 
 type ParagraphReader interface {
+	Find(ctx context.Context, workId int32, paragraphId int32) (model.Paragraph, error)
 	FindOfPages(ctx context.Context, workId int32, startPage int32, endPage int32) ([]model.Paragraph, error)
 }
 
@@ -20,10 +21,10 @@ func NewParagraphReader(paragraphRepo repository.ParagraphRepo) ParagraphReader 
 	return &impl
 }
 
+func (rec *paragraphReaderImpl) Find(ctx context.Context, workId int32, paragraphId int32) (model.Paragraph, error) {
+	return rec.paragraphRepo.Select(ctx, workId, paragraphId)
+}
+
 func (rec *paragraphReaderImpl) FindOfPages(ctx context.Context, workId int32, startPage int32, endPage int32) ([]model.Paragraph, error) {
-	paras, err := rec.paragraphRepo.SelectOfPages(ctx, workId, startPage, endPage)
-	if err != nil {
-		return nil, err
-	}
-	return paras, nil
+	return rec.paragraphRepo.SelectOfPages(ctx, workId, startPage, endPage)
 }
