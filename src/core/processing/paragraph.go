@@ -13,7 +13,7 @@ func BuildParagraphModels(text string, workId int32) ([]model.Paragraph, error) 
 	lastTextPara := int32(0)
 	lastPage := int32(0)
 	lastIsFn := false
-	for _, rawPara := range strings.Split(text, "{pr}") {
+	for _, rawPara := range strings.Split(text, "\n\n") {
 		para := strings.TrimSpace(rawPara)
 		p, err := extractModelData(para, workId)
 		if err != nil {
