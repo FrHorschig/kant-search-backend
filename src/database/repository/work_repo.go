@@ -10,7 +10,7 @@ import (
 
 type WorkRepo interface {
 	SelectAll(ctx context.Context) ([]model.Work, error)
-	Insert(ctx context.Context, work model.Work) (int32, error)
+	UpdateText(ctx context.Context, upload model.WorkUpload) error
 }
 
 type workRepoImpl struct {
@@ -41,17 +41,10 @@ func (repo *workRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
 	return works, nil
 }
 
-func (repo *workRepoImpl) Insert(ctx context.Context, work model.Work) (int32, error) {
-	query := `INSERT INTO works (title, abbreviation, volume, ordinal, year) VALUES ($1, $2, $3, $4, $5) RETURNING id`
-	row := repo.db.QueryRowContext(ctx, query, work.Title, work.Abbreviation, work.Volume, work.Ordinal, work.Year)
-
-	var id int32
-	err := row.Scan(&id)
-	if err != nil {
-		return -1, err
-	}
-
-	return id, nil
+func (repo *workRepoImpl) UpdateText(ctx context.Context, upload model.WorkUpload) error {
+	query := `UPDATE works SET text = $1 WHERE id = $2;`
+	_, err := repo.db.ExecContext(ctx, query, upload.Text, upload.WorkId)
+	return err
 }
 
 func scanWorkRows(rows *sql.Rows) ([]model.Work, error) {

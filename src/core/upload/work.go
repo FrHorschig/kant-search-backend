@@ -9,18 +9,18 @@ import (
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 )
 
-type WorkProcessor interface {
-	Process(ctx context.Context, work model.Work) error
+type WorkUploadProcessor interface {
+	Process(ctx context.Context, work model.WorkUpload) error
 }
 
-type workProcessorImpl struct {
+type workUploadProcessorImpl struct {
 	workRepo      repository.WorkRepo
 	paragraphRepo repository.ParagraphRepo
 	sentenceRepo  repository.SentenceRepo
 }
 
-func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) WorkProcessor {
-	processor := workProcessorImpl{
+func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) WorkUploadProcessor {
+	processor := workUploadProcessorImpl{
 		workRepo:      workRepo,
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
@@ -28,12 +28,12 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 	return &processor
 }
 
-func (rec *workProcessorImpl) Process(ctx context.Context, work model.Work) error {
-	workId, err := rec.workRepo.Insert(ctx, work)
+func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) error {
+	err := rec.workRepo.UpdateText(ctx, upload)
 	if err != nil {
 		return err
 	}
-	paras, err := processing.BuildParagraphModels(work.Text, workId)
+	paras, err := processing.BuildParagraphModels(upload.Text, upload.WorkId)
 	if err != nil {
 		return err
 	}

@@ -44,11 +44,14 @@ func initEchoServer() *echo.Echo {
 }
 
 func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHandler handlers.ParagraphHandler, searchHander handlers.SearchHandler) {
-	e.POST("/api/v1/works", func(ctx echo.Context) error {
-		return workHandler.PostWork(ctx)
+	e.GET("/api/v1/volumes", func(ctx echo.Context) error {
+		return workHandler.GetVolumes(ctx)
 	})
 	e.GET("/api/v1/works", func(ctx echo.Context) error {
 		return workHandler.GetWorks(ctx)
+	})
+	e.POST("/api/v1/works", func(ctx echo.Context) error {
+		return workHandler.PostWork(ctx)
 	})
 	e.GET("/api/v1/works/:workId/paragraphs/:paragraphId", func(ctx echo.Context) error {
 		return sectionHandler.GetParagraph(ctx)

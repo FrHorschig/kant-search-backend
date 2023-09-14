@@ -13,21 +13,52 @@ import (
 )
 
 type WorkHandler interface {
-	PostWork(ctx echo.Context) error
+	GetVolumes(ctx echo.Context) error
 	GetWorks(ctx echo.Context) error
+	PostWork(ctx echo.Context) error
 }
 
 type workHandlerImpl struct {
-	workProcessor processing.WorkProcessor
+	workProcessor processing.WorkUploadProcessor
 	workReader    read.WorkReader
 }
 
-func NewWorkHandler(workProcessor processing.WorkProcessor, workReader read.WorkReader) WorkHandler {
+func NewWorkHandler(workProcessor processing.WorkUploadProcessor, workReader read.WorkReader) WorkHandler {
 	impl := workHandlerImpl{
 		workProcessor: workProcessor,
 		workReader:    workReader,
 	}
 	return &impl
+}
+
+func (rec *workHandlerImpl) GetVolumes(ctx echo.Context) error {
+	works, err := rec.workReader.FindAll(ctx.Request().Context())
+	if err != nil {
+		log.Error().Err(err).Msgf("Error reading works: %v", err)
+		return errors.InternalServerError(ctx)
+	}
+
+	if len(works) == 0 {
+		return errors.NotFound(ctx, "No works found")
+	}
+
+	apiWorks := mapper.WorkToApiModel(works)
+	return ctx.JSON(http.StatusOK, apiWorks)
+}
+
+func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {
+	works, err := rec.workReader.FindAll(ctx.Request().Context())
+	if err != nil {
+		log.Error().Err(err).Msgf("Error reading works: %v", err)
+		return errors.InternalServerError(ctx)
+	}
+
+	if len(works) == 0 {
+		return errors.NotFound(ctx, "No works found")
+	}
+
+	apiWorks := mapper.WorkToApiModel(works)
+	return ctx.JSON(http.StatusOK, apiWorks)
 }
 
 func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
@@ -45,20 +76,5 @@ func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 		return errors.InternalServerError(ctx)
 	}
 
-	return ctx.NoContent(http.StatusOK)
-}
-
-func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {
-	works, err := rec.workReader.FindAll(ctx.Request().Context())
-	if err != nil {
-		log.Error().Err(err).Msgf("Error reading works: %v", err)
-		return errors.InternalServerError(ctx)
-	}
-
-	if len(works) == 0 {
-		return errors.NotFound(ctx, "No works found")
-	}
-
-	apiWorks := mapper.WorkToApiModel(works)
-	return ctx.JSON(http.StatusOK, apiWorks)
+	return ctx.NoContent(http.StatusCreated)
 }
