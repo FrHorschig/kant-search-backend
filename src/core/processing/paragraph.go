@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/FrHorschig/kant-search-backend/core/model"
+	"github.com/FrHorschig/kant-search-backend/database/model"
 )
 
 func BuildParagraphModels(text string, workId int32) ([]model.Paragraph, error) {

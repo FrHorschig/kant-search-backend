@@ -2,7 +2,7 @@ package mapper
 
 import (
 	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/core/model"
+	"github.com/FrHorschig/kant-search-backend/database/model"
 )
 
 func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
@@ -13,36 +13,29 @@ func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
 }
 
 func MatchesToApiModel(matches []model.SearchMatch) []models.SearchResult {
-	var results []models.SearchResult
-	var currentResult *models.SearchResult
-
-	for _, coreMatch := range matches {
-		if isNewWork(currentResult, coreMatch) {
-			if currentResult != nil {
-				results = append(results, *currentResult)
-			}
-			currentResult = &models.SearchResult{
-				Volume:    coreMatch.Volume,
-				WorkTitle: coreMatch.WorkTitle,
-				Matches:   []models.Match{},
-			}
+	resultByWorkId := make(map[int32][]models.Match)
+	for _, match := range matches {
+		apiMatch := models.Match{
+			Snippet:   match.Snippet,
+			Pages:     match.Pages,
+			ElementId: match.ElementId,
 		}
 
-		apiMatch := &models.Match{
-			Snippet:   coreMatch.Snippet,
-			Pages:     coreMatch.Pages,
-			WorkId:    coreMatch.WorkId,
-			ElementId: coreMatch.ElementId,
+		arr, exists := resultByWorkId[match.WorkId]
+		if !exists {
+			arr = []models.Match{apiMatch}
+		} else {
+			arr = append(arr, apiMatch)
 		}
-		currentResult.Matches = append(currentResult.Matches, *apiMatch)
+		resultByWorkId[match.WorkId] = arr
 	}
 
-	if currentResult != nil {
-		results = append(results, *currentResult)
+	var results []models.SearchResult
+	for workId, apiMatches := range resultByWorkId {
+		results = append(results, models.SearchResult{
+			WorkId:  workId,
+			Matches: apiMatches,
+		})
 	}
 	return results
-}
-
-func isNewWork(currentResult *models.SearchResult, match model.SearchMatch) bool {
-	return currentResult == nil || currentResult.WorkTitle != match.WorkTitle
 }

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FrHorschig/kant-search-backend/core/model"
+	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/lib/pq"
 )
 

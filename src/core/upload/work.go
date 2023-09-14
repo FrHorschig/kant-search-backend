@@ -4,8 +4,8 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/FrHorschig/kant-search-backend/core/model"
 	"github.com/FrHorschig/kant-search-backend/core/processing"
+	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 )
 
