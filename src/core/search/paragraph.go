@@ -21,9 +21,5 @@ func NewSearcher(searchRepo repository.SearchRepo) Searcher {
 }
 
 func (rec *searcherImpl) SearchParagraphs(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchMatch, error) {
-	matches, err := rec.searchRepo.SearchParagraphs(ctx, criteria)
-	if err != nil {
-		return nil, err
-	}
-	return matches, nil
+	return rec.searchRepo.SearchParagraphs(ctx, criteria)
 }

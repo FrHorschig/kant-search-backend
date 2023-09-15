@@ -21,9 +21,5 @@ func NewWorkReader(workRepo repository.WorkRepo) WorkReader {
 }
 
 func (rec *workReaderImpl) FindAll(ctx context.Context) ([]model.Work, error) {
-	works, err := rec.workRepo.SelectAll(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return works, nil
+	return rec.workRepo.SelectAll(ctx)
 }

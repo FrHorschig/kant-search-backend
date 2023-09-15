@@ -21,9 +21,5 @@ func NewVolumeReader(volumeRepo repository.VolumeRepo) VolumeReader {
 }
 
 func (rec *volumeReaderImpl) FindAll(ctx context.Context) ([]model.Volume, error) {
-	volumes, err := rec.volumeRepo.SelectAll(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return volumes, nil
+	return rec.volumeRepo.SelectAll(ctx)
 }
