@@ -14,14 +14,19 @@ func WorkUploadToCoreModel(work models.WorkUpload) model.WorkUpload {
 
 func WorksToApiModels(works []model.Work) []models.Work {
 	apiModels := make([]models.Work, 0)
-	for _, work := range works {
+	for i, work := range works {
 		apiModels = append(apiModels, models.Work{
-			Id:           work.Id,
-			Title:        work.Title,
-			Abbreviation: *work.Abbreviation,
-			Year:         *work.Year,
-			VolumeId:     work.Volume,
+			Id:       work.Id,
+			Title:    work.Title,
+			Ordinal:  work.Ordinal,
+			VolumeId: work.Volume,
 		})
+		if work.Abbreviation != nil {
+			apiModels[i].Abbreviation = *work.Abbreviation
+		}
+		if work.Year != nil {
+			apiModels[i].Year = *work.Year
+		}
 	}
 	return apiModels
 }
