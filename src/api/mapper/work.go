@@ -12,7 +12,7 @@ func WorkUploadToCoreModel(work models.WorkUpload) model.WorkUpload {
 	}
 }
 
-func WorkToApiModel(works []model.Work) []models.Work {
+func WorksToApiModels(works []model.Work) []models.Work {
 	apiModels := make([]models.Work, 0)
 	for _, work := range works {
 		apiModels = append(apiModels, models.Work{
@@ -26,7 +26,7 @@ func WorkToApiModel(works []model.Work) []models.Work {
 	return apiModels
 }
 
-func VolumeToApiModel(volumes []model.Volume) []models.Volume {
+func VolumesToApiModels(volumes []model.Volume) []models.Volume {
 	apiModels := make([]models.Volume, 0)
 	for _, work := range volumes {
 		apiModels = append(apiModels, models.Volume{

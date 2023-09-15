@@ -14,7 +14,7 @@ func ParagraphToApiModel(paragraph model.Paragraph) models.Paragraph {
 	}
 }
 
-func ParagraphsToApiModel(paragraphs []model.Paragraph) []models.Paragraph {
+func ParagraphsToApiModels(paragraphs []model.Paragraph) []models.Paragraph {
 	apiModels := make([]models.Paragraph, 0)
 	for _, paragraph := range paragraphs {
 		apiModels = append(apiModels, ParagraphToApiModel(paragraph))

@@ -12,7 +12,7 @@ func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
 	}
 }
 
-func MatchesToApiModel(matches []model.SearchMatch) []models.SearchResult {
+func MatchesToApiModels(matches []model.SearchMatch) []models.SearchResult {
 	resultByWorkId := make(map[int32][]models.Match)
 	for _, match := range matches {
 		apiMatch := models.Match{

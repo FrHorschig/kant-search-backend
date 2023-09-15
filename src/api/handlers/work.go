@@ -42,7 +42,7 @@ func (rec *workHandlerImpl) GetVolumes(ctx echo.Context) error {
 		return errors.NotFound(ctx, "No works found")
 	}
 
-	apiWorks := mapper.WorkToApiModel(works)
+	apiWorks := mapper.WorksToApiModels(works)
 	return ctx.JSON(http.StatusOK, apiWorks)
 }
 
@@ -57,7 +57,7 @@ func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {
 		return errors.NotFound(ctx, "No works found")
 	}
 
-	apiWorks := mapper.WorkToApiModel(works)
+	apiWorks := mapper.WorksToApiModels(works)
 	return ctx.JSON(http.StatusOK, apiWorks)
 }
 
