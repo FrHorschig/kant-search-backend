@@ -1,5 +1,7 @@
 package upload
 
+//go:generate mockgen -source=$GOFILE -destination=mocks/work_mock.go -package=mocks
+
 import (
 	"context"
 	"regexp"
