@@ -68,4 +68,5 @@ func cleanupDb(pool *dockertest.Pool, resource *dockertest.Resource) {
 	if err := pool.Purge(resource); err != nil {
 		log.Fatalf("Could not purge resource: %s", err)
 	}
+	testDb.Close()
 }

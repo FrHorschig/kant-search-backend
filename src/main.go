@@ -4,11 +4,7 @@ import (
 	"os"
 	"strings"
 
-	_ "github.com/lib/pq"
-
 	"github.com/FrHorschig/kant-search-backend/api/handlers"
-	"github.com/FrHorschig/kant-search-backend/core/read"
-	"github.com/FrHorschig/kant-search-backend/core/search"
 	"github.com/FrHorschig/kant-search-backend/core/upload"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/FrHorschig/kant-search-backend/util"
@@ -58,13 +54,10 @@ func main() {
 	searchRepo := repository.NewSearchRepo(db)
 
 	workProcessor := upload.NewWorkProcessor(workRepo, paragraphRepo, sentenceRepo)
-	workReader := read.NewWorkReader(workRepo)
-	paragraphReader := read.NewParagraphReader(paragraphRepo)
-	searcher := search.NewSearcher(searchRepo)
 
-	workHandler := handlers.NewWorkHandler(workProcessor, workReader)
-	paragraphHandler := handlers.NewParagraphHandler(paragraphReader)
-	searchHandler := handlers.NewSearchHandler(searcher)
+	workHandler := handlers.NewWorkHandler(workProcessor, workRepo)
+	paragraphHandler := handlers.NewParagraphHandler(paragraphRepo)
+	searchHandler := handlers.NewSearchHandler(searchRepo)
 
 	e := initEchoServer()
 	registerHandlers(e, workHandler, paragraphHandler, searchHandler)

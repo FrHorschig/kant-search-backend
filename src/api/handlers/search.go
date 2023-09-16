@@ -4,7 +4,7 @@ import (
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/errors"
 	"github.com/FrHorschig/kant-search-backend/api/mapper"
-	"github.com/FrHorschig/kant-search-backend/core/search"
+	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -14,12 +14,11 @@ type SearchHandler interface {
 }
 
 type searchHandlerImpl struct {
-	searcher search.Searcher
+	searchRepo repository.SearchRepo
 }
 
-func NewSearchHandler(searcher search.Searcher) SearchHandler {
-	impl := searchHandlerImpl{searcher: searcher}
-	return &impl
+func NewSearchHandler(searchRepo repository.SearchRepo) SearchHandler {
+	return &searchHandlerImpl{searchRepo: searchRepo}
 }
 
 func (rec *searchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
@@ -30,7 +29,7 @@ func (rec *searchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 	}
 
 	c := mapper.CriteriaToCoreModel(*criteria)
-	matches, err := rec.searcher.SearchParagraphs(ctx.Request().Context(), c)
+	matches, err := rec.searchRepo.SearchParagraphs(ctx.Request().Context(), c)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error searching for matches: %v", err)
 		return errors.InternalServerError(ctx)

@@ -6,8 +6,8 @@ import (
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/errors"
 	"github.com/FrHorschig/kant-search-backend/api/mapper"
-	"github.com/FrHorschig/kant-search-backend/core/read"
 	processing "github.com/FrHorschig/kant-search-backend/core/upload"
+	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -20,19 +20,19 @@ type WorkHandler interface {
 
 type workHandlerImpl struct {
 	workProcessor processing.WorkUploadProcessor
-	workReader    read.WorkReader
+	workRepo      repository.WorkRepo
 }
 
-func NewWorkHandler(workProcessor processing.WorkUploadProcessor, workReader read.WorkReader) WorkHandler {
+func NewWorkHandler(workProcessor processing.WorkUploadProcessor, workRepo repository.WorkRepo) WorkHandler {
 	impl := workHandlerImpl{
 		workProcessor: workProcessor,
-		workReader:    workReader,
+		workRepo:      workRepo,
 	}
 	return &impl
 }
 
 func (rec *workHandlerImpl) GetVolumes(ctx echo.Context) error {
-	works, err := rec.workReader.FindAll(ctx.Request().Context())
+	works, err := rec.workRepo.SelectAll(ctx.Request().Context())
 	if err != nil {
 		log.Error().Err(err).Msgf("Error reading works: %v", err)
 		return errors.InternalServerError(ctx)
@@ -47,7 +47,7 @@ func (rec *workHandlerImpl) GetVolumes(ctx echo.Context) error {
 }
 
 func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {
-	works, err := rec.workReader.FindAll(ctx.Request().Context())
+	works, err := rec.workRepo.SelectAll(ctx.Request().Context())
 	if err != nil {
 		log.Error().Err(err).Msgf("Error reading works: %v", err)
 		return errors.InternalServerError(ctx)

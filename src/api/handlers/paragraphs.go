@@ -9,7 +9,7 @@ import (
 
 	"github.com/FrHorschig/kant-search-backend/api/errors"
 	"github.com/FrHorschig/kant-search-backend/api/mapper"
-	"github.com/FrHorschig/kant-search-backend/core/read"
+	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -20,14 +20,11 @@ type ParagraphHandler interface {
 }
 
 type paragraphHandlerImpl struct {
-	paragraphReader read.ParagraphReader
+	paragraphRepo repository.ParagraphRepo
 }
 
-func NewParagraphHandler(paragraphReader read.ParagraphReader) ParagraphHandler {
-	handlers := paragraphHandlerImpl{
-		paragraphReader: paragraphReader,
-	}
-	return &handlers
+func NewParagraphHandler(paragraphRepo repository.ParagraphRepo) ParagraphHandler {
+	return &paragraphHandlerImpl{paragraphRepo: paragraphRepo}
 }
 
 func (rec *paragraphHandlerImpl) GetParagraph(ctx echo.Context) error {
@@ -42,7 +39,7 @@ func (rec *paragraphHandlerImpl) GetParagraph(ctx echo.Context) error {
 		return errors.BadRequest(ctx, "Invalid paragraph id")
 	}
 
-	paragraph, err := rec.paragraphReader.Find(ctx.Request().Context(), int32(workId), int32(paragraphId))
+	paragraph, err := rec.paragraphRepo.Select(ctx.Request().Context(), int32(workId), int32(paragraphId))
 	if err == sql.ErrNoRows {
 		return errors.NotFound(ctx, fmt.Sprintf("Paragraph with id %d not found", paragraphId))
 	}
@@ -65,7 +62,7 @@ func (rec *paragraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 		return errors.BadRequest(ctx, "Invalid page range")
 	}
 
-	paragraphs, err := rec.paragraphReader.FindOfPages(ctx.Request().Context(), int32(workId), start, end)
+	paragraphs, err := rec.paragraphRepo.SelectOfPages(ctx.Request().Context(), int32(workId), start, end)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error reading paragraphs: %v", err)
 		return errors.InternalServerError(ctx)
