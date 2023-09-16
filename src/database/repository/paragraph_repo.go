@@ -1,6 +1,6 @@
 package repository
 
-//go:generate mockgen -source=$GOFILE -destination=paragraph_repo_mock.go -package=repository
+//go:generate mockgen -source=$GOFILE -destination=mocks/paragraph_repo_mock.go -package=mocks
 
 import (
 	"context"
