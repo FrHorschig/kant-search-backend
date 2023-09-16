@@ -19,31 +19,33 @@ type WorkHandler interface {
 }
 
 type workHandlerImpl struct {
-	workProcessor processing.WorkUploadProcessor
+	volumeRepo    repository.VolumeRepo
 	workRepo      repository.WorkRepo
+	workProcessor processing.WorkUploadProcessor
 }
 
-func NewWorkHandler(workProcessor processing.WorkUploadProcessor, workRepo repository.WorkRepo) WorkHandler {
+func NewWorkHandler(volumeRepo repository.VolumeRepo, workRepo repository.WorkRepo, workProcessor processing.WorkUploadProcessor) WorkHandler {
 	impl := workHandlerImpl{
-		workProcessor: workProcessor,
+		volumeRepo:    volumeRepo,
 		workRepo:      workRepo,
+		workProcessor: workProcessor,
 	}
 	return &impl
 }
 
 func (rec *workHandlerImpl) GetVolumes(ctx echo.Context) error {
-	works, err := rec.workRepo.SelectAll(ctx.Request().Context())
+	volumes, err := rec.volumeRepo.SelectAll(ctx.Request().Context())
 	if err != nil {
-		log.Error().Err(err).Msgf("Error reading works: %v", err)
+		log.Error().Err(err).Msgf("Error reading volumes: %v", err)
 		return errors.InternalServerError(ctx)
 	}
 
-	if len(works) == 0 {
-		return errors.NotFound(ctx, "No works found")
+	if len(volumes) == 0 {
+		return errors.NotFound(ctx, "No volumes found")
 	}
 
-	apiWorks := mapper.WorksToApiModels(works)
-	return ctx.JSON(http.StatusOK, apiWorks)
+	apiVolumes := mapper.VolumesToApiModels(volumes)
+	return ctx.JSON(http.StatusOK, apiVolumes)
 }
 
 func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {

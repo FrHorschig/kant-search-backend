@@ -48,6 +48,7 @@ func main() {
 	db := util.InitDbConnection()
 	defer db.Close()
 
+	volumeRepo := repository.NewVolumeRepo(db)
 	workRepo := repository.NewWorkRepo(db)
 	paragraphRepo := repository.NewParagraphRepo(db)
 	sentenceRepo := repository.NewSentenceRepo(db)
@@ -55,7 +56,7 @@ func main() {
 
 	workProcessor := upload.NewWorkProcessor(workRepo, paragraphRepo, sentenceRepo)
 
-	workHandler := handlers.NewWorkHandler(workProcessor, workRepo)
+	workHandler := handlers.NewWorkHandler(volumeRepo, workRepo, workProcessor)
 	paragraphHandler := handlers.NewParagraphHandler(paragraphRepo)
 	searchHandler := handlers.NewSearchHandler(searchRepo)
 
