@@ -1,5 +1,7 @@
 package repository
 
+//go:generate mockgen -source=$GOFILE -destination=sentence_repo_mock.go -package=repository
+
 import (
 	"database/sql"
 )

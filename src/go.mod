@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/FrHorschig/kant-search-api v0.4.0
+	github.com/golang/mock v1.6.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/lib/pq v1.10.9
 	github.com/ory/dockertest v3.3.5+incompatible
@@ -32,6 +33,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/crypto v0.13.0 // indirect
