@@ -23,9 +23,10 @@ func NewSearchHandler(searchRepo repository.SearchRepo) SearchHandler {
 
 func (rec *searchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 	criteria := new(models.SearchCriteria)
-	if err := ctx.Bind(criteria); err != nil {
+	err := ctx.Bind(criteria)
+	if err != nil || len(criteria.SearchTerms) == 0 || len(criteria.WorkIds) == 0 {
 		log.Error().Err(err).Msgf("Error parsing search criteria: %v", err)
-		return errors.BadRequest(ctx, err.Error())
+		return errors.BadRequest(ctx, "Error parsing search criteria")
 	}
 
 	c := mapper.CriteriaToCoreModel(*criteria)
@@ -33,6 +34,9 @@ func (rec *searchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 	if err != nil {
 		log.Error().Err(err).Msgf("Error searching for matches: %v", err)
 		return errors.InternalServerError(ctx)
+	}
+	if len(matches) == 0 {
+		return errors.NotFound(ctx, "No matches found")
 	}
 
 	return ctx.JSON(200, mapper.MatchesToApiModels(matches))
