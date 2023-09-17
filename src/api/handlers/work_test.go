@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetVolumes(t *testing.T) {
+func TestWorkHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -255,9 +255,4 @@ func testPostWorksSuccess(t *testing.T, sut *workHandlerImpl, workProcessor *pro
 	// THEN
 	assert.Equal(t, http.StatusCreated, ctx.Response().Status)
 	assert.Empty(t, res.Body.String())
-}
-
-func assertErrorResponse(t *testing.T, res *httptest.ResponseRecorder) {
-	assert.Contains(t, res.Body.String(), "code")
-	assert.Contains(t, res.Body.String(), "message")
 }
