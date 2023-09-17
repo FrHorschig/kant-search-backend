@@ -40,6 +40,7 @@ func (rec *paragraphHandlerImpl) GetParagraph(ctx echo.Context) error {
 	}
 
 	paragraph, err := rec.paragraphRepo.Select(ctx.Request().Context(), int32(workId), int32(paragraphId))
+	// TODO frhorsch: return ptr so we don't have to check a database error here
 	if err == sql.ErrNoRows {
 		return errors.NotFound(ctx, fmt.Sprintf("Paragraph with id %d not found", paragraphId))
 	}
