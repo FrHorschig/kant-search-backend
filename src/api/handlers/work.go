@@ -25,12 +25,11 @@ type workHandlerImpl struct {
 }
 
 func NewWorkHandler(volumeRepo repository.VolumeRepo, workRepo repository.WorkRepo, workProcessor processing.WorkUploadProcessor) WorkHandler {
-	impl := workHandlerImpl{
+	return &workHandlerImpl{
 		volumeRepo:    volumeRepo,
 		workRepo:      workRepo,
 		workProcessor: workProcessor,
 	}
-	return &impl
 }
 
 func (rec *workHandlerImpl) GetVolumes(ctx echo.Context) error {
@@ -65,14 +64,14 @@ func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {
 
 func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 	work := new(models.WorkUpload)
-	if err := ctx.Bind(work); err != nil {
+	err := ctx.Bind(work)
+	if err != nil || work.WorkId < 1 || work.Text == "" {
 		log.Error().Err(err).Msg("Error reading request body")
 		return errors.BadRequest(ctx, "Error reading request body")
 	}
 
-	context := ctx.Request().Context()
 	coreModel := mapper.WorkUploadToCoreModel(*work)
-	err := rec.workProcessor.Process(context, coreModel)
+	err = rec.workProcessor.Process(ctx.Request().Context(), coreModel)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error processing work: %v", err)
 		return errors.InternalServerError(ctx)
