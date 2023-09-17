@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -175,10 +174,10 @@ func testPostWorksBindError(t *testing.T, sut *workHandlerImpl, workProcessor *p
 		t.Fatal(err)
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	ctx.Request().Body = io.NopCloser(bytes.NewReader(body))
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
@@ -192,10 +191,10 @@ func testPostWorksZeroWorkId(t *testing.T, sut *workHandlerImpl, workProcessor *
 		t.Fatal(err)
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	ctx.Request().Body = io.NopCloser(bytes.NewReader(body))
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
@@ -210,6 +209,7 @@ func testPostWorksEmptyText(t *testing.T, sut *workHandlerImpl, workProcessor *p
 	}
 	// GIVEN
 	req := httptest.NewRequest(echo.GET, "/api/v1/works", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
 	// WHEN
