@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/FrHorschig/kant-search-backend/api/errors"
 	"github.com/FrHorschig/kant-search-backend/api/mapper"
@@ -57,13 +56,8 @@ func (rec *paragraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
 		return errors.BadRequest(ctx, "Invalid work id")
 	}
-	start, end, err := findPages(ctx.QueryParam("pages"))
-	if err != nil {
-		log.Error().Err(err).Msgf("Error parsing page range: %v", err)
-		return errors.BadRequest(ctx, "Invalid page range")
-	}
 
-	paragraphs, err := rec.paragraphRepo.SelectOfPages(ctx.Request().Context(), int32(workId), start, end)
+	paragraphs, err := rec.paragraphRepo.SelectAll(ctx.Request().Context(), int32(workId))
 	if err != nil {
 		log.Error().Err(err).Msgf("Error reading paragraphs: %v", err)
 		return errors.InternalServerError(ctx)
@@ -74,21 +68,4 @@ func (rec *paragraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 
 	apiParas := mapper.ParagraphsToApiModels(paragraphs)
 	return ctx.JSON(http.StatusOK, apiParas)
-}
-
-func findPages(pageRange string) (start int32, end int32, err error) {
-	parseError := fmt.Errorf("invalid page range: %s", pageRange)
-	parts := strings.Split(pageRange, "-")
-	if len(parts) != 2 {
-		return -1, -1, parseError
-	}
-	s, err := strconv.ParseInt(parts[0], 10, 32)
-	if err != nil {
-		return -1, -1, parseError
-	}
-	e, err := strconv.ParseInt(parts[1], 10, 32)
-	if err != nil {
-		return -1, -1, parseError
-	}
-	return int32(s), int32(e), nil
 }

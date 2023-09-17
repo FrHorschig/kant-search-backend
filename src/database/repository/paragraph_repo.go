@@ -14,7 +14,7 @@ import (
 type ParagraphRepo interface {
 	Insert(ctx context.Context, paragraph model.Paragraph) (int32, error)
 	Select(ctx context.Context, workId int32, paragraphId int32) (model.Paragraph, error)
-	SelectOfPages(ctx context.Context, workId int32, page_start int32, page_end int32) ([]model.Paragraph, error)
+	SelectAll(ctx context.Context, workId int32) ([]model.Paragraph, error)
 }
 
 type paragraphRepoImpl struct {
@@ -48,9 +48,9 @@ func (repo *paragraphRepoImpl) Select(ctx context.Context, workId int32, paragra
 	return paragraph, err
 }
 
-func (repo *paragraphRepoImpl) SelectOfPages(ctx context.Context, workId int32, page_start int32, page_end int32) ([]model.Paragraph, error) {
-	query := `SELECT id, content, pages, work_id FROM paragraphs WHERE work_id = $1 AND $2 <= ANY(pages) AND $3 >= ANY(pages) ORDER BY id`
-	rows, err := repo.db.QueryContext(ctx, query, workId, page_start, page_end)
+func (repo *paragraphRepoImpl) SelectAll(ctx context.Context, workId int32) ([]model.Paragraph, error) {
+	query := `SELECT id, content, pages, work_id FROM paragraphs WHERE work_id = $1`
+	rows, err := repo.db.QueryContext(ctx, query, workId)
 	if err != nil {
 		return nil, err
 	}
