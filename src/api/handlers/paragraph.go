@@ -51,7 +51,7 @@ func (rec *paragraphHandlerImpl) GetParagraph(ctx echo.Context) error {
 }
 
 func (rec *paragraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
-	workId, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+	workId, err := strconv.ParseInt(ctx.Param("workId"), 10, 32)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
 		return errors.BadRequest(ctx, "Invalid work id")
