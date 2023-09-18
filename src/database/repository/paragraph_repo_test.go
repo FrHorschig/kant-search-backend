@@ -9,7 +9,7 @@ import (
 )
 
 var workId1 = int32(1)
-var workId2 = int32(1)
+var workId2 = int32(2)
 var para1 = model.Paragraph{
 	Text:   "Kant Wille Maxime",
 	Pages:  []int32{1},
@@ -75,7 +75,7 @@ func TestSelectAllParagraphs(t *testing.T) {
 
 	// WHEN
 	paras1, err1 := repo.SelectAll(ctx, workId1)
-	paras2, err2 := repo.SelectAll(ctx, workId1)
+	paras2, err2 := repo.SelectAll(ctx, workId2)
 
 	// THEN
 	assert.Nil(t, err1)
