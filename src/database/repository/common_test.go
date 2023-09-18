@@ -15,17 +15,14 @@ import (
 var testDb *sql.DB
 
 func TestMain(m *testing.M) {
-	dbUrl := createDbContainer()
-	db, err := sql.Open("postgres", dbUrl)
-	if err != nil {
-		panic(err)
-	}
-	testDb = db
+	container := createDbContainer()
+	openDb(container)
 	code := m.Run()
+	cleanupDbContainer(container)
 	os.Exit(code)
 }
 
-func createDbContainer() string {
+func createDbContainer() *postgres.PostgresContainer {
 	envVarValue := "kantsearch"
 	cont, err := postgres.RunContainer(context.Background(),
 		testcontainers.WithImage("kant-search-database"),
@@ -40,10 +37,24 @@ func createDbContainer() string {
 	if err != nil {
 		panic(err)
 	}
+	return cont
+}
 
-	connStr, err := cont.ConnectionString(context.Background(), "sslmode=disable")
+func openDb(container *postgres.PostgresContainer) {
+	connStr, err := container.ConnectionString(context.Background(), "sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
-	return connStr
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		panic(err)
+	}
+	testDb = db
+}
+
+func cleanupDbContainer(container *postgres.PostgresContainer) {
+	testDb.Close()
+	if err := container.Terminate(context.Background()); err != nil {
+		panic(err)
+	}
 }
