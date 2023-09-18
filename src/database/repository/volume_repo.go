@@ -28,14 +28,14 @@ func (repo *volumeRepoImpl) SelectAll(ctx context.Context) ([]model.Volume, erro
 	query := `SELECT * FROM volumes ORDER BY id`
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return []model.Volume{}, nil
+		}
 		return nil, err
 	}
 
 	volumes, err := scanVolumeRows(rows)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return []model.Volume{}, nil
-		}
 		return nil, err
 	}
 
