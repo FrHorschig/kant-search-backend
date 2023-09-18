@@ -32,7 +32,7 @@ func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria
 	query := `SELECT p.id, ts_headline('german', p.content, to_tsquery('german', $2), 'FragmentDelimiter="...<br>... ", MaxFragments=10, MaxWords=16, MinWords=6'), p.pages, p.work_id
 		FROM paragraphs p 
 		WHERE work_id = ANY($1) AND search @@ to_tsquery('german', $2)
-		ORDER BY p.work_id, p.ordinal`
+		ORDER BY p.work_id, p.id`
 	rows, err := repo.db.QueryContext(ctx, query, pq.Array(searchCriteria.WorkIds), searchString)
 	if err != nil {
 		return nil, err
