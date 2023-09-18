@@ -1,11 +1,8 @@
 package model
 
 type SearchResult struct {
-	// TODO frhorsch: adjust struct and search_repo to match api spec
-	Volume    int32
-	WorkTitle string
+	ElementId int32
 	Snippet   string
 	Pages     []int32
 	WorkId    int32
-	ElementId int32
 }

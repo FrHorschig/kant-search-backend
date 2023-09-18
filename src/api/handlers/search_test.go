@@ -138,12 +138,10 @@ func testSearchParagraphsSuccess(t *testing.T, sut *searchHandlerImpl, searchRep
 		t.Fatal(err)
 	}
 	matches := []model.SearchResult{{
-		Volume:    1,
-		WorkTitle: "Test",
+		ElementId: 1,
 		Snippet:   "Test",
 		Pages:     []int32{1},
 		WorkId:    1,
-		ElementId: 1,
 	}}
 	// GIVEN
 	req := httptest.NewRequest(echo.POST, "/api/v1/search/paragraphs", bytes.NewReader(body))

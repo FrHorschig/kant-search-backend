@@ -29,11 +29,10 @@ func NewSearchRepo(db *sql.DB) SearchRepo {
 
 func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria model.SearchCriteria) ([]model.SearchResult, error) {
 	searchString := strings.Join(searchCriteria.SearchTerms, " & ")
-	query := `SELECT w.volume, w.title, w.id, ts_headline('german', p.content, to_tsquery('german', $2), 'FragmentDelimiter="...<br>... ", MaxFragments=10, MaxWords=16, MinWords=6'), p.pages, p.id
+	query := `SELECT p.id, ts_headline('german', p.content, to_tsquery('german', $2), 'FragmentDelimiter="...<br>... ", MaxFragments=10, MaxWords=16, MinWords=6'), p.pages, p.work_id
 		FROM paragraphs p 
-		JOIN works w ON p.work_id = w.id 
 		WHERE work_id = ANY($1) AND search @@ to_tsquery('german', $2)
-		ORDER BY w.volume, w.ordinal, p.id`
+		ORDER BY p.work_id, p.ordinal`
 	rows, err := repo.db.QueryContext(ctx, query, pq.Array(searchCriteria.WorkIds), searchString)
 	if err != nil {
 		return nil, err
@@ -50,7 +49,7 @@ func scanSearchMatchRow(rows *sql.Rows) ([]model.SearchResult, error) {
 	matches := make([]model.SearchResult, 0)
 	for rows.Next() {
 		var match model.SearchResult
-		err := rows.Scan(&match.Volume, &match.WorkTitle, &match.WorkId, &match.Snippet, pq.Array(&match.Pages), &match.ElementId)
+		err := rows.Scan(&match.ElementId, &match.Snippet, pq.Array(&match.Pages), &match.WorkId)
 		if err != nil {
 			return nil, fmt.Errorf("search match row scan failed: %v", err)
 		}
