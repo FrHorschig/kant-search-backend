@@ -8,16 +8,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var workId = int32(1)
+var workId1 = int32(1)
+var workId2 = int32(1)
 var para1 = model.Paragraph{
-	Text:   "text1",
+	Text:   "Kant Wille Maxime",
 	Pages:  []int32{1},
-	WorkId: workId,
+	WorkId: workId1,
 }
 var para2 = model.Paragraph{
-	Text:   "test2",
-	Pages:  []int32{2, 3},
-	WorkId: workId,
+	Text:   "Kant Kategorischer Imperativ",
+	Pages:  []int32{2},
+	WorkId: workId1,
+}
+var para3 = model.Paragraph{
+	Text:   "Kant Vernunft Kategorie",
+	Pages:  []int32{3},
+	WorkId: workId2,
 }
 
 func TestInsertParagraph(t *testing.T) {
@@ -46,7 +52,7 @@ func TestSelectParagraph(t *testing.T) {
 	repo.Insert(ctx, para2)
 
 	// WHEN
-	para, err := repo.Select(ctx, workId, id1)
+	para, err := repo.Select(ctx, workId1, id1)
 
 	// THEN
 	assert.Nil(t, err)
@@ -65,23 +71,30 @@ func TestSelectAllParagraphs(t *testing.T) {
 	// GIVEN
 	id1, _ := repo.Insert(ctx, para1)
 	id2, _ := repo.Insert(ctx, para2)
+	id3, _ := repo.Insert(ctx, para3)
 
 	// WHEN
-	paras, err := repo.SelectAll(ctx, workId)
+	paras1, err := repo.SelectAll(ctx, workId1)
+	paras2, err := repo.SelectAll(ctx, workId1)
 
 	// THEN
 	assert.Nil(t, err)
-	assert.Len(t, paras, 2)
+	assert.Len(t, paras1, 2)
+	assert.Equal(t, id1, paras1[0].Id)
+	assert.Equal(t, para1.Text, paras1[0].Text)
+	assert.Equal(t, para1.Pages, paras1[0].Pages)
+	assert.Equal(t, para1.WorkId, paras1[0].WorkId)
+	assert.Equal(t, id2, paras1[1].Id)
+	assert.Equal(t, para2.Text, paras1[1].Text)
+	assert.Equal(t, para2.Pages, paras1[1].Pages)
+	assert.Equal(t, para2.WorkId, paras1[1].WorkId)
 
-	assert.Equal(t, id1, paras[0].Id)
-	assert.Equal(t, para1.Text, paras[0].Text)
-	assert.Equal(t, para1.Pages, paras[0].Pages)
-	assert.Equal(t, para1.WorkId, paras[0].WorkId)
-
-	assert.Equal(t, id2, paras[1].Id)
-	assert.Equal(t, para2.Text, paras[1].Text)
-	assert.Equal(t, para2.Pages, paras[1].Pages)
-	assert.Equal(t, para2.WorkId, paras[1].WorkId)
+	assert.Nil(t, err)
+	assert.Len(t, paras2, 1)
+	assert.Equal(t, id3, paras2[0].Id)
+	assert.Equal(t, para3.Text, paras2[0].Text)
+	assert.Equal(t, para3.Pages, paras2[0].Pages)
+	assert.Equal(t, para3.WorkId, paras2[0].WorkId)
 
 	testDb.Exec("DELETE FROM paragraphs")
 }
