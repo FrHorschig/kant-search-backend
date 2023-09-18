@@ -81,3 +81,23 @@ func TestSearchParagraphsMultiMatch(t *testing.T) {
 
 	testDb.Exec("DELETE FROM paragraphs")
 }
+
+func TestSearchParagraphsNoMatch(t *testing.T) {
+	repo := &searchRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	criteria := model.SearchCriteria{
+		SearchTerms: []string{"Maxime"},
+		WorkIds:     []int32{workId1},
+		Scope:       model.PARAGRAPH,
+	}
+
+	// WHEN
+	matches, err := repo.SearchParagraphs(ctx, criteria)
+
+	// THEN
+	assert.Nil(t, err)
+	assert.Len(t, matches, 0)
+
+	testDb.Exec("DELETE FROM paragraphs")
+}

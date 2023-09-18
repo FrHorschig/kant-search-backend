@@ -12,7 +12,7 @@ var workId1 = int32(1)
 var workId2 = int32(2)
 var para1 = model.Paragraph{
 	Text:   "Kant Wille Maxime",
-	Pages:  []int32{1},
+	Pages:  []int32{1, 2},
 	WorkId: workId1,
 }
 var para2 = model.Paragraph{
@@ -95,6 +95,20 @@ func TestSelectAllParagraphs(t *testing.T) {
 	assert.Equal(t, para3.Text, paras2[0].Text)
 	assert.Equal(t, para3.Pages, paras2[0].Pages)
 	assert.Equal(t, para3.WorkId, paras2[0].WorkId)
+
+	testDb.Exec("DELETE FROM paragraphs")
+}
+
+func TestSelectAllParagraphsNoResults(t *testing.T) {
+	repo := &paragraphRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	// WHEN
+	paras, err := repo.SelectAll(ctx, workId1)
+
+	// THEN
+	assert.Nil(t, err)
+	assert.Len(t, paras, 0)
 
 	testDb.Exec("DELETE FROM paragraphs")
 }
