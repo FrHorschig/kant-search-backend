@@ -4,7 +4,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -87,7 +86,7 @@ func testGetParagraphDatabaseError(t *testing.T, sut *paragraphHandlerImpl, para
 	ctx := echo.New().NewContext(req, res)
 	ctx.SetParamNames("workId", "paragraphId")
 	ctx.SetParamValues("1", "1")
-	paragraphRepo.EXPECT().Select(gomock.Any(), gomock.Any(), gomock.Any()).Return(paragraph, err)
+	paragraphRepo.EXPECT().Select(gomock.Any(), gomock.Any(), gomock.Any()).Return(&paragraph, err)
 	// WHEN
 	sut.GetParagraph(ctx)
 	// THEN
@@ -96,15 +95,13 @@ func testGetParagraphDatabaseError(t *testing.T, sut *paragraphHandlerImpl, para
 }
 
 func testGetParagraphNotFound(t *testing.T, sut *paragraphHandlerImpl, paragraphRepo *mocks.MockParagraphRepo) {
-	paragraph := model.Paragraph{}
-	err := sql.ErrNoRows
 	// GIVEN
 	req := httptest.NewRequest(echo.GET, "/api/v1/1/paragraphs/1", nil)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
 	ctx.SetParamNames("workId", "paragraphId")
 	ctx.SetParamValues("1", "1")
-	paragraphRepo.EXPECT().Select(gomock.Any(), gomock.Any(), gomock.Any()).Return(paragraph, err)
+	paragraphRepo.EXPECT().Select(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 	// WHEN
 	sut.GetParagraph(ctx)
 	// THEN
@@ -125,7 +122,7 @@ func testGetParagraphSuccess(t *testing.T, sut *paragraphHandlerImpl, paragraphR
 	ctx := echo.New().NewContext(req, res)
 	ctx.SetParamNames("workId", "paragraphId")
 	ctx.SetParamValues("1", "1")
-	paragraphRepo.EXPECT().Select(gomock.Any(), gomock.Any(), gomock.Any()).Return(paragraph, nil)
+	paragraphRepo.EXPECT().Select(gomock.Any(), gomock.Any(), gomock.Any()).Return(&paragraph, nil)
 	// WHEN
 	sut.GetParagraph(ctx)
 	// THEN
