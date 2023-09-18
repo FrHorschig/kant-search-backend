@@ -1,6 +1,7 @@
 package model
 
 type SearchMatch struct {
+	// TODO frhorsch: adjust struct and search_repo to match api spec
 	Volume    int32
 	WorkTitle string
 	Snippet   string
