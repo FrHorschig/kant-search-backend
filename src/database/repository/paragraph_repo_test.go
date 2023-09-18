@@ -74,11 +74,11 @@ func TestSelectAllParagraphs(t *testing.T) {
 	id3, _ := repo.Insert(ctx, para3)
 
 	// WHEN
-	paras1, err := repo.SelectAll(ctx, workId1)
-	paras2, err := repo.SelectAll(ctx, workId1)
+	paras1, err1 := repo.SelectAll(ctx, workId1)
+	paras2, err2 := repo.SelectAll(ctx, workId1)
 
 	// THEN
-	assert.Nil(t, err)
+	assert.Nil(t, err1)
 	assert.Len(t, paras1, 2)
 	assert.Equal(t, id1, paras1[0].Id)
 	assert.Equal(t, para1.Text, paras1[0].Text)
@@ -89,7 +89,7 @@ func TestSelectAllParagraphs(t *testing.T) {
 	assert.Equal(t, para2.Pages, paras1[1].Pages)
 	assert.Equal(t, para2.WorkId, paras1[1].WorkId)
 
-	assert.Nil(t, err)
+	assert.Nil(t, err2)
 	assert.Len(t, paras2, 1)
 	assert.Equal(t, id3, paras2[0].Id)
 	assert.Equal(t, para3.Text, paras2[0].Text)
