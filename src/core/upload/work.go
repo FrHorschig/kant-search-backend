@@ -32,10 +32,6 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 }
 
 func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) error {
-	err := rec.workRepo.UpdateText(ctx, upload)
-	if err != nil {
-		return err
-	}
 	paras, err := buildParagraphModels(upload.Text, upload.WorkId)
 	if err != nil {
 		return err

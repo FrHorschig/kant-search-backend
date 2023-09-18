@@ -12,7 +12,6 @@ import (
 
 type WorkRepo interface {
 	SelectAll(ctx context.Context) ([]model.Work, error)
-	UpdateText(ctx context.Context, upload model.WorkUpload) error
 }
 
 type workRepoImpl struct {
@@ -26,7 +25,7 @@ func NewWorkRepo(db *sql.DB) WorkRepo {
 }
 
 func (repo *workRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
-	query := `SELECT * FROM works ORDER BY ordinal`
+	query := `SELECT * FROM works ORDER BY volume_id, ordinal`
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
@@ -43,17 +42,11 @@ func (repo *workRepoImpl) SelectAll(ctx context.Context) ([]model.Work, error) {
 	return works, nil
 }
 
-func (repo *workRepoImpl) UpdateText(ctx context.Context, upload model.WorkUpload) error {
-	query := `UPDATE works SET text = $1 WHERE id = $2;`
-	_, err := repo.db.ExecContext(ctx, query, upload.Text, upload.WorkId)
-	return err
-}
-
 func scanWorkRows(rows *sql.Rows) ([]model.Work, error) {
 	works := make([]model.Work, 0)
 	for rows.Next() {
 		var work model.Work
-		err := rows.Scan(&work.Id, &work.Title, &work.Abbreviation, &work.Volume, &work.Ordinal, &work.Year)
+		err := rows.Scan(&work.Id, &work.Title, &work.Abbreviation, &work.Ordinal, &work.Year, &work.Volume)
 		if err != nil {
 			return nil, fmt.Errorf("query row scan failed: %v", err)
 		}
