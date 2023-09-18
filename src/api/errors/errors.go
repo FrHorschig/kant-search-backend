@@ -34,3 +34,10 @@ func InternalServerError(ctx echo.Context) error {
 		Message: "Internal Server Error",
 	})
 }
+
+func NotImplemented(ctx echo.Context, msg string) error {
+	return ctx.JSON(http.StatusInternalServerError, models.HttpError{
+		Code:    http.StatusNotImplemented,
+		Message: msg,
+	})
+}

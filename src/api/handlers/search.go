@@ -4,6 +4,7 @@ import (
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/errors"
 	"github.com/FrHorschig/kant-search-backend/api/mapper"
+	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
@@ -30,14 +31,17 @@ func (rec *searchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 	}
 
 	c := mapper.CriteriaToCoreModel(*criteria)
-	matches, err := rec.searchRepo.SearchParagraphs(ctx.Request().Context(), c)
-	if err != nil {
-		log.Error().Err(err).Msgf("Error searching for matches: %v", err)
-		return errors.InternalServerError(ctx)
+	if c.Scope == model.PARAGRAPH {
+		matches, err := rec.searchRepo.SearchParagraphs(ctx.Request().Context(), c)
+		if err != nil {
+			log.Error().Err(err).Msgf("Error searching for matches: %v", err)
+			return errors.InternalServerError(ctx)
+		}
+		if len(matches) == 0 {
+			return errors.NotFound(ctx, "No matches found")
+		}
+		return ctx.JSON(200, mapper.MatchesToApiModels(matches))
+	} else {
+		return errors.NotImplemented(ctx, "Sentence scope is not implemented")
 	}
-	if len(matches) == 0 {
-		return errors.NotFound(ctx, "No matches found")
-	}
-
-	return ctx.JSON(200, mapper.MatchesToApiModels(matches))
 }
