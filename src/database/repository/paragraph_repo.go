@@ -58,12 +58,15 @@ func (repo *paragraphRepoImpl) SelectAll(ctx context.Context, workId int32) ([]m
 	query := `SELECT id, content, pages, work_id FROM paragraphs WHERE work_id = $1`
 	rows, err := repo.db.QueryContext(ctx, query, workId)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return []model.Paragraph{}, nil
+		}
 		return nil, err
 	}
 
 	paras, err := scanParagraphRows(rows)
-	if err == sql.ErrNoRows {
-		return []model.Paragraph{}, nil
+	if err != nil {
+		return nil, err
 	}
 	return paras, err
 }

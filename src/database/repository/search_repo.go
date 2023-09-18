@@ -35,6 +35,9 @@ func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria
 		ORDER BY p.work_id, p.id`
 	rows, err := repo.db.QueryContext(ctx, query, pq.Array(searchCriteria.WorkIds), searchString)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return []model.SearchResult{}, nil
+		}
 		return nil, err
 	}
 
