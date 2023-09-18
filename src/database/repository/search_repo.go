@@ -42,8 +42,8 @@ func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria
 	}
 
 	matches, err := scanSearchMatchRow(rows)
-	if err == sql.ErrNoRows {
-		return []model.SearchResult{}, nil
+	if err != nil {
+		return nil, err
 	}
 	return matches, err
 }
