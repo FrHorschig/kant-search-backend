@@ -1,6 +1,8 @@
 package mapper
 
 import (
+	"sort"
+
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/database/model"
 )
@@ -38,6 +40,9 @@ func MatchesToApiModels(matches []model.SearchResult) []models.SearchResult {
 			Matches: apiMatches,
 		})
 	}
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].WorkId < results[j].WorkId
+	})
 	return results
 }
 
