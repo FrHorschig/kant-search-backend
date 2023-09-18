@@ -10,9 +10,29 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/FrHorschig/kant-search-backend/database/model"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestInsertParagraphScanError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	repo := &paragraphRepoImpl{db: db}
+
+	// GIVEN
+	mock.ExpectQuery(anyQuery).WillReturnRows(sqlmock.NewRows([]string{}).AddRow())
+
+	// WHEN
+	id, err := repo.Insert(context.Background(), model.Paragraph{})
+
+	// THEN
+	assert.NotNil(t, err)
+	assert.Equal(t, int32(0), id)
+}
 
 func TestSelectParagraphDatabaseError(t *testing.T) {
 	db, mock, err := sqlmock.New()
