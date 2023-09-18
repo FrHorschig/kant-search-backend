@@ -30,9 +30,7 @@ func NewParagraphRepo(db *sql.DB) ParagraphRepo {
 func (repo *paragraphRepoImpl) Insert(ctx context.Context, paragraph model.Paragraph) (int32, error) {
 	var id int32
 	query := `INSERT INTO paragraphs (content, pages, work_id) VALUES ($1, $2, $3) RETURNING id`
-	row := repo.db.QueryRowContext(ctx, query, paragraph.Text, pq.Array(paragraph.Pages), paragraph.WorkId)
-
-	err := row.Scan(&id)
+	err := repo.db.QueryRowContext(ctx, query, paragraph.Text, pq.Array(paragraph.Pages), paragraph.WorkId).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
