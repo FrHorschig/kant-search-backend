@@ -52,3 +52,22 @@ func TestSelectAllVolumesNoRows(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Empty(t, volumes)
 }
+
+func TestSelectAllVolumesWrongRows(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	repo := &volumeRepoImpl{db: db}
+
+	// GIVEN
+	mock.ExpectQuery(anyQuery).WillReturnRows(sqlmock.NewRows([]string{"abc", "def"}).AddRow(1, 1))
+
+	// WHEN
+	volumes, err := repo.SelectAll(context.Background())
+
+	// THEN
+	assert.NotNil(t, err)
+	assert.Empty(t, volumes)
+}

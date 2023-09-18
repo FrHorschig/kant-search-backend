@@ -52,3 +52,22 @@ func TestSelectAllWorksNoRows(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Empty(t, works)
 }
+
+func TestSelectAllWorksWrongRows(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	repo := &workRepoImpl{db: db}
+
+	// GIVEN
+	mock.ExpectQuery(anyQuery).WillReturnRows(sqlmock.NewRows([]string{"abc", "def"}).AddRow(1, 1))
+
+	// WHEN
+	works, err := repo.SelectAll(context.Background())
+
+	// THEN
+	assert.NotNil(t, err)
+	assert.Empty(t, works)
+}
