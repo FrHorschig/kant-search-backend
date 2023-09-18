@@ -11,7 +11,6 @@ func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
 	return model.SearchCriteria{
 		SearchTerms: criteria.SearchTerms,
 		WorkIds:     criteria.WorkIds,
-		Scope:       mapSearchScope(criteria.Scope),
 	}
 }
 
@@ -44,15 +43,4 @@ func MatchesToApiModels(matches []model.SearchResult) []models.SearchResult {
 		return results[i].WorkId < results[j].WorkId
 	})
 	return results
-}
-
-func mapSearchScope(scope models.SearchScope) model.SearchScope {
-	switch scope {
-	case models.PARAGRAPH:
-		return model.PARAGRAPH
-	case models.SENTENCE:
-		return model.SENTENCE
-	default:
-		return model.PARAGRAPH
-	}
 }

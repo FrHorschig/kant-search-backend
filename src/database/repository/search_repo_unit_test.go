@@ -27,7 +27,6 @@ func TestSearchParagraphsDatabaseError(t *testing.T) {
 	criteria := model.SearchCriteria{
 		SearchTerms: []string{"Maxime"},
 		WorkIds:     []int32{1},
-		Scope:       model.PARAGRAPH,
 	}
 
 	// GIVEN
@@ -52,7 +51,6 @@ func TestSearchParagraphsNoRows(t *testing.T) {
 	criteria := model.SearchCriteria{
 		SearchTerms: []string{"Maxime"},
 		WorkIds:     []int32{1},
-		Scope:       model.PARAGRAPH,
 	}
 
 	// GIVEN
@@ -77,7 +75,6 @@ func TestSearchParagraphsWrongRows(t *testing.T) {
 	criteria := model.SearchCriteria{
 		SearchTerms: []string{"Maxime"},
 		WorkIds:     []int32{1},
-		Scope:       model.PARAGRAPH,
 	}
 
 	// GIVEN

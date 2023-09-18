@@ -19,7 +19,6 @@ func TestSearchParagraphsSingleMatch(t *testing.T) {
 	criteria := model.SearchCriteria{
 		SearchTerms: []string{"Maxime"},
 		WorkIds:     []int32{workId1},
-		Scope:       model.PARAGRAPH,
 	}
 
 	// GIVEN
@@ -51,7 +50,6 @@ func TestSearchParagraphsMultiMatch(t *testing.T) {
 	criteria := model.SearchCriteria{
 		SearchTerms: []string{"Kant"},
 		WorkIds:     []int32{workId1, workId2},
-		Scope:       model.PARAGRAPH,
 	}
 
 	// GIVEN
@@ -92,7 +90,6 @@ func TestSearchParagraphsNoMatch(t *testing.T) {
 	criteria := model.SearchCriteria{
 		SearchTerms: []string{"Maxime"},
 		WorkIds:     []int32{workId1},
-		Scope:       model.PARAGRAPH,
 	}
 
 	// WHEN

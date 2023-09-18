@@ -15,37 +15,12 @@ func TestCriteriaToCoreModel(t *testing.T) {
 	criteria := models.SearchCriteria{
 		SearchTerms: []string{"search", "terms"},
 		WorkIds:     []int32{1, 2},
-		Scope:       models.PARAGRAPH,
 	}
 
 	result := CriteriaToCoreModel(criteria)
 
 	assert.Equal(t, result.SearchTerms, criteria.SearchTerms)
 	assert.Equal(t, result.WorkIds, criteria.WorkIds)
-	assert.Equal(t, result.Scope, model.PARAGRAPH)
-}
-
-func TestCriteriaToCoreModelSentenceScope(t *testing.T) {
-	criteria := models.SearchCriteria{
-		SearchTerms: []string{"search", "terms"},
-		WorkIds:     []int32{1, 2},
-		Scope:       models.SENTENCE,
-	}
-
-	result := CriteriaToCoreModel(criteria)
-
-	assert.Equal(t, result.Scope, model.SENTENCE)
-}
-
-func TestCriteriaToCoreModelDefaultScope(t *testing.T) {
-	criteria := models.SearchCriteria{
-		SearchTerms: []string{"search", "terms"},
-		WorkIds:     []int32{1, 2},
-	}
-
-	result := CriteriaToCoreModel(criteria)
-
-	assert.Equal(t, result.Scope, model.PARAGRAPH)
 }
 
 func TestMatchesToApiModels(t *testing.T) {
