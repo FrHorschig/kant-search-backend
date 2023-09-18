@@ -3,12 +3,12 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
@@ -26,39 +26,24 @@ func TestMain(m *testing.M) {
 }
 
 func createDbContainer() string {
-	ctx := context.Background()
 	envVarValue := "kantsearch"
-
-	req := testcontainers.ContainerRequest{
-		Env: map[string]string{
-			"POSTGRES_USER":     envVarValue,
-			"POSTGRES_PASSWORD": envVarValue,
-			"POSTGRES_DB":       envVarValue,
-		},
-		ExposedPorts: []string{"5432/tcp"},
-		Image:        "postgres:14.3",
-		WaitingFor: wait.ForExec([]string{"pg_isready"}).
-			WithPollInterval(2 * time.Second).
-			WithExitCodeMatcher(func(exitCode int) bool {
-				return exitCode == 0
-			}),
-	}
-	container, err := testcontainers.GenericContainer(ctx,
-		testcontainers.GenericContainerRequest{
-			ContainerRequest: req,
-			Started:          true,
-		})
+	cont, err := postgres.RunContainer(context.Background(),
+		testcontainers.WithImage("kant-search-database"),
+		postgres.WithUsername(envVarValue),
+		postgres.WithPassword(envVarValue),
+		postgres.WithDatabase(envVarValue),
+		testcontainers.WithWaitStrategy(
+			wait.ForLog("database system is ready to accept connections").
+				WithOccurrence(2).
+				WithStartupTimeout(20*time.Second)),
+	)
 	if err != nil {
 		panic(err)
 	}
 
-	mappedPort, err := container.MappedPort(ctx, "5432")
+	connStr, err := cont.ConnectionString(context.Background(), "sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
-	host, err := container.Host(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", envVarValue, envVarValue, host, mappedPort, envVarValue)
+	return connStr
 }

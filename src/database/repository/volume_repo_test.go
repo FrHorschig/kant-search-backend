@@ -16,7 +16,7 @@ func TestSelectAllVolumes(t *testing.T) {
 
 	// THEN
 	assert.Nil(t, err)
-	assert.Equal(t, len(volumes), 23)
-	assert.Equal(t, volumes[0].Id, 1)
-	assert.Equal(t, volumes[len(volumes)-1].Id, 23)
+	assert.Equal(t, 23, len(volumes))
+	assert.Equal(t, int32(1), volumes[0].Id)
+	assert.Equal(t, int32(23), volumes[len(volumes)-1].Id)
 }
