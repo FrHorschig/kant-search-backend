@@ -1,72 +1,64 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
-	"log"
+	"os"
 	"testing"
 	"time"
 
-	"github.com/ory/dockertest"
-	"github.com/ory/dockertest/docker"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 var testDb *sql.DB
 
 func TestMain(m *testing.M) {
-	// pool, resource := setupDb()
-	// testDb = util.InitDbConnection()
-	// code := m.Run()
-	// cleanupDb(pool, resource)
-	// os.Exit(code)
+	dbUrl := createDbContainer()
+	db, err := sql.Open("postgres", dbUrl)
+	if err != nil {
+		panic(err)
+	}
+	testDb = db
+	code := m.Run()
+	os.Exit(code)
 }
 
-func setupDb() (*dockertest.Pool, *dockertest.Resource) {
-	pool, err := dockertest.NewPool("")
-	if err != nil {
-		log.Fatalf("Could not construct pool: %s", err)
-	}
-	err = pool.Client.Ping()
-	if err != nil {
-		log.Fatalf("Could not connect to Docker: %s", err)
-	}
-	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "kant-search-database",
-		Env: []string{
-			"DB_USER=postgres",
-			"DB_PASSWORD=postgres",
-			"DB_NAME=testdb",
-			"DB_HOST=localhost",
-			"DB_PORT=5432",
-			"listen_addresses = '*'",
+func createDbContainer() string {
+	ctx := context.Background()
+	envVarValue := "kantsearch"
+
+	req := testcontainers.ContainerRequest{
+		Env: map[string]string{
+			"POSTGRES_USER":     envVarValue,
+			"POSTGRES_PASSWORD": envVarValue,
+			"POSTGRES_DB":       envVarValue,
 		},
-	}, func(config *docker.HostConfig) {
-		config.AutoRemove = true
-		config.RestartPolicy = docker.RestartPolicy{Name: "no"}
-	})
+		ExposedPorts: []string{"5432/tcp"},
+		Image:        "postgres:14.3",
+		WaitingFor: wait.ForExec([]string{"pg_isready"}).
+			WithPollInterval(2 * time.Second).
+			WithExitCodeMatcher(func(exitCode int) bool {
+				return exitCode == 0
+			}),
+	}
+	container, err := testcontainers.GenericContainer(ctx,
+		testcontainers.GenericContainerRequest{
+			ContainerRequest: req,
+			Started:          true,
+		})
 	if err != nil {
-		log.Fatalf("Could not start resource: %s", err)
+		panic(err)
 	}
-	databaseUrl := fmt.Sprintf("postgres://postgres:postgres@localhost:%s/testdb?sslmode=disable", resource.GetPort("5432/tcp"))
-	log.Println("Connecting to database on url: ", databaseUrl)
-	resource.Expire(20) // kill container after timeout in case cleanup fails
-	pool.MaxWait = 20 * time.Second
-	if err = pool.Retry(func() error {
-		db, err := sql.Open("postgres", databaseUrl)
-		if err != nil {
-			return err
-		}
-		testDb = db
-		return db.Ping()
-	}); err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
-	}
-	return pool, resource
-}
 
-func cleanupDb(pool *dockertest.Pool, resource *dockertest.Resource) {
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
+	mappedPort, err := container.MappedPort(ctx, "5432")
+	if err != nil {
+		panic(err)
 	}
-	testDb.Close()
+	host, err := container.Host(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", envVarValue, envVarValue, host, mappedPort, envVarValue)
 }
