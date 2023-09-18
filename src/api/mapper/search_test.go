@@ -46,25 +46,25 @@ func TestCriteriaToCoreModelDefaultScope(t *testing.T) {
 }
 
 func TestMatchesToApiModels(t *testing.T) {
-	match1 := model.SearchMatch{
+	match1 := model.SearchResult{
 		WorkId:    1,
 		Snippet:   "snippet",
 		Pages:     []int32{1, 2},
 		ElementId: 1,
 	}
-	match2 := model.SearchMatch{
+	match2 := model.SearchResult{
 		WorkId:    1,
 		Snippet:   "snippet2",
 		Pages:     []int32{3, 4},
 		ElementId: 2,
 	}
-	match3 := model.SearchMatch{
+	match3 := model.SearchResult{
 		WorkId:    2,
 		Snippet:   "snippet3",
 		Pages:     []int32{5, 6},
 		ElementId: 3,
 	}
-	matches := []model.SearchMatch{
+	matches := []model.SearchResult{
 		match1, match2, match3,
 	}
 

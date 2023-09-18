@@ -98,7 +98,7 @@ func testSearchParagraphsDatabaseError(t *testing.T, sut *searchHandlerImpl, sea
 	if err != nil {
 		t.Fatal(err)
 	}
-	matches := []model.SearchMatch{}
+	matches := []model.SearchResult{}
 	err = errors.New("database error")
 	// GIVEN
 	req := httptest.NewRequest(echo.POST, "/api/v1/search/paragraphs", bytes.NewReader(body))
@@ -118,7 +118,7 @@ func testSearchParagraphsNotFound(t *testing.T, sut *searchHandlerImpl, searchRe
 	if err != nil {
 		t.Fatal(err)
 	}
-	matches := []model.SearchMatch{}
+	matches := []model.SearchResult{}
 	// GIVEN
 	req := httptest.NewRequest(echo.POST, "/api/v1/search/paragraphs", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -137,7 +137,7 @@ func testSearchParagraphsSuccess(t *testing.T, sut *searchHandlerImpl, searchRep
 	if err != nil {
 		t.Fatal(err)
 	}
-	matches := []model.SearchMatch{{
+	matches := []model.SearchResult{{
 		Volume:    1,
 		WorkTitle: "Test",
 		Snippet:   "Test",

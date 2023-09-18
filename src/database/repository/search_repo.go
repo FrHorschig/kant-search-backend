@@ -13,7 +13,7 @@ import (
 )
 
 type SearchRepo interface {
-	SearchParagraphs(ctx context.Context, searchTerms model.SearchCriteria) ([]model.SearchMatch, error)
+	SearchParagraphs(ctx context.Context, searchTerms model.SearchCriteria) ([]model.SearchResult, error)
 }
 
 type searchRepoImpl struct {
@@ -27,7 +27,7 @@ func NewSearchRepo(db *sql.DB) SearchRepo {
 	return &impl
 }
 
-func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria model.SearchCriteria) ([]model.SearchMatch, error) {
+func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria model.SearchCriteria) ([]model.SearchResult, error) {
 	searchString := strings.Join(searchCriteria.SearchTerms, " & ")
 	query := `SELECT w.volume, w.title, w.id, ts_headline('german', p.content, to_tsquery('german', $2), 'FragmentDelimiter="...<br>... ", MaxFragments=10, MaxWords=16, MinWords=6'), p.pages, p.id
 		FROM paragraphs p 
@@ -41,15 +41,15 @@ func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria
 
 	matches, err := scanSearchMatchRow(rows)
 	if err == sql.ErrNoRows {
-		return []model.SearchMatch{}, nil
+		return []model.SearchResult{}, nil
 	}
 	return matches, err
 }
 
-func scanSearchMatchRow(rows *sql.Rows) ([]model.SearchMatch, error) {
-	matches := make([]model.SearchMatch, 0)
+func scanSearchMatchRow(rows *sql.Rows) ([]model.SearchResult, error) {
+	matches := make([]model.SearchResult, 0)
 	for rows.Next() {
-		var match model.SearchMatch
+		var match model.SearchResult
 		err := rows.Scan(&match.Volume, &match.WorkTitle, &match.WorkId, &match.Snippet, pq.Array(&match.Pages), &match.ElementId)
 		if err != nil {
 			return nil, fmt.Errorf("search match row scan failed: %v", err)
