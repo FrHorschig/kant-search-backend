@@ -20,6 +20,7 @@ func MatchesToApiModels(matches []model.SearchResult) []models.SearchResult {
 		apiMatch := models.Match{
 			ElementId: match.ElementId,
 			Snippet:   match.Snippet,
+			Text:      match.Text,
 			Pages:     match.Pages,
 		}
 
