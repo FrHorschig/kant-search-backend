@@ -6,14 +6,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strings"
 
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/lib/pq"
 )
 
 type SearchRepo interface {
-	SearchParagraphs(ctx context.Context, searchTerms model.SearchCriteria) ([]model.SearchResult, error)
+	SearchParagraphs(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error)
 }
 
 type searchRepoImpl struct {
@@ -27,22 +26,23 @@ func NewSearchRepo(db *sql.DB) SearchRepo {
 	return &impl
 }
 
-func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, searchCriteria model.SearchCriteria) ([]model.SearchResult, error) {
-	searchString := strings.Join(searchCriteria.SearchTerms, " & ")
-	tsHeadlineBase := `ts_headline( 'german', p.content, to_tsquery('german', $2), %s)`
-	snippet := fmt.Sprintf(tsHeadlineBase, `'
-		FragmentDelimiter="...<br>... ",
+func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
+	snippetParams := `FragmentDelimiter="...<br>... ",
 		MaxFragments=10,
 		MaxWords=16,
-		MinWords=6'
-	`)
-	text := fmt.Sprintf(tsHeadlineBase, `'MaxWords=99999, MinWords=99998'`)
-	query := `SELECT p.id, ` + snippet + `, ` + text + `, p.pages, p.work_id
-		FROM paragraphs p 
-		WHERE work_id = ANY($1) AND search @@ to_tsquery('german', $2)
+		MinWords=6`
+	textParams := `MaxWords=99999, MinWords=99998`
+	query := `SELECT
+			p.id, 
+			ts_headline('german', p.content, plainto_tsquery('german', $2), $3),
+			ts_headline('german', p.content, plainto_tsquery('german', $2), $4),
+			p.pages,
+			p.work_id
+		FROM paragraphs p
+		WHERE work_id = ANY($1) AND search @@ plainto_tsquery('german', $2)
 		ORDER BY p.work_id, p.id`
 
-	rows, err := repo.db.QueryContext(ctx, query, pq.Array(searchCriteria.WorkIds), searchString)
+	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), criteria.SearchTerms, snippetParams, textParams)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return []model.SearchResult{}, nil

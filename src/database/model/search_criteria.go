@@ -1,6 +1,6 @@
 package model
 
 type SearchCriteria struct {
-	SearchTerms []string
+	SearchTerms string
 	WorkIds     []int32
 }

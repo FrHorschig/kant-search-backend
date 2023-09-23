@@ -13,7 +13,7 @@ import (
 
 func TestCriteriaToCoreModel(t *testing.T) {
 	criteria := models.SearchCriteria{
-		SearchTerms: []string{"search", "terms"},
+		SearchTerms: "search terms",
 		WorkIds:     []int32{1, 2},
 	}
 

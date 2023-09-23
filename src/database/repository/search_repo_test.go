@@ -17,7 +17,7 @@ func TestSearchParagraphsSingleMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		SearchTerms: []string{"Maxime"},
+		SearchTerms: "Maxime",
 		WorkIds:     []int32{workId1},
 	}
 
@@ -48,7 +48,7 @@ func TestSearchParagraphsMultiMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		SearchTerms: []string{"Kant"},
+		SearchTerms: "Kant",
 		WorkIds:     []int32{workId1, workId2},
 	}
 
@@ -88,7 +88,7 @@ func TestSearchParagraphsNoMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		SearchTerms: []string{"Maxime"},
+		SearchTerms: "Maxime",
 		WorkIds:     []int32{workId1},
 	}
 

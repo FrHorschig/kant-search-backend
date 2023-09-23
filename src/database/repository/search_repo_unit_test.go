@@ -25,7 +25,7 @@ func TestSearchParagraphsDatabaseError(t *testing.T) {
 	dbErr := fmt.Errorf("database error")
 
 	criteria := model.SearchCriteria{
-		SearchTerms: []string{"Maxime"},
+		SearchTerms: "Maxime",
 		WorkIds:     []int32{1},
 	}
 
@@ -49,7 +49,7 @@ func TestSearchParagraphsNoRows(t *testing.T) {
 	repo := &searchRepoImpl{db: db}
 
 	criteria := model.SearchCriteria{
-		SearchTerms: []string{"Maxime"},
+		SearchTerms: "Maxime",
 		WorkIds:     []int32{1},
 	}
 
@@ -73,7 +73,7 @@ func TestSearchParagraphsWrongRows(t *testing.T) {
 	repo := &searchRepoImpl{db: db}
 
 	criteria := model.SearchCriteria{
-		SearchTerms: []string{"Maxime"},
+		SearchTerms: "Maxime",
 		WorkIds:     []int32{1},
 	}
 
