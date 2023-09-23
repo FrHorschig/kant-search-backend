@@ -7,27 +7,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/stretchr/testify/assert"
 )
-
-var workId1 = int32(1)
-var workId2 = int32(2)
-var para1 = model.Paragraph{
-	Text:   "Kant Wille Maxime",
-	Pages:  []int32{1, 2},
-	WorkId: workId1,
-}
-var para2 = model.Paragraph{
-	Text:   "Kant Kategorischer Imperativ",
-	Pages:  []int32{2},
-	WorkId: workId1,
-}
-var para3 = model.Paragraph{
-	Text:   "Kant Vernunft Kategorie",
-	Pages:  []int32{3},
-	WorkId: workId2,
-}
 
 func TestInsertParagraph(t *testing.T) {
 	repo := &paragraphRepoImpl{db: testDb}
