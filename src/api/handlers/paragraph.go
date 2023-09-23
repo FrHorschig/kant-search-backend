@@ -13,7 +13,6 @@ import (
 )
 
 type ParagraphHandler interface {
-	GetParagraph(ctx echo.Context) error
 	GetParagraphs(ctx echo.Context) error
 }
 

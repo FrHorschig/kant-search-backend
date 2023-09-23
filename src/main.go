@@ -23,7 +23,7 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHandler handlers.ParagraphHandler, searchHander handlers.SearchHandler) {
+func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, paragraphHandler handlers.ParagraphHandler, searchHandler handlers.SearchHandler) {
 	e.GET("/api/v1/volumes", func(ctx echo.Context) error {
 		return workHandler.GetVolumes(ctx)
 	})
@@ -33,14 +33,11 @@ func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, sectionHan
 	e.POST("/api/v1/works", func(ctx echo.Context) error {
 		return workHandler.PostWork(ctx)
 	})
-	e.GET("/api/v1/works/:workId/paragraphs/:paragraphId", func(ctx echo.Context) error {
-		return sectionHandler.GetParagraph(ctx)
+	e.GET("/api/v1/works/:workId/paragraphs", func(ctx echo.Context) error {
+		return paragraphHandler.GetParagraphs(ctx)
 	})
-	e.GET("/api/v1/works/:id/paragraphs", func(ctx echo.Context) error {
-		return sectionHandler.GetParagraphs(ctx)
-	})
-	e.POST("/api/v1/search/paragraphs", func(ctx echo.Context) error {
-		return searchHander.SearchParagraphs(ctx)
+	e.POST("/api/v1/search", func(ctx echo.Context) error {
+		return searchHandler.SearchParagraphs(ctx)
 	})
 }
 
