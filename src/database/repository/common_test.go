@@ -18,22 +18,10 @@ import (
 
 var testDb *sql.DB
 
-var workId1 = int32(1)
-var workId2 = int32(2)
-var para1 = model.Paragraph{
-	Text:   "Kant Wille Maxime &",
-	Pages:  []int32{1, 2},
-	WorkId: workId1,
-}
-var para2 = model.Paragraph{
-	Text:   "Kant Kategorischer Imperativ",
-	Pages:  []int32{2},
-	WorkId: workId1,
-}
-var para3 = model.Paragraph{
-	Text:   "Kant Vernunft Kategorie",
-	Pages:  []int32{3},
-	WorkId: workId2,
+func (paraRepo *paragraphRepoImpl) insertParagraphs(workId int32, text string) (int32, error) {
+	ctx := context.Background()
+	p := model.Paragraph{Text: text, Pages: []int32{1, 2}, WorkId: workId}
+	return paraRepo.Insert(ctx, p)
 }
 
 func TestMain(m *testing.M) {

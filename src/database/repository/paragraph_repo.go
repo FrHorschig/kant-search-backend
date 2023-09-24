@@ -13,7 +13,6 @@ import (
 
 type ParagraphRepo interface {
 	Insert(ctx context.Context, paragraph model.Paragraph) (int32, error)
-	Select(ctx context.Context, workId int32, paragraphId int32) (*model.Paragraph, error)
 	SelectAll(ctx context.Context, workId int32) ([]model.Paragraph, error)
 }
 
@@ -36,20 +35,6 @@ func (repo *paragraphRepoImpl) Insert(ctx context.Context, paragraph model.Parag
 	}
 
 	return id, nil
-}
-
-func (repo *paragraphRepoImpl) Select(ctx context.Context, workId int32, paragraphId int32) (*model.Paragraph, error) {
-	println(workId, paragraphId)
-	var paragraph model.Paragraph
-	query := `SELECT id, content, pages, work_id FROM paragraphs WHERE work_id = $1 AND id = $2`
-	err := repo.db.QueryRowContext(ctx, query, workId, paragraphId).Scan(&paragraph.Id, &paragraph.Text, pq.Array(&paragraph.Pages), &paragraph.WorkId)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &paragraph, err
 }
 
 func (repo *paragraphRepoImpl) SelectAll(ctx context.Context, workId int32) ([]model.Paragraph, error) {

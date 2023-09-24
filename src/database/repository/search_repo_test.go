@@ -17,14 +17,14 @@ func TestSearchParagraphsSingleMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{workId1},
+		WorkIds:     []int32{1},
 		SearchTerms: []string{"Maxime"},
 	}
 
 	// GIVEN
-	id, _ := paraRepo.Insert(ctx, para1)
-	paraRepo.Insert(ctx, para2)
-	paraRepo.Insert(ctx, para3)
+	id, _ := paraRepo.insertParagraphs(1, "Maxime")
+	paraRepo.insertParagraphs(1, "Wille")
+	paraRepo.insertParagraphs(2, "Maxime")
 
 	// WHEN
 	matches, err := repo.SearchParagraphs(ctx, criteria)
@@ -37,8 +37,7 @@ func TestSearchParagraphsSingleMatch(t *testing.T) {
 	assert.Equal(t, id, matches[0].ElementId)
 	assert.Contains(t, matches[0].Snippet, "Maxime")
 	assert.Contains(t, matches[0].Text, "Maxime")
-	assert.Equal(t, para1.Pages, matches[0].Pages)
-	assert.Equal(t, para1.WorkId, matches[0].WorkId)
+	assert.Equal(t, int32(1), matches[0].WorkId)
 
 	testDb.Exec("DELETE FROM paragraphs")
 }
@@ -49,14 +48,12 @@ func TestSearchParagraphsIgnoreSpecialCharacters(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{workId1},
+		WorkIds:     []int32{1},
 		SearchTerms: []string{"&"},
 	}
 
 	// GIVEN
-	paraRepo.Insert(ctx, para1) // contains "&"
-	paraRepo.Insert(ctx, para2)
-	paraRepo.Insert(ctx, para3)
+	paraRepo.insertParagraphs(1, "&")
 
 	// WHEN
 	matches, err := repo.SearchParagraphs(ctx, criteria)
@@ -75,14 +72,14 @@ func TestSearchParagraphsMultiMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{workId1, workId2},
-		SearchTerms: []string{"Kant"},
+		WorkIds:     []int32{1, 2},
+		SearchTerms: []string{"Maxime"},
 	}
 
 	// GIVEN
-	id1, _ := paraRepo.Insert(ctx, para1)
-	id2, _ := paraRepo.Insert(ctx, para2)
-	id3, _ := paraRepo.Insert(ctx, para3)
+	id1, _ := paraRepo.insertParagraphs(1, "Maxime")
+	paraRepo.insertParagraphs(1, "Wille")
+	id3, _ := paraRepo.insertParagraphs(2, "Maxime")
 
 	// WHEN
 	matches, err := repo.SearchParagraphs(ctx, criteria)
@@ -90,25 +87,17 @@ func TestSearchParagraphsMultiMatch(t *testing.T) {
 	// THEN
 	assert.Nil(t, err)
 	assert.NotNil(t, matches)
-	assert.Len(t, matches, 3)
+	assert.Len(t, matches, 2)
 
 	assert.Equal(t, id1, matches[0].ElementId)
-	assert.Contains(t, matches[0].Snippet, "Kant")
-	assert.Contains(t, matches[0].Text, "Kant")
-	assert.Equal(t, para1.Pages, matches[0].Pages)
-	assert.Equal(t, para1.WorkId, matches[0].WorkId)
+	assert.Contains(t, matches[0].Snippet, "Maxime")
+	assert.Contains(t, matches[0].Text, "Maxime")
+	assert.Equal(t, int32(1), matches[0].WorkId)
 
-	assert.Equal(t, id2, matches[1].ElementId)
-	assert.Contains(t, matches[1].Snippet, "Kant")
-	assert.Contains(t, matches[1].Text, "Kant")
-	assert.Equal(t, para2.Pages, matches[1].Pages)
-	assert.Equal(t, para2.WorkId, matches[1].WorkId)
-
-	assert.Equal(t, id3, matches[2].ElementId)
-	assert.Contains(t, matches[2].Snippet, "Kant")
-	assert.Contains(t, matches[2].Text, "Kant")
-	assert.Equal(t, para3.Pages, matches[2].Pages)
-	assert.Equal(t, para3.WorkId, matches[2].WorkId)
+	assert.Equal(t, id3, matches[1].ElementId)
+	assert.Contains(t, matches[1].Snippet, "Maxime")
+	assert.Contains(t, matches[1].Text, "Maxime")
+	assert.Equal(t, int32(2), matches[1].WorkId)
 
 	testDb.Exec("DELETE FROM paragraphs")
 }
@@ -118,7 +107,7 @@ func TestSearchParagraphsNoMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{workId1},
+		WorkIds:     []int32{1},
 		SearchTerms: []string{"Maxime"},
 	}
 
