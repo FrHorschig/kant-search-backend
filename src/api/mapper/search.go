@@ -9,8 +9,11 @@ import (
 
 func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
 	return model.SearchCriteria{
-		SearchTerms: criteria.SearchTerms,
-		WorkIds:     criteria.WorkIds,
+		WorkIds:       criteria.WorkIds,
+		SearchTerms:   criteria.SearchTerms,
+		ExcludedTerms: criteria.ExcludedTerms,
+		OptionalTerms: criteria.OptionalTerms,
+		Scope:         model.SearchScope(criteria.Scope),
 	}
 }
 
