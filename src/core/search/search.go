@@ -5,6 +5,7 @@ import (
 
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
+	"github.com/FrHorschig/kant-search-backend/database/util"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=mocks/work_mock.go -package=mocks
@@ -23,6 +24,22 @@ func NewSearchProcessor(searchRepo repository.SearchRepo) SearchProcessor {
 }
 
 func (rec *searchProcessorImpl) Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
-	// TODO implement me
-	return nil, nil
+	escapeSpecialChars(&criteria)
+	if criteria.Scope == model.SentenceScope {
+		return rec.searchRepo.SearchSentences(ctx, criteria)
+	} else {
+		return rec.searchRepo.SearchParagraphs(ctx, criteria)
+	}
+}
+
+func escapeSpecialChars(c *model.SearchCriteria) {
+	for i := range c.SearchTerms {
+		c.SearchTerms[i] = util.EscapeSpecialChars(c.ExcludedTerms[i])
+	}
+	for i := range c.ExcludedTerms {
+		c.SearchTerms[i] = util.EscapeSpecialChars(c.ExcludedTerms[i])
+	}
+	for i := range c.OptionalTerms {
+		c.SearchTerms[i] = util.EscapeSpecialChars(c.ExcludedTerms[i])
+	}
 }
