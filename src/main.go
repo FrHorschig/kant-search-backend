@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/FrHorschig/kant-search-backend/api/handlers"
+	"github.com/FrHorschig/kant-search-backend/core/search"
 	"github.com/FrHorschig/kant-search-backend/core/upload"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/FrHorschig/kant-search-backend/util"
@@ -52,10 +53,11 @@ func main() {
 	searchRepo := repository.NewSearchRepo(db)
 
 	workProcessor := upload.NewWorkProcessor(workRepo, paragraphRepo, sentenceRepo)
+	searchProcessor := search.NewSearchProcessor(searchRepo)
 
 	workHandler := handlers.NewWorkHandler(volumeRepo, workRepo, workProcessor)
 	paragraphHandler := handlers.NewParagraphHandler(paragraphRepo)
-	searchHandler := handlers.NewSearchHandler(searchRepo)
+	searchHandler := handlers.NewSearchHandler(searchProcessor)
 
 	e := initEchoServer()
 	registerHandlers(e, workHandler, paragraphHandler, searchHandler)
