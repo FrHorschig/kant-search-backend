@@ -3,10 +3,16 @@ package repository
 //go:generate mockgen -source=$GOFILE -destination=mocks/sentence_repo_mock.go -package=mocks
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
+	"strings"
+
+	"github.com/FrHorschig/kant-search-backend/database/model"
 )
 
 type SentenceRepo interface {
+	Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error)
 }
 
 type sentenceRepoImpl struct {
@@ -19,23 +25,21 @@ func NewSentenceRepo(db *sql.DB) SentenceRepo {
 	}
 }
 
-/*
 func (repo *sentenceRepoImpl) Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error) {
-	query := `INSERT INTO sentences (content, paragraph_id, work_id) VALUES `
+	var builder strings.Builder
+	builder.WriteString(`INSERT INTO sentences (content, paragraph_id) VALUES `)
 	values := make([]interface{}, 0)
 	for i, sentence := range sentences {
 		if i > 0 {
-			query += `, `
+			builder.WriteString(`, `)
 		}
-		query += `($` + fmt.Sprint(i*3+1) + `, $` + fmt.Sprint(i*3+2) + `, $` + fmt.Sprint(i*3+3) + `)`
-
+		builder.WriteString(`($` + fmt.Sprint(i*2+1) + `, $` + fmt.Sprint(i*2+2) + `)`)
 		values = append(values, sentence.Text)
 		values = append(values, sentence.ParagraphId)
-		values = append(values, sentence.WorkId)
 	}
-	query += ` RETURNING id`
+	builder.WriteString(` RETURNING id`)
 
-	rows, err := repo.db.QueryContext(ctx, query, values...)
+	rows, err := repo.db.QueryContext(ctx, builder.String(), values...)
 	if err != nil {
 		return nil, err
 	}
@@ -52,17 +56,3 @@ func (repo *sentenceRepoImpl) Insert(ctx context.Context, sentences []model.Sent
 
 	return ids, nil
 }
-
-func scanSentenceRows(rows *sql.Rows) ([]model.Sentence, error) {
-	paragraphs := make([]model.Sentence, 0)
-	for rows.Next() {
-		var work model.Sentence
-		err := rows.Scan(&work.Id, &work.Text, &work.WorkId)
-		if err != nil {
-			return nil, fmt.Errorf("query row scan failed: %v", err)
-		}
-		paragraphs = append(paragraphs, work)
-	}
-	return paragraphs, nil
-}
-*/
