@@ -18,10 +18,19 @@ import (
 
 var testDb *sql.DB
 
-func (paraRepo *paragraphRepoImpl) insertParagraphs(workId int32, text string) (int32, error) {
+func (repo *paragraphRepoImpl) insertParagraphs(workId int32, text string) (int32, error) {
 	ctx := context.Background()
 	p := model.Paragraph{Text: text, Pages: []int32{1, 2}, WorkId: workId}
-	return paraRepo.Insert(ctx, p)
+	return repo.Insert(ctx, p)
+}
+
+func (repo *sentenceRepoImpl) insertSentences(paragraphId int32, texts []string) ([]int32, error) {
+	ctx := context.Background()
+	var sentences []model.Sentence
+	for _, text := range texts {
+		sentences = append(sentences, model.Sentence{Text: text, ParagraphId: paragraphId})
+	}
+	return repo.Insert(ctx, sentences)
 }
 
 func TestMain(m *testing.M) {
