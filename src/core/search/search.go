@@ -15,20 +15,21 @@ type SearchProcessor interface {
 }
 
 type searchProcessorImpl struct {
-	searchRepo repository.SearchRepo
+	paragraphRepo repository.ParagraphRepo
+	sentenceRepo  repository.SentenceRepo
 }
 
-func NewSearchProcessor(searchRepo repository.SearchRepo) SearchProcessor {
-	impl := searchProcessorImpl{searchRepo: searchRepo}
+func NewSearchProcessor(paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) SearchProcessor {
+	impl := searchProcessorImpl{paragraphRepo: paragraphRepo, sentenceRepo: sentenceRepo}
 	return &impl
 }
 
 func (rec *searchProcessorImpl) Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
 	escapeSpecialChars(&criteria)
 	if criteria.Scope == model.SentenceScope {
-		return rec.searchRepo.SearchSentences(ctx, criteria)
+		return rec.sentenceRepo.Search(ctx, criteria)
 	} else {
-		return rec.searchRepo.SearchParagraphs(ctx, criteria)
+		return rec.paragraphRepo.Search(ctx, criteria)
 	}
 }
 

@@ -51,3 +51,120 @@ func selectContents(t *testing.T, ids []int32) []string {
 	}
 	return contents
 }
+
+func TestSearchSentencesSingleMatch(t *testing.T) {
+	paraRepo := &paragraphRepoImpl{db: testDb}
+	sut := &sentenceRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	criteria := model.SearchCriteria{
+		WorkIds:     []int32{1},
+		SearchTerms: []string{"Maxime"},
+	}
+
+	// GIVEN
+	pId1, _ := paraRepo.insertParagraphs(1, "Maxime Paragraph")
+	pId2, _ := paraRepo.insertParagraphs(2, "Maxime")
+	ids, _ := sut.insertSentences(pId1, []string{"Maxime", "Wille"})
+	sut.insertSentences(pId2, []string{"Maxime"})
+
+	// WHEN
+	matches, err := sut.Search(ctx, criteria)
+
+	// THEN
+	assert.Nil(t, err)
+	assert.NotNil(t, matches)
+	assert.Len(t, matches, 1)
+
+	assert.Equal(t, ids[0], matches[0].ElementId)
+	assert.Contains(t, matches[0].Snippet, "Maxime")
+	assert.Contains(t, matches[0].Text, "Maxime")
+	assert.NotContains(t, matches[0].Text, "Paragraph")
+	assert.Equal(t, int32(1), matches[0].WorkId)
+
+	testDb.Exec("DELETE FROM sentences")
+	testDb.Exec("DELETE FROM paragraphs")
+}
+
+func TestSearchSentencesIgnoreSpecialCharacters(t *testing.T) {
+	paraRepo := &paragraphRepoImpl{db: testDb}
+	sut := &sentenceRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	criteria := model.SearchCriteria{
+		WorkIds:     []int32{1},
+		SearchTerms: []string{`\&`},
+	}
+
+	// GIVEN
+	pId, _ := paraRepo.insertParagraphs(1, "Maxime Paragraph")
+	sut.insertSentences(pId, []string{`\&`})
+
+	// WHEN
+	matches, err := sut.Search(ctx, criteria)
+
+	// THEN
+	assert.Nil(t, err)
+	assert.NotNil(t, matches)
+	assert.Len(t, matches, 0)
+
+	testDb.Exec("DELETE FROM sentences")
+	testDb.Exec("DELETE FROM paragraphs")
+}
+
+func TestSearchSentencesMultiMatch(t *testing.T) {
+	paraRepo := &paragraphRepoImpl{db: testDb}
+	sut := &sentenceRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	criteria := model.SearchCriteria{
+		WorkIds:     []int32{1, 2},
+		SearchTerms: []string{"Maxime"},
+	}
+
+	// GIVEN
+	pId1, _ := paraRepo.insertParagraphs(1, "Maxime Paragraph")
+	pId2, _ := paraRepo.insertParagraphs(2, "Maxime Paragraph")
+	ids1, _ := sut.insertSentences(pId1, []string{"Maxime", "Wille"})
+	ids2, _ := sut.insertSentences(pId2, []string{"Maxime"})
+
+	// WHEN
+	matches, err := sut.Search(ctx, criteria)
+
+	// THEN
+	assert.Nil(t, err)
+	assert.NotNil(t, matches)
+	assert.Len(t, matches, 2)
+
+	assert.Equal(t, ids1[0], matches[0].ElementId)
+	assert.Contains(t, matches[0].Snippet, "Maxime")
+	assert.Contains(t, matches[0].Text, "Maxime")
+	assert.NotContains(t, matches[0].Text, "Paragraph")
+	assert.Equal(t, int32(1), matches[0].WorkId)
+
+	assert.Equal(t, ids2[0], matches[1].ElementId)
+	assert.Contains(t, matches[1].Snippet, "Maxime")
+	assert.Contains(t, matches[1].Text, "Maxime")
+	assert.NotContains(t, matches[1].Text, "Paragraph")
+	assert.Equal(t, int32(2), matches[1].WorkId)
+
+	testDb.Exec("DELETE FROM sentences")
+	testDb.Exec("DELETE FROM paragraphs")
+}
+
+func TestSearchSentencesNoMatch(t *testing.T) {
+	sut := &sentenceRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	criteria := model.SearchCriteria{
+		WorkIds:     []int32{1},
+		SearchTerms: []string{"Maxime"},
+	}
+
+	// WHEN
+	matches, err := sut.Search(ctx, criteria)
+
+	// THEN
+	assert.Nil(t, err)
+	assert.Len(t, matches, 0)
+}

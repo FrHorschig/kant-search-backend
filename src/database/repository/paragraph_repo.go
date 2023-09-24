@@ -14,6 +14,7 @@ import (
 type ParagraphRepo interface {
 	Insert(ctx context.Context, paragraph model.Paragraph) (int32, error)
 	SelectAll(ctx context.Context, workId int32) ([]model.Paragraph, error)
+	Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error)
 }
 
 type paragraphRepoImpl struct {
@@ -52,6 +53,29 @@ func (repo *paragraphRepoImpl) SelectAll(ctx context.Context, workId int32) ([]m
 		return nil, err
 	}
 	return paras, err
+}
+
+func (repo *paragraphRepoImpl) Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
+	snippetParams, textParams := buildParams()
+	query := `SELECT
+			p.id, 
+			ts_headline('german', p.content, to_tsquery('german', $2), $3),
+			ts_headline('german', p.content, to_tsquery('german', $2), $4),
+			p.pages,
+			p.work_id
+		FROM paragraphs p
+		WHERE p.work_id = ANY($1) AND p.search @@ plainto_tsquery('german', $2)
+		ORDER BY p.work_id, p.id`
+
+	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), buildTerms(criteria), snippetParams, textParams)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []model.SearchResult{}, nil
+		}
+		return nil, err
+	}
+
+	return scanSearchMatchRow(rows)
 }
 
 func scanParagraphRows(rows *sql.Rows) ([]model.Paragraph, error) {

@@ -9,10 +9,12 @@ import (
 	"strings"
 
 	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/lib/pq"
 )
 
 type SentenceRepo interface {
 	Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error)
+	Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error)
 }
 
 type sentenceRepoImpl struct {
@@ -55,4 +57,28 @@ func (repo *sentenceRepoImpl) Insert(ctx context.Context, sentences []model.Sent
 	}
 
 	return ids, nil
+}
+
+func (repo *sentenceRepoImpl) Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
+	snippetParams, textParams := buildParams()
+	query := `SELECT
+			s.id, 
+			ts_headline('german', s.content, to_tsquery('german', $2), $3),
+			ts_headline('german', s.content, to_tsquery('german', $2), $4),
+			p.pages,
+			p.work_id
+		FROM sentences s
+		LEFT JOIN paragraphs p ON s.paragraph_id = p.id
+		WHERE p.work_id = ANY($1) AND s.search @@ plainto_tsquery('german', $2)
+		ORDER BY p.work_id, s.id`
+
+	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), buildTerms(criteria), snippetParams, textParams)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []model.SearchResult{}, nil
+		}
+		return nil, err
+	}
+
+	return scanSearchMatchRow(rows)
 }
