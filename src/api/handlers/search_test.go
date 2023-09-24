@@ -29,12 +29,13 @@ func TestSearchHandler(t *testing.T) {
 	}
 
 	for scenario, fn := range map[string]func(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo){
-		"SearchParagraphs bind error":        testSearchParagraphsBindError,
-		"SearchParagraphs empty searchTerms": testSearchParagraphsEmptySearchTerms,
-		"SearchParagraphs empty workIds":     testSearchParagraphsEmptyWorkIds,
-		"SearchParagraphs database error":    testSearchParagraphsDatabaseError,
-		"SearchParagraphs no result":         testSearchParagraphsNotFound,
-		"SearchParagraphs success":           testSearchParagraphsSuccess,
+		"Search bind error":        testSearchBindError,
+		"Search empty searchTerms": testSearchEmptySearchTerms,
+		"Search empty workIds":     testSearchEmptyWorkIds,
+		"Search database error":    testSearchDatabaseError,
+		"Search no result":         testSearchNotFound,
+		"Search find paragraphs":   testSearchFindParagraphs,
+		"Search find sentences":    testSearchFindSentences,
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t, sut, searchRepo)
@@ -42,7 +43,7 @@ func TestSearchHandler(t *testing.T) {
 	}
 }
 
-func testSearchParagraphsBindError(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
+func testSearchBindError(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
 	body, err := json.Marshal(models.Volume{Id: 1, Title: "title", Section: 1})
 	if err != nil {
 		t.Fatal(err)
@@ -53,13 +54,13 @@ func testSearchParagraphsBindError(t *testing.T, sut *searchHandlerImpl, searchR
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
 	// WHEN
-	sut.SearchParagraphs(ctx)
+	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
 	assertErrorResponse(t, res)
 }
 
-func testSearchParagraphsEmptySearchTerms(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
+func testSearchEmptySearchTerms(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
 	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{""}})
 	if err != nil {
 		t.Fatal(err)
@@ -70,13 +71,13 @@ func testSearchParagraphsEmptySearchTerms(t *testing.T, sut *searchHandlerImpl, 
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
 	// WHEN
-	sut.SearchParagraphs(ctx)
+	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
 	assertErrorResponse(t, res)
 }
 
-func testSearchParagraphsEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
+func testSearchEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
 	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{}, SearchTerms: []string{"test"}})
 	if err != nil {
 		t.Fatal(err)
@@ -87,13 +88,13 @@ func testSearchParagraphsEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, sear
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
 	// WHEN
-	sut.SearchParagraphs(ctx)
+	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
 	assertErrorResponse(t, res)
 }
 
-func testSearchParagraphsDatabaseError(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
+func testSearchDatabaseError(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
 	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"test"}})
 	if err != nil {
 		t.Fatal(err)
@@ -107,13 +108,13 @@ func testSearchParagraphsDatabaseError(t *testing.T, sut *searchHandlerImpl, sea
 	ctx := echo.New().NewContext(req, res)
 	searchRepo.EXPECT().SearchParagraphs(gomock.Any(), gomock.Any()).Return(matches, err)
 	// WHEN
-	sut.SearchParagraphs(ctx)
+	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusInternalServerError, ctx.Response().Status)
 	assertErrorResponse(t, res)
 }
 
-func testSearchParagraphsNotFound(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
+func testSearchNotFound(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
 	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"test"}})
 	if err != nil {
 		t.Fatal(err)
@@ -126,14 +127,14 @@ func testSearchParagraphsNotFound(t *testing.T, sut *searchHandlerImpl, searchRe
 	ctx := echo.New().NewContext(req, res)
 	searchRepo.EXPECT().SearchParagraphs(gomock.Any(), gomock.Any()).Return(matches, nil)
 	// WHEN
-	sut.SearchParagraphs(ctx)
+	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusNotFound, ctx.Response().Status)
 	assertErrorResponse(t, res)
 }
 
-func testSearchParagraphsSuccess(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
-	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"string"}})
+func testSearchFindParagraphs(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"string"}, Scope: models.SearchScope("PARAGRAPH")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -150,7 +151,35 @@ func testSearchParagraphsSuccess(t *testing.T, sut *searchHandlerImpl, searchRep
 	ctx := echo.New().NewContext(req, res)
 	searchRepo.EXPECT().SearchParagraphs(gomock.Any(), gomock.Any()).Return(matches, nil)
 	// WHEN
-	sut.SearchParagraphs(ctx)
+	sut.Search(ctx)
+	// THEN
+	assert.Equal(t, http.StatusOK, ctx.Response().Status)
+	assert.Contains(t, res.Body.String(), "workId")
+	assert.Contains(t, res.Body.String(), "matches")
+	assert.Contains(t, res.Body.String(), "snippet")
+	assert.Contains(t, res.Body.String(), "pages")
+	assert.Contains(t, res.Body.String(), "elementId")
+}
+
+func testSearchFindSentences(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"string"}, Scope: models.SearchScope("SENTENCE")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	matches := []model.SearchResult{{
+		ElementId: 1,
+		Snippet:   "Test",
+		Pages:     []int32{1},
+		WorkId:    1,
+	}}
+	// GIVEN
+	req := httptest.NewRequest(echo.POST, "/api/v1/search/paragraphs", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	res := httptest.NewRecorder()
+	ctx := echo.New().NewContext(req, res)
+	searchRepo.EXPECT().SearchSentences(gomock.Any(), gomock.Any()).Return(matches, nil)
+	// WHEN
+	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusOK, ctx.Response().Status)
 	assert.Contains(t, res.Body.String(), "workId")
