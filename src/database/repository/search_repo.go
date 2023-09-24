@@ -13,6 +13,7 @@ import (
 
 type SearchRepo interface {
 	SearchParagraphs(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error)
+	SearchSentences(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error)
 }
 
 type searchRepoImpl struct {
@@ -55,6 +56,11 @@ func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, criteria model
 		return nil, err
 	}
 	return matches, err
+}
+
+func (repo *searchRepoImpl) SearchSentences(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
+	// TODO implement me
+	return []model.SearchResult{}, nil
 }
 
 func scanSearchMatchRow(rows *sql.Rows) ([]model.SearchResult, error) {

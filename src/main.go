@@ -37,7 +37,7 @@ func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, paragraphH
 		return paragraphHandler.GetParagraphs(ctx)
 	})
 	e.POST("/api/v1/search", func(ctx echo.Context) error {
-		return searchHandler.SearchParagraphs(ctx)
+		return searchHandler.Search(ctx)
 	})
 }
 

@@ -4,13 +4,14 @@ import (
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/errors"
 	"github.com/FrHorschig/kant-search-backend/api/mapper"
+	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
 
 type SearchHandler interface {
-	SearchParagraphs(ctx echo.Context) error
+	Search(ctx echo.Context) error
 }
 
 type searchHandlerImpl struct {
@@ -21,7 +22,7 @@ func NewSearchHandler(searchRepo repository.SearchRepo) SearchHandler {
 	return &searchHandlerImpl{searchRepo: searchRepo}
 }
 
-func (rec *searchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
+func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 	criteria := new(models.SearchCriteria)
 	err := ctx.Bind(criteria)
 	if err != nil || len(criteria.SearchTerms) == 0 || len(criteria.SearchTerms[0]) == 0 || len(criteria.WorkIds) == 0 {
@@ -30,7 +31,12 @@ func (rec *searchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 	}
 
 	c := mapper.CriteriaToCoreModel(*criteria)
-	matches, err := rec.searchRepo.SearchParagraphs(ctx.Request().Context(), c)
+	var matches []model.SearchResult
+	if c.Scope == model.SentenceScope {
+		matches, err = rec.searchRepo.SearchSentences(ctx.Request().Context(), c)
+	} else {
+		matches, err = rec.searchRepo.SearchParagraphs(ctx.Request().Context(), c)
+	}
 	if err != nil {
 		log.Error().Err(err).Msgf("Error searching for matches: %v", err)
 		return errors.InternalServerError(ctx)
