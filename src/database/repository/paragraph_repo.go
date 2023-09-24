@@ -64,7 +64,7 @@ func (repo *paragraphRepoImpl) Search(ctx context.Context, criteria model.Search
 			p.pages,
 			p.work_id
 		FROM paragraphs p
-		WHERE p.work_id = ANY($1) AND p.search @@ plainto_tsquery('german', $2)
+		WHERE p.work_id = ANY($1) AND p.search @@ to_tsquery('german', $2)
 		ORDER BY p.work_id, p.id`
 
 	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), buildTerms(criteria), snippetParams, textParams)

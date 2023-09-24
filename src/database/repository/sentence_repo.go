@@ -69,7 +69,7 @@ func (repo *sentenceRepoImpl) Search(ctx context.Context, criteria model.SearchC
 			p.work_id
 		FROM sentences s
 		LEFT JOIN paragraphs p ON s.paragraph_id = p.id
-		WHERE p.work_id = ANY($1) AND s.search @@ plainto_tsquery('german', $2)
+		WHERE p.work_id = ANY($1) AND s.search @@ to_tsquery('german', $2)
 		ORDER BY p.work_id, s.id`
 
 	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), buildTerms(criteria), snippetParams, textParams)

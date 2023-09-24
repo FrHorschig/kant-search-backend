@@ -22,12 +22,13 @@ func buildTerms(c model.SearchCriteria) string {
 	var builder strings.Builder
 	builder.WriteString(strings.Join(c.SearchTerms, " & "))
 	if len(c.ExcludedTerms) > 0 {
-		builder.WriteString(" & !")
-		builder.WriteString(strings.Join(c.ExcludedTerms, " & !"))
+		builder.WriteString(" & ! ")
+		builder.WriteString(strings.Join(c.ExcludedTerms, " & ! "))
 	}
 	if len(c.OptionalTerms) > 0 {
-		builder.WriteString(" | ")
+		builder.WriteString(" & ( ")
 		builder.WriteString(strings.Join(c.OptionalTerms, " | "))
+		builder.WriteString(" )")
 	}
 	return builder.String()
 }
