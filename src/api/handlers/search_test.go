@@ -43,7 +43,6 @@ func TestSearchHandler(t *testing.T) {
 }
 
 func testSearchParagraphsBindError(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
-	// GIVEN
 	body, err := json.Marshal(models.Volume{Id: 1, Title: "title", Section: 1})
 	if err != nil {
 		t.Fatal(err)
@@ -61,8 +60,7 @@ func testSearchParagraphsBindError(t *testing.T, sut *searchHandlerImpl, searchR
 }
 
 func testSearchParagraphsEmptySearchTerms(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
-	// GIVEN
-	body, err := json.Marshal(models.SearchCriteria{SearchTerms: "", WorkIds: []int32{1}})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{""}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,8 +77,7 @@ func testSearchParagraphsEmptySearchTerms(t *testing.T, sut *searchHandlerImpl, 
 }
 
 func testSearchParagraphsEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
-	// GIVEN
-	body, err := json.Marshal(models.SearchCriteria{SearchTerms: "test", WorkIds: []int32{}})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{}, SearchTerms: []string{"test"}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,7 +94,7 @@ func testSearchParagraphsEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, sear
 }
 
 func testSearchParagraphsDatabaseError(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
-	body, err := json.Marshal(models.SearchCriteria{SearchTerms: "test", WorkIds: []int32{1}})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"test"}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -117,7 +114,7 @@ func testSearchParagraphsDatabaseError(t *testing.T, sut *searchHandlerImpl, sea
 }
 
 func testSearchParagraphsNotFound(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
-	body, err := json.Marshal(models.SearchCriteria{SearchTerms: "test", WorkIds: []int32{1}})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"test"}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,7 +133,7 @@ func testSearchParagraphsNotFound(t *testing.T, sut *searchHandlerImpl, searchRe
 }
 
 func testSearchParagraphsSuccess(t *testing.T, sut *searchHandlerImpl, searchRepo *mocks.MockSearchRepo) {
-	body, err := json.Marshal(models.SearchCriteria{SearchTerms: "string", WorkIds: []int32{1}})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"string"}})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -14,9 +14,9 @@ import (
 func TestCriteriaToCoreModel(t *testing.T) {
 	criteria := models.SearchCriteria{
 		WorkIds:       []int32{1, 2},
-		SearchTerms:   "search terms",
-		ExcludedTerms: "excluded terms",
-		OptionalTerms: "optional terms",
+		SearchTerms:   []string{"search", "terms"},
+		ExcludedTerms: []string{"excluded", "terms"},
+		OptionalTerms: []string{"optional", "terms"},
 		Scope:         models.SearchScope("PARAGRAPH"),
 	}
 

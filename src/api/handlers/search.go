@@ -24,7 +24,7 @@ func NewSearchHandler(searchRepo repository.SearchRepo) SearchHandler {
 func (rec *searchHandlerImpl) SearchParagraphs(ctx echo.Context) error {
 	criteria := new(models.SearchCriteria)
 	err := ctx.Bind(criteria)
-	if err != nil || len(criteria.SearchTerms) == 0 || len(criteria.WorkIds) == 0 {
+	if err != nil || len(criteria.SearchTerms) == 0 || len(criteria.SearchTerms[0]) == 0 || len(criteria.WorkIds) == 0 {
 		log.Error().Err(err).Msgf("Error parsing search criteria: %v", err)
 		return errors.BadRequest(ctx, "Error parsing search criteria")
 	}

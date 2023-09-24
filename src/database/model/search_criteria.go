@@ -9,8 +9,8 @@ const (
 
 type SearchCriteria struct {
 	WorkIds       []int32
-	SearchTerms   string
-	ExcludedTerms string
-	OptionalTerms string
+	SearchTerms   []string
+	ExcludedTerms []string
+	OptionalTerms []string
 	Scope         SearchScope
 }

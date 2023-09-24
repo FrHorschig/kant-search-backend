@@ -42,7 +42,7 @@ func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, criteria model
 		WHERE work_id = ANY($1) AND search @@ plainto_tsquery('german', $2)
 		ORDER BY p.work_id, p.id`
 
-	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), criteria.SearchTerms, snippetParams, textParams)
+	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), criteria.SearchTerms[0], snippetParams, textParams)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return []model.SearchResult{}, nil
