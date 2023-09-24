@@ -36,7 +36,7 @@ func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, criteria model
 			ts_headline('german', p.content, to_tsquery('german', $2), $4),
 			p.pages,
 			p.work_id
-		FROM paragraph p
+		FROM paragraphs p
 		WHERE work_id = ANY($1) AND search @@ plainto_tsquery('german', $2)
 		ORDER BY p.work_id, p.id`
 
@@ -48,16 +48,31 @@ func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, criteria model
 		return nil, err
 	}
 
-	matches, err := scanSearchMatchRow(rows)
-	if err != nil {
-		return nil, err
-	}
-	return matches, err
+	return scanSearchMatchRow(rows)
 }
 
 func (repo *searchRepoImpl) SearchSentences(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
-	// TODO implement me
-	return []model.SearchResult{}, nil
+	snippetParams, textParams := buildParams()
+	query := `SELECT
+			s.id, 
+			ts_headline('german', s.content, to_tsquery('german', $2), $3),
+			ts_headline('german', s.content, to_tsquery('german', $2), $4),
+			p.pages,
+			p.work_id
+		FROM sentences s
+		LEFT JOIN paragraphs p
+		WHERE p.work_id = ANY($1) AND search @@ plainto_tsquery('german', $2)
+		ORDER BY p.work_id, s.id`
+
+	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), buildTerms(criteria), snippetParams, textParams)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []model.SearchResult{}, nil
+		}
+		return nil, err
+	}
+
+	return scanSearchMatchRow(rows)
 }
 
 func buildParams() (snippetParams string, textParams string) {
