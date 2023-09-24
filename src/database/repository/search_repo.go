@@ -37,7 +37,7 @@ func (repo *searchRepoImpl) SearchParagraphs(ctx context.Context, criteria model
 			p.pages,
 			p.work_id
 		FROM paragraphs p
-		WHERE work_id = ANY($1) AND search @@ plainto_tsquery('german', $2)
+		WHERE p.work_id = ANY($1) AND p.search @@ plainto_tsquery('german', $2)
 		ORDER BY p.work_id, p.id`
 
 	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), buildTerms(criteria), snippetParams, textParams)
@@ -60,8 +60,8 @@ func (repo *searchRepoImpl) SearchSentences(ctx context.Context, criteria model.
 			p.pages,
 			p.work_id
 		FROM sentences s
-		LEFT JOIN paragraphs p
-		WHERE p.work_id = ANY($1) AND search @@ plainto_tsquery('german', $2)
+		LEFT JOIN paragraphs p ON s.paragraph_id = p.id
+		WHERE p.work_id = ANY($1) AND s.search @@ plainto_tsquery('german', $2)
 		ORDER BY p.work_id, s.id`
 
 	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), buildTerms(criteria), snippetParams, textParams)
