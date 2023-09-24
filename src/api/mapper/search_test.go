@@ -13,14 +13,20 @@ import (
 
 func TestCriteriaToCoreModel(t *testing.T) {
 	criteria := models.SearchCriteria{
-		SearchTerms: "search terms",
-		WorkIds:     []int32{1, 2},
+		WorkIds:       []int32{1, 2},
+		SearchTerms:   "search terms",
+		ExcludedTerms: "excluded terms",
+		OptionalTerms: "optional terms",
+		Scope:         models.SearchScope("PARAGRAPH"),
 	}
 
 	result := CriteriaToCoreModel(criteria)
 
-	assert.Equal(t, result.SearchTerms, criteria.SearchTerms)
 	assert.Equal(t, result.WorkIds, criteria.WorkIds)
+	assert.Equal(t, result.SearchTerms, criteria.SearchTerms)
+	assert.Equal(t, result.ExcludedTerms, criteria.ExcludedTerms)
+	assert.Equal(t, result.OptionalTerms, criteria.OptionalTerms)
+	assert.Equal(t, string(result.Scope), string(criteria.Scope))
 }
 
 func TestMatchesToApiModels(t *testing.T) {
