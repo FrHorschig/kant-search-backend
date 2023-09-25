@@ -63,10 +63,11 @@ func (repo *sentenceRepoImpl) Insert(ctx context.Context, sentences []model.Sent
 func (repo *sentenceRepoImpl) Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
 	snippetParams, textParams := buildParams()
 	query := `SELECT
-			s.id, 
 			ts_headline('german', s.content, to_tsquery('german', $2), $3),
 			ts_headline('german', s.content, to_tsquery('german', $2), $4),
 			p.pages,
+			s.id, 
+			p.id,
 			p.work_id
 		FROM sentences s
 		LEFT JOIN paragraphs p ON s.paragraph_id = p.id
@@ -81,7 +82,7 @@ func (repo *sentenceRepoImpl) Search(ctx context.Context, criteria model.SearchC
 		return nil, err
 	}
 
-	return scanSearchMatchRow(rows)
+	return scanSentenceSearchMatchRow(rows)
 }
 
 func (repo *sentenceRepoImpl) DeleteByWorkId(ctx context.Context, workId int32) error {
@@ -91,4 +92,17 @@ func (repo *sentenceRepoImpl) DeleteByWorkId(ctx context.Context, workId int32) 
 		return err
 	}
 	return nil
+}
+
+func scanSentenceSearchMatchRow(rows *sql.Rows) ([]model.SearchResult, error) {
+	matches := make([]model.SearchResult, 0)
+	for rows.Next() {
+		var match model.SearchResult
+		err := rows.Scan(&match.Snippet, &match.Text, pq.Array(&match.Pages), &match.SentenceId, &match.ParagraphId, &match.WorkId)
+		if err != nil {
+			return nil, fmt.Errorf("search match row scan failed: %v", err)
+		}
+		matches = append(matches, match)
+	}
+	return matches, nil
 }

@@ -59,10 +59,10 @@ func (repo *paragraphRepoImpl) SelectAll(ctx context.Context, workId int32) ([]m
 func (repo *paragraphRepoImpl) Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
 	snippetParams, textParams := buildParams()
 	query := `SELECT
-			p.id, 
 			ts_headline('german', p.content, to_tsquery('german', $2), $3),
 			ts_headline('german', p.content, to_tsquery('german', $2), $4),
 			p.pages,
+			p.id, 
 			p.work_id
 		FROM paragraphs p
 		WHERE p.work_id = ANY($1) AND p.search @@ to_tsquery('german', $2)
@@ -76,7 +76,7 @@ func (repo *paragraphRepoImpl) Search(ctx context.Context, criteria model.Search
 		return nil, err
 	}
 
-	return scanSearchMatchRow(rows)
+	return scanParagraphSearchMatchRow(rows)
 }
 
 func (repo *paragraphRepoImpl) DeleteByWorkId(ctx context.Context, workId int32) error {
@@ -104,4 +104,17 @@ func scanParagraphRows(rows *sql.Rows) ([]model.Paragraph, error) {
 		paragraphs = append(paragraphs, work)
 	}
 	return paragraphs, nil
+}
+
+func scanParagraphSearchMatchRow(rows *sql.Rows) ([]model.SearchResult, error) {
+	matches := make([]model.SearchResult, 0)
+	for rows.Next() {
+		var match model.SearchResult
+		err := rows.Scan(&match.Snippet, &match.Text, pq.Array(&match.Pages), &match.ParagraphId, &match.WorkId)
+		if err != nil {
+			return nil, fmt.Errorf("search match row scan failed: %v", err)
+		}
+		matches = append(matches, match)
+	}
+	return matches, nil
 }

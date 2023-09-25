@@ -1,12 +1,9 @@
 package repository
 
 import (
-	"database/sql"
-	"fmt"
 	"strings"
 
 	"github.com/FrHorschig/kant-search-backend/database/model"
-	"github.com/lib/pq"
 )
 
 func buildParams() (snippetParams string, textParams string) {
@@ -31,17 +28,4 @@ func buildTerms(c model.SearchCriteria) string {
 		builder.WriteString(" )")
 	}
 	return builder.String()
-}
-
-func scanSearchMatchRow(rows *sql.Rows) ([]model.SearchResult, error) {
-	matches := make([]model.SearchResult, 0)
-	for rows.Next() {
-		var match model.SearchResult
-		err := rows.Scan(&match.ElementId, &match.Snippet, &match.Text, pq.Array(&match.Pages), &match.WorkId)
-		if err != nil {
-			return nil, fmt.Errorf("search match row scan failed: %v", err)
-		}
-		matches = append(matches, match)
-	}
-	return matches, nil
 }

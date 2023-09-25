@@ -96,7 +96,7 @@ func TestSearchParagraphsSingleMatch(t *testing.T) {
 	assert.NotNil(t, matches)
 	assert.Len(t, matches, 1)
 
-	assert.Equal(t, id, matches[0].ElementId)
+	assert.Equal(t, id, matches[0].ParagraphId)
 	assert.Contains(t, matches[0].Snippet, "Maxime")
 	assert.Contains(t, matches[0].Text, "Maxime")
 	assert.Equal(t, int32(1), matches[0].WorkId)
@@ -149,12 +149,12 @@ func TestSearchParagraphsMultiMatch(t *testing.T) {
 	assert.NotNil(t, matches)
 	assert.Len(t, matches, 2)
 
-	assert.Equal(t, id1, matches[0].ElementId)
+	assert.Equal(t, id1, matches[0].ParagraphId)
 	assert.Contains(t, matches[0].Snippet, "Maxime")
 	assert.Contains(t, matches[0].Text, "Maxime")
 	assert.Equal(t, int32(1), matches[0].WorkId)
 
-	assert.Equal(t, id3, matches[1].ElementId)
+	assert.Equal(t, id3, matches[1].ParagraphId)
 	assert.Contains(t, matches[1].Snippet, "Maxime")
 	assert.Contains(t, matches[1].Text, "Maxime")
 	assert.Equal(t, int32(2), matches[1].WorkId)
@@ -200,7 +200,7 @@ func TestSearchParagraphsWithExcludedTerms(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, matches)
 	assert.Len(t, matches, 1)
-	assert.Equal(t, id, matches[0].ElementId)
+	assert.Equal(t, id, matches[0].ParagraphId)
 
 	testDb.Exec("DELETE FROM paragraphs")
 }
@@ -226,7 +226,7 @@ func TestSearchParagraphsWithOptionalTerms(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, matches)
 	assert.Len(t, matches, 1)
-	assert.Equal(t, id, matches[0].ElementId)
+	assert.Equal(t, id, matches[0].ParagraphId)
 
 	testDb.Exec("DELETE FROM paragraphs")
 }
@@ -253,7 +253,7 @@ func TestSearchParagraphsWithExcludedAndOptionalTerms(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, matches)
 	assert.Len(t, matches, 1)
-	assert.Equal(t, id, matches[0].ElementId)
+	assert.Equal(t, id, matches[0].ParagraphId)
 
 	testDb.Exec("DELETE FROM paragraphs")
 }

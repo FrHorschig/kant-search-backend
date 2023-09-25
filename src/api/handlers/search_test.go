@@ -138,10 +138,10 @@ func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mo
 		t.Fatal(err)
 	}
 	matches := []model.SearchResult{{
-		ElementId: 1,
-		Snippet:   "Test",
-		Pages:     []int32{1},
-		WorkId:    1,
+		Snippet:     "Test",
+		Pages:       []int32{1},
+		ParagraphId: 1,
+		WorkId:      1,
 	}}
 	// GIVEN
 	req := httptest.NewRequest(echo.POST, "/api/v1/search", bytes.NewReader(body))
@@ -157,5 +157,5 @@ func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mo
 	assert.Contains(t, res.Body.String(), "matches")
 	assert.Contains(t, res.Body.String(), "snippet")
 	assert.Contains(t, res.Body.String(), "pages")
-	assert.Contains(t, res.Body.String(), "elementId")
+	assert.Contains(t, res.Body.String(), "paragraphId")
 }

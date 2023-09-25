@@ -22,10 +22,11 @@ func MatchesToApiModels(matches []model.SearchResult) []models.SearchResult {
 	resultByWorkId := make(map[int32][]models.Match)
 	for _, match := range matches {
 		apiMatch := models.Match{
-			ElementId: match.ElementId,
-			Snippet:   match.Snippet,
-			Text:      match.Text,
-			Pages:     match.Pages,
+			Snippet:     match.Snippet,
+			Text:        match.Text,
+			Pages:       match.Pages,
+			ParagraphId: match.ParagraphId,
+			SentenceId:  match.SentenceId,
 		}
 
 		arr, exists := resultByWorkId[match.WorkId]

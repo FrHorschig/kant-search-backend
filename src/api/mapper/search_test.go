@@ -45,22 +45,25 @@ func TestCriteriaToCoreModelWithEmptyStrings(t *testing.T) {
 
 func TestMatchesToApiModels(t *testing.T) {
 	match1 := model.SearchResult{
-		ElementId: 1,
-		Snippet:   "snippet",
-		Pages:     []int32{1, 2},
-		WorkId:    1,
+		Snippet:     "snippet",
+		Pages:       []int32{1, 2},
+		SentenceId:  1,
+		ParagraphId: 2,
+		WorkId:      3,
 	}
 	match2 := model.SearchResult{
-		ElementId: 2,
-		Snippet:   "snippet2",
-		Pages:     []int32{3, 4},
-		WorkId:    1,
+		Snippet:     "snippet2",
+		Pages:       []int32{3, 4},
+		SentenceId:  4,
+		ParagraphId: 5,
+		WorkId:      3,
 	}
 	match3 := model.SearchResult{
-		ElementId: 3,
-		Snippet:   "snippet3",
-		Pages:     []int32{5, 6},
-		WorkId:    2,
+		Snippet:     "snippet3",
+		Pages:       []int32{5, 6},
+		SentenceId:  7,
+		ParagraphId: 8,
+		WorkId:      9,
 	}
 	matches := []model.SearchResult{
 		match1, match2, match3,
@@ -69,15 +72,20 @@ func TestMatchesToApiModels(t *testing.T) {
 	results := MatchesToApiModels(matches)
 
 	assert.Equal(t, len(results), 2)
+
 	assert.Equal(t, results[0].WorkId, match1.WorkId)
-	assert.Equal(t, results[0].Matches[0].ElementId, match1.ElementId)
 	assert.Equal(t, results[0].Matches[0].Pages, match1.Pages)
 	assert.Equal(t, results[0].Matches[0].Snippet, match1.Snippet)
-	assert.Equal(t, results[0].Matches[1].ElementId, match2.ElementId)
+	assert.Equal(t, results[0].Matches[0].SentenceId, match1.SentenceId)
+	assert.Equal(t, results[0].Matches[0].ParagraphId, match1.ParagraphId)
 	assert.Equal(t, results[0].Matches[1].Pages, match2.Pages)
 	assert.Equal(t, results[0].Matches[1].Snippet, match2.Snippet)
+	assert.Equal(t, results[0].Matches[1].SentenceId, match2.SentenceId)
+	assert.Equal(t, results[0].Matches[1].ParagraphId, match2.ParagraphId)
+
 	assert.Equal(t, results[1].WorkId, match3.WorkId)
-	assert.Equal(t, results[1].Matches[0].ElementId, match3.ElementId)
 	assert.Equal(t, results[1].Matches[0].Pages, match3.Pages)
 	assert.Equal(t, results[1].Matches[0].Snippet, match3.Snippet)
+	assert.Equal(t, results[1].Matches[0].SentenceId, match3.SentenceId)
+	assert.Equal(t, results[1].Matches[0].ParagraphId, match3.ParagraphId)
 }

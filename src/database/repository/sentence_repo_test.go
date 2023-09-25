@@ -76,7 +76,7 @@ func TestSearchSentencesSingleMatch(t *testing.T) {
 	assert.NotNil(t, matches)
 	assert.Len(t, matches, 1)
 
-	assert.Equal(t, ids[0], matches[0].ElementId)
+	assert.Equal(t, ids[0], matches[0].SentenceId)
 	assert.Contains(t, matches[0].Snippet, "Maxime")
 	assert.Contains(t, matches[0].Text, "Maxime")
 	assert.NotContains(t, matches[0].Text, "Paragraph")
@@ -136,13 +136,13 @@ func TestSearchSentencesMultiMatch(t *testing.T) {
 	assert.NotNil(t, matches)
 	assert.Len(t, matches, 2)
 
-	assert.Equal(t, ids1[0], matches[0].ElementId)
+	assert.Equal(t, ids1[0], matches[0].SentenceId)
 	assert.Contains(t, matches[0].Snippet, "Maxime")
 	assert.Contains(t, matches[0].Text, "Maxime")
 	assert.NotContains(t, matches[0].Text, "Paragraph")
 	assert.Equal(t, int32(1), matches[0].WorkId)
 
-	assert.Equal(t, ids2[0], matches[1].ElementId)
+	assert.Equal(t, ids2[0], matches[1].SentenceId)
 	assert.Contains(t, matches[1].Snippet, "Maxime")
 	assert.Contains(t, matches[1].Text, "Maxime")
 	assert.NotContains(t, matches[1].Text, "Paragraph")
