@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	pyutils "github.com/FrHorschig/kant-search-backend/core/pyutils"
+	"github.com/FrHorschig/kant-search-backend/core/pyutils"
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 )
@@ -41,13 +41,18 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.Wo
 		return err
 	}
 
-	for _, p := range paras {
+	for i, p := range paras {
 		pId, err := rec.paragraphRepo.Insert(ctx, p)
 		if err != nil {
 			return err
 		}
-		text := removePagination(p.Text)
-		insertSentences(ctx, rec, text, pId)
+		paras[i].Id = pId
+		paras[i].Text = removePagination(p.Text)
+	}
+
+	insertSentences(ctx, rec.sentenceRepo, paras)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -148,18 +153,24 @@ func removePagination(text string) string {
 	return r.ReplaceAllString(text, " ")
 }
 
-func insertSentences(ctx context.Context, rec *workUploadProcessorImpl, text string, paragraphId int32) error {
-	sentences, err := pyutils.SplitIntoSentences(text)
+func insertSentences(ctx context.Context, repo repository.SentenceRepo, paragraphs []model.Paragraph) error {
+	sentencesByParagraphId, err := pyutils.SplitIntoSentences(paragraphs)
 	if err != nil {
+		println("================================ ", err.Error())
 		return err
 	}
-	sentenceModels := make([]model.Sentence, 0)
-	for _, s := range sentences {
-		sentenceModels = append(sentenceModels, model.Sentence{
-			ParagraphId: paragraphId,
-			Text:        s,
-		})
+	for pId, sentences := range sentencesByParagraphId {
+		sentenceModels := make([]model.Sentence, 0)
+		for _, s := range sentences {
+			sentenceModels = append(sentenceModels, model.Sentence{
+				ParagraphId: pId,
+				Text:        s,
+			})
+		}
+		_, err = repo.Insert(ctx, sentenceModels)
+		if err != nil {
+			return err
+		}
 	}
-	_, err = rec.sentenceRepo.Insert(ctx, sentenceModels)
-	return err
+	return nil
 }

@@ -1,15 +1,20 @@
 import sys
-from spacy.lang.de import German
 import json
+from spacy.lang.de import German
 
 
 def main():
-    text = sys.argv[1]
+    data = json.load(sys.stdin)
     nlp = German()
     nlp.add_pipe("sentencizer")
-    doc = nlp(text)
-    sentences = [sent.text for sent in doc.sents]
-    print(json.dumps(sentences))
+
+    result = {}
+    for item in data:
+        doc = nlp(item["Text"])
+        sentences = [sent.text for sent in doc.sents]
+        result[str(item["Id"])] = sentences
+
+    print(json.dumps(result))
 
 
 if __name__ == "__main__":
