@@ -37,12 +37,6 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.Wo
 		return err
 	}
 
-	// For now remove all line numbering
-	r, _ := regexp.Compile(`\s*\{l\d+\}\s*`)
-	for i := range paras {
-		paras[i].Text = r.ReplaceAllString(paras[i].Text, " ")
-	}
-
 	for _, p := range paras {
 		_, err := rec.paragraphRepo.Insert(ctx, p)
 		if err != nil {
