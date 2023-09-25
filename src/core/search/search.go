@@ -1,5 +1,7 @@
 package search
 
+//go:generate mockgen -source=$GOFILE -destination=mocks/search_processor_mock.go -package=mocks
+
 import (
 	"context"
 
@@ -7,8 +9,6 @@ import (
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/FrHorschig/kant-search-backend/database/util"
 )
-
-//go:generate mockgen -source=$GOFILE -destination=mocks/work_mock.go -package=mocks
 
 type SearchProcessor interface {
 	Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error)
