@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	pyutils "github.com/FrHorschig/kant-search-backend/core/pyutils"
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 )
@@ -32,16 +33,21 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 }
 
 func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) error {
+	rec.sentenceRepo.DeleteByWorkId(ctx, upload.WorkId)
+	rec.paragraphRepo.DeleteByWorkId(ctx, upload.WorkId)
+
 	paras, err := buildParagraphModels(upload.Text, upload.WorkId)
 	if err != nil {
 		return err
 	}
 
 	for _, p := range paras {
-		_, err := rec.paragraphRepo.Insert(ctx, p)
+		pId, err := rec.paragraphRepo.Insert(ctx, p)
 		if err != nil {
 			return err
 		}
+		text := removePagination(p.Text)
+		insertSentences(ctx, rec, text, pId)
 	}
 
 	return nil
@@ -133,4 +139,27 @@ func removeEmptyParas(paras []model.Paragraph) []model.Paragraph {
 		}
 	}
 	return filtered
+}
+
+func removePagination(text string) string {
+	r, _ := regexp.Compile(`\s*\{p\d+\}\s*`)
+	text = r.ReplaceAllString(text, " ")
+	r, _ = regexp.Compile(`\s*\{l\d+\}\s*`)
+	return r.ReplaceAllString(text, " ")
+}
+
+func insertSentences(ctx context.Context, rec *workUploadProcessorImpl, text string, paragraphId int32) error {
+	sentences, err := pyutils.SplitIntoSentences(text)
+	if err != nil {
+		return err
+	}
+	sentenceModels := make([]model.Sentence, 0)
+	for _, s := range sentences {
+		sentenceModels = append(sentenceModels, model.Sentence{
+			ParagraphId: paragraphId,
+			Text:        s,
+		})
+	}
+	_, err = rec.sentenceRepo.Insert(ctx, sentenceModels)
+	return err
 }
