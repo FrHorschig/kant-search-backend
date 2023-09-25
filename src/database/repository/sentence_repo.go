@@ -15,6 +15,7 @@ import (
 type SentenceRepo interface {
 	Insert(ctx context.Context, sentences []model.Sentence) ([]int32, error)
 	Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error)
+	DeleteByWorkId(ctx context.Context, workId int32) error
 }
 
 type sentenceRepoImpl struct {
@@ -81,4 +82,13 @@ func (repo *sentenceRepoImpl) Search(ctx context.Context, criteria model.SearchC
 	}
 
 	return scanSearchMatchRow(rows)
+}
+
+func (repo *sentenceRepoImpl) DeleteByWorkId(ctx context.Context, workId int32) error {
+	query := `DELETE FROM sentences s USING paragraphs p WHERE s.paragraph_id = p.id AND p.work_id = $1`
+	_, err := repo.db.ExecContext(ctx, query, workId)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -15,6 +15,7 @@ type ParagraphRepo interface {
 	Insert(ctx context.Context, paragraph model.Paragraph) (int32, error)
 	SelectAll(ctx context.Context, workId int32) ([]model.Paragraph, error)
 	Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error)
+	DeleteByWorkId(ctx context.Context, workId int32) error
 }
 
 type paragraphRepoImpl struct {
@@ -76,6 +77,15 @@ func (repo *paragraphRepoImpl) Search(ctx context.Context, criteria model.Search
 	}
 
 	return scanSearchMatchRow(rows)
+}
+
+func (repo *paragraphRepoImpl) DeleteByWorkId(ctx context.Context, workId int32) error {
+	query := `DELETE FROM paragraphs WHERE work_id = $1`
+	_, err := repo.db.ExecContext(ctx, query, workId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func scanParagraphRows(rows *sql.Rows) ([]model.Paragraph, error) {

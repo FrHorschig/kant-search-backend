@@ -168,3 +168,37 @@ func TestSearchSentencesNoMatch(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Len(t, matches, 0)
 }
+
+func TestDeleteSentences(t *testing.T) {
+	paraRepo := &paragraphRepoImpl{db: testDb}
+	sut := &sentenceRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	// GIVEN
+	pId1, _ := paraRepo.insertParagraphs(1, "text1")
+	pId2, _ := paraRepo.insertParagraphs(2, "text2")
+	sut.insertSentences(pId1, []string{"Maxime", "Wille"})
+	sut.insertSentences(pId2, []string{"Vernunft"})
+
+	// WHEN
+	err := sut.DeleteByWorkId(ctx, 1)
+
+	// THEN
+	assert.Nil(t, err)
+	var count int
+	query := `SELECT COUNT(*) FROM sentences`
+	err = testDb.QueryRowContext(ctx, query).Scan(&count)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, count)
+}
+
+func TestDeleteSentencesOnEmptyTable(t *testing.T) {
+	sut := &sentenceRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	// WHEN
+	err := sut.DeleteByWorkId(ctx, 1)
+
+	// THEN
+	assert.Nil(t, err)
+}

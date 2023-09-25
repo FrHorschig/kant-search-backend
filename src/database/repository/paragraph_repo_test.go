@@ -257,3 +257,34 @@ func TestSearchParagraphsWithExcludedAndOptionalTerms(t *testing.T) {
 
 	testDb.Exec("DELETE FROM paragraphs")
 }
+
+func TestDeleteParagraphs(t *testing.T) {
+	sut := &paragraphRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	// GIVEN
+	sut.insertParagraphs(1, "text1")
+	sut.insertParagraphs(2, "text2")
+
+	// WHEN
+	err := sut.DeleteByWorkId(ctx, 1)
+
+	// THEN
+	assert.Nil(t, err)
+	var count int
+	query := `SELECT COUNT(*) FROM paragraphs`
+	err = testDb.QueryRowContext(ctx, query).Scan(&count)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, count)
+}
+
+func TestDeleteParagraphsOnEmptyTable(t *testing.T) {
+	sut := &paragraphRepoImpl{db: testDb}
+	ctx := context.Background()
+
+	// WHEN
+	err := sut.DeleteByWorkId(ctx, 1)
+
+	// THEN
+	assert.Nil(t, err)
+}
