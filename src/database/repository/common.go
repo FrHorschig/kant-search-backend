@@ -7,7 +7,7 @@ import (
 )
 
 func buildParams() (snippetParams string, textParams string) {
-	snippetParams = `FragmentDelimiter="...<br>... ",
+	snippetParams = `FragmentDelimiter=" ...<br>... ",
 		MaxFragments=10,
 		MaxWords=16,
 		MinWords=6`
