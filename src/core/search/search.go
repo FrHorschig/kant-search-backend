@@ -35,12 +35,12 @@ func (rec *searchProcessorImpl) Search(ctx context.Context, criteria model.Searc
 
 func escapeSpecialChars(c *model.SearchCriteria) {
 	for i := range c.SearchTerms {
-		c.SearchTerms[i] = util.EscapeSpecialChars(c.ExcludedTerms[i])
+		c.SearchTerms[i] = util.EscapeSpecialChars(c.SearchTerms[i])
 	}
 	for i := range c.ExcludedTerms {
-		c.SearchTerms[i] = util.EscapeSpecialChars(c.ExcludedTerms[i])
+		c.ExcludedTerms[i] = util.EscapeSpecialChars(c.ExcludedTerms[i])
 	}
 	for i := range c.OptionalTerms {
-		c.SearchTerms[i] = util.EscapeSpecialChars(c.ExcludedTerms[i])
+		c.OptionalTerms[i] = util.EscapeSpecialChars(c.OptionalTerms[i])
 	}
 }
