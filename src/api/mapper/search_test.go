@@ -29,6 +29,20 @@ func TestCriteriaToCoreModel(t *testing.T) {
 	assert.Equal(t, string(result.Scope), string(criteria.Scope))
 }
 
+func TestCriteriaToCoreModelWithEmptyStrings(t *testing.T) {
+	criteria := models.SearchCriteria{
+		SearchTerms:   []string{"search", "terms"},
+		ExcludedTerms: []string{"", "  "},
+		OptionalTerms: []string{"\t", "\n"},
+	}
+
+	result := CriteriaToCoreModel(criteria)
+
+	assert.Len(t, result.SearchTerms, 2)
+	assert.Len(t, result.ExcludedTerms, 0)
+	assert.Len(t, result.OptionalTerms, 0)
+}
+
 func TestMatchesToApiModels(t *testing.T) {
 	match1 := model.SearchResult{
 		ElementId: 1,

@@ -24,12 +24,17 @@ func NewSearchHandler(searchProcessor search.SearchProcessor) SearchHandler {
 func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 	criteria := new(models.SearchCriteria)
 	err := ctx.Bind(criteria)
-	if err != nil || len(criteria.SearchTerms) == 0 || len(criteria.SearchTerms[0]) == 0 || len(criteria.WorkIds) == 0 {
+	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing search criteria: %v", err)
 		return errors.BadRequest(ctx, "Error parsing search criteria")
 	}
 
 	c := mapper.CriteriaToCoreModel(*criteria)
+	if len(c.WorkIds) == 0 || len(c.SearchTerms) == 0 {
+		log.Error().Err(err).Msgf("Empty search terms or work IDs: %v", err)
+		return errors.BadRequest(ctx, "Empty search terms or work IDs")
+	}
+
 	matches, err := rec.searchProcessor.Search(ctx.Request().Context(), c)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error searching for matches: %v", err)

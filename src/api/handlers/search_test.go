@@ -48,7 +48,7 @@ func testSearchBindError(t *testing.T, sut *searchHandlerImpl, searchProcessor *
 		t.Fatal(err)
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/search/paragraphs", bytes.NewReader(body))
+	req := httptest.NewRequest(echo.GET, "/api/v1/search", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
@@ -60,12 +60,12 @@ func testSearchBindError(t *testing.T, sut *searchHandlerImpl, searchProcessor *
 }
 
 func testSearchEmptySearchTerms(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
-	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{""}})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"", "\t  \n"}})
 	if err != nil {
 		t.Fatal(err)
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/v1/search/paragraphs", bytes.NewReader(body))
+	req := httptest.NewRequest(echo.POST, "/api/v1/search", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
@@ -82,7 +82,7 @@ func testSearchEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, searchProcesso
 		t.Fatal(err)
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/v1/search/paragraphs", bytes.NewReader(body))
+	req := httptest.NewRequest(echo.POST, "/api/v1/search", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
@@ -101,7 +101,7 @@ func testSearchDatabaseError(t *testing.T, sut *searchHandlerImpl, searchProcess
 	matches := []model.SearchResult{}
 	err = errors.New("database error")
 	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/v1/search/paragraphs", bytes.NewReader(body))
+	req := httptest.NewRequest(echo.POST, "/api/v1/search", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
@@ -120,7 +120,7 @@ func testSearchNotFound(t *testing.T, sut *searchHandlerImpl, searchProcessor *m
 	}
 	matches := []model.SearchResult{}
 	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/v1/search/paragraphs", bytes.NewReader(body))
+	req := httptest.NewRequest(echo.POST, "/api/v1/search", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
@@ -144,7 +144,7 @@ func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mo
 		WorkId:    1,
 	}}
 	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/v1/search/paragraphs", bytes.NewReader(body))
+	req := httptest.NewRequest(echo.POST, "/api/v1/search", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)

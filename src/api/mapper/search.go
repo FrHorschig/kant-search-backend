@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/database/model"
@@ -10,9 +11,9 @@ import (
 func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {
 	return model.SearchCriteria{
 		WorkIds:       criteria.WorkIds,
-		SearchTerms:   criteria.SearchTerms,
-		ExcludedTerms: criteria.ExcludedTerms,
-		OptionalTerms: criteria.OptionalTerms,
+		SearchTerms:   removeEmptyStrings(criteria.SearchTerms),
+		ExcludedTerms: removeEmptyStrings(criteria.ExcludedTerms),
+		OptionalTerms: removeEmptyStrings(criteria.OptionalTerms),
 		Scope:         model.SearchScope(criteria.Scope),
 	}
 }
@@ -47,4 +48,14 @@ func MatchesToApiModels(matches []model.SearchResult) []models.SearchResult {
 		return results[i].WorkId < results[j].WorkId
 	})
 	return results
+}
+
+func removeEmptyStrings(arr []string) []string {
+	var result []string
+	for _, str := range arr {
+		if len(strings.TrimSpace(str)) > 0 {
+			result = append(result, str)
+		}
+	}
+	return result
 }
