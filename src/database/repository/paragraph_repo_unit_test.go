@@ -15,6 +15,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestInsertParagraphsDatabaseError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	repo := NewParagraphRepo(db)
+	dbErr := fmt.Errorf("database error")
+	paragraph := model.Paragraph{
+		Text:   "text",
+		Pages:  []int32{1, 2, 3},
+		WorkId: 1,
+	}
+
+	// GIVEN
+	mock.ExpectQuery(anyQuery).WillReturnError(dbErr)
+
+	// WHEN
+	id, err := repo.Insert(context.Background(), paragraph)
+
+	// THEN
+	assert.Equal(t, int32(0), id)
+	assert.NotNil(t, err)
+}
+
 func TestSelectAllParagraphsDatabaseError(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
@@ -119,4 +144,23 @@ func TestSearchParagraphsWrongRows(t *testing.T) {
 	// THEN
 	assert.NotNil(t, err)
 	assert.Empty(t, matches)
+}
+
+func TestDeleteParagraphDatabaseError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	repo := &paragraphRepoImpl{db: db}
+	dbErr := fmt.Errorf("database error")
+
+	// GIVEN
+	mock.ExpectQuery(anyQuery).WillReturnError(dbErr)
+
+	// WHEN
+	err = repo.DeleteByWorkId(context.Background(), 1)
+
+	// THEN
+	assert.NotNil(t, err)
 }

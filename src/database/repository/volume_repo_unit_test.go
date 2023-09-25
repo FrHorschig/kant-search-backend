@@ -20,7 +20,7 @@ func TestSelectAllVolumesDatabaseError(t *testing.T) {
 		panic(err)
 	}
 	defer db.Close()
-	repo := &volumeRepoImpl{db: db}
+	repo := NewVolumeRepo(db)
 	dbErr := fmt.Errorf("database error")
 
 	// GIVEN

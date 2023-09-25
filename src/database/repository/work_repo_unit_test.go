@@ -20,7 +20,7 @@ func TestSelectAllWorksDatabaseError(t *testing.T) {
 		panic(err)
 	}
 	defer db.Close()
-	repo := &workRepoImpl{db: db}
+	repo := NewWorkRepo(db)
 	dbErr := fmt.Errorf("database error")
 
 	// GIVEN
