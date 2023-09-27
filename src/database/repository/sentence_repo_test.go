@@ -58,8 +58,8 @@ func TestSearchSentencesSingleMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1},
-		SearchTerms: []string{"Maxime"},
+		WorkIds:      []int32{1},
+		SearchString: "Maxime",
 	}
 
 	// GIVEN
@@ -92,8 +92,8 @@ func TestSearchSentencesIgnoreSpecialCharacters(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1},
-		SearchTerms: []string{`\&`},
+		WorkIds:      []int32{1},
+		SearchString: `\&`,
 	}
 
 	// GIVEN
@@ -118,8 +118,8 @@ func TestSearchSentencesMultiMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1, 2},
-		SearchTerms: []string{"Maxime"},
+		WorkIds:      []int32{1, 2},
+		SearchString: "Maxime",
 	}
 
 	// GIVEN
@@ -157,8 +157,8 @@ func TestSearchSentencesNoMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1},
-		SearchTerms: []string{"Maxime"},
+		WorkIds:      []int32{1},
+		SearchString: "Maxime",
 	}
 
 	// WHEN

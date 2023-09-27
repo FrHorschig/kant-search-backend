@@ -33,7 +33,7 @@ func TestSearchHandler(t *testing.T) {
 }
 
 func testSearchWithParagraphScope(t *testing.T, sut *searchProcessorImpl, paragraphRepo *mocks.MockParagraphRepo, sentenceRepo *mocks.MockSentenceRepo) {
-	criteria := model.SearchCriteria{Scope: model.ParagraphScope}
+	criteria := model.SearchCriteria{Options: model.SearchOptions{Scope: model.ParagraphScope}}
 	matches := []model.SearchResult{}
 	err := errors.New("some error")
 	// GIVEN
@@ -46,7 +46,7 @@ func testSearchWithParagraphScope(t *testing.T, sut *searchProcessorImpl, paragr
 }
 
 func testSearchWithSentenceScope(t *testing.T, sut *searchProcessorImpl, paragraphRepo *mocks.MockParagraphRepo, sentenceRepo *mocks.MockSentenceRepo) {
-	criteria := model.SearchCriteria{Scope: model.SentenceScope}
+	criteria := model.SearchCriteria{Options: model.SearchOptions{Scope: model.SentenceScope}}
 	matches := []model.SearchResult{}
 	err := errors.New("some error")
 	// GIVEN

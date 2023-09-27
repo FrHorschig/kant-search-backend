@@ -13,34 +13,16 @@ import (
 
 func TestCriteriaToCoreModel(t *testing.T) {
 	criteria := models.SearchCriteria{
-		WorkIds:       []int32{1, 2},
-		SearchTerms:   []string{"search", "terms"},
-		ExcludedTerms: []string{"excluded", "terms"},
-		OptionalTerms: []string{"optional", "terms"},
-		Scope:         models.SearchScope("PARAGRAPH"),
+		WorkIds:      []int32{1, 2},
+		SearchString: "search terms",
+		Options:      models.SearchOptions{Scope: models.SearchScope("PARAGRAPH")},
 	}
 
 	result := CriteriaToCoreModel(criteria)
 
 	assert.Equal(t, result.WorkIds, criteria.WorkIds)
-	assert.Equal(t, result.SearchTerms, criteria.SearchTerms)
-	assert.Equal(t, result.ExcludedTerms, criteria.ExcludedTerms)
-	assert.Equal(t, result.OptionalTerms, criteria.OptionalTerms)
-	assert.Equal(t, string(result.Scope), string(criteria.Scope))
-}
-
-func TestCriteriaToCoreModelWithEmptyStrings(t *testing.T) {
-	criteria := models.SearchCriteria{
-		SearchTerms:   []string{"search", "terms"},
-		ExcludedTerms: []string{"", "  "},
-		OptionalTerms: []string{"\t", "\n"},
-	}
-
-	result := CriteriaToCoreModel(criteria)
-
-	assert.Len(t, result.SearchTerms, 2)
-	assert.Len(t, result.ExcludedTerms, 0)
-	assert.Len(t, result.OptionalTerms, 0)
+	assert.Equal(t, result.SearchString, criteria.SearchString)
+	assert.Equal(t, string(result.Options.Scope), string(criteria.Options.Scope))
 }
 
 func TestMatchesToApiModels(t *testing.T) {

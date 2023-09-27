@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strings"
+
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/errors"
 	"github.com/FrHorschig/kant-search-backend/api/mapper"
@@ -11,6 +13,7 @@ import (
 
 type SearchHandler interface {
 	Search(ctx echo.Context) error
+	CheckSyntax(ctx echo.Context) error
 }
 
 type searchHandlerImpl struct {
@@ -30,7 +33,7 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 	}
 
 	c := mapper.CriteriaToCoreModel(*criteria)
-	if len(c.WorkIds) == 0 || len(c.SearchTerms) == 0 {
+	if len(c.WorkIds) == 0 || len(strings.TrimSpace(c.SearchString)) == 0 {
 		log.Error().Err(err).Msgf("Empty search terms or work IDs: %v", err)
 		return errors.BadRequest(ctx, "Empty search terms or work IDs")
 	}
@@ -45,4 +48,9 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(200, mapper.MatchesToApiModels(matches))
+}
+
+func (rec *searchHandlerImpl) CheckSyntax(ctx echo.Context) error {
+	// TODO frhorsch: implement me
+	return ctx.JSON(200, models.SyntaxCheckResult{Valid: true})
 }

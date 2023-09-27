@@ -68,7 +68,7 @@ func (repo *paragraphRepoImpl) Search(ctx context.Context, criteria model.Search
 		WHERE p.work_id = ANY($1) AND p.search @@ to_tsquery('german', $2)
 		ORDER BY p.work_id, p.id`
 
-	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), buildTerms(criteria), snippetParams, textParams)
+	rows, err := repo.db.QueryContext(ctx, query, pq.Array(criteria.WorkIds), criteria.SearchString, snippetParams, textParams)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return []model.SearchResult{}, nil

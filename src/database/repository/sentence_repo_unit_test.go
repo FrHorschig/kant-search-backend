@@ -72,8 +72,8 @@ func TestSearchSentencesDatabaseError(t *testing.T) {
 	dbErr := fmt.Errorf("database error")
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1},
-		SearchTerms: []string{"Maxime"},
+		WorkIds:      []int32{1},
+		SearchString: "Maxime",
 	}
 
 	// GIVEN
@@ -96,8 +96,8 @@ func TestSearchSentencesNoRows(t *testing.T) {
 	repo := &sentenceRepoImpl{db: db}
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1},
-		SearchTerms: []string{"Maxime"},
+		WorkIds:      []int32{1},
+		SearchString: "Maxime",
 	}
 
 	// GIVEN
@@ -120,8 +120,8 @@ func TestSearchSentencesWrongRows(t *testing.T) {
 	repo := &sentenceRepoImpl{db: db}
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1},
-		SearchTerms: []string{"Maxime"},
+		WorkIds:      []int32{1},
+		SearchString: "Maxime",
 	}
 
 	// GIVEN

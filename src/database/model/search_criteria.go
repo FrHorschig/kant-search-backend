@@ -7,10 +7,11 @@ const (
 	SentenceScope  SearchScope = "SENTENCE"
 )
 
+type SearchOptions struct {
+	Scope SearchScope
+}
 type SearchCriteria struct {
-	WorkIds       []int32
-	SearchTerms   []string
-	ExcludedTerms []string
-	OptionalTerms []string
-	Scope         SearchScope
+	WorkIds      []int32
+	SearchString string
+	Options      SearchOptions
 }

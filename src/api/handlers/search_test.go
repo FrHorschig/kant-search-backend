@@ -29,12 +29,12 @@ func TestSearchHandler(t *testing.T) {
 	}
 
 	for scenario, fn := range map[string]func(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor){
-		"Search bind error":        testSearchBindError,
-		"Search empty searchTerms": testSearchEmptySearchTerms,
-		"Search empty workIds":     testSearchEmptyWorkIds,
-		"Search database error":    testSearchDatabaseError,
-		"Search no result":         testSearchNotFound,
-		"Search success":           testSearchSuccess,
+		"Search bind error":          testSearchBindError,
+		"Search empty search string": testSearchEmptySearchString,
+		"Search empty workIds":       testSearchEmptyWorkIds,
+		"Search database error":      testSearchDatabaseError,
+		"Search no result":           testSearchNotFound,
+		"Search success":             testSearchSuccess,
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t, sut, searchProcessor)
@@ -59,8 +59,8 @@ func testSearchBindError(t *testing.T, sut *searchHandlerImpl, searchProcessor *
 	assertErrorResponse(t, res)
 }
 
-func testSearchEmptySearchTerms(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
-	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"", "\t  \n"}})
+func testSearchEmptySearchString(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchString: "\t \n"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +77,7 @@ func testSearchEmptySearchTerms(t *testing.T, sut *searchHandlerImpl, searchProc
 }
 
 func testSearchEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
-	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{}, SearchTerms: []string{"test"}})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{}, SearchString: "test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +94,7 @@ func testSearchEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, searchProcesso
 }
 
 func testSearchDatabaseError(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
-	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"test"}})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchString: "test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +114,7 @@ func testSearchDatabaseError(t *testing.T, sut *searchHandlerImpl, searchProcess
 }
 
 func testSearchNotFound(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
-	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"test"}})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchString: "test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,7 +133,10 @@ func testSearchNotFound(t *testing.T, sut *searchHandlerImpl, searchProcessor *m
 }
 
 func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
-	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchTerms: []string{"string"}, Scope: models.SearchScope("PARAGRAPH")})
+	body, err := json.Marshal(models.SearchCriteria{
+		WorkIds:      []int32{1},
+		SearchString: "string",
+		Options:      models.SearchOptions{Scope: models.SearchScope("PARAGRAPH")}})
 	if err != nil {
 		t.Fatal(err)
 	}

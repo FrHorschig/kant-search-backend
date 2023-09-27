@@ -40,6 +40,9 @@ func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, paragraphH
 	e.POST("/api/v1/search", func(ctx echo.Context) error {
 		return searchHandler.Search(ctx)
 	})
+	e.POST("/api/v1/search/check-syntax", func(ctx echo.Context) error {
+		return searchHandler.CheckSyntax(ctx)
+	})
 }
 
 func main() {

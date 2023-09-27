@@ -79,8 +79,8 @@ func TestSearchParagraphsSingleMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1},
-		SearchTerms: []string{"Maxime"},
+		WorkIds:      []int32{1},
+		SearchString: "Maxime",
 	}
 
 	// GIVEN
@@ -109,8 +109,8 @@ func TestSearchParagraphsIgnoreSpecialCharacters(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1},
-		SearchTerms: []string{`\&`},
+		WorkIds:      []int32{1},
+		SearchString: `\&`,
 	}
 
 	// GIVEN
@@ -132,8 +132,8 @@ func TestSearchParagraphsMultiMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1, 2},
-		SearchTerms: []string{"Maxime"},
+		WorkIds:      []int32{1, 2},
+		SearchString: "Maxime",
 	}
 
 	// GIVEN
@@ -167,8 +167,8 @@ func TestSearchParagraphsNoMatch(t *testing.T) {
 	ctx := context.Background()
 
 	criteria := model.SearchCriteria{
-		WorkIds:     []int32{1},
-		SearchTerms: []string{"Maxime"},
+		WorkIds:      []int32{1},
+		SearchString: "Maxime",
 	}
 
 	// WHEN
@@ -177,85 +177,6 @@ func TestSearchParagraphsNoMatch(t *testing.T) {
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, matches, 0)
-}
-
-func TestSearchParagraphsWithExcludedTerms(t *testing.T) {
-	sut := &paragraphRepoImpl{db: testDb}
-	ctx := context.Background()
-
-	criteria := model.SearchCriteria{
-		WorkIds:       []int32{1},
-		SearchTerms:   []string{"Maxime"},
-		ExcludedTerms: []string{"excluded"},
-	}
-
-	// GIVEN
-	id, _ := sut.insertParagraphs(1, "Maxime other")
-	sut.insertParagraphs(1, "Maxime excluded")
-
-	// WHEN
-	matches, err := sut.Search(ctx, criteria)
-
-	// THEN
-	assert.Nil(t, err)
-	assert.NotNil(t, matches)
-	assert.Len(t, matches, 1)
-	assert.Equal(t, id, matches[0].ParagraphId)
-
-	testDb.Exec("DELETE FROM paragraphs")
-}
-
-func TestSearchParagraphsWithOptionalTerms(t *testing.T) {
-	sut := &paragraphRepoImpl{db: testDb}
-	ctx := context.Background()
-
-	criteria := model.SearchCriteria{
-		WorkIds:       []int32{1},
-		SearchTerms:   []string{"Maxime"},
-		OptionalTerms: []string{"optional"},
-	}
-
-	// GIVEN
-	sut.insertParagraphs(1, "Maxime other")
-	id, _ := sut.insertParagraphs(1, "Maxime optional")
-
-	// WHEN
-	matches, err := sut.Search(ctx, criteria)
-
-	// THEN
-	assert.Nil(t, err)
-	assert.NotNil(t, matches)
-	assert.Len(t, matches, 1)
-	assert.Equal(t, id, matches[0].ParagraphId)
-
-	testDb.Exec("DELETE FROM paragraphs")
-}
-
-func TestSearchParagraphsWithExcludedAndOptionalTerms(t *testing.T) {
-	sut := &paragraphRepoImpl{db: testDb}
-	ctx := context.Background()
-
-	criteria := model.SearchCriteria{
-		WorkIds:       []int32{1},
-		SearchTerms:   []string{"Maxime"},
-		ExcludedTerms: []string{"excluded"},
-		OptionalTerms: []string{"optional"},
-	}
-
-	// GIVEN
-	id, _ := sut.insertParagraphs(1, "Maxime optional")
-	sut.insertParagraphs(1, "Maxime optional excluded")
-
-	// WHEN
-	matches, err := sut.Search(ctx, criteria)
-
-	// THEN
-	assert.Nil(t, err)
-	assert.NotNil(t, matches)
-	assert.Len(t, matches, 1)
-	assert.Equal(t, id, matches[0].ParagraphId)
-
-	testDb.Exec("DELETE FROM paragraphs")
 }
 
 func TestDeleteParagraphs(t *testing.T) {
