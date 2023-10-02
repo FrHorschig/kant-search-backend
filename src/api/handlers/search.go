@@ -1,19 +1,20 @@
 package handlers
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/errors"
 	"github.com/FrHorschig/kant-search-backend/api/mapper"
 	"github.com/FrHorschig/kant-search-backend/core/search"
+	"github.com/FrHorschig/kant-search-backend/core/syntax"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
 
 type SearchHandler interface {
 	Search(ctx echo.Context) error
-	CheckSyntax(ctx echo.Context) error
 }
 
 type searchHandlerImpl struct {
@@ -42,6 +43,14 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 		return errors.BadRequest(ctx, "Empty search terms")
 	}
 
+	searchString, err := syntax.CheckSyntax(c.SearchString)
+	if err != nil {
+		msg := fmt.Sprintf("Syntax error in search string: %s", err.Error())
+		log.Error().Err(err).Msgf(msg)
+		return errors.BadRequest(ctx, msg)
+	}
+	c.SearchString = searchString
+
 	matches, err := rec.searchProcessor.Search(ctx.Request().Context(), c)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error searching for matches: %v", err)
@@ -52,9 +61,4 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(200, mapper.MatchesToApiModels(matches))
-}
-
-func (rec *searchHandlerImpl) CheckSyntax(ctx echo.Context) error {
-	// TODO frhorsch: implement me
-	return ctx.JSON(200, models.SyntaxCheckResult{Valid: true})
 }
