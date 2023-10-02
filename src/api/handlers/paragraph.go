@@ -27,7 +27,7 @@ func (rec *paragraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 	workId, err := strconv.ParseInt(ctx.Param("workId"), 10, 32)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
-		return errors.BadRequest(ctx, "Invalid work id")
+		return errors.BadRequest(ctx, "Invalid work selection")
 	}
 
 	paragraphs, err := rec.paragraphRepo.SelectAll(ctx.Request().Context(), int32(workId))

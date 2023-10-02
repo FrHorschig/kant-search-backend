@@ -65,9 +65,17 @@ func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {
 func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 	work := new(models.WorkUpload)
 	err := ctx.Bind(work)
-	if err != nil || work.WorkId < 1 || work.Text == "" {
+	if err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
 		return errors.BadRequest(ctx, "Error reading request body")
+	}
+	if work.WorkId < 1 {
+		log.Error().Err(err).Msg("Empty work selection")
+		return errors.BadRequest(ctx, "Empty work selection")
+	}
+	if work.Text == "" {
+		log.Error().Err(err).Msg("Empty text")
+		return errors.BadRequest(ctx, "Empty text")
 	}
 
 	coreModel := mapper.WorkUploadToCoreModel(*work)

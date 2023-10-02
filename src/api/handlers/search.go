@@ -33,9 +33,13 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 	}
 
 	c := mapper.CriteriaToCoreModel(*criteria)
-	if len(c.WorkIds) == 0 || len(strings.TrimSpace(c.SearchString)) == 0 {
-		log.Error().Err(err).Msgf("Empty search terms or work IDs: %v", err)
-		return errors.BadRequest(ctx, "Empty search terms or work IDs")
+	if len(c.WorkIds) == 0 {
+		log.Error().Err(err).Msgf("Empty work selection: %v", err)
+		return errors.BadRequest(ctx, "Empty work selection")
+	}
+	if len(strings.TrimSpace(c.SearchString)) == 0 {
+		log.Error().Err(err).Msgf("Empty search terms: %v", err)
+		return errors.BadRequest(ctx, "Empty search terms")
 	}
 
 	matches, err := rec.searchProcessor.Search(ctx.Request().Context(), c)
