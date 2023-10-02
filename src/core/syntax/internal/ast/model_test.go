@@ -1,4 +1,4 @@
-package util
+package ast
 
 import (
 	"fmt"
@@ -54,7 +54,7 @@ func TestEscapeSpecialChars(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("input=%s", tc.input), func(t *testing.T) {
-			actual := EscapeSpecialChars(tc.input)
+			actual := escapeSpecialChars(tc.input)
 			if actual != tc.expected {
 				t.Errorf("expected %s, but got %s", tc.expected, actual)
 			}
