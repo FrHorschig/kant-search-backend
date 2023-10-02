@@ -1,4 +1,4 @@
-package syntax
+package internal
 
 import "strings"
 
@@ -35,15 +35,15 @@ func newPhrase(text string) Token {
 	return Token{IsPhrase: true, Text: text}
 }
 
-type Node struct {
-	Left  *Node
-	Right *Node
+type astNote struct {
+	Left  *astNote
+	Right *astNote
 	Token *Token
 }
 
-func getSearchString(tokens *[]Token) string {
+func GetSearchString(tokens []Token) string {
 	var builder strings.Builder
-	for _, token := range *tokens {
+	for _, token := range tokens {
 		if token.IsWord || token.IsPhrase {
 			token.Text = escapeSpecialChars(token.Text)
 		}

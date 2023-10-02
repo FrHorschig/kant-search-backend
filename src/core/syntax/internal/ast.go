@@ -1,23 +1,23 @@
-package syntax
+package internal
 
 import (
 	"errors"
 	"fmt"
 )
 
-func buildAst(tokens []Token) (*Node, error) {
-	node, err := parseExpression(&tokens)
+func CheckSyntax(tokens []Token) error {
+	_, err := parseExpression(&tokens)
 	if err != nil {
-		return &Node{}, err
+		return err
 	}
 
 	if len(tokens) > 0 {
-		return &Node{}, fmt.Errorf("unexpected token after parsing")
+		return fmt.Errorf("unexpected token after %s", tokens[0].Text)
 	}
-	return node, nil
+	return nil
 }
 
-func parseExpression(tokens *[]Token) (*Node, error) {
+func parseExpression(tokens *[]Token) (*astNote, error) {
 	node, err := parseTerm(tokens)
 	if err != nil {
 		return nil, err
@@ -32,13 +32,13 @@ func parseExpression(tokens *[]Token) (*Node, error) {
 		}
 
 		if opToken.IsAnd {
-			node = &Node{
+			node = &astNote{
 				Left:  node,
 				Right: nextNode,
 				Token: opToken,
 			}
 		} else {
-			node = &Node{
+			node = &astNote{
 				Left:  node,
 				Right: nextNode,
 				Token: opToken,
@@ -49,7 +49,7 @@ func parseExpression(tokens *[]Token) (*Node, error) {
 	return node, nil
 }
 
-func parseTerm(tokens *[]Token) (*Node, error) {
+func parseTerm(tokens *[]Token) (*astNote, error) {
 	if len(*tokens) == 0 {
 		return nil, errors.New("unexpected end of input")
 	}
@@ -61,13 +61,13 @@ func parseTerm(tokens *[]Token) (*Node, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &Node{Left: node, Token: token}, nil
+		return &astNote{Left: node, Token: token}, nil
 	}
 
 	return parseFactor(tokens)
 }
 
-func parseFactor(tokens *[]Token) (*Node, error) {
+func parseFactor(tokens *[]Token) (*astNote, error) {
 	if len(*tokens) == 0 {
 		return nil, errors.New("unexpected end of input")
 	}
@@ -76,10 +76,10 @@ func parseFactor(tokens *[]Token) (*Node, error) {
 	switch {
 	case token.IsWord:
 		*tokens = (*tokens)[1:]
-		return &Node{Token: token}, nil
+		return &astNote{Token: token}, nil
 	case token.IsPhrase:
 		*tokens = (*tokens)[1:]
-		return &Node{Token: token}, nil
+		return &astNote{Token: token}, nil
 	case token.IsOpen:
 		*tokens = (*tokens)[1:]
 		node, err := parseExpression(tokens)

@@ -1,11 +1,11 @@
-package syntax
+package internal
 
 import (
 	"errors"
 	"strings"
 )
 
-func tokenize(input string) (*[]Token, error) {
+func Tokenize(input string) ([]Token, error) {
 	if wrongBeginChar(input[0]) {
 		return nil, errors.New("search input must not start with &, | or )")
 	}
@@ -60,11 +60,7 @@ func tokenize(input string) (*[]Token, error) {
 			lastIsTerm = true
 		}
 	}
-	_, err := buildAst(tokens)
-	if err != nil {
-		return &tokens, err
-	}
-	return &tokens, nil
+	return tokens, nil
 }
 
 func wrongBeginChar(c byte) bool {
