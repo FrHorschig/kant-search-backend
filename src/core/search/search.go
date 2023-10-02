@@ -7,7 +7,6 @@ import (
 
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
-	"github.com/FrHorschig/kant-search-backend/database/util"
 )
 
 type SearchProcessor interface {
@@ -25,7 +24,6 @@ func NewSearchProcessor(paragraphRepo repository.ParagraphRepo, sentenceRepo rep
 }
 
 func (rec *searchProcessorImpl) Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
-	criteria.SearchString = util.EscapeSpecialChars(criteria.SearchString)
 	if criteria.Options.Scope == model.SentenceScope {
 		return rec.sentenceRepo.Search(ctx, criteria)
 	} else {
