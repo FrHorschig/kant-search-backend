@@ -26,7 +26,7 @@ func newOpen() Token {
 	return Token{IsOpen: true, Text: "("}
 }
 func newClose() Token {
-	return Token{IsOpen: true, Text: ")"}
+	return Token{IsClose: true, Text: ")"}
 }
 func newWord(text string) Token {
 	return Token{IsWord: true, Text: text}
@@ -42,13 +42,30 @@ type astNote struct {
 }
 
 func GetSearchString(tokens []Token) string {
+	if len(tokens) == 0 {
+		return ""
+	}
 	var builder strings.Builder
-	for _, token := range tokens {
+	for i, token := range tokens {
 		if token.IsWord || token.IsPhrase {
 			token.Text = escapeSpecialChars(token.Text)
 		}
-		builder.WriteString(token.Text)
-		builder.WriteString(" ")
+		if token.IsPhrase {
+			words := strings.Split(token.Text, " ")
+			builder.WriteString("(")
+			for i, word := range words {
+				builder.WriteString(word)
+				if i < len(words)-1 {
+					builder.WriteString(" <-> ")
+				}
+			}
+			builder.WriteString(")")
+		} else {
+			builder.WriteString(token.Text)
+			if i < len(tokens)-1 {
+				builder.WriteString(" ")
+			}
+		}
 	}
 	return builder.String()
 }

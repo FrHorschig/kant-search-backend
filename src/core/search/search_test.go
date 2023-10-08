@@ -17,10 +17,7 @@ func TestSearchHandler(t *testing.T) {
 
 	paragraphRepo := mocks.NewMockParagraphRepo(ctrl)
 	sentenceRepo := mocks.NewMockSentenceRepo(ctrl)
-	sut := &searchProcessorImpl{
-		paragraphRepo: paragraphRepo,
-		sentenceRepo:  sentenceRepo,
-	}
+	sut := NewSearchProcessor(paragraphRepo, sentenceRepo).(*searchProcessorImpl)
 
 	for scenario, fn := range map[string]func(t *testing.T, sut *searchProcessorImpl, paragraphRepo *mocks.MockParagraphRepo, sentenceRepo *mocks.MockSentenceRepo){
 		"Search with paragraph scope": testSearchWithParagraphScope,
