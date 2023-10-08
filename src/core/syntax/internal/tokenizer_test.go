@@ -4,9 +4,9 @@
 package internal
 
 import (
-	"errors"
 	"testing"
 
+	"github.com/FrHorschig/kant-search-backend/core/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func TestTokenize(t *testing.T) {
 		name     string
 		input    string
 		expected []Token
-		err      error
+		err      *errors.Error
 	}{
 		{
 			name:     "only words success",
@@ -93,49 +93,49 @@ func TestTokenize(t *testing.T) {
 			name:     "starts with AND error",
 			input:    "& hello",
 			expected: nil,
-			err:      errors.New("search input must not start with &, | or )"),
+			err:      &errors.Error{Msg: errors.WRONG_STARTING_CHAR},
 		},
 		{
 			name:     "starts with OR error",
 			input:    "| hello",
 			expected: nil,
-			err:      errors.New("search input must not start with &, | or )"),
+			err:      &errors.Error{Msg: errors.WRONG_STARTING_CHAR},
 		},
 		{
 			name:     "starts with CloseParen error",
 			input:    ") hello",
 			expected: nil,
-			err:      errors.New("search input must not start with &, | or )"),
+			err:      &errors.Error{Msg: errors.WRONG_STARTING_CHAR},
 		},
 		{
 			name:     "ends with AND error",
 			input:    "hello &",
 			expected: nil,
-			err:      errors.New("search input must not end with &, |, ! or ("),
+			err:      &errors.Error{Msg: errors.WRONG_ENDING_CHAR},
 		},
 		{
 			name:     "ends with OR error",
 			input:    "hello |",
 			expected: nil,
-			err:      errors.New("search input must not end with &, |, ! or ("),
+			err:      &errors.Error{Msg: errors.WRONG_ENDING_CHAR},
 		},
 		{
 			name:     "ends with NOT error",
 			input:    "hello !",
 			expected: nil,
-			err:      errors.New("search input must not end with &, |, ! or ("),
+			err:      &errors.Error{Msg: errors.WRONG_ENDING_CHAR},
 		},
 		{
 			name:     "ends with OpenParen error",
 			input:    "hello (",
 			expected: nil,
-			err:      errors.New("search input must not end with &, |, ! or ("),
+			err:      &errors.Error{Msg: errors.WRONG_ENDING_CHAR},
 		},
 		{
 			name:     "unterminated double quote error",
 			input:    "hello \"world",
 			expected: nil,
-			err:      errors.New("unterminated double quote found"),
+			err:      &errors.Error{Msg: errors.UNTERMINATED_DOUBLE_QUOTE},
 		},
 	}
 

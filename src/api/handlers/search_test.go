@@ -55,7 +55,7 @@ func testSearchBindError(t *testing.T, sut *searchHandlerImpl, searchProcessor *
 	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_EMPTY_WORKS_SELECTION))
 }
 
 func testSearchEmptySearchString(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
@@ -72,7 +72,7 @@ func testSearchEmptySearchString(t *testing.T, sut *searchHandlerImpl, searchPro
 	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_EMPTY_SEARCH_TERMS))
 }
 
 func testSearchEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
@@ -89,11 +89,11 @@ func testSearchEmptyWorkIds(t *testing.T, sut *searchHandlerImpl, searchProcesso
 	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_EMPTY_WORKS_SELECTION))
 }
 
 func testSearchSyntaxError(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
-	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchString: "& test"})
+	body, err := json.Marshal(models.SearchCriteria{WorkIds: []int32{1}, SearchString: "& test", Options: models.SearchOptions{Scope: models.SearchScope("PARAGRAPH")}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func testSearchSyntaxError(t *testing.T, sut *searchHandlerImpl, searchProcessor
 	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_SYNTAX_WRONG_STARTING_CHAR))
 }
 
 func testSearchDatabaseError(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
@@ -126,7 +126,7 @@ func testSearchDatabaseError(t *testing.T, sut *searchHandlerImpl, searchProcess
 	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusInternalServerError, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.INTERNAL_SERVER_ERROR))
 }
 
 func testSearchNotFound(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
@@ -145,7 +145,7 @@ func testSearchNotFound(t *testing.T, sut *searchHandlerImpl, searchProcessor *m
 	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusNotFound, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.NOT_FOUND_MATCHES))
 }
 
 func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {

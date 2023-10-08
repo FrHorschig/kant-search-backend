@@ -75,7 +75,7 @@ func testSelectVolumesDatabaseError(t *testing.T, sut *workHandlerImpl, volumeRe
 	sut.GetVolumes(ctx)
 	// THEN
 	assert.Equal(t, http.StatusInternalServerError, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.INTERNAL_SERVER_ERROR))
 }
 
 func testSelectVolumesEmptyResult(t *testing.T, sut *workHandlerImpl, volumeRepo *mocks.MockVolumeRepo) {
@@ -89,7 +89,7 @@ func testSelectVolumesEmptyResult(t *testing.T, sut *workHandlerImpl, volumeRepo
 	sut.GetVolumes(ctx)
 	// THEN
 	assert.Equal(t, http.StatusNotFound, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.NOT_FOUND_VOLUMES))
 }
 
 func testSelectVolumesSingleResult(t *testing.T, sut *workHandlerImpl, volumeRepo *mocks.MockVolumeRepo) {
@@ -124,7 +124,7 @@ func testSelectWorksDatabaseError(t *testing.T, sut *workHandlerImpl, workRepo *
 	sut.GetWorks(ctx)
 	// THEN
 	assert.Equal(t, http.StatusInternalServerError, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.INTERNAL_SERVER_ERROR))
 }
 
 func testSelectWorksEmptyResult(t *testing.T, sut *workHandlerImpl, workRepo *mocks.MockWorkRepo) {
@@ -138,7 +138,7 @@ func testSelectWorksEmptyResult(t *testing.T, sut *workHandlerImpl, workRepo *mo
 	sut.GetWorks(ctx)
 	// THEN
 	assert.Equal(t, http.StatusNotFound, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.NOT_FOUND_WORKS))
 }
 
 func testSelectWorksSingleResult(t *testing.T, sut *workHandlerImpl, workRepo *mocks.MockWorkRepo) {
@@ -181,7 +181,7 @@ func testPostWorksBindError(t *testing.T, sut *workHandlerImpl, workProcessor *p
 	sut.PostWork(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_EMPTY_WORKS_SELECTION))
 }
 
 func testPostWorksZeroWorkId(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
@@ -198,7 +198,7 @@ func testPostWorksZeroWorkId(t *testing.T, sut *workHandlerImpl, workProcessor *
 	sut.PostWork(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_EMPTY_WORKS_SELECTION))
 }
 
 func testPostWorksEmptyText(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
@@ -215,7 +215,7 @@ func testPostWorksEmptyText(t *testing.T, sut *workHandlerImpl, workProcessor *p
 	sut.PostWork(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_EMPTY_WORK_TEXT))
 }
 
 func testPostWorksProcessError(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
@@ -234,7 +234,7 @@ func testPostWorksProcessError(t *testing.T, sut *workHandlerImpl, workProcessor
 	sut.PostWork(ctx)
 	// THEN
 	assert.Equal(t, http.StatusInternalServerError, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.INTERNAL_SERVER_ERROR))
 }
 
 func testPostWorksSuccess(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {

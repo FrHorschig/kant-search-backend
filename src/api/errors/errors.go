@@ -48,6 +48,16 @@ func mapCoreEnum(err errors.ErrMsg) models.ErrorMessage {
 	switch err {
 	case errors.UNEXPECTED_TOKEN:
 		return models.BAD_REQUEST_SYNTAX_UNEXPECTED_TOKEN
+	case errors.UNEXPECTED_END_OF_INPUT:
+		return models.BAD_REQUEST_SYNTAX_UNEXPECTED_END_OF_INPUT
+	case errors.MISSING_CLOSING_PARENTHESIS:
+		return models.BAD_REQUEST_SYNTAX_MISSING_CLOSING_PARENTHESIS
+	case errors.WRONG_STARTING_CHAR:
+		return models.BAD_REQUEST_SYNTAX_WRONG_STARTING_CHAR
+	case errors.WRONG_ENDING_CHAR:
+		return models.BAD_REQUEST_SYNTAX_WRONG_ENDING_CHAR
+	case errors.UNTERMINATED_DOUBLE_QUOTE:
+		return models.BAD_REQUEST_SYNTAX_UNTERMINATED_DOUBLE_QUOTE
 	default:
 		return models.BAD_REQUEST_GENERIC
 	}

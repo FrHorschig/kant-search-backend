@@ -4,10 +4,9 @@
 package internal
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 
+	"github.com/FrHorschig/kant-search-backend/core/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +14,7 @@ func TestCheckSyntax(t *testing.T) {
 	testCases := []struct {
 		name  string
 		input []Token
-		err   error
+		err   *errors.Error
 	}{
 		{
 			name: "success",
@@ -29,14 +28,14 @@ func TestCheckSyntax(t *testing.T) {
 		{
 			name:  "empty input",
 			input: []Token{},
-			err:   errors.New("unexpected end of input"),
+			err:   &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT},
 		},
 		{
 			name: "NOT without following word",
 			input: []Token{
 				{Text: "!", IsNot: true},
 			},
-			err: errors.New("unexpected end of input"),
+			err: &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT},
 		},
 		{
 			name: "remaining tokens error",
@@ -46,7 +45,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "world", IsWord: true},
 				{Text: "extra", IsWord: true},
 			},
-			err: fmt.Errorf("unexpected token: extra"),
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"extra"}},
 		},
 		{
 			name: "phrase OR word",
@@ -108,7 +107,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "(", IsOpen: true},
 				{Text: ")", IsClose: true},
 			},
-			err: errors.New("unexpected token: )"),
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{")"}},
 		},
 		{
 			name: "missing closing parenthesis",
@@ -118,27 +117,27 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: errors.New("missing closing parenthesis"),
+			err: &errors.Error{Msg: errors.MISSING_CLOSING_PARENTHESIS},
 		},
 		{
-			name: "consecutive operators",
+			name: "OR following AND",
 			input: []Token{
 				{Text: "hello", IsWord: true},
 				{Text: "&", IsAnd: true},
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: errors.New("unexpected token: |"),
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"|"}},
 		},
 		{
-			name: "consecutive operators",
+			name: "AND following OR",
 			input: []Token{
 				{Text: "hello", IsWord: true},
 				{Text: "|", IsAnd: true},
 				{Text: "&", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: errors.New("unexpected token: &"),
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"&"}},
 		},
 		{
 			name: "starts with OR",
@@ -146,7 +145,31 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: errors.New("unexpected token: |"),
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"|"}},
+		},
+		{
+			name: "starts with AND",
+			input: []Token{
+				{Text: "&", IsOr: true},
+				{Text: "world", IsWord: true},
+			},
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"&"}},
+		},
+		{
+			name: "ends with OR",
+			input: []Token{
+				{Text: "world", IsWord: true},
+				{Text: "|", IsOr: true},
+			},
+			err: &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT},
+		},
+		{
+			name: "ends with AND",
+			input: []Token{
+				{Text: "world", IsWord: true},
+				{Text: "&", IsOr: true},
+			},
+			err: &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT},
 		},
 	}
 

@@ -67,7 +67,7 @@ func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 	err := ctx.Bind(work)
 	if err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
-		return errors.BadRequest(ctx, models.NOT_FOUND_WORKS)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC)
 	}
 	if work.WorkId < 1 {
 		log.Error().Err(err).Msg("Empty work selection")

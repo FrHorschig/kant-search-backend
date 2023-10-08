@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository/mocks"
 	"github.com/golang/mock/gomock"
@@ -46,7 +47,7 @@ func testGetParagraphsParseWorkIdError(t *testing.T, sut *paragraphHandlerImpl, 
 	sut.GetParagraphs(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_INVALID_WORK_SELECTION))
 }
 
 func testGetParagraphsDatabaseError(t *testing.T, sut *paragraphHandlerImpl, paragraphRepo *mocks.MockParagraphRepo) {
@@ -63,7 +64,7 @@ func testGetParagraphsDatabaseError(t *testing.T, sut *paragraphHandlerImpl, par
 	sut.GetParagraphs(ctx)
 	// THEN
 	assert.Equal(t, http.StatusInternalServerError, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.INTERNAL_SERVER_ERROR))
 }
 
 func testGetParagraphsNotFound(t *testing.T, sut *paragraphHandlerImpl, paragraphRepo *mocks.MockParagraphRepo) {
@@ -79,7 +80,7 @@ func testGetParagraphsNotFound(t *testing.T, sut *paragraphHandlerImpl, paragrap
 	sut.GetParagraphs(ctx)
 	// THEN
 	assert.Equal(t, http.StatusNotFound, ctx.Response().Status)
-	assertErrorResponse(t, res)
+	assertErrorResponse(t, res, string(models.NOT_FOUND_PARAGRAPHS))
 }
 
 func testGetParagraphsSuccess(t *testing.T, sut *paragraphHandlerImpl, paragraphRepo *mocks.MockParagraphRepo) {
