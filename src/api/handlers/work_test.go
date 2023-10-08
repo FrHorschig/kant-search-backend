@@ -28,11 +28,7 @@ func TestWorkHandler(t *testing.T) {
 	volumeRepo := mocks.NewMockVolumeRepo(ctrl)
 	workRepo := mocks.NewMockWorkRepo(ctrl)
 	workProcessor := procMocks.NewMockWorkUploadProcessor(ctrl)
-	sut := &workHandlerImpl{
-		volumeRepo:    volumeRepo,
-		workRepo:      workRepo,
-		workProcessor: workProcessor,
-	}
+	sut := NewWorkHandler(volumeRepo, workRepo, workProcessor).(*workHandlerImpl)
 
 	for scenario, fn := range map[string]func(t *testing.T, sut *workHandlerImpl, volumeRepo *mocks.MockVolumeRepo){
 		"GetVolumes database error": testSelectVolumesDatabaseError,

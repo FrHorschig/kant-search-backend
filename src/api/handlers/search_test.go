@@ -24,9 +24,7 @@ func TestSearchHandler(t *testing.T) {
 	defer ctrl.Finish()
 
 	searchProcessor := mocks.NewMockSearchProcessor(ctrl)
-	sut := &searchHandlerImpl{
-		searchProcessor: searchProcessor,
-	}
+	sut := NewSearchHandler(searchProcessor).(*searchHandlerImpl)
 
 	for scenario, fn := range map[string]func(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor){
 		"Search bind error":          testSearchBindError,

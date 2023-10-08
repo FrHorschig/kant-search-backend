@@ -21,9 +21,7 @@ func TestParagraphHandler(t *testing.T) {
 	defer ctrl.Finish()
 
 	paragraphRepo := mocks.NewMockParagraphRepo(ctrl)
-	sut := &paragraphHandlerImpl{
-		paragraphRepo: paragraphRepo,
-	}
+	sut := NewParagraphHandler(paragraphRepo).(*paragraphHandlerImpl)
 
 	for scenario, fn := range map[string]func(t *testing.T, sut *paragraphHandlerImpl, paragraphRepo *mocks.MockParagraphRepo){
 		"GetParagraphs parse workId error": testGetParagraphsParseWorkIdError,
