@@ -7,7 +7,7 @@ func CheckSyntax(searchTerms string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = internal.CheckSyntax(tokens)
+	err = internal.CheckSyntax(&tokens)
 	if err != nil {
 		return "", err
 	}

@@ -5,14 +5,14 @@ import (
 	"fmt"
 )
 
-func CheckSyntax(tokens []Token) error {
-	_, err := parseExpression(&tokens)
+func CheckSyntax(tokens *[]Token) error {
+	_, err := parseExpression(tokens)
 	if err != nil {
 		return err
 	}
 
-	if len(tokens) > 0 {
-		return fmt.Errorf("unexpected token after %s", tokens[0].Text)
+	if len(*tokens) > 0 {
+		return fmt.Errorf("unexpected token: %s", (*tokens)[0].Text)
 	}
 	return nil
 }
@@ -68,10 +68,6 @@ func parseTerm(tokens *[]Token) (*astNote, error) {
 }
 
 func parseFactor(tokens *[]Token) (*astNote, error) {
-	if len(*tokens) == 0 {
-		return nil, errors.New("unexpected end of input")
-	}
-
 	token := &(*tokens)[0]
 	switch {
 	case token.IsWord:
@@ -92,6 +88,6 @@ func parseFactor(tokens *[]Token) (*astNote, error) {
 		*tokens = (*tokens)[1:]
 		return node, nil
 	default:
-		return nil, fmt.Errorf("unexpected token")
+		return nil, fmt.Errorf("unexpected token: %s", token.Text)
 	}
 }
