@@ -21,17 +21,17 @@ func TestSelectAllWorks(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Greater(t, len(works), 0)
 
-	krv := works[30]
-	assert.Equal(t, "Kritik der reinen Vernunft A", krv.Title)
-	assert.Equal(t, "A", *krv.Abbreviation)
-	assert.Equal(t, int32(4), krv.Volume)
-	assert.Equal(t, int32(0), krv.Ordinal)
-	assert.Equal(t, "1781", *krv.Year)
+	krvB := works[30]
+	assert.Equal(t, "Kritik der reinen Vernunft 2. Aufl.", krvB.Title)
+	assert.Equal(t, "B", *krvB.Abbreviation)
+	assert.Equal(t, int32(3), krvB.Volume)
+	assert.Equal(t, int32(0), krvB.Ordinal)
+	assert.Equal(t, "1787", *krvB.Year)
 
-	work8_1 := works[40]
-	assert.Equal(t, "Anzeige des Lambert'schen Briefwechsels", work8_1.Title)
-	assert.Nil(t, work8_1.Abbreviation)
-	assert.Equal(t, int32(8), work8_1.Volume)
-	assert.Equal(t, int32(0), work8_1.Ordinal)
-	assert.Equal(t, "1782", *work8_1.Year)
+	work7_1 := works[40]
+	assert.Equal(t, "Anthropologie in pragmatischer Hinsicht", work7_1.Title)
+	assert.Equal(t, "Anth", *work7_1.Abbreviation)
+	assert.Equal(t, int32(7), work7_1.Volume)
+	assert.Equal(t, int32(1), work7_1.Ordinal)
+	assert.Equal(t, "1798", *work7_1.Year)
 }
