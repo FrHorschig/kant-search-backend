@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PYTHON_BIN_PATH=src_py
+
 export ALLOW_ORIGINS=https://localhost:4200
 
 export DB_HOST=localhost

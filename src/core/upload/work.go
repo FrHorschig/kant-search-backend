@@ -156,7 +156,6 @@ func removePagination(text string) string {
 func insertSentences(ctx context.Context, repo repository.SentenceRepo, paragraphs []model.Paragraph) error {
 	sentencesByParagraphId, err := pyutils.SplitIntoSentences(paragraphs)
 	if err != nil {
-		println("================================ ", err.Error())
 		return err
 	}
 	for pId, sentences := range sentencesByParagraphId {
