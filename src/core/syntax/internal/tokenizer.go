@@ -1,17 +1,18 @@
 package internal
 
 import (
-	"errors"
 	"strings"
+
+	"github.com/FrHorschig/kant-search-backend/core/errors"
 )
 
-func Tokenize(input string) ([]Token, error) {
+func Tokenize(input string) ([]Token, *errors.Error) {
 	input = strings.TrimSpace(input)
 	if wrongBeginChar(input[0]) {
-		return nil, errors.New("search input must not start with &, | or )")
+		return nil, &errors.Error{Msg: errors.WRONG_STARTING_CHAR}
 	}
 	if wrongEndChar(input[len(input)-1]) {
-		return nil, errors.New("search input must not end with &, |, ! or (")
+		return nil, &errors.Error{Msg: errors.WRONG_ENDING_CHAR}
 	}
 
 	var tokens []Token
@@ -35,7 +36,7 @@ func Tokenize(input string) ([]Token, error) {
 		case strings.HasPrefix(input, "\""):
 			end := strings.Index(input[1:], "\"")
 			if end == -1 {
-				return nil, errors.New("unterminated double quote found")
+				return nil, &errors.Error{Msg: errors.UNTERMINATED_DOUBLE_QUOTE}
 			}
 			end += 1
 			tokens = append(tokens, newPhrase(strings.TrimSpace(input[1:end])))

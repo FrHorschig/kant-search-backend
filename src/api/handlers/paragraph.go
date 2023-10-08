@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/errors"
 	"github.com/FrHorschig/kant-search-backend/api/mapper"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
@@ -27,7 +28,7 @@ func (rec *paragraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 	workId, err := strconv.ParseInt(ctx.Param("workId"), 10, 32)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
-		return errors.BadRequest(ctx, "Invalid work selection")
+		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORKS_SELECTION)
 	}
 
 	paragraphs, err := rec.paragraphRepo.SelectAll(ctx.Request().Context(), int32(workId))
@@ -36,7 +37,7 @@ func (rec *paragraphHandlerImpl) GetParagraphs(ctx echo.Context) error {
 		return errors.InternalServerError(ctx)
 	}
 	if len(paragraphs) == 0 {
-		return errors.NotFound(ctx, "No paragraphs found")
+		return errors.NotFound(ctx, models.NOT_FOUND_PARAGRAPHS)
 	}
 
 	apiParas := mapper.ParagraphsToApiModels(paragraphs)

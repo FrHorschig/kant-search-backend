@@ -30,24 +30,24 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 	err := ctx.Bind(criteria)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error parsing search criteria: %v", err)
-		return errors.BadRequest(ctx, "Error parsing search criteria")
+		return errors.BadRequest(ctx, models.BAD_REQUEST_INVALID_SEARCH_CRITERIA)
 	}
 
 	c := mapper.CriteriaToCoreModel(*criteria)
 	if len(c.WorkIds) == 0 {
 		log.Error().Err(err).Msgf("Empty work selection: %v", err)
-		return errors.BadRequest(ctx, "Empty work selection")
+		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORKS_SELECTION)
 	}
 	if len(strings.TrimSpace(c.SearchString)) == 0 {
 		log.Error().Err(err).Msgf("Empty search terms: %v", err)
-		return errors.BadRequest(ctx, "Empty search terms")
+		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_SEARCH_TERMS)
 	}
 
-	searchString, err := syntax.CheckSyntax(c.SearchString)
+	searchString, e := syntax.CheckSyntax(c.SearchString)
 	if err != nil {
-		msg := fmt.Sprintf("Syntax error in search string: %s", err.Error())
+		msg := fmt.Sprintf("Syntax error in search string: %s", e.Msg)
 		log.Error().Err(err).Msgf(msg)
-		return errors.BadRequest(ctx, msg)
+		return errors.BadRequestFromCore(ctx, e)
 	}
 	c.SearchString = searchString
 
@@ -57,7 +57,7 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 		return errors.InternalServerError(ctx)
 	}
 	if len(matches) == 0 {
-		return errors.NotFound(ctx, "No matches found")
+		return errors.NotFound(ctx, models.NOT_FOUND_MATCHES)
 	}
 
 	return ctx.JSON(200, mapper.MatchesToApiModels(matches))

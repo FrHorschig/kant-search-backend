@@ -40,7 +40,7 @@ func (rec *workHandlerImpl) GetVolumes(ctx echo.Context) error {
 	}
 
 	if len(volumes) == 0 {
-		return errors.NotFound(ctx, "No volumes found")
+		return errors.NotFound(ctx, models.NOT_FOUND_VOLUMES)
 	}
 
 	apiVolumes := mapper.VolumesToApiModels(volumes)
@@ -55,7 +55,7 @@ func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {
 	}
 
 	if len(works) == 0 {
-		return errors.NotFound(ctx, "No works found")
+		return errors.NotFound(ctx, models.NOT_FOUND_WORKS)
 	}
 
 	apiWorks := mapper.WorksToApiModels(works)
@@ -67,15 +67,15 @@ func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 	err := ctx.Bind(work)
 	if err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
-		return errors.BadRequest(ctx, "Error reading request body")
+		return errors.BadRequest(ctx, models.NOT_FOUND_WORKS)
 	}
 	if work.WorkId < 1 {
 		log.Error().Err(err).Msg("Empty work selection")
-		return errors.BadRequest(ctx, "Empty work selection")
+		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORKS_SELECTION)
 	}
 	if work.Text == "" {
 		log.Error().Err(err).Msg("Empty text")
-		return errors.BadRequest(ctx, "Empty text")
+		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORK_TEXT)
 	}
 
 	coreModel := mapper.WorkUploadToCoreModel(*work)

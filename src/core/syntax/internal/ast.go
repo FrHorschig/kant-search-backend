@@ -1,23 +1,25 @@
 package internal
 
 import (
-	"errors"
-	"fmt"
+	"github.com/FrHorschig/kant-search-backend/core/errors"
 )
 
-func CheckSyntax(tokens *[]Token) error {
+func CheckSyntax(tokens *[]Token) *errors.Error {
 	_, err := parseExpression(tokens)
 	if err != nil {
 		return err
 	}
 
 	if len(*tokens) > 0 {
-		return fmt.Errorf("unexpected token: %s", (*tokens)[0].Text)
+		return &errors.Error{
+			Msg:  errors.UNEXPECTED_TOKEN,
+			Args: []string{(*tokens)[0].Text},
+		}
 	}
 	return nil
 }
 
-func parseExpression(tokens *[]Token) (*astNote, error) {
+func parseExpression(tokens *[]Token) (*astNote, *errors.Error) {
 	node, err := parseTerm(tokens)
 	if err != nil {
 		return nil, err
@@ -49,9 +51,9 @@ func parseExpression(tokens *[]Token) (*astNote, error) {
 	return node, nil
 }
 
-func parseTerm(tokens *[]Token) (*astNote, error) {
+func parseTerm(tokens *[]Token) (*astNote, *errors.Error) {
 	if len(*tokens) == 0 {
-		return nil, errors.New("unexpected end of input")
+		return nil, &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT}
 	}
 
 	if (*tokens)[0].IsNot {
@@ -67,7 +69,7 @@ func parseTerm(tokens *[]Token) (*astNote, error) {
 	return parseFactor(tokens)
 }
 
-func parseFactor(tokens *[]Token) (*astNote, error) {
+func parseFactor(tokens *[]Token) (*astNote, *errors.Error) {
 	token := &(*tokens)[0]
 	switch {
 	case token.IsWord:
@@ -83,11 +85,14 @@ func parseFactor(tokens *[]Token) (*astNote, error) {
 			return nil, err
 		}
 		if len(*tokens) == 0 || !(*tokens)[0].IsClose {
-			return nil, errors.New("missing closing parenthesis")
+			return nil, &errors.Error{Msg: errors.MISSING_CLOSING_PARENTHESIS}
 		}
 		*tokens = (*tokens)[1:]
 		return node, nil
 	default:
-		return nil, fmt.Errorf("unexpected token: %s", token.Text)
+		return nil, &errors.Error{
+			Msg:  errors.UNEXPECTED_TOKEN,
+			Args: []string{token.Text},
+		}
 	}
 }
