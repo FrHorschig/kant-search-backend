@@ -4,16 +4,16 @@ import (
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 )
 
-func CheckSyntax(tokens *[]Token) *errors.Error {
-	_, err := parseExpression(tokens)
+func CheckSyntax(tokens []Token) *errors.Error {
+	_, err := parseExpression(&tokens)
 	if err != nil {
 		return err
 	}
 
-	if len(*tokens) > 0 {
+	if len(tokens) > 0 {
 		return &errors.Error{
 			Msg:  errors.UNEXPECTED_TOKEN,
-			Args: []string{(*tokens)[0].Text},
+			Args: []string{tokens[0].Text},
 		}
 	}
 	return nil

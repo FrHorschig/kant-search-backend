@@ -58,7 +58,8 @@ func (repo *paragraphRepoImpl) SelectAll(ctx context.Context, workId int32) ([]m
 
 func (repo *paragraphRepoImpl) Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
 	snippetParams, textParams := buildParams()
-	query := `SELECT
+	query := `
+		SELECT
 			'... ' || ts_headline('german', p.content, to_tsquery('german', $2), $3) || ' ...',
 			ts_headline('german', p.content, to_tsquery('german', $2), $4),
 			p.pages,
