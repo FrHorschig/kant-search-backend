@@ -40,7 +40,7 @@ func (repo *paragraphRepoImpl) Insert(ctx context.Context, paragraph model.Parag
 }
 
 func (repo *paragraphRepoImpl) SelectAll(ctx context.Context, workId int32) ([]model.Paragraph, error) {
-	query := `SELECT id, content, pages, work_id FROM paragraphs WHERE work_id = $1`
+	query := `SELECT id, content, pages, work_id FROM paragraphs WHERE work_id = $1 ORDER BY id`
 	rows, err := repo.db.QueryContext(ctx, query, workId)
 	if err != nil {
 		if err == sql.ErrNoRows {
