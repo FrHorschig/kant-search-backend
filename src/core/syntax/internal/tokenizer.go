@@ -9,10 +9,16 @@ import (
 func Tokenize(input string) ([]Token, *errors.Error) {
 	input = strings.TrimSpace(input)
 	if wrongBeginChar(input[0]) {
-		return nil, &errors.Error{Msg: errors.WRONG_STARTING_CHAR}
+		return nil, &errors.Error{
+			Msg:  errors.WRONG_STARTING_CHAR,
+			Args: []string{string(input[0])},
+		}
 	}
 	if wrongEndChar(input[len(input)-1]) {
-		return nil, &errors.Error{Msg: errors.WRONG_ENDING_CHAR}
+		return nil, &errors.Error{
+			Msg:  errors.WRONG_ENDING_CHAR,
+			Args: []string{string(input[len(input)-1])},
+		}
 	}
 
 	var tokens []Token
@@ -36,7 +42,10 @@ func Tokenize(input string) ([]Token, *errors.Error) {
 		case strings.HasPrefix(input, "\""):
 			end := strings.Index(input[1:], "\"")
 			if end == -1 {
-				return nil, &errors.Error{Msg: errors.UNTERMINATED_DOUBLE_QUOTE}
+				return nil, &errors.Error{
+					Msg:  errors.UNTERMINATED_DOUBLE_QUOTE,
+					Args: []string{tokens[len(tokens)-1].Text},
+				}
 			}
 			end += 1
 			tokens = append(tokens, newPhrase(strings.TrimSpace(input[1:end])))
