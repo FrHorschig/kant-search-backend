@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/api/util"
+	"github.com/FrHorschig/kant-search-backend/api/internal/util"
 	procMocks "github.com/FrHorschig/kant-search-backend/core/upload/mocks"
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository/mocks"

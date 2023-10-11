@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/api/errors"
-	"github.com/FrHorschig/kant-search-backend/api/mapper"
+	"github.com/FrHorschig/kant-search-backend/api/internal/errors"
+	"github.com/FrHorschig/kant-search-backend/api/internal/mapper"
 	processing "github.com/FrHorschig/kant-search-backend/core/upload"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 	"github.com/labstack/echo/v4"

@@ -42,10 +42,7 @@ func Tokenize(input string) ([]Token, *errors.Error) {
 		case strings.HasPrefix(input, "\""):
 			end := strings.Index(input[1:], "\"")
 			if end == -1 {
-				return nil, &errors.Error{
-					Msg:  errors.UNTERMINATED_DOUBLE_QUOTE,
-					Args: []string{tokens[len(tokens)-1].Text},
-				}
+				return nil, &errors.Error{Msg: errors.UNTERMINATED_DOUBLE_QUOTE}
 			}
 			end += 1
 			tokens = append(tokens, newPhrase(strings.TrimSpace(input[1:end])))
