@@ -45,7 +45,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "world", IsWord: true},
 				{Text: "extra", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"extra"}},
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"extra"}},
 		},
 		{
 			name: "phrase OR word",
@@ -107,7 +107,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "(", IsOpen: true},
 				{Text: ")", IsClose: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{")"}},
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{")"}},
 		},
 		{
 			name: "missing closing parenthesis",
@@ -127,7 +127,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"|"}},
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"|"}},
 		},
 		{
 			name: "AND following OR",
@@ -137,7 +137,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "&", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"&"}},
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"&"}},
 		},
 		{
 			name: "starts with OR",
@@ -145,7 +145,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"|"}},
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"|"}},
 		},
 		{
 			name: "starts with AND",
@@ -153,7 +153,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "&", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Args: []string{"&"}},
+			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"&"}},
 		},
 		{
 			name: "ends with OR",

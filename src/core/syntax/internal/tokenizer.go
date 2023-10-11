@@ -10,14 +10,14 @@ func Tokenize(input string) ([]Token, *errors.Error) {
 	input = strings.TrimSpace(input)
 	if wrongBeginChar(input[0]) {
 		return nil, &errors.Error{
-			Msg:  errors.WRONG_STARTING_CHAR,
-			Args: []string{string(input[0])},
+			Msg:    errors.WRONG_STARTING_CHAR,
+			Params: []string{string(input[0])},
 		}
 	}
 	if wrongEndChar(input[len(input)-1]) {
 		return nil, &errors.Error{
-			Msg:  errors.WRONG_ENDING_CHAR,
-			Args: []string{string(input[len(input)-1])},
+			Msg:    errors.WRONG_ENDING_CHAR,
+			Params: []string{string(input[len(input)-1])},
 		}
 	}
 

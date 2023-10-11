@@ -1,8 +1,8 @@
 package errors
 
 type Error struct {
-	Msg  ErrMsg
-	Args []string
+	Msg    ErrMsg
+	Params []string
 }
 
 type ErrMsg string

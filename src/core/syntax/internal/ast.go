@@ -12,8 +12,8 @@ func CheckSyntax(tokens []Token) *errors.Error {
 
 	if len(tokens) > 0 {
 		return &errors.Error{
-			Msg:  errors.UNEXPECTED_TOKEN,
-			Args: []string{tokens[0].Text},
+			Msg:    errors.UNEXPECTED_TOKEN,
+			Params: []string{tokens[0].Text},
 		}
 	}
 	return nil
@@ -91,8 +91,8 @@ func parseFactor(tokens *[]Token) (*astNote, *errors.Error) {
 		return node, nil
 	default:
 		return nil, &errors.Error{
-			Msg:  errors.UNEXPECTED_TOKEN,
-			Args: []string{token.Text},
+			Msg:    errors.UNEXPECTED_TOKEN,
+			Params: []string{token.Text},
 		}
 	}
 }

@@ -19,7 +19,7 @@ func BadRequestFromCore(ctx echo.Context, err *errors.Error) error {
 	return ctx.JSON(http.StatusBadRequest, models.HttpError{
 		Code:    http.StatusBadRequest,
 		Message: mapCoreEnum(err.Msg),
-		Args:    err.Args,
+		Params:  err.Params,
 	})
 }
 
