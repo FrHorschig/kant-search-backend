@@ -8,6 +8,7 @@ import (
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parser"
+	"github.com/FrHorschig/kant-search-backend/core/upload/internal/transform"
 	repository "github.com/FrHorschig/kant-search-backend/database"
 )
 
@@ -31,10 +32,13 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 }
 
 func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) (*errors.Error, error) {
-	_, err := parser.Parse(upload.Text)
+	expr, err := parser.Parse(upload.Text)
 	if err != nil {
 		return err, nil
 	}
+
+	// paragraphs, err2 := transform.Transform(expr)
+	transform.Transform(expr)
 	// TODO frhorsch: implement
 
 	return nil, nil

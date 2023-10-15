@@ -41,11 +41,11 @@ type Expression struct {
 }
 
 type Metadata struct {
-	Class    string
-	Location *string
+	Class string
+	Param *string
 }
 
 type Content struct {
-	Expressions []*Expression
+	Expressions []Expression
 	Texts       []string
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 )
 
-func Parse(input string) (*Expression, *errors.Error) {
+func Parse(input string) ([]Expression, *errors.Error) {
 	input = strings.TrimSpace(input)
 	if input[0] != '{' {
 		return nil, &errors.Error{
@@ -18,26 +18,23 @@ func Parse(input string) (*Expression, *errors.Error) {
 	return parse(tokens)
 }
 
-func parse(tokens []Token) (*Expression, *errors.Error) {
+func parse(tokens []Token) ([]Expression, *errors.Error) {
 	tk := &tokenIterator{tokens: tokens}
-	expr, err := parseExpression(tk)
-	if err != nil {
-		return nil, err
-	}
-
-	if tk.hasNext() {
-		return nil, &errors.Error{
-			Msg:    errors.UNEXPECTED_TOKEN,
-			Params: []string{tk.peek().Text},
+	results := make([]Expression, 0)
+	for tk.hasNext() {
+		expr, err := parseExpression(tk)
+		if err != nil {
+			return nil, err
 		}
+		results = append(results, expr)
 	}
 
-	return expr, nil
+	return results, nil
 }
 
-func parseExpression(tk *tokenIterator) (*Expression, *errors.Error) {
+func parseExpression(tk *tokenIterator) (Expression, *errors.Error) {
 	if !tk.consume(OPEN) {
-		return nil, &errors.Error{
+		return Expression{}, &errors.Error{
 			Msg:    errors.UNEXPECTED_TOKEN,
 			Params: []string{tk.peek().Text},
 		}
@@ -45,14 +42,14 @@ func parseExpression(tk *tokenIterator) (*Expression, *errors.Error) {
 
 	meta, err := parseMetadata(tk)
 	if err != nil {
-		return nil, err
+		return Expression{}, err
 	}
-	expr := &Expression{Metadata: *meta}
+	expr := Expression{Metadata: *meta}
 
 	if tk.consume(SEPARATOR) {
 		content, err := parseContent(tk)
 		if err != nil {
-			return nil, err
+			return Expression{}, err
 		}
 		expr.Content = content
 	}
@@ -63,11 +60,11 @@ func parseExpression(tk *tokenIterator) (*Expression, *errors.Error) {
 			errText = expr.Content.Texts[len(expr.Content.Texts)-1]
 		} else {
 			errText = expr.Metadata.Class
-			if expr.Metadata.Location != nil {
-				errText += *expr.Metadata.Location
+			if expr.Metadata.Param != nil {
+				errText += *expr.Metadata.Param
 			}
 		}
-		return nil, &errors.Error{
+		return Expression{}, &errors.Error{
 			Msg:    errors.MISSING_CLOSING_BRACE,
 			Params: []string{errText},
 		}
@@ -86,7 +83,7 @@ func parseMetadata(tk *tokenIterator) (*Metadata, *errors.Error) {
 
 	meta := &Metadata{Class: text}
 	if loc, ok := tk.consumeWithText(PARAM); ok {
-		meta.Location = &loc
+		meta.Param = &loc
 	}
 
 	return meta, nil

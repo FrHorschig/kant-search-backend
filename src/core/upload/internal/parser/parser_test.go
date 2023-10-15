@@ -14,19 +14,51 @@ func TestParseInternal(t *testing.T) {
 	testCases := []struct {
 		name  string
 		input []Token
-		expr  *Expression
+		expr  []Expression
 		err   *errors.Error
 	}{
 		{
-			name: "basic expression without content",
+			name: "basic expression",
 			input: []Token{
 				newOpen(),
 				newClass("class"),
 				newClose(),
 			},
-			expr: &Expression{
+			expr: []Expression{{
 				Metadata: Metadata{
 					Class: "class",
+				},
+			}},
+			err: nil,
+		},
+		{
+			name: "three basic expression",
+			input: []Token{
+				newOpen(),
+				newClass("class"),
+				newClose(),
+				newOpen(),
+				newClass("class2"),
+				newClose(),
+				newOpen(),
+				newClass("class3"),
+				newClose(),
+			},
+			expr: []Expression{
+				{
+					Metadata: Metadata{
+						Class: "class",
+					},
+				},
+				{
+					Metadata: Metadata{
+						Class: "class2",
+					},
+				},
+				{
+					Metadata: Metadata{
+						Class: "class3",
+					},
 				},
 			},
 			err: nil,
@@ -39,12 +71,12 @@ func TestParseInternal(t *testing.T) {
 				newParam("param"),
 				newClose(),
 			},
-			expr: &Expression{
+			expr: []Expression{{
 				Metadata: Metadata{
-					Class:    "class",
-					Location: &[]string{"param"}[0],
+					Class: "class",
+					Param: &[]string{"param"}[0],
 				},
-			},
+			}},
 			err: nil,
 		},
 		{
@@ -56,14 +88,14 @@ func TestParseInternal(t *testing.T) {
 				newText("text"),
 				newClose(),
 			},
-			expr: &Expression{
+			expr: []Expression{{
 				Metadata: Metadata{
 					Class: "class",
 				},
 				Content: &Content{
 					Texts: []string{"text"},
 				},
-			},
+			}},
 			err: nil,
 		},
 		{
@@ -78,13 +110,13 @@ func TestParseInternal(t *testing.T) {
 				newClose(),
 				newClose(),
 			},
-			expr: &Expression{
+			expr: []Expression{{
 				Metadata: Metadata{
-					Class:    "class",
-					Location: &[]string{"param"}[0],
+					Class: "class",
+					Param: &[]string{"param"}[0],
 				},
 				Content: &Content{
-					Expressions: []*Expression{
+					Expressions: []Expression{
 						{
 							Metadata: Metadata{
 								Class: "class2",
@@ -92,7 +124,7 @@ func TestParseInternal(t *testing.T) {
 						},
 					},
 				},
-			},
+			}},
 			err: nil,
 		},
 		{
@@ -192,10 +224,12 @@ func TestParseInternal(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			expr, err := parse(tc.input)
-
 			if tc.expr != nil && expr != nil {
-				assert.Equal(t, tc.expr.Content, expr.Content)
-				assert.Equal(t, tc.expr.Metadata, expr.Metadata)
+				assert.Len(t, tc.expr, len(expr))
+				for i, e := range tc.expr {
+					assert.Equal(t, e.Content, expr[i].Content)
+					assert.Equal(t, e.Metadata, expr[i].Metadata)
+				}
 			}
 			assert.Equal(t, tc.err, err)
 		})
