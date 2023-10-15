@@ -13,6 +13,7 @@ import (
 
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/internal/util"
+	coreErrs "github.com/FrHorschig/kant-search-backend/core/errors"
 	procMocks "github.com/FrHorschig/kant-search-backend/core/upload/mocks"
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository/mocks"
@@ -229,12 +230,34 @@ func testPostWorksProcessError(t *testing.T, sut *workHandlerImpl, workProcessor
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(processErr)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil, processErr)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
 	assert.Equal(t, http.StatusInternalServerError, ctx.Response().Status)
 	assertErrorResponse(t, res, string(models.INTERNAL_SERVER_ERROR))
+}
+
+func testPostWorksParseError(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
+	body, err := json.Marshal(models.WorkUpload{WorkId: 1, Text: "text"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	parseErr := coreErrs.Error{
+		Msg:    coreErrs.WRONG_STARTING_CHAR,
+		Params: []string{string("detail")},
+	}
+	// GIVEN
+	req := httptest.NewRequest(echo.POST, "/api/v1/works", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	res := httptest.NewRecorder()
+	ctx := echo.New().NewContext(req, res)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(&parseErr, nil)
+	// WHEN
+	sut.PostWork(ctx)
+	// THEN
+	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_SYNTAX_WRONG_STARTING_CHAR))
 }
 
 func testPostWorksSuccess(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
@@ -248,7 +271,7 @@ func testPostWorksSuccess(t *testing.T, sut *workHandlerImpl, workProcessor *pro
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
 	ctx.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil, nil)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN

@@ -4,17 +4,16 @@ package upload
 
 import (
 	"context"
-	"regexp"
-	"strconv"
 	"strings"
 
-	"github.com/FrHorschig/kant-search-backend/core/pyutils"
+	"github.com/FrHorschig/kant-search-backend/core/errors"
+	"github.com/FrHorschig/kant-search-backend/core/upload/internal"
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 )
 
 type WorkUploadProcessor interface {
-	Process(ctx context.Context, work model.WorkUpload) error
+	Process(ctx context.Context, work model.WorkUpload) (*errors.Error, error)
 }
 
 type workUploadProcessorImpl struct {
@@ -32,144 +31,20 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 	return &processor
 }
 
-func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) error {
-	rec.sentenceRepo.DeleteByWorkId(ctx, upload.WorkId)
-	rec.paragraphRepo.DeleteByWorkId(ctx, upload.WorkId)
-
-	paras, err := buildParagraphModels(upload.Text, upload.WorkId)
+func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) (*errors.Error, error) {
+	input := strings.TrimSpace(upload.Text)
+	if input[0] != '{' {
+		return &errors.Error{
+			Msg:    errors.WRONG_STARTING_CHAR,
+			Params: []string{string(input[0])},
+		}, nil
+	}
+	tokens := internal.Tokenize(input)
+	_, err := internal.Parse(tokens)
 	if err != nil {
-		return err
+		return err, nil
 	}
+	// TODO frhorsch: implement
 
-	for i, p := range paras {
-		pId, err := rec.paragraphRepo.Insert(ctx, p)
-		if err != nil {
-			return err
-		}
-		paras[i].Id = pId
-		paras[i].Text = removePagination(p.Text)
-	}
-
-	insertSentences(ctx, rec.sentenceRepo, paras)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func buildParagraphModels(text string, workId int32) ([]model.Paragraph, error) {
-	paras := make([]model.Paragraph, 0)
-	lastTextPara := int32(0)
-	lastPage := int32(0)
-	lastIsFn := false
-	for _, rawPara := range strings.Split(text, "\n\n") {
-		para := strings.TrimSpace(rawPara)
-		p, err := extractModelData(para, workId)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(p.Pages) == 0 {
-			p.Pages = append(p.Pages, lastPage)
-		} else {
-			lastPage = p.Pages[len(p.Pages)-1]
-		}
-
-		if isFn(p) {
-			paras = append(paras, p)
-			lastIsFn = true
-		} else {
-			if lastIsFn {
-				paras[lastTextPara].Text += " " + p.Text
-				paras[lastTextPara].Pages = append(paras[lastTextPara].Pages, p.Pages...)
-			} else {
-				paras = append(paras, p)
-				lastTextPara = int32(len(paras) - 1)
-			}
-			lastIsFn = false
-		}
-	}
-	return removeEmptyParas(paras), nil
-}
-
-func isFn(p model.Paragraph) bool {
-	return p.FootnoteName != ""
-}
-
-func extractModelData(p string, workId int32) (model.Paragraph, error) {
-	pages, err := findPages(p)
-	if err != nil {
-		return model.Paragraph{}, err
-	}
-
-	text, footnoteName, err := findTextOrFootnote(p)
-	if err != nil {
-		return model.Paragraph{}, err
-	}
-
-	para := model.Paragraph{Text: text, WorkId: workId, Pages: pages, FootnoteName: footnoteName}
-	return para, nil
-}
-
-func findPages(p string) ([]int32, error) {
-	pages := make([]int32, 0)
-	r, _ := regexp.Compile(`\{p(\d+)\}`)
-	matches := r.FindAllStringSubmatch(p, -1)
-	for _, match := range matches {
-		n, err := strconv.Atoi(match[1])
-		if err != nil {
-			return nil, err
-		}
-		pages = append(pages, int32(n))
-		p = strings.ReplaceAll(p, match[0], "")
-	}
-	return pages, nil
-}
-
-func findTextOrFootnote(p string) (string, string, error) {
-	r, _ := regexp.Compile(`\{fn(\d+\.\d+)\}\{([^}]+)\}`)
-	match := r.FindStringSubmatch(p)
-	if len(match) > 0 {
-		return match[2], match[1], nil
-	}
-	return p, "", nil
-}
-
-func removeEmptyParas(paras []model.Paragraph) []model.Paragraph {
-	filtered := make([]model.Paragraph, 0)
-	for _, p := range paras {
-		if p.Text != "" {
-			filtered = append(filtered, p)
-		}
-	}
-	return filtered
-}
-
-func removePagination(text string) string {
-	r, _ := regexp.Compile(`\s*\{p\d+\}\s*`)
-	text = r.ReplaceAllString(text, " ")
-	r, _ = regexp.Compile(`\s*\{l\d+\}\s*`)
-	return r.ReplaceAllString(text, " ")
-}
-
-func insertSentences(ctx context.Context, repo repository.SentenceRepo, paragraphs []model.Paragraph) error {
-	sentencesByParagraphId, err := pyutils.SplitIntoSentences(paragraphs)
-	if err != nil {
-		return err
-	}
-	for pId, sentences := range sentencesByParagraphId {
-		sentenceModels := make([]model.Sentence, 0)
-		for _, s := range sentences {
-			sentenceModels = append(sentenceModels, model.Sentence{
-				ParagraphId: pId,
-				Text:        s,
-			})
-		}
-		_, err = repo.Insert(ctx, sentenceModels)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return nil, nil
 }

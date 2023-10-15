@@ -79,7 +79,11 @@ func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 	}
 
 	coreModel := mapper.WorkUploadToCoreModel(*work)
-	err = rec.workProcessor.Process(ctx.Request().Context(), coreModel)
+	parseErr, err := rec.workProcessor.Process(ctx.Request().Context(), coreModel)
+	if parseErr != nil {
+		log.Error().Err(err).Msgf("Error parsing work text: %v", parseErr)
+		return errors.BadRequestFromCore(ctx, parseErr)
+	}
 	if err != nil {
 		log.Error().Err(err).Msgf("Error processing work: %v", err)
 		return errors.InternalServerError(ctx)
