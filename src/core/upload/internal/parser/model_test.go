@@ -36,8 +36,8 @@ func TestNewType(t *testing.T) {
 
 func TestNewLocation(t *testing.T) {
 	text := "123.456"
-	result := newLocation(text)
-	assert.Equal(t, LOCATION, result.Type)
+	result := newParam(text)
+	assert.Equal(t, PARAM, result.Type)
 	assert.Equal(t, text, result.Text)
 }
 

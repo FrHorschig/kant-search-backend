@@ -32,17 +32,17 @@ func TestParseInternal(t *testing.T) {
 			err: nil,
 		},
 		{
-			name: "expression with location without content",
+			name: "expression with param without content",
 			input: []Token{
 				newOpen(),
 				newClass("class"),
-				newLocation("location"),
+				newParam("param"),
 				newClose(),
 			},
 			expr: &Expression{
 				Metadata: Metadata{
 					Class:    "class",
-					Location: &[]string{"location"}[0],
+					Location: &[]string{"param"}[0],
 				},
 			},
 			err: nil,
@@ -67,11 +67,11 @@ func TestParseInternal(t *testing.T) {
 			err: nil,
 		},
 		{
-			name: "expression with location and nested content",
+			name: "expression with param and nested content",
 			input: []Token{
 				newOpen(),
 				newClass("class"),
-				newLocation("location"),
+				newParam("param"),
 				newSeparator(),
 				newOpen(),
 				newClass("class2"),
@@ -81,7 +81,7 @@ func TestParseInternal(t *testing.T) {
 			expr: &Expression{
 				Metadata: Metadata{
 					Class:    "class",
-					Location: &[]string{"location"}[0],
+					Location: &[]string{"param"}[0],
 				},
 				Content: &Content{
 					Expressions: []*Expression{
@@ -108,11 +108,11 @@ func TestParseInternal(t *testing.T) {
 			},
 		},
 		{
-			name: "closing brace error with location",
+			name: "closing brace error with param",
 			input: []Token{
 				newOpen(),
 				newClass("class"),
-				newLocation("Location"),
+				newParam("Location"),
 			},
 			expr: nil,
 			err: &errors.Error{
@@ -166,7 +166,7 @@ func TestParseInternal(t *testing.T) {
 				newClass("type"),
 				newSeparator(),
 				newOpen(),
-				newLocation("location"),
+				newParam("param"),
 				newClose(),
 				newClose(),
 			},

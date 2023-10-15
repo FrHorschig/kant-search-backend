@@ -85,7 +85,7 @@ func parseMetadata(tk *tokenIterator) (*Metadata, *errors.Error) {
 	}
 
 	meta := &Metadata{Class: text}
-	if loc, ok := tk.consumeWithText(LOCATION); ok {
+	if loc, ok := tk.consumeWithText(PARAM); ok {
 		meta.Location = &loc
 	}
 

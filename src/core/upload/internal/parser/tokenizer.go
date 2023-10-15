@@ -27,7 +27,7 @@ func tokenize(input string) []Token {
 				tokens = append(tokens, newClass(match))
 				input = input[len(match):]
 			} else if match := rLoc.FindString(input); match != "" {
-				tokens = append(tokens, newLocation(match[:len(match)-1]))
+				tokens = append(tokens, newParam(match[:len(match)-1]))
 				input = input[len(match)-1:]
 			} else {
 				match := rChar.FindString(input)

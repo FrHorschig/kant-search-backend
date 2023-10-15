@@ -36,14 +36,14 @@ func TestTokenize(t *testing.T) {
 			expected: []Token{newClass("type")},
 		},
 		{
-			name:     "location token ending with close success",
+			name:     "param token ending with close success",
 			input:    "123.456}",
-			expected: []Token{newLocation("123.456"), newClose()},
+			expected: []Token{newParam("123.456"), newClose()},
 		},
 		{
-			name:     "location token ending with separator success",
+			name:     "param token ending with separator success",
 			input:    "123.456|",
-			expected: []Token{newLocation("123.456"), newSeparator()},
+			expected: []Token{newParam("123.456"), newSeparator()},
 		},
 		{
 			name:     "char token success",
@@ -53,12 +53,12 @@ func TestTokenize(t *testing.T) {
 		{
 			name:     "multiple tokens success",
 			input:    "{type}|{123.456}",
-			expected: []Token{newOpen(), newClass("type"), newClose(), newSeparator(), newOpen(), newLocation("123.456"), newClose()},
+			expected: []Token{newOpen(), newClass("type"), newClose(), newSeparator(), newOpen(), newParam("123.456"), newClose()},
 		},
 		{
 			name:     "input with spaces between tokens success",
 			input:    "{type} {123.456} {a|123xyz}",
-			expected: []Token{newOpen(), newClass("type"), newClose(), newOpen(), newLocation("123.456"), newClose(), newOpen(), newClass("a"), newSeparator(), newText("123xyz"), newClose()},
+			expected: []Token{newOpen(), newClass("type"), newClose(), newOpen(), newParam("123.456"), newClose(), newOpen(), newClass("a"), newSeparator(), newText("123xyz"), newClose()},
 		},
 	}
 
