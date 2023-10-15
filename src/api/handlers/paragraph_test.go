@@ -11,7 +11,7 @@ import (
 
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/common/model"
-	"github.com/FrHorschig/kant-search-backend/database/repository/mocks"
+	"github.com/FrHorschig/kant-search-backend/database/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"

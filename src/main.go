@@ -8,7 +8,7 @@ import (
 	"github.com/FrHorschig/kant-search-backend/common/util"
 	"github.com/FrHorschig/kant-search-backend/core/search"
 	"github.com/FrHorschig/kant-search-backend/core/upload"
-	"github.com/FrHorschig/kant-search-backend/database/repository"
+	repository "github.com/FrHorschig/kant-search-backend/database"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

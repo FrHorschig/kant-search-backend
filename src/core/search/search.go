@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/FrHorschig/kant-search-backend/common/model"
-	"github.com/FrHorschig/kant-search-backend/database/repository"
+	repository "github.com/FrHorschig/kant-search-backend/database"
 )
 
 type SearchProcessor interface {

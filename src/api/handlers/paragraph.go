@@ -7,7 +7,7 @@ import (
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/internal/errors"
 	"github.com/FrHorschig/kant-search-backend/api/internal/mapper"
-	"github.com/FrHorschig/kant-search-backend/database/repository"
+	repository "github.com/FrHorschig/kant-search-backend/database"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
