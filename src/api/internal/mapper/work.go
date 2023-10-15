@@ -3,7 +3,7 @@ package mapper
 import (
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/internal/util"
-	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/FrHorschig/kant-search-backend/common/model"
 )
 
 func WorkUploadToCoreModel(work models.WorkUpload) model.WorkUpload {

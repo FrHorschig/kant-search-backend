@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"

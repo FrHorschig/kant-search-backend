@@ -7,7 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/lib/pq"
 )
 

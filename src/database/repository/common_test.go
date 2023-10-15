@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"

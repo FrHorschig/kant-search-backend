@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/stretchr/testify/assert"
 )
 

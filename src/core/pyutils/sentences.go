@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/FrHorschig/kant-search-backend/common/model"
 )
 
 func SplitIntoSentences(paragraphs []model.Paragraph) (map[int32][]string, error) {

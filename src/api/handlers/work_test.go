@@ -13,9 +13,9 @@ import (
 
 	"github.com/FrHorschig/kant-search-api/models"
 	"github.com/FrHorschig/kant-search-backend/api/internal/util"
+	"github.com/FrHorschig/kant-search-backend/common/model"
 	coreErrs "github.com/FrHorschig/kant-search-backend/core/errors"
 	procMocks "github.com/FrHorschig/kant-search-backend/core/upload/mocks"
-	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"

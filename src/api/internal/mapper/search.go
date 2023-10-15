@@ -4,7 +4,7 @@ import (
 	"sort"
 
 	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/FrHorschig/kant-search-backend/common/model"
 )
 
 func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {

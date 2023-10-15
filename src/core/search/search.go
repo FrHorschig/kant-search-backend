@@ -5,7 +5,7 @@ package search
 import (
 	"context"
 
-	"github.com/FrHorschig/kant-search-backend/database/model"
+	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 )
 
