@@ -175,7 +175,7 @@ func TestCheckSyntax(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := CheckSyntax(tc.input)
+			err := Parse(tc.input)
 			assert.Equal(t, tc.err, err)
 		})
 	}

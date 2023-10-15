@@ -4,7 +4,7 @@ import (
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 )
 
-func CheckSyntax(tokens []Token) *errors.Error {
+func Parse(tokens []Token) *errors.Error {
 	_, err := parseExpression(&tokens)
 	if err != nil {
 		return err
