@@ -4,10 +4,9 @@ package upload
 
 import (
 	"context"
-	"strings"
 
 	"github.com/FrHorschig/kant-search-backend/core/errors"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal"
+	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parser"
 	"github.com/FrHorschig/kant-search-backend/database/model"
 	"github.com/FrHorschig/kant-search-backend/database/repository"
 )
@@ -32,15 +31,7 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 }
 
 func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) (*errors.Error, error) {
-	input := strings.TrimSpace(upload.Text)
-	if input[0] != '{' {
-		return &errors.Error{
-			Msg:    errors.WRONG_STARTING_CHAR,
-			Params: []string{string(input[0])},
-		}, nil
-	}
-	tokens := internal.Tokenize(input)
-	_, err := internal.Parse(tokens)
+	_, err := parser.Parse(upload.Text)
 	if err != nil {
 		return err, nil
 	}

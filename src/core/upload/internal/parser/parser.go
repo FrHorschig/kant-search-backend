@@ -1,10 +1,25 @@
-package internal
+package parser
 
-import "github.com/FrHorschig/kant-search-backend/core/errors"
+import (
+	"strings"
 
-func Parse(tokens []Token) (*Expression, *errors.Error) {
+	"github.com/FrHorschig/kant-search-backend/core/errors"
+)
+
+func Parse(input string) (*Expression, *errors.Error) {
+	input = strings.TrimSpace(input)
+	if input[0] != '{' {
+		return nil, &errors.Error{
+			Msg:    errors.WRONG_STARTING_CHAR,
+			Params: []string{string(input[0])},
+		}
+	}
+	tokens := tokenize(input)
+	return parse(tokens)
+}
+
+func parse(tokens []Token) (*Expression, *errors.Error) {
 	tk := &tokenIterator{tokens: tokens}
-
 	expr, err := parseExpression(tk)
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package internal
+package parser
 
 type tokenIterator struct {
 	tokens []Token

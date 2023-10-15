@@ -1,7 +1,7 @@
 //go:build unit
 // +build unit
 
-package internal
+package parser
 
 import (
 	"testing"
@@ -64,7 +64,7 @@ func TestTokenize(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := Tokenize(tc.input)
+			actual := tokenize(tc.input)
 			assert.Len(t, actual, len(tc.expected))
 			for i := range tc.expected {
 				assert.Equal(t, tc.expected[i], actual[i])

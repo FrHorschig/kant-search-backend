@@ -1,7 +1,7 @@
 //go:build unit
 // +build unit
 
-package internal
+package parser
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCheckSyntax(t *testing.T) {
+func TestParseInternal(t *testing.T) {
 	testCases := []struct {
 		name  string
 		input []Token
@@ -191,7 +191,7 @@ func TestCheckSyntax(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			expr, err := Parse(tc.input)
+			expr, err := parse(tc.input)
 
 			if tc.expr != nil && expr != nil {
 				assert.Equal(t, tc.expr.Content, expr.Content)
@@ -200,4 +200,8 @@ func TestCheckSyntax(t *testing.T) {
 			assert.Equal(t, tc.err, err)
 		})
 	}
+}
+
+func TestParsePublic(t *testing.T) {
+	// TODO frhorsch
 }

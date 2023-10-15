@@ -1,11 +1,11 @@
-package internal
+package parser
 
 import (
 	"regexp"
 	"strings"
 )
 
-func Tokenize(input string) []Token {
+func tokenize(input string) []Token {
 	rType := regexp.MustCompile(`^[a-z]+`)
 	rLoc := regexp.MustCompile(`^\d+(\.\d+)?[}|]`)
 	rChar := regexp.MustCompile(`^[^{}]*`)
