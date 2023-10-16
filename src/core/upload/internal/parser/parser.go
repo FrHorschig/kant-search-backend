@@ -57,7 +57,11 @@ func parseExpression(tk *tokenIterator) (Expression, *errors.Error) {
 	if !tk.consume(CLOSE) {
 		var errText string
 		if expr.Content != nil {
-			errText = expr.Content.Texts[len(expr.Content.Texts)-1]
+			if len(*expr.Content) < 16 {
+				errText = *expr.Content
+			} else {
+				errText = (*expr.Content)[len(*expr.Content)-16 : len(*expr.Content)]
+			}
 		} else {
 			errText = expr.Metadata.Class
 			if expr.Metadata.Param != nil {
@@ -89,20 +93,19 @@ func parseMetadata(tk *tokenIterator) (*Metadata, *errors.Error) {
 	return meta, nil
 }
 
-func parseContent(tk *tokenIterator) (*Content, *errors.Error) {
-	content := &Content{}
-
+func parseContent(tk *tokenIterator) (*string, *errors.Error) {
+	content := ""
 	for tk.hasNext() && tk.peek().Type != CLOSE {
 		if tk.peek().Type == OPEN {
 			expr, err := parseExpression(tk)
 			if err != nil {
 				return nil, err
 			}
-			content.Expressions = append(content.Expressions, expr)
+			content += "{" + expr.String() + "}"
 		} else if text, ok := tk.consumeWithText(TEXT); ok {
-			content.Texts = append(content.Texts, text)
+			content += text
 		}
 	}
 
-	return content, nil
+	return &content, nil
 }

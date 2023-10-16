@@ -92,9 +92,7 @@ func TestParseInternal(t *testing.T) {
 				Metadata: Metadata{
 					Class: "class",
 				},
-				Content: &Content{
-					Texts: []string{"text"},
-				},
+				Content: &[]string{"text"}[0],
 			}},
 			err: nil,
 		},
@@ -115,15 +113,7 @@ func TestParseInternal(t *testing.T) {
 					Class: "class",
 					Param: &[]string{"param"}[0],
 				},
-				Content: &Content{
-					Expressions: []Expression{
-						{
-							Metadata: Metadata{
-								Class: "class2",
-							},
-						},
-					},
-				},
+				Content: &[]string{"{class2}"}[0],
 			}},
 			err: nil,
 		},
@@ -227,8 +217,12 @@ func TestParseInternal(t *testing.T) {
 			if tc.expr != nil && expr != nil {
 				assert.Len(t, tc.expr, len(expr))
 				for i, e := range tc.expr {
-					assert.Equal(t, e.Content, expr[i].Content)
-					assert.Equal(t, e.Metadata, expr[i].Metadata)
+					if e.Content != nil {
+						assert.Equal(t, *e.Content, *expr[i].Content)
+					} else {
+						assert.Nil(t, expr[i].Content)
+					}
+					assert.Equal(t, e.Metadata.String(), expr[i].Metadata.String())
 				}
 			}
 			assert.Equal(t, tc.err, err)

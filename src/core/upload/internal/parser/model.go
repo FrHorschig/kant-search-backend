@@ -37,7 +37,15 @@ func newText(text string) Token {
 
 type Expression struct {
 	Metadata Metadata
-	Content  *Content
+	Content  *string
+}
+
+func (e *Expression) String() string {
+	s := e.Metadata.String()
+	if e.Content != nil {
+		s += "|" + *e.Content
+	}
+	return s
 }
 
 type Metadata struct {
@@ -45,7 +53,10 @@ type Metadata struct {
 	Param *string
 }
 
-type Content struct {
-	Expressions []Expression
-	Texts       []string
+func (m *Metadata) String() string {
+	s := m.Class
+	if m.Param != nil {
+		s += *m.Param
+	}
+	return s
 }
