@@ -9,6 +9,7 @@ import (
 	"github.com/FrHorschig/kant-search-backend/common/model"
 )
 
+// Returns a map of paragraph ids to sentences and error
 func SplitIntoSentences(paragraphs []model.Paragraph) (map[int32][]string, error) {
 	inputData, err := json.Marshal(paragraphs)
 	if err != nil {
@@ -27,10 +28,10 @@ func SplitIntoSentences(paragraphs []model.Paragraph) (map[int32][]string, error
 		return nil, err
 	}
 
-	result := make(map[int32][]string)
-	err = json.Unmarshal(output, &result)
+	sentencesById := make(map[int32][]string)
+	err = json.Unmarshal(output, &sentencesById)
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return sentencesById, nil
 }

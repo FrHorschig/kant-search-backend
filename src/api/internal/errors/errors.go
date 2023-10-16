@@ -45,6 +45,7 @@ func NotImplemented(ctx echo.Context, msg string) error {
 }
 
 func mapCoreEnum(err errors.ErrMsg) models.ErrorMessage {
+	// TODO frhorschig: add cases for all errors
 	switch err {
 	case errors.UNEXPECTED_TOKEN:
 		return models.BAD_REQUEST_SYNTAX_UNEXPECTED_TOKEN

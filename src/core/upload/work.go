@@ -13,7 +13,7 @@ import (
 )
 
 type WorkUploadProcessor interface {
-	Process(ctx context.Context, work model.WorkUpload) (*errors.Error, error)
+	Process(ctx context.Context, work model.WorkUpload) *errors.Error
 }
 
 type workUploadProcessorImpl struct {
@@ -31,15 +31,49 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 	return &processor
 }
 
-func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) (*errors.Error, error) {
-	expr, err := parser.Parse(upload.Text)
+func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) *errors.Error {
+	exprs, err := parser.Parse(upload.Text)
 	if err != nil {
-		return err, nil
+		return err
 	}
 
-	// paragraphs, err2 := transform.Transform(expr)
-	transform.Transform(expr)
-	// TODO frhorsch: implement
+	paragraphs, err := transform.Transform(upload.WorkId, exprs)
+	if err != nil {
+		return err
+	}
+	err = persistParagraphs(ctx, rec.paragraphRepo, paragraphs)
+	if err != nil {
+		return err
+	}
 
-	return nil, nil
+	sentences, err := transform.FindSentences(paragraphs)
+	if err != nil {
+		return err
+	}
+	return persistSentences(ctx, rec.sentenceRepo, sentences)
+}
+
+func persistParagraphs(ctx context.Context, repo repository.ParagraphRepo, paragraphs []model.Paragraph) *errors.Error {
+	for i, p := range paragraphs {
+		pId, err := repo.Insert(ctx, p)
+		if err != nil {
+			return &errors.Error{
+				Msg:    errors.GO_ERR,
+				Params: []string{err.Error()},
+			}
+		}
+		paragraphs[i].Id = pId
+	}
+	return nil
+}
+
+func persistSentences(ctx context.Context, repo repository.SentenceRepo, sentences []model.Sentence) *errors.Error {
+	_, err := repo.Insert(ctx, sentences)
+	if err != nil {
+		return &errors.Error{
+			Msg:    errors.GO_ERR,
+			Params: []string{err.Error()},
+		}
+	}
+	return nil
 }
