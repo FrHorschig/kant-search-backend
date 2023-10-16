@@ -37,7 +37,7 @@ func TestSplitIntoSentences(t *testing.T) {
 		4: {"Das ist ein erster Satz ... der weiter geht.", "Das ist ein zweiter Satz."},
 	}
 	// GIVEN
-	os.Setenv("PYTHON_BIN_PATH", "../../../src_py")
+	os.Setenv("PYTHON_BIN_PATH", "../../../../../src_py")
 	// WHEN
 	result, err := SplitIntoSentences(paragraphs)
 	// THEN
