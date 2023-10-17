@@ -82,7 +82,7 @@ func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 	coreErr := rec.workProcessor.Process(ctx.Request().Context(), coreModel)
 	if coreErr != nil {
 		log.Error().Err(err).Msgf("Error processing work: %v", err)
-		return errors.BadRequestFromCore(ctx, coreErr)
+		return errors.CoreError(ctx, coreErr)
 	}
 
 	return ctx.NoContent(http.StatusCreated)

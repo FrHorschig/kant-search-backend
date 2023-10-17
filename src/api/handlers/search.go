@@ -46,7 +46,7 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 	searchString, e := syntax.CheckSyntax(c.SearchString)
 	if e != nil {
 		log.Error().Msgf(fmt.Sprintf("Syntax error in search string: %s", e.Msg))
-		return errors.BadRequestFromCore(ctx, e)
+		return errors.CoreError(ctx, e)
 	}
 	c.SearchString = searchString
 
