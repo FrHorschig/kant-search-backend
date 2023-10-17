@@ -229,5 +229,47 @@ func TestParseInternal(t *testing.T) {
 }
 
 func TestParsePublic(t *testing.T) {
-	// TODO frhorschig
+	testCases := []struct {
+		name  string
+		input string
+		expr  []Expression
+		err   *errors.Error
+	}{
+		{
+			name:  "basic expression",
+			input: "{paragraph|some text}",
+			expr: []Expression{{
+				Metadata: Metadata{
+					Class: "paragraph",
+				},
+				Content: &[]string{"some text"}[0],
+			}},
+			err: nil,
+		},
+		{
+			name:  "wrong starting char",
+			input: "}paragraph|some text}",
+			expr:  []Expression{},
+			err: &errors.Error{
+				Msg:    errors.WRONG_STARTING_CHAR,
+				Params: []string{"}"},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			expr, err := Parse(tc.input)
+			assert.Len(t, tc.expr, len(expr))
+			for i, e := range tc.expr {
+				if e.Content != nil {
+					assert.Equal(t, *e.Content, *expr[i].Content)
+				} else {
+					assert.Nil(t, expr[i].Content)
+				}
+				assert.Equal(t, e.Metadata.String(), expr[i].Metadata.String())
+			}
+			assert.Equal(t, tc.err, err)
+		})
+	}
 }
