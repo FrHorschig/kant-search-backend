@@ -224,13 +224,16 @@ func testPostWorksProcessError(t *testing.T, sut *workHandlerImpl, workProcessor
 	if err != nil {
 		t.Fatal(err)
 	}
-	processErr := errors.New("process error")
+	processErr := &coreErrs.Error{
+		Msg:    coreErrs.GO_ERR,
+		Params: []string{"detail"},
+	}
 	// GIVEN
 	req := httptest.NewRequest(echo.POST, "/api/v1/works", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil, processErr)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(processErr)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
@@ -243,7 +246,7 @@ func testPostWorksParseError(t *testing.T, sut *workHandlerImpl, workProcessor *
 	if err != nil {
 		t.Fatal(err)
 	}
-	parseErr := coreErrs.Error{
+	parseErr := &coreErrs.Error{
 		Msg:    coreErrs.WRONG_STARTING_CHAR,
 		Params: []string{string("detail")},
 	}
@@ -252,12 +255,12 @@ func testPostWorksParseError(t *testing.T, sut *workHandlerImpl, workProcessor *
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(&parseErr, nil)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(parseErr)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res, string(models.BAD_REQUEST_SYNTAX_WRONG_STARTING_CHAR))
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_COMMON_WRONG_STARTING_CHAR))
 }
 
 func testPostWorksSuccess(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
@@ -271,7 +274,7 @@ func testPostWorksSuccess(t *testing.T, sut *workHandlerImpl, workProcessor *pro
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
 	ctx.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil, nil)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
