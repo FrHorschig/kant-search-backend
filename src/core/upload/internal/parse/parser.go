@@ -1,6 +1,7 @@
 package parse
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/FrHorschig/kant-search-backend/core/errors"
@@ -101,10 +102,14 @@ func parseContent(tk *tokenIterator) (*string, *errors.Error) {
 			if err != nil {
 				return nil, err
 			}
-			content += "{" + expr.String() + "}"
+			content += " {" + expr.String() + "}"
 		} else if text, ok := tk.consumeWithText(TEXT); ok {
-			content += text
+			content += " " + text
 		}
+	}
+	content = regexp.MustCompile(`\s+`).ReplaceAllString(content, " ")
+	if len(content) > 0 {
+		content = content[1:]
 	}
 
 	return &content, nil

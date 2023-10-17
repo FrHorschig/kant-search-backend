@@ -6,7 +6,7 @@ import (
 )
 
 func tokenize(input string) []Token {
-	rType := regexp.MustCompile(`^[a-z]+`)
+	rType := regexp.MustCompile(`^(paragraph|heading|footnote|fn|p|l)([|0-9])`)
 	rLoc := regexp.MustCompile(`^\d+(\.\d+)?[}|]`)
 	rChar := regexp.MustCompile(`^[^{}]*`)
 
@@ -23,15 +23,15 @@ func tokenize(input string) []Token {
 			tokens = append(tokens, newSeparator())
 			input = input[1:]
 		default:
-			if match := rType.FindString(input); match != "" {
-				tokens = append(tokens, newClass(match))
-				input = input[len(match):]
+			if matches := rType.FindStringSubmatch(input); matches != nil {
+				tokens = append(tokens, newClass(matches[1]))
+				input = input[len(matches[1]):]
 			} else if match := rLoc.FindString(input); match != "" {
 				tokens = append(tokens, newParam(match[:len(match)-1]))
 				input = input[len(match)-1:]
 			} else {
 				match := rChar.FindString(input)
-				tokens = append(tokens, newText(match))
+				tokens = append(tokens, newText(strings.TrimSpace(match)))
 				input = input[len(match):]
 			}
 		}
