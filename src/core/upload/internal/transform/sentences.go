@@ -1,10 +1,18 @@
 package transform
 
 import (
+	"sort"
+
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
 )
+
+type ByParagraphId []model.Sentence
+
+func (a ByParagraphId) Len() int           { return len(a) }
+func (a ByParagraphId) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByParagraphId) Less(i, j int) bool { return a[i].ParagraphId < a[j].ParagraphId }
 
 func FindSentences(paragraphs []model.Paragraph, pyUtil pyutil.PythonUtil) ([]model.Sentence, *errors.Error) {
 	sentencesByParagraphId, err := pyUtil.SplitIntoSentences(paragraphs)
@@ -27,5 +35,6 @@ func createSentenceModels(sentencesByParagraphId map[int32][]string) []model.Sen
 			})
 		}
 	}
+	sort.Sort(ByParagraphId(sentenceModels))
 	return sentenceModels
 }

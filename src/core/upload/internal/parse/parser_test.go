@@ -25,9 +25,7 @@ func TestParseInternal(t *testing.T) {
 				newClose(),
 			},
 			expr: []Expression{{
-				Metadata: Metadata{
-					Class: "class",
-				},
+				Metadata: Metadata{Class: "class"},
 			}},
 			err: nil,
 		},
@@ -45,21 +43,9 @@ func TestParseInternal(t *testing.T) {
 				newClose(),
 			},
 			expr: []Expression{
-				{
-					Metadata: Metadata{
-						Class: "class",
-					},
-				},
-				{
-					Metadata: Metadata{
-						Class: "class2",
-					},
-				},
-				{
-					Metadata: Metadata{
-						Class: "class3",
-					},
-				},
+				{Metadata: Metadata{Class: "class"}},
+				{Metadata: Metadata{Class: "class2"}},
+				{Metadata: Metadata{Class: "class3"}},
 			},
 			err: nil,
 		},
@@ -233,18 +219,8 @@ func TestParseInternal(t *testing.T) {
 				newClose(),
 			},
 			expr: []Expression{
-				{
-					Metadata: Metadata{
-						Class: "p",
-						Param: &[]string{"234"}[0],
-					},
-				},
-				{
-					Metadata: Metadata{
-						Class: "paragraph",
-					},
-					Content: &[]string{"some text {l2} more {p324} text"}[0],
-				},
+				{Metadata: Metadata{Class: "p", Param: &[]string{"234"}[0]}},
+				{Metadata: Metadata{Class: "paragraph"}, Content: &[]string{"some text {l2} more {p324} text"}[0]},
 			},
 			err: nil,
 		},
