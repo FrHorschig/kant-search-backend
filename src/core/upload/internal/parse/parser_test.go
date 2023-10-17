@@ -209,6 +209,45 @@ func TestParseInternal(t *testing.T) {
 				Params: []string{"type"},
 			},
 		},
+		{
+			name: "multiple expression with param and nested content",
+			input: []Token{
+				newOpen(),
+				newClass("p"),
+				newParam("234"),
+				newClose(),
+				newOpen(),
+				newClass("paragraph"),
+				newSeparator(),
+				newText("some text "),
+				newOpen(),
+				newClass("l"),
+				newParam("2"),
+				newClose(),
+				newText(" more "),
+				newOpen(),
+				newClass("p"),
+				newParam("324"),
+				newClose(),
+				newText(" text"),
+				newClose(),
+			},
+			expr: []Expression{
+				{
+					Metadata: Metadata{
+						Class: "p",
+						Param: &[]string{"234"}[0],
+					},
+				},
+				{
+					Metadata: Metadata{
+						Class: "paragraph",
+					},
+					Content: &[]string{"some text {l2} more {p324} text"}[0],
+				},
+			},
+			err: nil,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -237,19 +276,26 @@ func TestParsePublic(t *testing.T) {
 	}{
 		{
 			name:  "basic expression",
-			input: "{paragraph|some text}",
-			expr: []Expression{{
-				Metadata: Metadata{
-					Class: "paragraph",
+			input: "{p234} {paragraph|some text {l2} more {p324} text}",
+			expr: []Expression{
+				{
+					Metadata: Metadata{
+						Class: "p",
+						Param: &[]string{"234"}[0],
+					},
 				},
-				Content: &[]string{"some text"}[0],
-			}},
+				{
+					Metadata: Metadata{
+						Class: "paragraph",
+					},
+					Content: &[]string{"some text {l2} more {p324} text"}[0],
+				}},
 			err: nil,
 		},
 		{
 			name:  "wrong starting char",
 			input: "}paragraph|some text}",
-			expr:  []Expression{},
+			expr:  nil,
 			err: &errors.Error{
 				Msg:    errors.WRONG_STARTING_CHAR,
 				Params: []string{"}"},
