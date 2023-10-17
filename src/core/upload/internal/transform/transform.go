@@ -7,11 +7,11 @@ import (
 
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parser"
+	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parse"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutils"
 )
 
-func Transform(workId int32, exprs []parser.Expression) ([]model.Paragraph, *errors.Error) {
+func Transform(workId int32, exprs []parse.Expression) ([]model.Paragraph, *errors.Error) {
 	err := validateStartEnd(exprs)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func Transform(workId int32, exprs []parser.Expression) ([]model.Paragraph, *err
 	return mergePartialParagraphs(pars, boundaryIndices)
 }
 
-func validateStartEnd(exprs []parser.Expression) *errors.Error {
+func validateStartEnd(exprs []parse.Expression) *errors.Error {
 	firstClass := exprs[0].Metadata.Class
 	if firstClass != "p" {
 		return &errors.Error{
@@ -44,7 +44,7 @@ func validateStartEnd(exprs []parser.Expression) *errors.Error {
 
 func buildParagraphs(
 	workId int32,
-	exprs []parser.Expression,
+	exprs []parse.Expression,
 ) ([]*model.Paragraph, [][2]int, *errors.Error) {
 	pars := make([]*model.Paragraph, 0)
 	boundaryIndices := make([][2]int, 0)
@@ -69,11 +69,11 @@ func buildParagraphs(
 	return pars, boundaryIndices, nil
 }
 
-func isParagraph(e parser.Expression) bool {
+func isParagraph(e parse.Expression) bool {
 	return e.Metadata.Class == "paragraph"
 }
 
-func findPageNumber(e parser.Expression) int32 {
+func findPageNumber(e parse.Expression) int32 {
 	// TODO frhorsch: here we "just know" that param is a number, fix when improving EBNF spec
 	pn, _ := strconv.Atoi(*e.Metadata.Param)
 	return int32(pn)
@@ -82,7 +82,7 @@ func findPageNumber(e parser.Expression) int32 {
 func createParagraph(
 	workId int32,
 	pn int32,
-	e parser.Expression,
+	e parse.Expression,
 ) (model.Paragraph, *errors.Error) {
 	par := model.Paragraph{
 		// TODO frhorsch: here we "just know" that content exists, fix when improving EBNF spec

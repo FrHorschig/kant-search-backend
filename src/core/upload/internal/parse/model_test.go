@@ -1,7 +1,7 @@
 //go:build unit
 // +build unit
 
-package parser
+package parse
 
 import (
 	"testing"

@@ -1,7 +1,7 @@
 //go:build unit
 // +build unit
 
-package parser
+package parse
 
 import (
 	"testing"
@@ -214,16 +214,14 @@ func TestParseInternal(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			expr, err := parse(tc.input)
-			if tc.expr != nil && expr != nil {
-				assert.Len(t, tc.expr, len(expr))
-				for i, e := range tc.expr {
-					if e.Content != nil {
-						assert.Equal(t, *e.Content, *expr[i].Content)
-					} else {
-						assert.Nil(t, expr[i].Content)
-					}
-					assert.Equal(t, e.Metadata.String(), expr[i].Metadata.String())
+			assert.Len(t, tc.expr, len(expr))
+			for i, e := range tc.expr {
+				if e.Content != nil {
+					assert.Equal(t, *e.Content, *expr[i].Content)
+				} else {
+					assert.Nil(t, expr[i].Content)
 				}
+				assert.Equal(t, e.Metadata.String(), expr[i].Metadata.String())
 			}
 			assert.Equal(t, tc.err, err)
 		})
@@ -231,5 +229,5 @@ func TestParseInternal(t *testing.T) {
 }
 
 func TestParsePublic(t *testing.T) {
-	// TODO frhorsch
+	// TODO frhorschig
 }
