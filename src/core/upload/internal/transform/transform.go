@@ -8,10 +8,14 @@ import (
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parse"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutils"
+	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
 )
 
-func Transform(workId int32, exprs []parse.Expression) ([]model.Paragraph, *errors.Error) {
+func Transform(
+	workId int32,
+	exprs []parse.Expression,
+	pyUtil pyutil.PythonUtil,
+) ([]model.Paragraph, *errors.Error) {
 	err := validateStartEnd(exprs)
 	if err != nil {
 		return nil, err
@@ -20,7 +24,7 @@ func Transform(workId int32, exprs []parse.Expression) ([]model.Paragraph, *erro
 	if err != nil {
 		return nil, err
 	}
-	return mergePartialParagraphs(pars, boundaryIndices)
+	return mergePartialParagraphs(pars, boundaryIndices, pyUtil)
 }
 
 func validateStartEnd(exprs []parse.Expression) *errors.Error {
@@ -112,6 +116,7 @@ func createParagraph(
 func mergePartialParagraphs(
 	pars []*model.Paragraph,
 	boundaryIndices [][2]int,
+	pyUtil pyutil.PythonUtil,
 ) ([]model.Paragraph, *errors.Error) {
 	merged := make([]model.Paragraph, len(boundaryIndices))
 	for i, b := range boundaryIndices {
@@ -121,7 +126,7 @@ func mergePartialParagraphs(
 		}
 	}
 
-	sentencesByPageStartIndex, err := pyutils.SplitIntoSentences(merged)
+	sentencesByPageStartIndex, err := pyUtil.SplitIntoSentences(merged)
 	if err != nil {
 		return nil, &errors.Error{
 			Msg:    errors.GO_ERR,

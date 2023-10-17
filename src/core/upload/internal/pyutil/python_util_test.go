@@ -1,7 +1,7 @@
 //go:build integration
 // +build integration
 
-package pyutils
+package pyutil
 
 import (
 	"os"
@@ -12,6 +12,7 @@ import (
 )
 
 func TestSplitIntoSentences(t *testing.T) {
+	pyUtil := NewPythonUtil()
 	paragraphs := []model.Paragraph{
 		{
 			Id:   1,
@@ -39,13 +40,14 @@ func TestSplitIntoSentences(t *testing.T) {
 	// GIVEN
 	os.Setenv("PYTHON_BIN_PATH", "../../../../../src_py")
 	// WHEN
-	result, err := SplitIntoSentences(paragraphs)
+	result, err := pyUtil.SplitIntoSentences(paragraphs)
 	// THEN
 	assert.Nil(t, err)
 	assert.Equal(t, expectedResult, result)
 }
 
 func TestSplitIntoSentencesDefaultPath(t *testing.T) {
+	pyUtil := NewPythonUtil()
 	os.Setenv("PYTHON_BIN_PATH", "")
 	paragraphs := []model.Paragraph{
 		{
@@ -54,7 +56,7 @@ func TestSplitIntoSentencesDefaultPath(t *testing.T) {
 		},
 	}
 	// WHEN
-	result, err := SplitIntoSentences(paragraphs)
+	result, err := pyUtil.SplitIntoSentences(paragraphs)
 	// THEN
 	assert.NotNil(t, err)
 	assert.Nil(t, result)

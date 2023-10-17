@@ -3,11 +3,11 @@ package transform
 import (
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutils"
+	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
 )
 
-func FindSentences(paragraphs []model.Paragraph) ([]model.Sentence, *errors.Error) {
-	sentencesByParagraphId, err := pyutils.SplitIntoSentences(paragraphs)
+func FindSentences(paragraphs []model.Paragraph, pyUtil pyutil.PythonUtil) ([]model.Sentence, *errors.Error) {
+	sentencesByParagraphId, err := pyUtil.SplitIntoSentences(paragraphs)
 	if err != nil {
 		return nil, &errors.Error{
 			Msg:    errors.GO_ERR,

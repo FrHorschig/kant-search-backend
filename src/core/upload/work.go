@@ -8,6 +8,7 @@ import (
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parse"
+	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/transform"
 	repository "github.com/FrHorschig/kant-search-backend/database"
 )
@@ -20,6 +21,7 @@ type workUploadProcessorImpl struct {
 	workRepo      repository.WorkRepo
 	paragraphRepo repository.ParagraphRepo
 	sentenceRepo  repository.SentenceRepo
+	pyUtil        pyutil.PythonUtil
 }
 
 func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) WorkUploadProcessor {
@@ -27,6 +29,7 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 		workRepo:      workRepo,
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
+		pyUtil:        pyutil.NewPythonUtil(),
 	}
 	return &processor
 }
@@ -37,7 +40,7 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.Wo
 		return err
 	}
 
-	paragraphs, err := transform.Transform(upload.WorkId, exprs)
+	paragraphs, err := transform.Transform(upload.WorkId, exprs, rec.pyUtil)
 	if err != nil {
 		return err
 	}
@@ -46,7 +49,7 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.Wo
 		return err
 	}
 
-	sentences, err := transform.FindSentences(paragraphs)
+	sentences, err := transform.FindSentences(paragraphs, rec.pyUtil)
 	if err != nil {
 		return err
 	}
