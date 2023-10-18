@@ -62,6 +62,7 @@ func buildParagraphs(
 				}
 			}
 			pn = findPageNumber(e)
+			exprs[i+1].Content = &[]string{fmt.Sprintf("{p%d} %s", pn, *exprs[i+1].Content)}[0]
 		} else {
 			par, err := createParagraph(workId, pn, e)
 			if err != nil {
@@ -90,15 +91,15 @@ func createParagraph(
 ) (model.Paragraph, *errors.Error) {
 	par := model.Paragraph{
 		// TODO frhorsch: here we "just know" that content exists, fix when improving EBNF spec
-		Text:   fmt.Sprintf("{p%d} %s", pn, *e.Content),
+		Text:   *e.Content,
 		Pages:  []int32{pn},
 		WorkId: workId,
 	}
-	hl, _ := strconv.Atoi(*e.Metadata.Param)
 	switch e.Metadata.Class {
 	case "paragraph":
 		// nothing to do
 	case "heading":
+		hl, _ := strconv.Atoi(*e.Metadata.Param)
 		par.HeadingLevel = int32(hl)
 	case "footnote":
 		par.FootnoteName = *e.Metadata.Param
