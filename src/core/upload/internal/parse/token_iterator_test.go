@@ -3,27 +3,28 @@ package parse
 import (
 	"testing"
 
+	c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTokenIteratorPeek(t *testing.T) {
 	tests := []struct {
 		name   string
-		tokens []Token
-		result Token
+		tokens []c.Token
+		result c.Token
 	}{
 		{
 			name: "success",
-			tokens: []Token{
-				{Type: CLASS, Text: "foo"},
-				{Type: TEXT, Text: "bar"},
+			tokens: []c.Token{
+				{Type: c.CLASS, Text: "foo"},
+				{Type: c.TEXT, Text: "bar"},
 			},
-			result: Token{Type: CLASS, Text: "foo"},
+			result: c.Token{Type: c.CLASS, Text: "foo"},
 		},
 		{
 			name:   "failure on empty token list",
-			tokens: []Token{},
-			result: Token{},
+			tokens: []c.Token{},
+			result: c.Token{},
 		},
 	}
 
@@ -39,32 +40,32 @@ func TestTokenIteratorPeek(t *testing.T) {
 func TestTokenIteratorConsume(t *testing.T) {
 	tests := []struct {
 		name   string
-		tokens []Token
-		input  Type
+		tokens []c.Token
+		input  c.Type
 		ok     bool
 	}{
 		{
 			name: "success",
-			tokens: []Token{
-				{Type: CLASS, Text: "foo"},
-				{Type: TEXT, Text: "bar"},
+			tokens: []c.Token{
+				{Type: c.CLASS, Text: "foo"},
+				{Type: c.TEXT, Text: "bar"},
 			},
-			input: CLASS,
+			input: c.CLASS,
 			ok:    true,
 		},
 		{
 			name: "failure on wrong type",
-			tokens: []Token{
-				{Type: CLASS, Text: "foo"},
-				{Type: TEXT, Text: "bar"},
+			tokens: []c.Token{
+				{Type: c.CLASS, Text: "foo"},
+				{Type: c.TEXT, Text: "bar"},
 			},
-			input: PARAM,
+			input: c.PARAM,
 			ok:    false,
 		},
 		{
 			name:   "failure on empty token list",
-			tokens: []Token{},
-			input:  PARAM,
+			tokens: []c.Token{},
+			input:  c.PARAM,
 			ok:     false,
 		},
 	}
@@ -81,35 +82,35 @@ func TestTokenIteratorConsume(t *testing.T) {
 func TestTokenIteratorConsumeWithText(t *testing.T) {
 	tests := []struct {
 		name   string
-		tokens []Token
-		input  Type
+		tokens []c.Token
+		input  c.Type
 		text   string
 		ok     bool
 	}{
 		{
 			name: "success",
-			tokens: []Token{
-				{Type: CLASS, Text: "foo"},
-				{Type: TEXT, Text: "bar"},
+			tokens: []c.Token{
+				{Type: c.CLASS, Text: "foo"},
+				{Type: c.TEXT, Text: "bar"},
 			},
-			input: CLASS,
+			input: c.CLASS,
 			text:  "foo",
 			ok:    true,
 		},
 		{
 			name: "failure on wrong type",
-			tokens: []Token{
-				{Type: CLASS, Text: "foo"},
-				{Type: TEXT, Text: "bar"},
+			tokens: []c.Token{
+				{Type: c.CLASS, Text: "foo"},
+				{Type: c.TEXT, Text: "bar"},
 			},
-			input: PARAM,
+			input: c.PARAM,
 			text:  "",
 			ok:    false,
 		},
 		{
 			name:   "failure on empty token list",
-			tokens: []Token{},
-			input:  PARAM,
+			tokens: []c.Token{},
+			input:  c.PARAM,
 			text:   "",
 			ok:     false,
 		},

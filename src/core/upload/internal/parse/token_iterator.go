@@ -1,7 +1,9 @@
 package parse
 
+import c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
+
 type tokenIterator struct {
-	tokens []Token
+	tokens []c.Token
 	index  int
 }
 
@@ -9,14 +11,14 @@ func (tk *tokenIterator) hasNext() bool {
 	return tk.index < len(tk.tokens)
 }
 
-func (tk *tokenIterator) peek() Token {
+func (tk *tokenIterator) peek() c.Token {
 	if tk.index < len(tk.tokens) {
 		return tk.tokens[tk.index]
 	}
-	return Token{}
+	return c.Token{}
 }
 
-func (tk *tokenIterator) consume(expected Type) bool {
+func (tk *tokenIterator) consume(expected c.Type) bool {
 	if tk.hasNext() && tk.tokens[tk.index].Type == expected {
 		tk.index++
 		return true
@@ -24,7 +26,7 @@ func (tk *tokenIterator) consume(expected Type) bool {
 	return false
 }
 
-func (tk *tokenIterator) consumeWithText(expected Type) (string, bool) {
+func (tk *tokenIterator) consumeWithText(expected c.Type) (string, bool) {
 	if tk.consume(expected) {
 		tk.index--
 		text := tk.tokens[tk.index].Text

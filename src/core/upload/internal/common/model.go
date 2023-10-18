@@ -1,4 +1,4 @@
-package parse
+package common
 
 type Type int
 
@@ -16,22 +16,22 @@ type Token struct {
 	Text string
 }
 
-func newOpen() Token {
+func NewOpen() Token {
 	return Token{Type: OPEN, Text: "{"}
 }
-func newClose() Token {
+func NewClose() Token {
 	return Token{Type: CLOSE, Text: "}"}
 }
-func newSeparator() Token {
+func NewSeparator() Token {
 	return Token{Type: SEPARATOR, Text: "|"}
 }
-func newClass(text string) Token {
+func NewClass(text string) Token {
 	return Token{Type: CLASS, Text: text}
 }
-func newParam(text string) Token {
+func NewParam(text string) Token {
 	return Token{Type: PARAM, Text: text}
 }
-func newText(text string) Token {
+func NewText(text string) Token {
 	return Token{Type: TEXT, Text: text}
 }
 

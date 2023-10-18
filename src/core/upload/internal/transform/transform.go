@@ -7,13 +7,13 @@ import (
 
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parse"
+	c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
 )
 
 func Transform(
 	workId int32,
-	exprs []parse.Expression,
+	exprs []c.Expression,
 	pyUtil pyutil.PythonUtil,
 ) ([]model.Paragraph, *errors.Error) {
 	err := validateStartEnd(exprs)
@@ -27,7 +27,7 @@ func Transform(
 	return mergePartialParagraphs(pars, boundaryIndices, pyUtil)
 }
 
-func validateStartEnd(exprs []parse.Expression) *errors.Error {
+func validateStartEnd(exprs []c.Expression) *errors.Error {
 	firstClass := exprs[0].Metadata.Class
 	if firstClass != "p" {
 		return &errors.Error{
@@ -48,7 +48,7 @@ func validateStartEnd(exprs []parse.Expression) *errors.Error {
 
 func buildParagraphs(
 	workId int32,
-	exprs []parse.Expression,
+	exprs []c.Expression,
 ) ([]*model.Paragraph, [][2]int, *errors.Error) {
 	pars := make([]*model.Paragraph, 0)
 	boundaryIndices := make([][2]int, 0)
@@ -73,11 +73,11 @@ func buildParagraphs(
 	return pars, boundaryIndices, nil
 }
 
-func isParagraph(e parse.Expression) bool {
+func isParagraph(e c.Expression) bool {
 	return e.Metadata.Class == "paragraph"
 }
 
-func findPageNumber(e parse.Expression) int32 {
+func findPageNumber(e c.Expression) int32 {
 	// TODO frhorsch: here we "just know" that param is a number, fix when improving EBNF spec
 	pn, _ := strconv.Atoi(*e.Metadata.Param)
 	return int32(pn)
@@ -86,7 +86,7 @@ func findPageNumber(e parse.Expression) int32 {
 func createParagraph(
 	workId int32,
 	pn int32,
-	e parse.Expression,
+	e c.Expression,
 ) (model.Paragraph, *errors.Error) {
 	par := model.Paragraph{
 		// TODO frhorsch: here we "just know" that content exists, fix when improving EBNF spec

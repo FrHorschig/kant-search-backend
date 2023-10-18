@@ -1,4 +1,4 @@
-package repository
+package database
 
 func buildParams() (snippetParams string, textParams string) {
 	snippetParams = `FragmentDelimiter=" ...<br>... ",

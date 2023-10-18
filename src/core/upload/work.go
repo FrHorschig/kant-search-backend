@@ -9,8 +9,9 @@ import (
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parse"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
+	"github.com/FrHorschig/kant-search-backend/core/upload/internal/tokenize"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/transform"
-	repository "github.com/FrHorschig/kant-search-backend/database"
+	"github.com/FrHorschig/kant-search-backend/database"
 )
 
 type WorkUploadProcessor interface {
@@ -18,13 +19,13 @@ type WorkUploadProcessor interface {
 }
 
 type workUploadProcessorImpl struct {
-	workRepo      repository.WorkRepo
-	paragraphRepo repository.ParagraphRepo
-	sentenceRepo  repository.SentenceRepo
+	workRepo      database.WorkRepo
+	paragraphRepo database.ParagraphRepo
+	sentenceRepo  database.SentenceRepo
 	pyUtil        pyutil.PythonUtil
 }
 
-func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) WorkUploadProcessor {
+func NewWorkProcessor(workRepo database.WorkRepo, paragraphRepo database.ParagraphRepo, sentenceRepo database.SentenceRepo) WorkUploadProcessor {
 	processor := workUploadProcessorImpl{
 		workRepo:      workRepo,
 		paragraphRepo: paragraphRepo,
@@ -35,7 +36,11 @@ func NewWorkProcessor(workRepo repository.WorkRepo, paragraphRepo repository.Par
 }
 
 func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) *errors.Error {
-	exprs, err := parse.Parse(upload.Text)
+	tokens, err := tokenize.Tokenize(upload.Text)
+	if err != nil {
+		return err
+	}
+	exprs, err := parse.Parse(tokens)
 	if err != nil {
 		return err
 	}
@@ -56,7 +61,7 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.Wo
 	return persistSentences(ctx, rec.sentenceRepo, sentences)
 }
 
-func persistParagraphs(ctx context.Context, repo repository.ParagraphRepo, paragraphs []model.Paragraph) *errors.Error {
+func persistParagraphs(ctx context.Context, repo database.ParagraphRepo, paragraphs []model.Paragraph) *errors.Error {
 	for i, p := range paragraphs {
 		pId, err := repo.Insert(ctx, p)
 		if err != nil {
@@ -70,7 +75,7 @@ func persistParagraphs(ctx context.Context, repo repository.ParagraphRepo, parag
 	return nil
 }
 
-func persistSentences(ctx context.Context, repo repository.SentenceRepo, sentences []model.Sentence) *errors.Error {
+func persistSentences(ctx context.Context, repo database.SentenceRepo, sentences []model.Sentence) *errors.Error {
 	_, err := repo.Insert(ctx, sentences)
 	if err != nil {
 		return &errors.Error{

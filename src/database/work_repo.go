@@ -1,4 +1,4 @@
-package repository
+package database
 
 //go:generate mockgen -source=$GOFILE -destination=mocks/work_repo_mock.go -package=mocks
 

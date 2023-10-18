@@ -1,6 +1,6 @@
 //go:build unit
 // +build unit
 
-package repository
+package database
 
 var anyQuery = "^.*$"
