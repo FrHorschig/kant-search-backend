@@ -11,6 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func sp(s string) *string {
+	return &s
+}
+
 func TestParseInternal(t *testing.T) {
 	testCases := []struct {
 		name  string
@@ -61,7 +65,7 @@ func TestParseInternal(t *testing.T) {
 			expr: []c.Expression{{
 				Metadata: c.Metadata{
 					Class: "class",
-					Param: &[]string{"param"}[0],
+					Param: sp("param"),
 				},
 			}},
 			err: nil,
@@ -79,7 +83,7 @@ func TestParseInternal(t *testing.T) {
 				Metadata: c.Metadata{
 					Class: "class",
 				},
-				Content: &[]string{"text"}[0],
+				Content: sp("text"),
 			}},
 			err: nil,
 		},
@@ -98,9 +102,9 @@ func TestParseInternal(t *testing.T) {
 			expr: []c.Expression{{
 				Metadata: c.Metadata{
 					Class: "class",
-					Param: &[]string{"param"}[0],
+					Param: sp("param"),
 				},
-				Content: &[]string{"{class2}"}[0],
+				Content: sp("{class2}"),
 			}},
 			err: nil,
 		},
@@ -220,8 +224,8 @@ func TestParseInternal(t *testing.T) {
 				c.NewClose(),
 			},
 			expr: []c.Expression{
-				{Metadata: c.Metadata{Class: "p", Param: &[]string{"234"}[0]}},
-				{Metadata: c.Metadata{Class: "paragraph"}, Content: &[]string{"some text {l2} more {p324} text"}[0]},
+				{Metadata: c.Metadata{Class: "p", Param: sp("234")}},
+				{Metadata: c.Metadata{Class: "paragraph"}, Content: sp("some text {l2} more {p324} text")},
 			},
 			err: nil,
 		},

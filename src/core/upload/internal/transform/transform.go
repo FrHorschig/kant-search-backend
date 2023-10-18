@@ -145,7 +145,7 @@ func mergeParagraphs(pars []*model.Paragraph, sentencesByPageStartIndex map[int3
 		if !isPageStart || startsWithCompleteSentence(sentences, p) {
 			finalMerged = append(finalMerged, *p)
 		} else {
-			finalMerged[len(finalMerged)-1].Text += p.Text
+			finalMerged[len(finalMerged)-1].Text += " " + p.Text
 			finalMerged[len(finalMerged)-1].Pages = append(finalMerged[len(finalMerged)-1].Pages, p.Pages...)
 		}
 	}
