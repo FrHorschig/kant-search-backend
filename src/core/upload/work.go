@@ -16,15 +16,13 @@ type WorkUploadProcessor interface {
 }
 
 type workUploadProcessorImpl struct {
-	workRepo      database.WorkRepo
 	paragraphRepo database.ParagraphRepo
 	sentenceRepo  database.SentenceRepo
 	textMapper    internal.TextMapper
 }
 
-func NewWorkProcessor(workRepo database.WorkRepo, paragraphRepo database.ParagraphRepo, sentenceRepo database.SentenceRepo) WorkUploadProcessor {
+func NewWorkProcessor(paragraphRepo database.ParagraphRepo, sentenceRepo database.SentenceRepo) WorkUploadProcessor {
 	processor := workUploadProcessorImpl{
-		workRepo:      workRepo,
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
 		textMapper:    internal.NewTextMapper(),

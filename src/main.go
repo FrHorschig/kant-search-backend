@@ -51,7 +51,7 @@ func main() {
 	paragraphRepo := repository.NewParagraphRepo(db)
 	sentenceRepo := repository.NewSentenceRepo(db)
 
-	workProcessor := upload.NewWorkProcessor(workRepo, paragraphRepo, sentenceRepo)
+	workProcessor := upload.NewWorkProcessor(paragraphRepo, sentenceRepo)
 	searchProcessor := search.NewSearchProcessor(paragraphRepo, sentenceRepo)
 
 	workHandler := handlers.NewWorkHandler(volumeRepo, workRepo, workProcessor)
