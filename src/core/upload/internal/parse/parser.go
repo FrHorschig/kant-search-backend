@@ -49,7 +49,7 @@ func parseExpression(tk *tokenIterator) (c.Expression, *errors.Error) {
 			if len(*expr.Content) < 16 {
 				errText = *expr.Content
 			} else {
-				errText = (*expr.Content)[len(*expr.Content)-16 : len(*expr.Content)]
+				errText = "..." + (*expr.Content)[len(*expr.Content)-16:len(*expr.Content)]
 			}
 		} else {
 			errText = expr.Metadata.Class

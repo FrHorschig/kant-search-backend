@@ -139,12 +139,12 @@ func TestParseInternal(t *testing.T) {
 				c.NewOpen(),
 				c.NewClass("class"),
 				c.NewSeparator(),
-				c.NewText("text"),
+				c.NewText("a very long test text"),
 			},
 			expr: nil,
 			err: &errors.Error{
 				Msg:    errors.MISSING_CLOSING_BRACE,
-				Params: []string{"text"},
+				Params: []string{"...y long test text"},
 			},
 		},
 		{
