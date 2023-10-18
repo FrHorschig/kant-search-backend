@@ -19,16 +19,16 @@ type WorkHandler interface {
 }
 
 type workHandlerImpl struct {
-	volumeRepo    repository.VolumeRepo
-	workRepo      repository.WorkRepo
-	workProcessor processing.WorkUploadProcessor
+	volumeRepo      repository.VolumeRepo
+	workRepo        repository.WorkRepo
+	uploadProcessor processing.WorkUploadProcessor
 }
 
-func NewWorkHandler(volumeRepo repository.VolumeRepo, workRepo repository.WorkRepo, workProcessor processing.WorkUploadProcessor) WorkHandler {
+func NewWorkHandler(volumeRepo repository.VolumeRepo, workRepo repository.WorkRepo, uploadProcessor processing.WorkUploadProcessor) WorkHandler {
 	return &workHandlerImpl{
-		volumeRepo:    volumeRepo,
-		workRepo:      workRepo,
-		workProcessor: workProcessor,
+		volumeRepo:      volumeRepo,
+		workRepo:        workRepo,
+		uploadProcessor: uploadProcessor,
 	}
 }
 
@@ -79,7 +79,7 @@ func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 	}
 
 	coreModel := mapper.WorkUploadToCoreModel(*work)
-	coreErr := rec.workProcessor.Process(ctx.Request().Context(), coreModel)
+	coreErr := rec.uploadProcessor.Process(ctx.Request().Context(), coreModel)
 	if coreErr != nil {
 		log.Error().Err(err).Msgf("Error processing work: %v", err)
 		return errors.CoreError(ctx, coreErr)
