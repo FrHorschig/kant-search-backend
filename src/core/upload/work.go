@@ -7,10 +7,7 @@ import (
 
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parse"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/tokenize"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/transform"
+	"github.com/FrHorschig/kant-search-backend/core/upload/internal"
 	"github.com/FrHorschig/kant-search-backend/database"
 )
 
@@ -22,7 +19,7 @@ type workUploadProcessorImpl struct {
 	workRepo      database.WorkRepo
 	paragraphRepo database.ParagraphRepo
 	sentenceRepo  database.SentenceRepo
-	pyUtil        pyutil.PythonUtil
+	textMapper    internal.TextMapper
 }
 
 func NewWorkProcessor(workRepo database.WorkRepo, paragraphRepo database.ParagraphRepo, sentenceRepo database.SentenceRepo) WorkUploadProcessor {
@@ -30,22 +27,22 @@ func NewWorkProcessor(workRepo database.WorkRepo, paragraphRepo database.Paragra
 		workRepo:      workRepo,
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
-		pyUtil:        pyutil.NewPythonUtil(),
+		textMapper:    internal.NewTextMapper(),
 	}
 	return &processor
 }
 
 func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) *errors.Error {
-	tokens, err := tokenize.Tokenize(upload.Text)
+	tokens, err := rec.textMapper.Tokenize(upload.Text)
 	if err != nil {
 		return err
 	}
-	exprs, err := parse.Parse(tokens)
+	exprs, err := rec.textMapper.Parse(tokens)
 	if err != nil {
 		return err
 	}
 
-	paragraphs, err := transform.Transform(upload.WorkId, exprs, rec.pyUtil)
+	paragraphs, err := rec.textMapper.Transform(upload.WorkId, exprs)
 	if err != nil {
 		return err
 	}
@@ -54,7 +51,7 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.Wo
 		return err
 	}
 
-	sentences, err := transform.FindSentences(paragraphs, rec.pyUtil)
+	sentences, err := rec.textMapper.FindSentences(paragraphs)
 	if err != nil {
 		return err
 	}
