@@ -7,13 +7,11 @@ import (
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 	c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
 )
 
 func Transform(
 	workId int32,
 	exprs []c.Expression,
-	pyUtil pyutil.PythonUtil,
 ) ([]model.Paragraph, *errors.Error) {
 	err := validateStartEnd(exprs)
 	if err != nil {

@@ -51,18 +51,6 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 		},
 		{
-			name: "FindSentences returns an error",
-			upload: model.WorkUpload{
-				Text:   "test text",
-				WorkId: 5,
-			},
-			err: testErr,
-			mockCalls: func() {
-				mockTextMapper.EXPECT().FindParagraphs(gomock.Any(), gomock.Any()).Return([]model.Paragraph{}, nil)
-				mockTextMapper.EXPECT().FindSentences(gomock.Any()).Return(nil, testErr)
-			},
-		},
-		{
 			name: "delete sentences returns an error",
 			upload: model.WorkUpload{
 				Text:   "test text",
@@ -74,7 +62,6 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 			mockCalls: func() {
 				mockTextMapper.EXPECT().FindParagraphs(gomock.Any(), gomock.Any()).Return([]model.Paragraph{}, nil)
-				mockTextMapper.EXPECT().FindSentences(gomock.Any()).Return([]model.Sentence{}, nil)
 				mockSentenceRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(fmt.Errorf("deleteSentences error"))
 			},
 		},
@@ -90,7 +77,6 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 			mockCalls: func() {
 				mockTextMapper.EXPECT().FindParagraphs(gomock.Any(), gomock.Any()).Return([]model.Paragraph{}, nil)
-				mockTextMapper.EXPECT().FindSentences(gomock.Any()).Return([]model.Sentence{}, nil)
 				mockSentenceRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(nil)
 				mockParagraphRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(fmt.Errorf("deleteParagraphs error"))
 			},
@@ -107,10 +93,24 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 			mockCalls: func() {
 				mockTextMapper.EXPECT().FindParagraphs(gomock.Any(), gomock.Any()).Return([]model.Paragraph{{}}, nil)
-				mockTextMapper.EXPECT().FindSentences(gomock.Any()).Return([]model.Sentence{}, nil)
 				mockParagraphRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(nil)
 				mockSentenceRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(nil)
 				mockParagraphRepo.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(int32(0), fmt.Errorf("persistParagraphs error"))
+			},
+		},
+		{
+			name: "FindSentences returns an error",
+			upload: model.WorkUpload{
+				Text:   "test text",
+				WorkId: 5,
+			},
+			err: testErr,
+			mockCalls: func() {
+				mockTextMapper.EXPECT().FindParagraphs(gomock.Any(), gomock.Any()).Return([]model.Paragraph{{}}, nil)
+				mockSentenceRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(nil)
+				mockParagraphRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(nil)
+				mockParagraphRepo.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(int32(1), nil)
+				mockTextMapper.EXPECT().FindSentences(gomock.Any()).Return(nil, testErr)
 			},
 		},
 		{
@@ -125,10 +125,10 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 			mockCalls: func() {
 				mockTextMapper.EXPECT().FindParagraphs(gomock.Any(), gomock.Any()).Return([]model.Paragraph{{}}, nil)
-				mockTextMapper.EXPECT().FindSentences(gomock.Any()).Return([]model.Sentence{{}}, nil)
 				mockSentenceRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(nil)
 				mockParagraphRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(nil)
 				mockParagraphRepo.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(int32(1), nil)
+				mockTextMapper.EXPECT().FindSentences(gomock.Any()).Return([]model.Sentence{{}}, nil)
 				mockSentenceRepo.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil, fmt.Errorf("persistSentences error"))
 			},
 		},

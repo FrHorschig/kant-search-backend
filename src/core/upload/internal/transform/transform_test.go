@@ -4,14 +4,11 @@
 package transform
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
 	c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil/mocks"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -132,20 +129,7 @@ func TestTransform(t *testing.T) {
 			},
 		},
 		{
-			name:  "wrong end expression l",
-			pyErr: fmt.Errorf("error"),
-			in: []c.Expression{
-				{Metadata: c.Metadata{Class: "p", Param: sp("234")}},
-				{Metadata: c.Metadata{Class: "paragraph"}, Content: sp("text")},
-			},
-			out: nil,
-			err: &errors.Error{
-				Msg:    errors.GO_ERR,
-				Params: []string{"error"},
-			},
-		},
-		{
-			name: "wrong end expression l",
+			name: "unexpected expression class",
 			in: []c.Expression{
 				{Metadata: c.Metadata{Class: "p", Param: sp("234")}},
 				{Metadata: c.Metadata{Class: "something"}, Content: sp("text")},
@@ -156,56 +140,11 @@ func TestTransform(t *testing.T) {
 				Params: []string{"something"},
 			},
 		},
-		{
-			name:    "paragraph with incomplete sentence",
-			pyValue: map[int32][]string{1: {"This is a sentence that is completes in the second paragraph."}},
-			in: []c.Expression{
-				{Metadata: c.Metadata{Class: "p", Param: sp("234")}},
-				{Metadata: c.Metadata{Class: "paragraph"},
-					Content: sp("This is a sentence that completes")},
-				{Metadata: c.Metadata{Class: "p", Param: sp("235")}},
-				{Metadata: c.Metadata{Class: "paragraph"},
-					Content: sp("in the second paragraph.")},
-			},
-			out: []model.Paragraph{
-				{WorkId: 1, Text: "{p234} This is a sentence that completes {p235} in the second paragraph.",
-					Pages: []int32{234, 235}},
-			},
-			err: nil,
-		},
-		{
-			name: "paragraph with complete sentence",
-			pyValue: map[int32][]string{
-				0: {"{p234} Test sentence."},
-				1: {"{p235} Another test sentence."},
-			},
-			in: []c.Expression{
-				{Metadata: c.Metadata{Class: "p", Param: sp("234")}},
-				{Metadata: c.Metadata{Class: "paragraph"},
-					Content: sp("Test sentence.")},
-				{Metadata: c.Metadata{Class: "p", Param: sp("235")}},
-				{Metadata: c.Metadata{Class: "paragraph"},
-					Content: sp("Another test sentence.")},
-			},
-			out: []model.Paragraph{
-				{WorkId: 1, Text: "{p234} Test sentence.",
-					Pages: []int32{234}},
-				{WorkId: 1, Text: "{p235} Another test sentence.",
-					Pages: []int32{235}},
-			},
-			err: nil,
-		},
 	}
-
-	ctrl := gomock.NewController(t)
-	pyUtil := mocks.NewMockPythonUtil(ctrl)
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			if tc.pyValue != nil || tc.pyErr != nil {
-				pyUtil.EXPECT().SplitIntoSentences(gomock.Any()).Return(tc.pyValue, tc.pyErr)
-			}
-			out, err := Transform(1, tc.in, pyUtil)
+			out, err := Transform(1, tc.in)
 			assert.Len(t, out, len(tc.out))
 			for i := range tc.out {
 				assert.Equal(t, tc.out[i], out[i])
