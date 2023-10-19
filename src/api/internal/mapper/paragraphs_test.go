@@ -12,10 +12,12 @@ import (
 
 func TestParagraphToApiModel(t *testing.T) {
 	par := model.Paragraph{
-		Id:     1,
-		Text:   "text",
-		Pages:  []int32{1, 2, 3},
-		WorkId: 1,
+		Id:           1,
+		Text:         "text",
+		Pages:        []int32{1, 2, 3},
+		WorkId:       1,
+		HeadingLevel: 1,
+		FootnoteName: "420.2",
 	}
 
 	result := ParagraphToApiModel(par)
@@ -24,14 +26,18 @@ func TestParagraphToApiModel(t *testing.T) {
 	assert.Equal(t, result.Text, par.Text)
 	assert.Equal(t, result.Pages, par.Pages)
 	assert.Equal(t, result.WorkId, par.WorkId)
+	assert.Equal(t, result.HeadingLevel, par.HeadingLevel)
+	assert.Equal(t, result.FootnoteName, par.FootnoteName)
 }
 
 func TestParagraphToApiModels(t *testing.T) {
 	pars := []model.Paragraph{{
-		Id:     1,
-		Text:   "text",
-		Pages:  []int32{1, 2, 3},
-		WorkId: 1,
+		Id:           1,
+		Text:         "text",
+		Pages:        []int32{1, 2, 3},
+		WorkId:       1,
+		HeadingLevel: 1,
+		FootnoteName: "420.2",
 	}}
 
 	result := ParagraphsToApiModels(pars)
@@ -41,4 +47,6 @@ func TestParagraphToApiModels(t *testing.T) {
 	assert.Equal(t, result[0].Text, pars[0].Text)
 	assert.Equal(t, result[0].Pages, pars[0].Pages)
 	assert.Equal(t, result[0].WorkId, pars[0].WorkId)
+	assert.Equal(t, result[0].HeadingLevel, pars[0].HeadingLevel)
+	assert.Equal(t, result[0].FootnoteName, pars[0].FootnoteName)
 }

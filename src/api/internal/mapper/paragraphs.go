@@ -7,10 +7,12 @@ import (
 
 func ParagraphToApiModel(paragraph model.Paragraph) models.Paragraph {
 	return models.Paragraph{
-		Id:     paragraph.Id,
-		Text:   paragraph.Text,
-		Pages:  paragraph.Pages,
-		WorkId: paragraph.WorkId,
+		Id:           paragraph.Id,
+		Text:         paragraph.Text,
+		Pages:        paragraph.Pages,
+		WorkId:       paragraph.WorkId,
+		FootnoteName: paragraph.FootnoteName,
+		HeadingLevel: paragraph.HeadingLevel,
 	}
 }
 
