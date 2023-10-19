@@ -73,6 +73,7 @@ func deleteExistingData(ctx context.Context, sentenceRepo database.SentenceRepo,
 
 func persistParagraphs(ctx context.Context, repo database.ParagraphRepo, paragraphs []model.Paragraph) *errors.Error {
 	for i, p := range paragraphs {
+		// TODO frhorschig: write and use bulk insert
 		pId, err := repo.Insert(ctx, p)
 		if err != nil {
 			return &errors.Error{
