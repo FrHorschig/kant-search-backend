@@ -6,14 +6,19 @@ import (
 )
 
 func ParagraphToApiModel(paragraph model.Paragraph) models.Paragraph {
-	return models.Paragraph{
-		Id:           paragraph.Id,
-		Text:         paragraph.Text,
-		Pages:        paragraph.Pages,
-		WorkId:       paragraph.WorkId,
-		FootnoteName: paragraph.FootnoteName,
-		HeadingLevel: paragraph.HeadingLevel,
+	p := models.Paragraph{
+		Id:     paragraph.Id,
+		Text:   paragraph.Text,
+		Pages:  paragraph.Pages,
+		WorkId: paragraph.WorkId,
 	}
+	if paragraph.HeadingLevel != nil {
+		p.HeadingLevel = *paragraph.HeadingLevel
+	}
+	if paragraph.FootnoteName != nil {
+		p.FootnoteName = *paragraph.FootnoteName
+	}
+	return p
 }
 
 func ParagraphsToApiModels(paragraphs []model.Paragraph) []models.Paragraph {

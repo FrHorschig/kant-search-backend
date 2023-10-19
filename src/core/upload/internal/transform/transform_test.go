@@ -16,6 +16,10 @@ func sp(s string) *string {
 	return &s
 }
 
+func ip(s int) *int32 {
+	return &[]int32{int32(s)}[0]
+}
+
 func TestTransform(t *testing.T) {
 	testCases := []struct {
 		name    string
@@ -49,7 +53,7 @@ func TestTransform(t *testing.T) {
 			},
 			out: []model.Paragraph{
 				{WorkId: 1, Text: "{p234} some {l2} test {p324} text",
-					Pages: []int32{234}, HeadingLevel: 1},
+					Pages: []int32{234}, HeadingLevel: ip(1)},
 			},
 			err: nil,
 		},
@@ -63,7 +67,7 @@ func TestTransform(t *testing.T) {
 			},
 			out: []model.Paragraph{
 				{WorkId: 1, Text: "{p234} some {l2} test {p324} text",
-					Pages: []int32{234}, FootnoteName: "12.45"},
+					Pages: []int32{234}, FootnoteName: sp("12.45")},
 			},
 			err: nil,
 		},
@@ -87,9 +91,9 @@ func TestTransform(t *testing.T) {
 				{WorkId: 1, Text: "some {l2} test {p324} text",
 					Pages: []int32{234}},
 				{WorkId: 1, Text: "some {l2} test {p324} text",
-					Pages: []int32{234}, HeadingLevel: 1},
+					Pages: []int32{234}, HeadingLevel: ip(1)},
 				{WorkId: 1, Text: "some {l2} test {p324} text",
-					Pages: []int32{234}, FootnoteName: "12.45"},
+					Pages: []int32{234}, FootnoteName: sp("12.45")},
 			},
 			err: nil,
 		},

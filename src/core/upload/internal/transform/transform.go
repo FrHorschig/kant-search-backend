@@ -82,9 +82,9 @@ func createParagraph(
 		// nothing to do
 	case "heading":
 		hl, _ := strconv.Atoi(*e.Metadata.Param)
-		par.HeadingLevel = int32(hl)
+		par.HeadingLevel = &[]int32{int32(hl)}[0]
 	case "footnote":
-		par.FootnoteName = *e.Metadata.Param
+		par.FootnoteName = e.Metadata.Param
 	default:
 		return model.Paragraph{}, &errors.Error{
 			Msg:    errors.UNKNOWN_EXPRESSION_CLASS,

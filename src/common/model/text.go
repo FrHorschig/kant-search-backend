@@ -5,8 +5,8 @@ type Paragraph struct {
 	Text         string
 	Pages        []int32
 	WorkId       int32
-	HeadingLevel int32
-	FootnoteName string
+	HeadingLevel *int32
+	FootnoteName *string
 }
 
 type Sentence struct {
