@@ -35,10 +35,6 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.Wo
 	if err != nil {
 		return err
 	}
-	sentences, err := rec.textMapper.FindSentences(paragraphs)
-	if err != nil {
-		return err
-	}
 
 	// TODO frhorschig: use transaction
 	err = deleteExistingData(ctx, rec.sentenceRepo, rec.paragraphRepo, upload.WorkId)
@@ -46,6 +42,11 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.Wo
 		return err
 	}
 	err = persistParagraphs(ctx, rec.paragraphRepo, paragraphs)
+	if err != nil {
+		return err
+	}
+
+	sentences, err := rec.textMapper.FindSentences(paragraphs)
 	if err != nil {
 		return err
 	}
