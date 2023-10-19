@@ -3,7 +3,6 @@ package transform
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
@@ -20,11 +19,7 @@ func Transform(
 	if err != nil {
 		return nil, err
 	}
-	pars, boundaryIndices, err := buildParagraphs(workId, exprs)
-	if err != nil {
-		return nil, err
-	}
-	return mergePartialParagraphs(pars, boundaryIndices, pyUtil)
+	return buildParagraphs(workId, exprs)
 }
 
 func validateStartEnd(exprs []c.Expression) *errors.Error {
@@ -49,33 +44,22 @@ func validateStartEnd(exprs []c.Expression) *errors.Error {
 func buildParagraphs(
 	workId int32,
 	exprs []c.Expression,
-) ([]*model.Paragraph, [][2]int, *errors.Error) {
-	pars := make([]*model.Paragraph, 0)
-	boundaryIndices := make([][2]int, 0)
+) ([]model.Paragraph, *errors.Error) {
+	pars := make([]model.Paragraph, 0)
 	var pn int32
 	for i, e := range exprs {
 		if e.Metadata.Class == "p" {
-			if i > 0 {
-				// we know from validation that this is not the last expression
-				if isParagraph(exprs[i-1]) && isParagraph(exprs[i+1]) {
-					boundaryIndices = append(boundaryIndices, [2]int{len(pars) - 1, len(pars)})
-				}
-			}
 			pn = findPageNumber(e)
 			exprs[i+1].Content = &[]string{fmt.Sprintf("{p%d} %s", pn, *exprs[i+1].Content)}[0]
 		} else {
 			par, err := createParagraph(workId, pn, e)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			pars = append(pars, &par)
+			pars = append(pars, par)
 		}
 	}
-	return pars, boundaryIndices, nil
-}
-
-func isParagraph(e c.Expression) bool {
-	return e.Metadata.Class == "paragraph"
+	return pars, nil
 }
 
 func findPageNumber(e c.Expression) int32 {
@@ -110,53 +94,4 @@ func createParagraph(
 		}
 	}
 	return par, nil
-}
-
-// We merge paragraphs that end with incomplete sentences by merging them with the next paragraph, splitting them into sentences and checking if sentence splitting point is the paragraph boundary.
-// Improvement: maybe get a list of pages that start with a new paragraph?
-func mergePartialParagraphs(
-	pars []*model.Paragraph,
-	boundaryIndices [][2]int,
-	pyUtil pyutil.PythonUtil,
-) ([]model.Paragraph, *errors.Error) {
-	merged := make([]model.Paragraph, len(boundaryIndices))
-	for i, b := range boundaryIndices {
-		merged[i] = model.Paragraph{
-			Id:   int32(b[1]),
-			Text: pars[b[0]].Text + pars[b[1]].Text,
-		}
-	}
-
-	sentencesByPageStartIndex, err := pyUtil.SplitIntoSentences(merged)
-	if err != nil {
-		return nil, &errors.Error{
-			Msg:    errors.GO_ERR,
-			Params: []string{err.Error()},
-		}
-	}
-
-	return mergeParagraphs(pars, sentencesByPageStartIndex), nil
-}
-
-func mergeParagraphs(pars []*model.Paragraph, sentencesByPageStartIndex map[int32][]string) []model.Paragraph {
-	finalMerged := make([]model.Paragraph, 0)
-	for i, p := range pars {
-		sentences, isPageStart := sentencesByPageStartIndex[int32(i)]
-		if !isPageStart || startsWithCompleteSentence(sentences, p) {
-			finalMerged = append(finalMerged, *p)
-		} else {
-			finalMerged[len(finalMerged)-1].Text += " " + p.Text
-			finalMerged[len(finalMerged)-1].Pages = append(finalMerged[len(finalMerged)-1].Pages, p.Pages...)
-		}
-	}
-	return finalMerged
-}
-
-func startsWithCompleteSentence(sentences []string, p *model.Paragraph) bool {
-	for _, s := range sentences {
-		if strings.HasPrefix(p.Text, s) {
-			return true
-		}
-	}
-	return false
 }
