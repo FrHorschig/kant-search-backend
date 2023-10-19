@@ -31,16 +31,7 @@ func NewWorkProcessor(paragraphRepo database.ParagraphRepo, sentenceRepo databas
 }
 
 func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) *errors.Error {
-	tokens, err := rec.textMapper.Tokenize(upload.Text)
-	if err != nil {
-		return err
-	}
-	exprs, err := rec.textMapper.Parse(tokens)
-	if err != nil {
-		return err
-	}
-
-	paragraphs, err := rec.textMapper.Transform(upload.WorkId, exprs)
+	paragraphs, err := rec.textMapper.FindParagraphs(upload.Text, upload.WorkId)
 	if err != nil {
 		return err
 	}

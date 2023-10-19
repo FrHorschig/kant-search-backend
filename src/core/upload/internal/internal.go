@@ -5,7 +5,6 @@ package internal
 import (
 	"github.com/FrHorschig/kant-search-backend/common/model"
 	"github.com/FrHorschig/kant-search-backend/core/errors"
-	c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parse"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
 	"github.com/FrHorschig/kant-search-backend/core/upload/internal/tokenize"
@@ -13,9 +12,7 @@ import (
 )
 
 type TextMapper interface {
-	Parse(tokens []c.Token) ([]c.Expression, *errors.Error)
-	Tokenize(input string) ([]c.Token, *errors.Error)
-	Transform(workId int32, exprs []c.Expression) ([]model.Paragraph, *errors.Error)
+	FindParagraphs(text string, workId int32) ([]model.Paragraph, *errors.Error)
 	FindSentences(paragraphs []model.Paragraph) ([]model.Sentence, *errors.Error)
 }
 
@@ -30,15 +27,15 @@ func NewTextMapper() TextMapper {
 	return &impl
 }
 
-func (rec *textMapperImpl) Parse(tokens []c.Token) ([]c.Expression, *errors.Error) {
-	return parse.Parse(tokens)
-}
-
-func (rec *textMapperImpl) Tokenize(input string) ([]c.Token, *errors.Error) {
-	return tokenize.Tokenize(input)
-}
-
-func (rec *textMapperImpl) Transform(workId int32, exprs []c.Expression) ([]model.Paragraph, *errors.Error) {
+func (rec *textMapperImpl) FindParagraphs(text string, workId int32) ([]model.Paragraph, *errors.Error) {
+	tokens, err := tokenize.Tokenize(text)
+	if err != nil {
+		return nil, err
+	}
+	exprs, err := parse.Parse(tokens)
+	if err != nil {
+		return nil, err
+	}
 	return transform.Transform(workId, exprs, rec.pyUtil)
 }
 
