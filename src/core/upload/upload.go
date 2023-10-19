@@ -44,16 +44,39 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.Wo
 	if err != nil {
 		return err
 	}
-	err = persistParagraphs(ctx, rec.paragraphRepo, paragraphs)
-	if err != nil {
-		return err
-	}
-
 	sentences, err := rec.textMapper.FindSentences(paragraphs)
 	if err != nil {
 		return err
 	}
+
+	// TODO frhorschig: use transaction
+	err = deleteExistingData(ctx, rec.sentenceRepo, rec.paragraphRepo, upload.WorkId)
+	if err != nil {
+		return err
+	}
+	err = persistParagraphs(ctx, rec.paragraphRepo, paragraphs)
+	if err != nil {
+		return err
+	}
 	return persistSentences(ctx, rec.sentenceRepo, sentences)
+}
+
+func deleteExistingData(ctx context.Context, sentenceRepo database.SentenceRepo, paragraphRepo database.ParagraphRepo, workId int32) *errors.Error {
+	err := sentenceRepo.DeleteByWorkId(ctx, workId)
+	if err != nil {
+		return &errors.Error{
+			Msg:    errors.GO_ERR,
+			Params: []string{err.Error()},
+		}
+	}
+	err = paragraphRepo.DeleteByWorkId(ctx, workId)
+	if err != nil {
+		return &errors.Error{
+			Msg:    errors.GO_ERR,
+			Params: []string{err.Error()},
+		}
+	}
+	return nil
 }
 
 func persistParagraphs(ctx context.Context, repo database.ParagraphRepo, paragraphs []model.Paragraph) *errors.Error {
