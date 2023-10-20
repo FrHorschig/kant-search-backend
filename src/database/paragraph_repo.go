@@ -64,9 +64,7 @@ func (repo *paragraphRepoImpl) Search(ctx context.Context, criteria model.Search
 			ts_headline('german', p.content, to_tsquery('german', $2), $4),
 			p.pages,
 			p.id, 
-			p.work_id,
-			p.heading_level,
-			p.footnote_name
+			p.work_id
 		FROM paragraphs p
 		WHERE p.work_id = ANY($1) AND p.search @@ to_tsquery('german', $2)
 		ORDER BY p.work_id, p.id`
