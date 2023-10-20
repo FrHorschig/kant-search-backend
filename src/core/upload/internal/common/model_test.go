@@ -47,3 +47,50 @@ func TestNewText(t *testing.T) {
 	assert.Equal(t, TEXT, result.Type)
 	assert.Equal(t, text, result.Text)
 }
+
+func TestStringFunctions(t *testing.T) {
+	testCases := []struct {
+		name     string
+		expr     Expression
+		expected string
+	}{
+		{
+			name: "metadata only",
+			expr: Expression{
+				Metadata: Metadata{
+					Class: "class",
+					Param: &[]string{"Param"}[0],
+				},
+			},
+			expected: "classParam",
+		},
+		{
+			name: "metadata and content",
+			expr: Expression{
+				Metadata: Metadata{
+					Class: "class",
+					Param: &[]string{"Param"}[0],
+				},
+				Content: &[]string{"content"}[0],
+			},
+			expected: "classParam|content",
+		},
+		{
+			name: "metadata without param and content",
+			expr: Expression{
+				Metadata: Metadata{
+					Class: "class",
+				},
+				Content: &[]string{"content"}[0],
+			},
+			expected: "class|content",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := tc.expr.String()
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}

@@ -134,7 +134,21 @@ func TestParseInternal(t *testing.T) {
 			},
 		},
 		{
-			name: "closing brace error with content",
+			name: "closing brace error with short content",
+			input: []c.Token{
+				c.NewOpen(),
+				c.NewClass("class"),
+				c.NewSeparator(),
+				c.NewText("text"),
+			},
+			expr: nil,
+			err: &errors.Error{
+				Msg:    errors.MISSING_CLOSING_BRACE,
+				Params: []string{"text"},
+			},
+		},
+		{
+			name: "closing brace error with long content",
 			input: []c.Token{
 				c.NewOpen(),
 				c.NewClass("class"),
