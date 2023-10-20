@@ -36,7 +36,11 @@ func (rec *textMapperImpl) FindParagraphs(text string, workId int32) ([]model.Pa
 	if err != nil {
 		return nil, err
 	}
-	return transform.Transform(workId, exprs)
+	pars, err := transform.Transform(workId, exprs)
+	if err != nil {
+		return nil, err
+	}
+	return transform.MergeParagraphs(pars), nil
 }
 
 func (rec *textMapperImpl) FindSentences(paragraphs []model.Paragraph) ([]model.Sentence, *errors.Error) {
