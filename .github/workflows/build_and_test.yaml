@@ -22,6 +22,8 @@ jobs:
           repository: FrHorschig/kant-search-api
           path: kant-search-api
           token: ${{ secrets.API_REPO_TOKEN }}
+      - name: debug
+        run: ls -la
       - name: generate OpenAPI models
         run: |
           docker run --rm \
@@ -30,7 +32,6 @@ jobs:
             -i kant-search-api/src/openapi/openapi.yaml \
             -o src/kant-search-api-generated \
             -g go-echo-server
-          ls /local
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -45,6 +46,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Test
         working-directory: src
