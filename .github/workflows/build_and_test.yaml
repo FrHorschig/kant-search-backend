@@ -26,12 +26,13 @@ jobs:
           repository: FrHorschig/kant-search-api
           token: ${{ secrets.API_REPO_TOKEN }}
       - name: generate OpenAPI models
-        run: docker run --rm \
-          -v "${PWD}:/local" \
-          openapitools/openapi-generator-cli generate \
-          -i kant-search-api/src/openapi/openapi.yaml \
-          -o src/kant-search-api-generated \
-          -g go-echo-server
+        run: |
+          docker run --rm \
+            -v "${PWD}:/local" \
+            openapitools/openapi-generator-cli generate \
+            -i kant-search-api/src/openapi/openapi.yaml \
+            -o src/kant-search-api-generated \
+            -g go-echo-server
 
       - name: Set up Go
         uses: actions/setup-go@v4
