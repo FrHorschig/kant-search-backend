@@ -12,7 +12,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: General
+    environment: actions
     steps:
       - uses: actions/checkout@v4
       - name: set up Go
@@ -25,7 +25,8 @@ jobs:
         with:
           repository: FrHorschig/kant-search-api
           path: kant-search-api
-          token: ${{ secrets.API_REPO_TOKEN }}
+          token: ${{ secrets.REPO_PAT }}
+          sparse-checkout: src/openapi/openapi.yaml
       - name: generate OpenAPI models
         run: |
           docker run --rm \
@@ -34,14 +35,18 @@ jobs:
             -i /local/kant-search-api/src/openapi/openapi.yaml \
             -o /local/src/kant-search-api-generated \
             -g go-echo-server
-      - name: install dependencies
-        working-directory: src
-        run: |
-          go get .
-          go install github.com/golang/mock/mockgen@v1.6.0
-      - name: build
-        working-directory: src
-        run: go build -v ./...
+
+      - name: checkout database repo
+        uses: actions/checkout@v4
+        with:
+          repository: FrHorschig/kant-search-database
+          path: kant-search-database
+          token: ${{ secrets.REPO_PAT }}
+      - name: create database container
+        run: docker build \
+          -f kant-search-database/deployment/Dockerfile \
+          -t kant-search-database \
+          kant-search-database
 
       - name: set up python venv
         run: |
@@ -53,6 +58,16 @@ jobs:
           python -m spacy download de_core_news_sm
           deactivate
           cd ../..
+
+      - name: install dependencies
+        working-directory: src
+        run: |
+          go get .
+          go install github.com/golang/mock/mockgen@v1.6.0
+      - name: build
+        working-directory: src
+        run: go build -v ./...
+
       - name: generate
         working-directory: src
         run: go generate ./...
