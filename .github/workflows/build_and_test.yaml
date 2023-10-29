@@ -17,10 +17,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: checkout OpenAPI spec
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: FrHorschig/kant-search-api
           path: kant-search-api
