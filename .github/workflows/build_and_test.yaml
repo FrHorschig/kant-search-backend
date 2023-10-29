@@ -23,7 +23,8 @@ jobs:
           path: kant-search-api
           token: ${{ secrets.API_REPO_TOKEN }}
       - name: debug
-        run: ls -la
+        run: |
+          ls -la
       - name: generate OpenAPI models
         run: |
           docker run --rm \
