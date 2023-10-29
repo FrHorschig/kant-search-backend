@@ -41,6 +41,9 @@ jobs:
       - name: build
         working-directory: src
         run: go build -v ./...
+      - name: generate
+        working-directory: src
+        run: go generate ./...
       - name: test
         working-directory: src
-        run: go test ./... -tags=integration,unit
+        run: go test -tags=integration,unit ./...
