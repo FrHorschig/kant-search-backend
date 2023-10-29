@@ -32,19 +32,10 @@ func parseExpression(tokens *[]Token) (*astNote, *errors.Error) {
 		if err != nil {
 			return nil, err
 		}
-
-		if opToken.IsAnd {
-			node = &astNote{
-				Left:  node,
-				Right: nextNode,
-				Token: opToken,
-			}
-		} else {
-			node = &astNote{
-				Left:  node,
-				Right: nextNode,
-				Token: opToken,
-			}
+		node = &astNote{
+			Left:  node,
+			Right: nextNode,
+			Token: opToken,
 		}
 	}
 
@@ -72,10 +63,7 @@ func parseTerm(tokens *[]Token) (*astNote, *errors.Error) {
 func parseFactor(tokens *[]Token) (*astNote, *errors.Error) {
 	token := &(*tokens)[0]
 	switch {
-	case token.IsWord:
-		*tokens = (*tokens)[1:]
-		return &astNote{Token: token}, nil
-	case token.IsPhrase:
+	case token.IsWord || token.IsPhrase:
 		*tokens = (*tokens)[1:]
 		return &astNote{Token: token}, nil
 	case token.IsOpen:

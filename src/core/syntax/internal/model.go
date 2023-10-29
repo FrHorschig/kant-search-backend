@@ -51,20 +51,24 @@ func GetSearchString(tokens []Token) string {
 			token.Text = escapeSpecialChars(token.Text)
 		}
 		if token.IsPhrase {
-			words := strings.Split(token.Text, " ")
-			builder.WriteString("(")
-			for i, word := range words {
-				builder.WriteString(word)
-				if i < len(words)-1 {
-					builder.WriteString(" <-> ")
-				}
-			}
-			builder.WriteString(")")
+			builder.WriteString("(" + createPhrase(token.Text) + ")")
 		} else {
 			builder.WriteString(token.Text)
 			if i < len(tokens)-1 {
 				builder.WriteString(" ")
 			}
+		}
+	}
+	return builder.String()
+}
+
+func createPhrase(text string) string {
+	var builder strings.Builder
+	words := strings.Split(text, " ")
+	for i, word := range words {
+		builder.WriteString(word)
+		if i < len(words)-1 {
+			builder.WriteString(" <-> ")
 		}
 	}
 	return builder.String()

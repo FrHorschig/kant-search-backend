@@ -21,6 +21,22 @@ func Tokenize(input string) ([]Token, *errors.Error) {
 		}
 	}
 
+	tokens, err := createTokens(input)
+	if err != nil {
+		return nil, err
+	}
+	return addInBetweenAnds(tokens), nil
+}
+
+func wrongBeginChar(c byte) bool {
+	return c == '&' || c == '|' || c == ')'
+}
+
+func wrongEndChar(c byte) bool {
+	return c == '&' || c == '|' || c == '!' || c == '('
+}
+
+func createTokens(input string) ([]Token, *errors.Error) {
 	var tokens []Token
 	for len(input) > 0 {
 		switch {
@@ -40,41 +56,54 @@ func Tokenize(input string) ([]Token, *errors.Error) {
 			tokens = append(tokens, newClose())
 			input = input[1:]
 		case strings.HasPrefix(input, "\""):
-			end := strings.Index(input[1:], "\"")
-			if end == -1 {
-				return nil, &errors.Error{Msg: errors.UNTERMINATED_DOUBLE_QUOTE}
+			token, newInput, err := findPhrase(input)
+			if err != nil {
+				return nil, err
 			}
-			end += 1
-			tokens = append(tokens, newPhrase(strings.TrimSpace(input[1:end])))
-			if len(input) > end+1 {
-				input = input[end+1:]
-			} else {
-				input = ""
-			}
+			tokens = append(tokens, *token)
+			input = newInput
 		default:
-			end := nextNonWordCharIndex(input)
-			if end == -1 {
-				tokens = append(tokens, newWord(input))
-				input = ""
-			} else {
-				word := strings.TrimSpace(input[0:end])
-				if len(word) > 0 {
-					tokens = append(tokens, newWord(word))
-				}
-				input = input[end:]
+			token, newInput := findWord(input)
+			if token != nil {
+				tokens = append(tokens, *token)
 			}
+			input = newInput
 		}
 		input = strings.TrimSpace(input)
 	}
-	return addInBetweenAnds(tokens), nil
+	return tokens, nil
 }
 
-func wrongBeginChar(c byte) bool {
-	return c == '&' || c == '|' || c == ')'
+func findPhrase(input string) (*Token, string, *errors.Error) {
+	var token Token
+	end := strings.Index(input[1:], "\"")
+	if end == -1 {
+		return nil, "", &errors.Error{Msg: errors.UNTERMINATED_DOUBLE_QUOTE}
+	}
+	end += 1
+	token = newPhrase(strings.TrimSpace(input[1:end]))
+	if len(input) > end+1 {
+		input = input[end+1:]
+	} else {
+		input = ""
+	}
+	return &token, input, nil
 }
 
-func wrongEndChar(c byte) bool {
-	return c == '&' || c == '|' || c == '!' || c == '('
+func findWord(input string) (*Token, string) {
+	var token Token
+	end := nextNonWordCharIndex(input)
+	if end == -1 {
+		token = newWord(input)
+		input = ""
+	} else {
+		word := strings.TrimSpace(input[0:end])
+		if len(word) > 0 {
+			token = newWord(word)
+		}
+		input = input[end:]
+	}
+	return &token, input
 }
 
 func nextNonWordCharIndex(s string) int {

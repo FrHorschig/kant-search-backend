@@ -44,26 +44,30 @@ func parseExpression(tk *tokenIterator) (c.Expression, *errors.Error) {
 	}
 
 	if !tk.consume(c.CLOSE) {
-		var errText string
-		if expr.Content != nil {
-			if len(*expr.Content) < 16 {
-				errText = *expr.Content
-			} else {
-				errText = "..." + (*expr.Content)[len(*expr.Content)-16:len(*expr.Content)]
-			}
-		} else {
-			errText = expr.Metadata.Class
-			if expr.Metadata.Param != nil {
-				errText += *expr.Metadata.Param
-			}
-		}
 		return c.Expression{}, &errors.Error{
 			Msg:    errors.MISSING_CLOSING_BRACE,
-			Params: []string{errText},
+			Params: []string{createErrText(expr)},
 		}
 	}
 
 	return expr, nil
+}
+
+func createErrText(expr c.Expression) string {
+	var errText string
+	if expr.Content != nil {
+		if len(*expr.Content) < 16 {
+			errText = *expr.Content
+		} else {
+			errText = "..." + (*expr.Content)[len(*expr.Content)-16:len(*expr.Content)]
+		}
+	} else {
+		errText = expr.Metadata.Class
+		if expr.Metadata.Param != nil {
+			errText += *expr.Metadata.Param
+		}
+	}
+	return errText
 }
 
 func parseMetadata(tk *tokenIterator) (*c.Metadata, *errors.Error) {
