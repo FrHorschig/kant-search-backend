@@ -43,7 +43,8 @@ jobs:
           path: kant-search-database
           token: ${{ secrets.REPO_PAT }}
       - name: create database container
-        run: docker build \
+        run: |
+          docker build \
           -f kant-search-database/deployment/Dockerfile \
           -t kant-search-database \
           kant-search-database
