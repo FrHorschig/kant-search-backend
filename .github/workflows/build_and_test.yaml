@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: FrHorschig/kant-search-api
+          path: kant-search-api
           token: ${{ secrets.API_REPO_TOKEN }}
       - name: generate OpenAPI models
         run: |
