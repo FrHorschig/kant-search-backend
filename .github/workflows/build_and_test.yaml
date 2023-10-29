@@ -26,6 +26,8 @@ jobs:
         run: |
           ls -la
           ls kant-search-api -la
+          ls kant-search-api/src -la
+          ls kant-search-api/src/openapi -la
       - name: generate OpenAPI models
         run: |
           docker run --rm \
