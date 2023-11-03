@@ -14,7 +14,8 @@ jobs:
       - name: pull database image
         run: |
           echo ${{ secrets.DB_IMAGE_PAT }} | docker login ghcr.io -u ${{ env.OWNER }} --password-stdin
-          docker pull ghcr.io/${{ env.OWNER }}/kant-search-db:latest
+          owner_lower=$(echo "${{ env.OWNER }}" | tr '[:upper:]' '[:lower:]')
+          docker pull ghcr.io/"$owner_lower"/kant-search-db:latest
       - name: set up python venv
         run: |
           cd src_py
