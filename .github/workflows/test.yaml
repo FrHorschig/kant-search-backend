@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.DB_IMAGE_PAT}}
       - name: pull database image
         run: |
-          docker pull ghcr.io/${{ env.OWNER }}/kant-search-db:latest
+          docker pull ghcr.io/${{ env.OWNER }}/kant-search-database:latest
       - name: set up python venv
         run: |
           cd src_py
