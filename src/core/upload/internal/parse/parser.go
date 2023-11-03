@@ -3,8 +3,8 @@ package parse
 import (
 	"regexp"
 
-	"github.com/FrHorschig/kant-search-backend/core/errors"
-	c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
+	"github.com/frhorschig/kant-search-backend/core/errors"
+	c "github.com/frhorschig/kant-search-backend/core/upload/internal/common"
 )
 
 func Parse(tokens []c.Token) ([]c.Expression, *errors.Error) {

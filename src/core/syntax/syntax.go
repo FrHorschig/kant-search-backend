@@ -1,8 +1,8 @@
 package syntax
 
 import (
-	"github.com/FrHorschig/kant-search-backend/core/errors"
-	"github.com/FrHorschig/kant-search-backend/core/syntax/internal"
+	"github.com/frhorschig/kant-search-backend/core/errors"
+	"github.com/frhorschig/kant-search-backend/core/syntax/internal"
 )
 
 func CheckSyntax(searchTerms string) (string, *errors.Error) {

@@ -3,7 +3,7 @@ package internal
 import (
 	"strings"
 
-	"github.com/FrHorschig/kant-search-backend/core/errors"
+	"github.com/frhorschig/kant-search-backend/core/errors"
 )
 
 func Tokenize(input string) ([]Token, *errors.Error) {

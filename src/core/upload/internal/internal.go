@@ -3,12 +3,12 @@ package internal
 //go:generate mockgen -source=$GOFILE -destination=mocks/text_mapper_mock.go -package=mocks
 
 import (
-	"github.com/FrHorschig/kant-search-backend/common/model"
-	"github.com/FrHorschig/kant-search-backend/core/errors"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/parse"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/tokenize"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/transform"
+	"github.com/frhorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/core/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/parse"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/tokenize"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
 )
 
 type TextMapper interface {

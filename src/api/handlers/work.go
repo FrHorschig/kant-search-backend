@@ -3,11 +3,11 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/api/internal/errors"
-	"github.com/FrHorschig/kant-search-backend/api/internal/mapper"
-	processing "github.com/FrHorschig/kant-search-backend/core/upload"
-	repository "github.com/FrHorschig/kant-search-backend/database"
+	"github.com/frhorschig/kant-search-api/models"
+	"github.com/frhorschig/kant-search-backend/api/internal/errors"
+	"github.com/frhorschig/kant-search-backend/api/internal/mapper"
+	processing "github.com/frhorschig/kant-search-backend/core/upload"
+	repository "github.com/frhorschig/kant-search-backend/database"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )

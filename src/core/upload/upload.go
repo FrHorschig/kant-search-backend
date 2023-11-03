@@ -5,10 +5,10 @@ package upload
 import (
 	"context"
 
-	"github.com/FrHorschig/kant-search-backend/common/model"
-	"github.com/FrHorschig/kant-search-backend/core/errors"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal"
-	"github.com/FrHorschig/kant-search-backend/database"
+	"github.com/frhorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/core/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal"
+	"github.com/frhorschig/kant-search-backend/database"
 )
 
 type WorkUploadProcessor interface {

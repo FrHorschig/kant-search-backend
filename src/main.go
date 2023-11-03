@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/FrHorschig/kant-search-backend/api/handlers"
-	"github.com/FrHorschig/kant-search-backend/core/search"
-	"github.com/FrHorschig/kant-search-backend/core/upload"
-	repository "github.com/FrHorschig/kant-search-backend/database"
+	"github.com/frhorschig/kant-search-backend/api/handlers"
+	"github.com/frhorschig/kant-search-backend/core/search"
+	"github.com/frhorschig/kant-search-backend/core/upload"
+	repository "github.com/frhorschig/kant-search-backend/database"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/FrHorschig/kant-search-backend/core/errors"
-	c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
+	"github.com/frhorschig/kant-search-backend/core/errors"
+	c "github.com/frhorschig/kant-search-backend/core/upload/internal/common"
 )
 
 func Tokenize(input string) ([]c.Token, *errors.Error) {

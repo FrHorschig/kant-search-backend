@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/FrHorschig/kant-search-backend/core/errors"
+	"github.com/frhorschig/kant-search-backend/core/errors"
 )
 
 func Parse(tokens []Token) *errors.Error {

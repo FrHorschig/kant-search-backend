@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/FrHorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/common/model"
 )
 
 type PythonUtil interface {
