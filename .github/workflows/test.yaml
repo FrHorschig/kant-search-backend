@@ -1,54 +1,19 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Test
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: actions
+    env:
+      OWNER: ${{ github.repository_owner }}
     steps:
       - uses: actions/checkout@v4
-      - name: set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.20"
-
-      - name: checkout OpenAPI spec
-        uses: actions/checkout@v4
-        with:
-          repository: FrHorschig/kant-search-api
-          path: kant-search-api
-          token: ${{ secrets.REPO_PAT }}
-          sparse-checkout: src/openapi/openapi.yaml
-      - name: generate OpenAPI models
+      - name: pull database image
         run: |
-          docker run --rm \
-            -v "${PWD}:/local" \
-            openapitools/openapi-generator-cli generate \
-            -i /local/kant-search-api/src/openapi/openapi.yaml \
-            -o /local/src/kant-search-api-generated \
-            -g go-echo-server
-
-      - name: checkout database repo
-        uses: actions/checkout@v4
-        with:
-          repository: FrHorschig/kant-search-database
-          path: kant-search-database
-          token: ${{ secrets.REPO_PAT }}
-      - name: create database container
-        run: |
-          docker build \
-          -f kant-search-database/deployment/Dockerfile \
-          -t kant-search-database \
-          kant-search-database
-
+          echo ${{ secrets.DB_IMAGE_PAT }} | docker login ghcr.io -u ${{ env.OWNER }} --password-stdin
       - name: set up python venv
         run: |
           cd src_py
@@ -60,15 +25,21 @@ jobs:
           deactivate
           cd ../..
 
-      - name: install dependencies
+      - name: set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+      - name: get Go dependencies
         working-directory: src
         run: |
-          go get .
-          go install github.com/golang/mock/mockgen@v1.6.0
+          git config --global url."https://${{ secrets.API_TAGS_PAT }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          go mod tidy
       - name: build
         working-directory: src
         run: go build -v ./...
 
+      - name: install mockgen
+        run: go install github.com/golang/mock/mockgen@v1.6.0
       - name: generate
         working-directory: src
         run: go generate ./...
