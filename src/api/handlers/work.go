@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/frhorschig/kant-search-api/models"
+	"github.com/frhorschig/kant-search-api/src/go/models"
 	"github.com/frhorschig/kant-search-backend/api/internal/errors"
 	"github.com/frhorschig/kant-search-backend/api/internal/mapper"
 	processing "github.com/frhorschig/kant-search-backend/core/upload"

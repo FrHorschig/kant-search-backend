@@ -6,7 +6,7 @@ package mapper
 import (
 	"testing"
 
-	"github.com/frhorschig/kant-search-api/models"
+	"github.com/frhorschig/kant-search-api/src/go/models"
 	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/stretchr/testify/assert"
 )

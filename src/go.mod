@@ -1,4 +1,4 @@
-module github.com/FrHorschig/kant-search-backend
+module github.com/frhorschig/kant-search-backend
 
 go 1.20
 
