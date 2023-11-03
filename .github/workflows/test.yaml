@@ -11,9 +11,14 @@ jobs:
       OWNER: ${{ github.repository_owner }}
     steps:
       - uses: actions/checkout@v4
+      - name: login to ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.OWNER }}
+          password: ${{ secrets.DB_IMAGE_PAT}}
       - name: pull database image
         run: |
-          echo ${{ secrets.DB_IMAGE_PAT }} | docker login ghcr.io -u ${{ env.OWNER }} --password-stdin
           owner_lower=$(echo "${{ env.OWNER }}" | tr '[:upper:]' '[:lower:]')
           docker pull ghcr.io/"$owner_lower"/kant-search-db:latest
       - name: set up python venv
