@@ -43,6 +43,7 @@ jobs:
         working-directory: src
         run: |
           git config --global url."https://${{ secrets.API_TAGS_PAT }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+          go env -w GOPRIVATE=github.com/frhorschig/
           go mod tidy
       - name: build
         working-directory: src
