@@ -58,6 +58,4 @@ jobs:
 
       - name: test
         working-directory: src
-        run: |
-          docker logout
-          go test -tags=integration,unit ./...
+        run: go test -tags=integration,unit ./...
