@@ -58,4 +58,4 @@ jobs:
 
       - name: test
         working-directory: src
-        run: go test -tags=integration,unit ./...
+        run: go test ./... -tags=integration,unit
