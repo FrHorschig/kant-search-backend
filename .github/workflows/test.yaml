@@ -41,6 +41,8 @@ jobs:
           go-version: "1.21"
       - name: get Go dependencies
         working-directory: src
+        env:
+          GOPRIVATE: "github.com/frhorschig/kant-search-api"
         run: |
           git config --global url."https://${{ secrets.API_TAGS_PAT }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
           go clean -modcache
