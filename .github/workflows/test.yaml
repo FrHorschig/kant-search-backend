@@ -39,6 +39,11 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: "1.21"
+      - name: install mockgen
+        run: go install github.com/golang/mock/mockgen@v1.6.0
+      - name: generate
+        working-directory: src
+        run: go generate ./...
       - name: get Go dependencies
         working-directory: src
         env:
@@ -51,11 +56,6 @@ jobs:
         working-directory: src
         run: go build -v ./...
 
-      - name: install mockgen
-        run: go install github.com/golang/mock/mockgen@v1.6.0
-      - name: generate
-        working-directory: src
-        run: go generate ./...
       - name: test
         working-directory: src
         run: |
