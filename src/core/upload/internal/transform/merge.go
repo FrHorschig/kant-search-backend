@@ -3,7 +3,7 @@ package transform
 import (
 	"regexp"
 
-	"github.com/FrHorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/common/model"
 )
 
 type metadata struct {

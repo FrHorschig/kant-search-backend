@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/FrHorschig/kant-search-backend/common/model"
-	"github.com/FrHorschig/kant-search-backend/core/errors"
-	c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
+	"github.com/frhorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/core/errors"
+	c "github.com/frhorschig/kant-search-backend/core/upload/internal/common"
 )
 
 func Transform(

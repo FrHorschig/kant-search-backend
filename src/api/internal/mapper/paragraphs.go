@@ -1,8 +1,8 @@
 package mapper
 
 import (
-	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-backend/common/model"
 )
 
 func ParagraphToApiModel(paragraph model.Paragraph) models.Paragraph {

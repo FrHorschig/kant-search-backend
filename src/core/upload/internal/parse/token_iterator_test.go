@@ -3,7 +3,7 @@ package parse
 import (
 	"testing"
 
-	c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
+	c "github.com/frhorschig/kant-search-backend/core/upload/internal/common"
 	"github.com/stretchr/testify/assert"
 )
 

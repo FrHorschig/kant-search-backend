@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/api/internal/errors"
-	"github.com/FrHorschig/kant-search-backend/api/internal/mapper"
-	repository "github.com/FrHorschig/kant-search-backend/database"
+	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-backend/api/internal/errors"
+	"github.com/frhorschig/kant-search-backend/api/internal/mapper"
+	repository "github.com/frhorschig/kant-search-backend/database"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )

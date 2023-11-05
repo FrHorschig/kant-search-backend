@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/api/internal/errors"
-	"github.com/FrHorschig/kant-search-backend/api/internal/mapper"
-	"github.com/FrHorschig/kant-search-backend/core/search"
-	"github.com/FrHorschig/kant-search-backend/core/syntax"
+	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-backend/api/internal/errors"
+	"github.com/frhorschig/kant-search-backend/api/internal/mapper"
+	"github.com/frhorschig/kant-search-backend/core/search"
+	"github.com/frhorschig/kant-search-backend/core/syntax"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )

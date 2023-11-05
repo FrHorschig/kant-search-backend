@@ -3,8 +3,8 @@ package mapper
 import (
 	"sort"
 
-	"github.com/FrHorschig/kant-search-api/models"
-	"github.com/FrHorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-backend/common/model"
 )
 
 func CriteriaToCoreModel(criteria models.SearchCriteria) model.SearchCriteria {

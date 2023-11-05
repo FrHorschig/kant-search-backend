@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FrHorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 func createDbContainer() *postgres.PostgresContainer {
 	envVarValue := "kantsearch"
 	cont, err := postgres.RunContainer(context.Background(),
-		testcontainers.WithImage("kant-search-database"),
+		testcontainers.WithImage("ghcr.io/frhorschig/kant-search-database:latest"),
 		postgres.WithUsername(envVarValue),
 		postgres.WithPassword(envVarValue),
 		postgres.WithDatabase(envVarValue),

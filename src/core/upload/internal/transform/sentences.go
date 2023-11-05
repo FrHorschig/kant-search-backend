@@ -3,9 +3,9 @@ package transform
 import (
 	"sort"
 
-	"github.com/FrHorschig/kant-search-backend/common/model"
-	"github.com/FrHorschig/kant-search-backend/core/errors"
-	"github.com/FrHorschig/kant-search-backend/core/upload/internal/pyutil"
+	"github.com/frhorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/core/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
 )
 
 type ByParagraphId []model.Sentence

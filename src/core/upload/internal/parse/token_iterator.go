@@ -1,6 +1,6 @@
 package parse
 
-import c "github.com/FrHorschig/kant-search-backend/core/upload/internal/common"
+import c "github.com/frhorschig/kant-search-backend/core/upload/internal/common"
 
 type tokenIterator struct {
 	tokens []c.Token
