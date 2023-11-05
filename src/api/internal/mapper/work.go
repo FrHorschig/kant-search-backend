@@ -18,7 +18,7 @@ func WorksToApiModels(works []model.Work) []models.Work {
 	for _, work := range works {
 		apiModels = append(apiModels, models.Work{
 			Id:           work.Id,
-			Title:        work.Title,
+			Code:         work.Code,
 			Abbreviation: util.ToStrVal(work.Abbreviation),
 			Ordinal:      work.Ordinal,
 			Year:         util.ToStrVal(work.Year),
@@ -33,7 +33,6 @@ func VolumesToApiModels(volumes []model.Volume) []models.Volume {
 	for _, work := range volumes {
 		apiModels = append(apiModels, models.Volume{
 			Id:      work.Id,
-			Title:   work.Title,
 			Section: work.Section,
 		})
 	}

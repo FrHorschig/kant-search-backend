@@ -46,7 +46,7 @@ func scanWorkRows(rows *sql.Rows) ([]model.Work, error) {
 	works := make([]model.Work, 0)
 	for rows.Next() {
 		var work model.Work
-		err := rows.Scan(&work.Id, &work.Title, &work.Abbreviation, &work.Ordinal, &work.Year, &work.Volume)
+		err := rows.Scan(&work.Id, &work.Code, &work.Abbreviation, &work.Ordinal, &work.Year, &work.Volume)
 		if err != nil {
 			return nil, fmt.Errorf("query row scan failed: %v", err)
 		}

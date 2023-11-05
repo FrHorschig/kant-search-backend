@@ -62,7 +62,7 @@ func TestSelectAllVolumesWrongRows(t *testing.T) {
 	repo := &volumeRepoImpl{db: db}
 
 	// GIVEN
-	mock.ExpectQuery(anyQuery).WillReturnRows(sqlmock.NewRows([]string{"abc", "def"}).AddRow(1, 1))
+	mock.ExpectQuery(anyQuery).WillReturnRows(sqlmock.NewRows([]string{"abc", "def"}).AddRow(1, "ghi"))
 
 	// WHEN
 	volumes, err := repo.SelectAll(context.Background())

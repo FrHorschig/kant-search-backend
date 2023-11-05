@@ -96,7 +96,6 @@ func testSelectVolumesEmptyResult(t *testing.T, sut *workHandlerImpl, volumeRepo
 func testSelectVolumesSingleResult(t *testing.T, sut *workHandlerImpl, volumeRepo *mocks.MockVolumeRepo) {
 	volumes := []model.Volume{{
 		Id:      1,
-		Title:   "title",
 		Section: 1,
 	}}
 	// GIVEN
@@ -109,7 +108,6 @@ func testSelectVolumesSingleResult(t *testing.T, sut *workHandlerImpl, volumeRep
 	// THEN
 	assert.Equal(t, http.StatusOK, ctx.Response().Status)
 	assert.Contains(t, res.Body.String(), "id")
-	assert.Contains(t, res.Body.String(), "title")
 	assert.Contains(t, res.Body.String(), "section")
 }
 
@@ -145,7 +143,7 @@ func testSelectWorksEmptyResult(t *testing.T, sut *workHandlerImpl, workRepo *mo
 func testSelectWorksSingleResult(t *testing.T, sut *workHandlerImpl, workRepo *mocks.MockWorkRepo) {
 	works := []model.Work{{
 		Id:           1,
-		Title:        "title",
+		Code:         "code",
 		Abbreviation: util.ToStrPtr("abbrev"),
 		Ordinal:      1,
 		Year:         util.ToStrPtr("1785"),
@@ -161,7 +159,7 @@ func testSelectWorksSingleResult(t *testing.T, sut *workHandlerImpl, workRepo *m
 	// THEN
 	assert.Equal(t, http.StatusOK, ctx.Response().Status)
 	assert.Contains(t, res.Body.String(), "id")
-	assert.Contains(t, res.Body.String(), "title")
+	assert.Contains(t, res.Body.String(), "code")
 	assert.Contains(t, res.Body.String(), "abbreviation")
 	assert.Contains(t, res.Body.String(), "ordinal")
 	assert.Contains(t, res.Body.String(), "year")
@@ -169,7 +167,7 @@ func testSelectWorksSingleResult(t *testing.T, sut *workHandlerImpl, workRepo *m
 }
 
 func testPostWorksBindError(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.Volume{Id: 1, Title: "title", Section: 1})
+	body, err := json.Marshal(models.Volume{Id: 1, Section: 1})
 	if err != nil {
 		t.Fatal(err)
 	}
