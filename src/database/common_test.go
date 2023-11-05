@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 func createDbContainer() *postgres.PostgresContainer {
 	envVarValue := "kantsearch"
 	cont, err := postgres.RunContainer(context.Background(),
-		testcontainers.WithImage("kant-search-database:latest"),
+		testcontainers.WithImage("ghcr.io/frhorschig/kant-search-database:latest"),
 		postgres.WithUsername(envVarValue),
 		postgres.WithPassword(envVarValue),
 		postgres.WithDatabase(envVarValue),

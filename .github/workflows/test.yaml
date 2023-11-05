@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       OWNER: ${{ github.repository_owner }}
+      DB_IMG: ghcr.io/frhorschig/kant-search-database:latest
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -23,7 +24,7 @@ jobs:
           password: ${{ secrets.DB_IMAGE_PAT}}
       - name: pull database image
         run: |
-          docker pull ghcr.io/${{ env.OWNER }}/kant-search-database:latest
+          docker pull ${{ env.DB_IMG }}
       - name: set up python venv
         run: |
           cd src_py
