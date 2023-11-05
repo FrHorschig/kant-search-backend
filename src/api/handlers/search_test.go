@@ -42,7 +42,7 @@ func TestSearchHandler(t *testing.T) {
 }
 
 func testSearchBindError(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
-	body, err := json.Marshal(models.Volume{Id: 1, Title: "title", Section: 1})
+	body, err := json.Marshal(models.Volume{Id: 1, Section: 1})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -46,7 +46,7 @@ func scanVolumeRows(rows *sql.Rows) ([]model.Volume, error) {
 	volumes := make([]model.Volume, 0)
 	for rows.Next() {
 		var volume model.Volume
-		err := rows.Scan(&volume.Id, &volume.Title, &volume.Section)
+		err := rows.Scan(&volume.Id, &volume.Section)
 		if err != nil {
 			return nil, fmt.Errorf("query row scan failed: %v", err)
 		}

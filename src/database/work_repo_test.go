@@ -22,14 +22,14 @@ func TestSelectAllWorks(t *testing.T) {
 	assert.Greater(t, len(works), 0)
 
 	krvB := works[30]
-	assert.Equal(t, "Kritik der reinen Vernunft 2. Aufl.", krvB.Title)
+	assert.Equal(t, "KRV_B", krvB.Code)
 	assert.Equal(t, "B", *krvB.Abbreviation)
 	assert.Equal(t, int32(3), krvB.Volume)
 	assert.Equal(t, int32(0), krvB.Ordinal)
 	assert.Equal(t, "1787", *krvB.Year)
 
 	work7_1 := works[40]
-	assert.Equal(t, "Anthropologie in pragmatischer Hinsicht", work7_1.Title)
+	assert.Equal(t, "ANTH", work7_1.Code)
 	assert.Equal(t, "Anth", *work7_1.Abbreviation)
 	assert.Equal(t, int32(7), work7_1.Volume)
 	assert.Equal(t, int32(1), work7_1.Ordinal)

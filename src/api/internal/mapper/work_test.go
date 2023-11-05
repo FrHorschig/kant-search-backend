@@ -28,7 +28,7 @@ func TestWorkToApiModel(t *testing.T) {
 	year := "1785"
 	works := []model.Work{{
 		Id:           1,
-		Title:        "title",
+		Code:         "code",
 		Abbreviation: &abbr,
 		Ordinal:      1,
 		Year:         &year,
@@ -39,7 +39,7 @@ func TestWorkToApiModel(t *testing.T) {
 
 	assert.Equal(t, len(results), len(works))
 	assert.Equal(t, results[0].Id, works[0].Id)
-	assert.Equal(t, results[0].Title, works[0].Title)
+	assert.Equal(t, results[0].Code, works[0].Code)
 	assert.Equal(t, results[0].Abbreviation, *works[0].Abbreviation)
 	assert.Equal(t, results[0].Ordinal, works[0].Ordinal)
 	assert.Equal(t, results[0].Year, *works[0].Year)
@@ -49,7 +49,7 @@ func TestWorkToApiModel(t *testing.T) {
 func TestWorkToApiModelNilStrings(t *testing.T) {
 	works := []model.Work{{
 		Id:           1,
-		Title:        "title",
+		Code:         "code",
 		Abbreviation: nil,
 		Ordinal:      1,
 		Year:         nil,
@@ -66,7 +66,6 @@ func TestWorkToApiModelNilStrings(t *testing.T) {
 func TestVolumeToApiModel(t *testing.T) {
 	volumes := []model.Volume{{
 		Id:      1,
-		Title:   "title",
 		Section: 1,
 	}}
 
@@ -74,6 +73,5 @@ func TestVolumeToApiModel(t *testing.T) {
 
 	assert.Equal(t, len(results), len(volumes))
 	assert.Equal(t, results[0].Id, volumes[0].Id)
-	assert.Equal(t, results[0].Title, volumes[0].Title)
 	assert.Equal(t, results[0].Section, volumes[0].Section)
 }

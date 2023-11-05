@@ -2,7 +2,7 @@ package model
 
 type Work struct {
 	Id           int32
-	Title        string
+	Code         string
 	Abbreviation *string
 	Ordinal      int32
 	Year         *string
