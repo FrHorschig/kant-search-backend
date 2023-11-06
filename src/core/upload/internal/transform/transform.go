@@ -50,6 +50,14 @@ func buildParagraphs(
 			pn = findPageNumber(e)
 			if exprs[i+1].Content != nil {
 				exprs[i+1].Content = &[]string{fmt.Sprintf("{p%d} %s", pn, *exprs[i+1].Content)}[0]
+			} else {
+				e.Metadata.Class = "paragraph"
+				e.Content = &[]string{fmt.Sprintf("{p%d} <i>Inhalt nicht verfügbar</i>.", pn)}[0]
+				par, err := createParagraph(workId, pn, e)
+				if err != nil {
+					return nil, err
+				}
+				pars = append(pars, par)
 			}
 		} else {
 			par, err := createParagraph(workId, pn, e)
