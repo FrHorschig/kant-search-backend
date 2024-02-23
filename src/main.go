@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"os"
-	"strings"
 
 	"github.com/frhorschig/kant-search-backend/api/handlers"
 	"github.com/frhorschig/kant-search-backend/core/search"
@@ -32,8 +31,9 @@ func initEchoServer() *echo.Echo {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: strings.Split(os.Getenv("ALLOW_ORIGINS"), ","),
-		AllowMethods: []string{echo.GET},
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
+		AllowHeaders: []string{"*"},
 	}))
 	return e
 }
@@ -74,5 +74,5 @@ func main() {
 
 	e := initEchoServer()
 	registerHandlers(e, workHandler, paragraphHandler, searchHandler)
-	e.Logger.Fatal(e.StartTLS(":3000", "ssl/cert.pem", "ssl/key.pem"))
+	e.Logger.Fatal(e.StartTLS(":3000", "ssl/server.crt", "ssl/server.key"))
 }
