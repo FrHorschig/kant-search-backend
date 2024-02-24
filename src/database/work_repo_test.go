@@ -23,7 +23,7 @@ func TestSelectAllWorks(t *testing.T) {
 
 	krvB := works[30]
 	assert.Equal(t, "KRV_B", krvB.Code)
-	assert.Equal(t, "B", *krvB.Abbreviation)
+	assert.Equal(t, "KrV B", *krvB.Abbreviation)
 	assert.Equal(t, int32(3), krvB.Volume)
 	assert.Equal(t, int32(0), krvB.Ordinal)
 	assert.Equal(t, "1787", *krvB.Year)
