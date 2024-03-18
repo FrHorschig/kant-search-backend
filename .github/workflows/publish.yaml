@@ -1,0 +1,37 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      OWNER: ${{ github.repository_owner }}
+      REPO_NAME: ${{ github.event.repository.name }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: adjust env variables
+        run: |
+          echo "OWNER=$(echo $OWNER | awk '{print tolower($0)}')" >> $GITHUB_ENV
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: build Docker image
+        run: make
+
+      - name: login to ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.OWNER }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: publish docker image
+        run: |
+          img=ghcr.io/${{ env.OWNER }}/${{ env.REPO_NAME }}
+          version=${{ env.VERSION }}
+          docker tag  $img $img:$version
+          docker tag  $img $img:latest
+          docker push $img:$version
+          docker push $img:latest
