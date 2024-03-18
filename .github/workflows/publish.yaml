@@ -17,7 +17,7 @@ jobs:
       - name: adjust env variables
         run: |
           echo "OWNER=$(echo $OWNER | awk '{print tolower($0)}')" >> $GITHUB_ENV
-          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          echo "VERSION=$(echo ${GITHUB_REF#refs/tags/} | sed 's/^v//')" >> $GITHUB_ENV
       - name: build Docker image
         run: make
 
