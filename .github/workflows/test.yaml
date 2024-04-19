@@ -55,7 +55,7 @@ jobs:
           go mod tidy
       - name: build
         working-directory: src
-        run: go build -v ./...
+        run: go build ./...
 
       - name: test
         working-directory: src
