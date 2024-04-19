@@ -1,0 +1,21 @@
+name: Create new tag
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**"
+
+jobs:
+  create-tag:
+    name: Create new tag
+    runs-on: ubuntu-latest
+    env:
+      OWNER: ${{ github.repository_owner }}
+      REPO_NAME: ${{ github.event.repository.name }}
+    steps:
+      - name: GitHub Tag
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
