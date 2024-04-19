@@ -1,6 +1,6 @@
 FROM golang:1.21 AS builder
 WORKDIR /app
-COPY src/kant-search-backend ./kant-search-backend
+COPY src/kant-search-backend .
 RUN mkdir ssl
 COPY ./ssl/cert.pem ssl/
 COPY ./ssl/key.pem ssl/
