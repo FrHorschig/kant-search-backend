@@ -12,12 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: create tag
+        id: create_tag
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: write version to env variable
         run: |
-          echo "VERSION=${{ steps.tag_version.outputs.new_tag }}" >> $GITHUB_ENV
+          echo "VERSION=${{ steps.create_tag.outputs.new_tag }}" >> $GITHUB_ENV
 
   build:
     name: build Go binary
