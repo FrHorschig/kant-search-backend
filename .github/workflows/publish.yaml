@@ -39,3 +39,23 @@ jobs:
           docker tag  $img $img:latest
           docker push $img:$version
           docker push $img:latest
+
+  publish-binary:
+    name: Publish Go binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+      - name: Build application
+        run: |
+          go build ./src/
+
+      - name: GH Release
+        uses: softprops/action-gh-release@v2.0.4
+        with:
+          files: kant-search-backend
+          github_token: ${{ secrets.GITHUB_TOKEN }}
