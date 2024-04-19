@@ -19,6 +19,10 @@ jobs:
       - name: write version to env variable
         run: |
           echo "VERSION=${{ steps.create_tag.outputs.new_tag }}" >> $GITHUB_ENV
+      - name: debug
+        run: echo "${{ env.VERSION }}"
+      - name: debug2
+        run: echo "${{ steps.create_tag.outputs.new_tag }}"
 
   build:
     name: build Go binary
@@ -77,6 +81,10 @@ jobs:
             -f ./deployment/Dockerfile \
             -t ghcr.io/frhorschig/kant-search-backend:latest \
             .
+      - name: debug
+        run: echo "${{ env.VERSION }}"
+      - name: debug2
+        run: echo "${{ steps.create_tag.outputs.new_tag }}"
       - name: login to ghcr
         uses: docker/login-action@v3
         with:
@@ -101,6 +109,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: kant-search-backend
+      - name: debug
+        run: echo "${{ env.VERSION }}"
+      - name: debug2
+        run: echo "${{ steps.create_tag.outputs.new_tag }}"
       - name: create release
         uses: softprops/action-gh-release@v2.0.4
         with:
