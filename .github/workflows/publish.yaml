@@ -27,25 +27,25 @@ jobs:
       OWNER: ${{ github.repository_owner }}
       REPO_NAME: ${{ github.event.repository.name }}
     steps:
-      - name: checkout
+      - name: Checkout code
         uses: actions/checkout@v4
-      - name: adjust env variables
+      - name: Adjust env variables
         run: |
           echo "OWNER=$(echo $OWNER | awk '{print tolower($0)}')" >> $GITHUB_ENV
-      - name: build Docker image
+      - name: Build Docker image
         run: |
           docker build \
             -f ./deployment/Dockerfile \
             -t ghcr.io/frhorschig/kant-search-backend:latest \
             .
 
-      - name: login to ghcr
+      - name: Login to ghcr
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ env.OWNER }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: publish docker image
+      - name: Publish docker image
         run: |
           img=ghcr.io/${{ env.OWNER }}/${{ env.REPO_NAME }}
           version=${{ env.VERSION }}
@@ -66,10 +66,11 @@ jobs:
         with:
           go-version: "1.21"
       - name: Build application
+        working-directory: src/
         run: |
-          go build ./src/
+          go build .
 
-      - name: GH Release
+      - name: Create release
         uses: softprops/action-gh-release@v2.0.4
         with:
           files: kant-search-backend
