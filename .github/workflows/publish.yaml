@@ -106,4 +106,4 @@ jobs:
         with:
           tag_name: ${{ env.VERSION }}
           files: kant-search-backend
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
