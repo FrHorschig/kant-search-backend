@@ -37,7 +37,7 @@ jobs:
           cd ../..
 
       - name: set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "1.21"
       - name: install mockgen
@@ -55,7 +55,7 @@ jobs:
           go mod tidy
       - name: build
         working-directory: src
-        run: go build -v ./...
+        run: go build ./...
 
       - name: test
         working-directory: src
