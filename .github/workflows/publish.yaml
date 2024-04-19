@@ -11,11 +11,11 @@ jobs:
     if: ${{ !github.event.forced }}
     runs-on: ubuntu-latest
     steps:
-      - name: Create tag
+      - name: create tag
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Write version to env variable
+      - name: write version to env variable
         run: |
           echo "VERSION=${{ steps.tag_version.outputs.new_tag }}" >> $GITHUB_ENV
 
@@ -24,18 +24,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: create-tag
     steps:
-      - name: Checkout code
+      - name: checkout code
         uses: actions/checkout@v4
-      - name: Set up Go
+      - name: set up Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.21"
-      - name: install mockgen
+      - name: Install mockgen
         run: go install github.com/golang/mock/mockgen@v1.6.0
-      - name: generate
+      - name: Generate
         working-directory: src
         run: go generate ./...
-      - name: Get private Go dependency
+      - name: get private Go dependency
         working-directory: src
         env:
           GOPRIVATE: "github.com/frhorschig/kant-search-api"
@@ -43,10 +43,10 @@ jobs:
           git config --global url."https://${{ secrets.API_TAGS_PAT }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
           go clean -modcache
           go mod tidy
-      - name: Build application
+      - name: build application
         working-directory: src
         run: go build
-      - name: Upload the build artifact
+      - name: upload the build artifact
         uses: actions/upload-artifact@v4
         with:
           name: kant-search-backend
@@ -60,29 +60,29 @@ jobs:
       OWNER: ${{ github.repository_owner }}
       REPO_NAME: ${{ github.event.repository.name }}
     steps:
-      - name: Checkout code
+      - name: checkout code
         uses: actions/checkout@v4
-      - name: Adjust env variables
+      - name: adjust env variables
         run: |
           echo "OWNER=$(echo $OWNER | awk '{print tolower($0)}')" >> $GITHUB_ENV
-      - name: Download the build artifact
+      - name: download the build artifact
         uses: actions/download-artifact@v4
         with:
           name: kant-search-backend
           path: src
-      - name: Build Docker image
+      - name: build Docker image
         run: |
           docker build \
             -f ./deployment/Dockerfile \
             -t ghcr.io/frhorschig/kant-search-backend:latest \
             .
-      - name: Login to ghcr
+      - name: login to ghcr
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ env.OWNER }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish docker image
+      - name: publish docker image
         run: |
           img=ghcr.io/${{ env.OWNER }}/${{ env.REPO_NAME }}
           version=${{ env.VERSION }}
@@ -96,11 +96,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Download the build artifact
+      - name: download the build artifact
         uses: actions/download-artifact@v4
         with:
           name: kant-search-backend
-      - name: Create release
+      - name: create release
         uses: softprops/action-gh-release@v2.0.4
         with:
           files: kant-search-backend
