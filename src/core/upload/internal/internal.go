@@ -12,7 +12,7 @@ import (
 )
 
 type TextMapper interface {
-	FindParagraphs(text string, workId int32) ([]model.Paragraph, *errors.Error)
+	FindParagraphs(workId int32, text string) ([]model.Paragraph, *errors.Error)
 	FindSentences(paragraphs []model.Paragraph) ([]model.Sentence, *errors.Error)
 }
 
@@ -27,7 +27,7 @@ func NewTextMapper() TextMapper {
 	return &impl
 }
 
-func (rec *textMapperImpl) FindParagraphs(text string, workId int32) ([]model.Paragraph, *errors.Error) {
+func (rec *textMapperImpl) FindParagraphs(workId int32, text string) ([]model.Paragraph, *errors.Error) {
 	tokens, err := tokenize.Tokenize(text)
 	if err != nil {
 		return nil, err

@@ -12,7 +12,7 @@ import (
 )
 
 type WorkUploadProcessor interface {
-	Process(ctx context.Context, work model.WorkUpload) *errors.Error
+	Process(ctx context.Context, workId int32, text string) *errors.Error
 }
 
 type workUploadProcessorImpl struct {
@@ -30,14 +30,14 @@ func NewWorkProcessor(paragraphRepo database.ParagraphRepo, sentenceRepo databas
 	return &processor
 }
 
-func (rec *workUploadProcessorImpl) Process(ctx context.Context, upload model.WorkUpload) *errors.Error {
-	paragraphs, err := rec.textMapper.FindParagraphs(upload.Text, upload.WorkId)
+func (rec *workUploadProcessorImpl) Process(ctx context.Context, workId int32, text string) *errors.Error {
+	paragraphs, err := rec.textMapper.FindParagraphs(workId, text)
 	if err != nil {
 		return err
 	}
 
 	// TODO frhorschig: use transaction
-	err = deleteExistingData(ctx, rec.sentenceRepo, rec.paragraphRepo, upload.WorkId)
+	err = deleteExistingData(ctx, rec.sentenceRepo, rec.paragraphRepo, workId)
 	if err != nil {
 		return err
 	}

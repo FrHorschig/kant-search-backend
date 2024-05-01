@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/api/internal/errors"
@@ -63,23 +65,24 @@ func (rec *workHandlerImpl) GetWorks(ctx echo.Context) error {
 }
 
 func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
-	work := new(models.WorkUpload)
-	err := ctx.Bind(work)
+	workId, err := strconv.ParseInt(ctx.Param("workId"), 10, 32)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_INVALID_WORK_SELECTION)
+	}
+
+	body, err := io.ReadAll(ctx.Request().Body)
 	if err != nil {
 		log.Error().Err(err).Msg("Error reading request body")
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC)
 	}
-	if work.WorkId < 1 {
-		log.Error().Err(err).Msg("Empty work selection")
-		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORKS_SELECTION)
-	}
-	if work.Text == "" {
+	text := string(body)
+	if text == "" {
 		log.Error().Err(err).Msg("Empty text")
 		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORK_TEXT)
 	}
 
-	coreModel := mapper.WorkUploadToCoreModel(*work)
-	coreErr := rec.uploadProcessor.Process(ctx.Request().Context(), coreModel)
+	coreErr := rec.uploadProcessor.Process(ctx.Request().Context(), int32(workId), text)
 	if coreErr != nil {
 		log.Error().Err(err).Msgf("Error processing work: %v", err)
 		return errors.CoreError(ctx, coreErr)
