@@ -11,7 +11,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/api/internal/util"
 	"github.com/frhorschig/kant-search-backend/common/model"
 	coreErrs "github.com/frhorschig/kant-search-backend/core/errors"
