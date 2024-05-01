@@ -184,10 +184,7 @@ func testPostWorksBindError(t *testing.T, sut *workHandlerImpl, workProcessor *p
 }
 
 func testPostWorksZeroWorkId(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 0, Text: "text"})
-	if err != nil {
-		t.Fatal(err)
-	}
+	body := []byte("text")
 	// GIVEN
 	req := httptest.NewRequest(echo.GET, "/api/v1/works", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -201,10 +198,7 @@ func testPostWorksZeroWorkId(t *testing.T, sut *workHandlerImpl, workProcessor *
 }
 
 func testPostWorksEmptyText(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 1, Text: ""})
-	if err != nil {
-		t.Fatal(err)
-	}
+	body := []byte("")
 	// GIVEN
 	req := httptest.NewRequest(echo.GET, "/api/v1/works", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -218,10 +212,7 @@ func testPostWorksEmptyText(t *testing.T, sut *workHandlerImpl, workProcessor *p
 }
 
 func testPostWorksProcessError(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 1, Text: "text"})
-	if err != nil {
-		t.Fatal(err)
-	}
+	body := []byte("text")
 	processErr := &coreErrs.Error{
 		Msg:    coreErrs.GO_ERR,
 		Params: []string{"detail"},
@@ -231,7 +222,7 @@ func testPostWorksProcessError(t *testing.T, sut *workHandlerImpl, workProcessor
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(processErr)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(processErr)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
@@ -240,10 +231,7 @@ func testPostWorksProcessError(t *testing.T, sut *workHandlerImpl, workProcessor
 }
 
 func testPostWorksParseError(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 1, Text: "text"})
-	if err != nil {
-		t.Fatal(err)
-	}
+	body := []byte("text")
 	parseErr := &coreErrs.Error{
 		Msg:    coreErrs.WRONG_STARTING_CHAR,
 		Params: []string{string("detail")},
@@ -253,7 +241,7 @@ func testPostWorksParseError(t *testing.T, sut *workHandlerImpl, workProcessor *
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(parseErr)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(parseErr)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
@@ -262,17 +250,14 @@ func testPostWorksParseError(t *testing.T, sut *workHandlerImpl, workProcessor *
 }
 
 func testPostWorksSuccess(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 1, Text: "text"})
-	if err != nil {
-		t.Fatal(err)
-	}
+	body := []byte("text")
 	// GIVEN
 	req := httptest.NewRequest(echo.POST, "/api/v1/works", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
 	ctx.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
