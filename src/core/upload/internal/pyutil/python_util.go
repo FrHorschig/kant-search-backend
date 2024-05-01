@@ -30,7 +30,7 @@ func (util *pythonUtilImpl) SplitIntoSentences(paragraphs []model.Paragraph) (ma
 		return nil, err
 	}
 
-	pyBin := os.Getenv("KSGO_PYTHON_BIN_PATH")
+	pyBin := os.Getenv("KSGO_PYTHON_PATH")
 	if pyBin == "" {
 		pyBin = "src_py"
 	}
