@@ -30,12 +30,12 @@ func (util *pythonUtilImpl) SplitIntoSentences(paragraphs []model.Paragraph) (ma
 		return nil, err
 	}
 
-	pyBin := os.Getenv("KSGO_PYTHON_PATH")
-	if pyBin == "" {
-		pyBin = "src_py"
+	pyPath := os.Getenv("KSGO_PYTHON_PATH")
+	if pyPath == "" {
+		pyPath = "src_py"
 	}
 
-	cmd := exec.Command(pyBin+"/.venv/bin/python3", pyBin+"/split_into_sentences.py")
+	cmd := exec.Command(pyPath+"/.venv/bin/python3", pyPath+"/split_into_sentences.py")
 	cmd.Stdin = bytes.NewReader(inputData)
 	output, err := cmd.Output()
 	if err != nil {
