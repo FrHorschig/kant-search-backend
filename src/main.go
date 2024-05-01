@@ -14,12 +14,12 @@ import (
 )
 
 func initDbConnection() *sql.DB {
-	connStr := "host=" + os.Getenv("DB_HOST") +
-		" port=" + os.Getenv("DB_PORT") +
-		" user=" + os.Getenv("DB_USER") +
-		" password=" + os.Getenv("DB_PASSWORD") +
-		" dbname=" + os.Getenv("DB_NAME") +
-		" sslmode=" + os.Getenv("DB_SSLMODE")
+	connStr := "host=" + os.Getenv("KSDB_HOST") +
+		" port=" + os.Getenv("KSDB_PORT") +
+		" user=" + os.Getenv("KSDB_USER") +
+		" password=" + os.Getenv("KSDB_PASSWORD") +
+		" dbname=" + os.Getenv("KSDB_NAME") +
+		" sslmode=" + os.Getenv("KSDB_SSLMODE")
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -27,12 +27,13 @@ func initDbConnection() *sql.DB {
 	}
 	return db
 }
+
 func initEchoServer() *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: strings.Split(os.Getenv("ALLOW_ORIGINS"), ","),
+		AllowOrigins: strings.Split(os.Getenv("KSGO_ALLOW_ORIGINS"), ","),
 		AllowMethods: []string{echo.GET, echo.POST},
 		AllowHeaders: []string{"*"},
 	}))
@@ -75,5 +76,5 @@ func main() {
 
 	e := initEchoServer()
 	registerHandlers(e, workHandler, paragraphHandler, searchHandler)
-	e.Logger.Fatal(e.StartTLS(":3000", "ssl/server.crt", "ssl/server.key"))
+	e.Logger.Fatal(e.StartTLS(":3000", os.Getenv("KSGO_CERT_PATH"), os.Getenv("KSGO_KEY_PATH")))
 }
