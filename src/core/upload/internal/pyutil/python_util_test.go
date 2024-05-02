@@ -38,7 +38,8 @@ func TestSplitIntoSentences(t *testing.T) {
 		4: {"Das ist ein erster Satz ... der weiter geht.", "Das ist ein zweiter Satz."},
 	}
 	// GIVEN
-	os.Setenv("KSGO_PYTHON_PATH", "../../../../../src_py")
+	os.Setenv("KSGO_PYTHON_BIN_PATH", "../../../../../src_py/.venv/bin/python3")
+	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py/split_into_sentences.py")
 	// WHEN
 	result, err := pyUtil.SplitIntoSentences(paragraphs)
 	// THEN
@@ -46,9 +47,27 @@ func TestSplitIntoSentences(t *testing.T) {
 	assert.Equal(t, expectedResult, result)
 }
 
-func TestSplitIntoSentencesDefaultPath(t *testing.T) {
+func TestSplitIntoSentencesWrongBinPath(t *testing.T) {
 	pyUtil := NewPythonUtil()
-	os.Setenv("KSGO_PYTHON_PATH", "")
+	os.Setenv("KSGO_PYTHON_BIN_PATH", "../")
+	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py/split_into_sentences.py")
+	paragraphs := []model.Paragraph{
+		{
+			Id:   1,
+			Text: "Das ist ein erster Satz. Das ist ein zweiter Satz.",
+		},
+	}
+	// WHEN
+	result, err := pyUtil.SplitIntoSentences(paragraphs)
+	// THEN
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
+}
+
+func TestSplitIntoSentencesWrongScriptPath(t *testing.T) {
+	pyUtil := NewPythonUtil()
+	os.Setenv("KSGO_PYTHON_BIN_PATH", "../../../../../src_py/.venv/bin/python3")
+	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../")
 	paragraphs := []model.Paragraph{
 		{
 			Id:   1,

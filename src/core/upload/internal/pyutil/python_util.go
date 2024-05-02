@@ -5,6 +5,7 @@ package pyutil
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 
@@ -30,16 +31,14 @@ func (util *pythonUtilImpl) SplitIntoSentences(paragraphs []model.Paragraph) (ma
 		return nil, err
 	}
 
-	pyPath := os.Getenv("KSGO_PYTHON_PATH")
-	if pyPath == "" {
-		pyPath = "src_py"
-	}
+	binPath := os.Getenv("KSGO_PYTHON_BIN_PATH")
+	scriptPath := os.Getenv("KSGO_PYTHON_SCRIPT_PATH")
+	cmd := exec.Command(binPath, scriptPath)
 
-	cmd := exec.Command(pyPath+"/.venv/bin/python3", pyPath+"/split_into_sentences.py")
 	cmd.Stdin = bytes.NewReader(inputData)
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error running python script: %v", string(output))
 	}
 
 	sentencesById := make(map[int32][]string)
