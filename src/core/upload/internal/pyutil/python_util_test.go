@@ -39,7 +39,7 @@ func TestSplitIntoSentences(t *testing.T) {
 	}
 	// GIVEN
 	os.Setenv("KSGO_PYTHON_BIN_PATH", "../../../../../src_py/.venv/bin/python3")
-	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py/split_into_sentences.py")
+	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py/split_text.py")
 	// WHEN
 	result, err := pyUtil.SplitIntoSentences(paragraphs)
 	// THEN
@@ -50,7 +50,7 @@ func TestSplitIntoSentences(t *testing.T) {
 func TestSplitIntoSentencesWrongBinPath(t *testing.T) {
 	pyUtil := NewPythonUtil()
 	os.Setenv("KSGO_PYTHON_BIN_PATH", "../")
-	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py/split_into_sentences.py")
+	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py/split_text.py")
 	paragraphs := []model.Paragraph{
 		{
 			Id:   1,
