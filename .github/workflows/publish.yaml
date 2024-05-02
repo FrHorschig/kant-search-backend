@@ -104,5 +104,7 @@ jobs:
         uses: softprops/action-gh-release@v2.0.4
         with:
           tag_name: ${{ needs.create-tag.outputs.new_tag }}
-          files: kant-search-backend
+          files: |
+            kant-search-backend
+            src_py/split_into_sentences.py
           token: ${{ secrets.GITHUB_TOKEN }}
