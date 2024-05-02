@@ -5,13 +5,12 @@ package handlers
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/api/internal/util"
 	"github.com/frhorschig/kant-search-backend/common/model"
 	coreErrs "github.com/frhorschig/kant-search-backend/core/errors"
@@ -52,11 +51,10 @@ func TestWorkHandler(t *testing.T) {
 	}
 
 	for scenario, fn := range map[string]func(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor){
-		"PostWorks bind error":        testPostWorksBindError,
-		"PostWorks zero workId error": testPostWorksZeroWorkId,
-		"PostWorks empty text error":  testPostWorksEmptyText,
-		"PostWorks process error":     testPostWorksProcessError,
-		"PostWorks success":           testPostWorksSuccess,
+		"PostWorks invalid workId error": testPostWorksInvalidWorkId,
+		"PostWorks empty text error":     testPostWorksEmptyText,
+		"PostWorks process error":        testPostWorksProcessError,
+		"PostWorks success":              testPostWorksSuccess,
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t, sut, workProcessor)
@@ -115,9 +113,11 @@ func testSelectWorksDatabaseError(t *testing.T, sut *workHandlerImpl, workRepo *
 	works := []model.Work{}
 	err := errors.New("database error")
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/1", nil)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
+	ctx.SetParamNames("workId")
+	ctx.SetParamValues("1")
 	workRepo.EXPECT().SelectAll(gomock.Any()).Return(works, err)
 	// WHEN
 	sut.GetWorks(ctx)
@@ -129,9 +129,11 @@ func testSelectWorksDatabaseError(t *testing.T, sut *workHandlerImpl, workRepo *
 func testSelectWorksEmptyResult(t *testing.T, sut *workHandlerImpl, workRepo *mocks.MockWorkRepo) {
 	works := []model.Work{}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/1", nil)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
+	ctx.SetParamNames("workId")
+	ctx.SetParamValues("1")
 	workRepo.EXPECT().SelectAll(gomock.Any()).Return(works, nil)
 	// WHEN
 	sut.GetWorks(ctx)
@@ -150,9 +152,11 @@ func testSelectWorksSingleResult(t *testing.T, sut *workHandlerImpl, workRepo *m
 		Volume:       1,
 	}}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/1", nil)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
+	ctx.SetParamNames("workId")
+	ctx.SetParamValues("1")
 	workRepo.EXPECT().SelectAll(gomock.Any()).Return(works, nil)
 	// WHEN
 	sut.GetWorks(ctx)
@@ -166,50 +170,31 @@ func testSelectWorksSingleResult(t *testing.T, sut *workHandlerImpl, workRepo *m
 	assert.Contains(t, res.Body.String(), "volume")
 }
 
-func testPostWorksBindError(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.Volume{Id: 1, Section: 1})
-	if err != nil {
-		t.Fatal(err)
-	}
+func testPostWorksInvalidWorkId(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
+	body := []byte("text")
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works", bytes.NewReader(body))
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/x", bytes.NewReader(body))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
+	ctx.SetParamNames("workId")
+	ctx.SetParamValues("x")
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res, string(models.BAD_REQUEST_EMPTY_WORKS_SELECTION))
-}
-
-func testPostWorksZeroWorkId(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 0, Text: "text"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works", bytes.NewReader(body))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	res := httptest.NewRecorder()
-	ctx := echo.New().NewContext(req, res)
-	// WHEN
-	sut.PostWork(ctx)
-	// THEN
-	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res, string(models.BAD_REQUEST_EMPTY_WORKS_SELECTION))
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_INVALID_WORK_SELECTION))
 }
 
 func testPostWorksEmptyText(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 1, Text: ""})
-	if err != nil {
-		t.Fatal(err)
-	}
+	body := []byte("")
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works", bytes.NewReader(body))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/1", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
+	ctx.SetParamNames("workId")
+	ctx.SetParamValues("1")
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
@@ -218,20 +203,19 @@ func testPostWorksEmptyText(t *testing.T, sut *workHandlerImpl, workProcessor *p
 }
 
 func testPostWorksProcessError(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 1, Text: "text"})
-	if err != nil {
-		t.Fatal(err)
-	}
+	body := []byte("text")
 	processErr := &coreErrs.Error{
 		Msg:    coreErrs.GO_ERR,
 		Params: []string{"detail"},
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/v1/works", bytes.NewReader(body))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req := httptest.NewRequest(echo.POST, "/api/v1/works/1", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(processErr)
+	ctx.SetParamNames("workId")
+	ctx.SetParamValues("1")
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(processErr)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
@@ -240,20 +224,19 @@ func testPostWorksProcessError(t *testing.T, sut *workHandlerImpl, workProcessor
 }
 
 func testPostWorksParseError(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 1, Text: "text"})
-	if err != nil {
-		t.Fatal(err)
-	}
+	body := []byte("text")
 	parseErr := &coreErrs.Error{
 		Msg:    coreErrs.WRONG_STARTING_CHAR,
 		Params: []string{string("detail")},
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/v1/works", bytes.NewReader(body))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req := httptest.NewRequest(echo.POST, "/api/v1/works/1", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(parseErr)
+	ctx.SetParamNames("workId")
+	ctx.SetParamValues("1")
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(parseErr)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN
@@ -262,17 +245,16 @@ func testPostWorksParseError(t *testing.T, sut *workHandlerImpl, workProcessor *
 }
 
 func testPostWorksSuccess(t *testing.T, sut *workHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor) {
-	body, err := json.Marshal(models.WorkUpload{WorkId: 1, Text: "text"})
-	if err != nil {
-		t.Fatal(err)
-	}
+	body := []byte("text")
 	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/v1/works", bytes.NewReader(body))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req := httptest.NewRequest(echo.POST, "/api/v1/works/1", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	ctx.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil)
+	ctx.SetParamNames("workId")
+	ctx.SetParamValues("1")
+	ctx.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
+	workProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 	// WHEN
 	sut.PostWork(ctx)
 	// THEN

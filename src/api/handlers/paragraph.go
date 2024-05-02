@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/api/internal/errors"
 	"github.com/frhorschig/kant-search-backend/api/internal/mapper"
 	repository "github.com/frhorschig/kant-search-backend/database"

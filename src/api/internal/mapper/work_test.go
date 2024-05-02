@@ -6,22 +6,9 @@ package mapper
 import (
 	"testing"
 
-	"github.com/frhorschig/kant-search-api/src/go/models"
 	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestWorkUploadToCoreModel(t *testing.T) {
-	upload := models.WorkUpload{
-		WorkId: 1,
-		Text:   "text",
-	}
-
-	result := WorkUploadToCoreModel(upload)
-
-	assert.Equal(t, result.WorkId, upload.WorkId)
-	assert.Equal(t, result.Text, upload.Text)
-}
 
 func TestWorkToApiModel(t *testing.T) {
 	abbr := "abbr"

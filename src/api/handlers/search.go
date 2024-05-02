@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/api/internal/errors"
 	"github.com/frhorschig/kant-search-backend/api/internal/mapper"
 	"github.com/frhorschig/kant-search-backend/core/search"

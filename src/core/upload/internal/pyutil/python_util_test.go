@@ -38,7 +38,7 @@ func TestSplitIntoSentences(t *testing.T) {
 		4: {"Das ist ein erster Satz ... der weiter geht.", "Das ist ein zweiter Satz."},
 	}
 	// GIVEN
-	os.Setenv("KSGO_PYTHON_BIN_PATH", "../../../../../src_py")
+	os.Setenv("KSGO_PYTHON_PATH", "../../../../../src_py")
 	// WHEN
 	result, err := pyUtil.SplitIntoSentences(paragraphs)
 	// THEN
@@ -48,7 +48,7 @@ func TestSplitIntoSentences(t *testing.T) {
 
 func TestSplitIntoSentencesDefaultPath(t *testing.T) {
 	pyUtil := NewPythonUtil()
-	os.Setenv("KSGO_PYTHON_BIN_PATH", "")
+	os.Setenv("KSGO_PYTHON_PATH", "")
 	paragraphs := []model.Paragraph{
 		{
 			Id:   1,

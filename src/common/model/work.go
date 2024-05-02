@@ -8,8 +8,3 @@ type Work struct {
 	Year         *string
 	Volume       int32
 }
-
-type WorkUpload struct {
-	WorkId int32
-	Text   string
-}

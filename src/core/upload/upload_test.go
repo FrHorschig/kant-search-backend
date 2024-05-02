@@ -35,27 +35,24 @@ func TestWorkUploadProcess(t *testing.T) {
 
 	testCases := []struct {
 		name      string
-		upload    model.WorkUpload
+		workId    int32
+		text      string
 		err       *errors.Error
 		mockCalls func()
 	}{
 		{
-			name: "Transform returns an error",
-			upload: model.WorkUpload{
-				Text:   "test text",
-				WorkId: 3,
-			},
-			err: testErr,
+			name:   "Transform returns an error",
+			text:   "test text",
+			workId: 3,
+			err:    testErr,
 			mockCalls: func() {
 				mockTextMapper.EXPECT().FindParagraphs(gomock.Any(), gomock.Any()).Return([]model.Paragraph{}, testErr)
 			},
 		},
 		{
-			name: "delete sentences returns an error",
-			upload: model.WorkUpload{
-				Text:   "test text",
-				WorkId: 4,
-			},
+			name:   "delete sentences returns an error",
+			text:   "test text",
+			workId: 4,
 			err: &errors.Error{
 				Msg:    errors.GO_ERR,
 				Params: []string{"deleteSentences error"},
@@ -66,11 +63,9 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 		},
 		{
-			name: "delete paragraphs returns an error",
-			upload: model.WorkUpload{
-				Text:   "test text",
-				WorkId: 4,
-			},
+			name:   "delete paragraphs returns an error",
+			text:   "test text",
+			workId: 4,
 			err: &errors.Error{
 				Msg:    errors.GO_ERR,
 				Params: []string{"deleteParagraphs error"},
@@ -82,11 +77,9 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 		},
 		{
-			name: "persistParagraphs returns an error",
-			upload: model.WorkUpload{
-				Text:   "test text",
-				WorkId: 4,
-			},
+			name:   "persistParagraphs returns an error",
+			text:   "test text",
+			workId: 4,
 			err: &errors.Error{
 				Msg:    errors.GO_ERR,
 				Params: []string{"persistParagraphs error"},
@@ -99,12 +92,10 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 		},
 		{
-			name: "FindSentences returns an error",
-			upload: model.WorkUpload{
-				Text:   "test text",
-				WorkId: 5,
-			},
-			err: testErr,
+			name:   "FindSentences returns an error",
+			text:   "test text",
+			workId: 5,
+			err:    testErr,
 			mockCalls: func() {
 				mockTextMapper.EXPECT().FindParagraphs(gomock.Any(), gomock.Any()).Return([]model.Paragraph{{}}, nil)
 				mockSentenceRepo.EXPECT().DeleteByWorkId(gomock.Any(), gomock.Any()).Return(nil)
@@ -114,11 +105,9 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 		},
 		{
-			name: "persistSentences returns an error",
-			upload: model.WorkUpload{
-				Text:   "test text",
-				WorkId: 6,
-			},
+			name:   "persistSentences returns an error",
+			text:   "test text",
+			workId: 6,
 			err: &errors.Error{
 				Msg:    errors.GO_ERR,
 				Params: []string{"persistSentences error"},
@@ -133,11 +122,9 @@ func TestWorkUploadProcess(t *testing.T) {
 			},
 		},
 		{
-			name: "success",
-			upload: model.WorkUpload{
-				Text:   "test text",
-				WorkId: 6,
-			},
+			name:   "success",
+			text:   "test text",
+			workId: 6,
 			mockCalls: func() {
 				mockTextMapper.EXPECT().FindParagraphs(gomock.Any(), gomock.Any()).Return([]model.Paragraph{{}}, nil)
 				mockTextMapper.EXPECT().FindSentences(gomock.Any()).Return([]model.Sentence{{}}, nil)
@@ -152,7 +139,7 @@ func TestWorkUploadProcess(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockCalls()
-			err := processor.Process(ctx, tc.upload)
+			err := processor.Process(ctx, tc.workId, tc.text)
 			assert.Equal(t, tc.err, err)
 		})
 	}

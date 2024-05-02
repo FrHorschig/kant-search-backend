@@ -47,7 +47,7 @@ func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, paragraphH
 	e.GET("/api/v1/works", func(ctx echo.Context) error {
 		return workHandler.GetWorks(ctx)
 	})
-	e.POST("/api/v1/works", func(ctx echo.Context) error {
+	e.POST("/api/v1/works/:workId", func(ctx echo.Context) error {
 		return workHandler.PostWork(ctx)
 	})
 	e.GET("/api/v1/works/:workId/paragraphs", func(ctx echo.Context) error {

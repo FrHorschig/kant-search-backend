@@ -1,17 +1,10 @@
 package mapper
 
 import (
-	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/api/internal/util"
 	"github.com/frhorschig/kant-search-backend/common/model"
 )
-
-func WorkUploadToCoreModel(work models.WorkUpload) model.WorkUpload {
-	return model.WorkUpload{
-		WorkId: work.WorkId,
-		Text:   work.Text,
-	}
-}
 
 func WorksToApiModels(works []model.Work) []models.Work {
 	apiModels := make([]models.Work, 0)
