@@ -84,7 +84,7 @@ func (rec *workHandlerImpl) PostWork(ctx echo.Context) error {
 
 	coreErr := rec.uploadProcessor.Process(ctx.Request().Context(), int32(workId), text)
 	if coreErr != nil {
-		log.Error().Err(err).Msgf("Error processing work: %v", err)
+		log.Error().Str("Msg", string(coreErr.Msg)).Interface("Params", coreErr.Params).Msg("Error processing work")
 		return errors.CoreError(ctx, coreErr)
 	}
 

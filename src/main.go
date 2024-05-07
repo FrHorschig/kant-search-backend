@@ -14,12 +14,12 @@ import (
 )
 
 func initDbConnection() *sql.DB {
-	connStr := "host=" + os.Getenv("KSDB_HOST") +
+	connStr := "host=" + os.Getenv("KSGO_DB_HOST") +
 		" port=" + os.Getenv("KSDB_PORT") +
 		" user=" + os.Getenv("KSDB_USER") +
 		" password=" + os.Getenv("KSDB_PASSWORD") +
 		" dbname=" + os.Getenv("KSDB_NAME") +
-		" sslmode=" + os.Getenv("KSDB_SSLMODE")
+		" sslmode=" + os.Getenv("KSGO_DB_SSLMODE")
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -76,5 +76,9 @@ func main() {
 
 	e := initEchoServer()
 	registerHandlers(e, workHandler, paragraphHandler, searchHandler)
-	e.Logger.Fatal(e.StartTLS(":3000", os.Getenv("KSGO_CERT_PATH"), os.Getenv("KSGO_KEY_PATH")))
+	if os.Getenv("KSGO_DISABLE_SSL") == "true" {
+		e.Logger.Fatal(e.Start(":3000"))
+	} else {
+		e.Logger.Fatal(e.StartTLS(":3000", os.Getenv("KSGO_CERT_PATH"), os.Getenv("KSGO_KEY_PATH")))
+	}
 }
