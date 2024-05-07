@@ -9,9 +9,9 @@ RUN python3 -m venv .venv
 RUN . .venv/bin/activate \
   pip install -U setuptools wheel spacy \
   python -m spacy download en_core_web_sm
-
 COPY src_py/split_text.py .
 ENV KSGO_PYTHON_BIN_PATH=".venv/bin/python3"
 ENV KSGO_PYTHON_SCRIPT_PATH="split_text.py"
 
+EXPOSE 3000
 CMD ["./kant-search-backend"]
