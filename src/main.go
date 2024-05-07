@@ -8,7 +8,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/api/handlers"
 	"github.com/frhorschig/kant-search-backend/core/search"
 	"github.com/frhorschig/kant-search-backend/core/upload"
-	repository "github.com/frhorschig/kant-search-backend/database"
+	"github.com/frhorschig/kant-search-backend/database"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -62,10 +62,10 @@ func main() {
 	db := initDbConnection()
 	defer db.Close()
 
-	volumeRepo := repository.NewVolumeRepo(db)
-	workRepo := repository.NewWorkRepo(db)
-	paragraphRepo := repository.NewParagraphRepo(db)
-	sentenceRepo := repository.NewSentenceRepo(db)
+	volumeRepo := database.NewVolumeRepo(db)
+	workRepo := database.NewWorkRepo(db)
+	paragraphRepo := database.NewParagraphRepo(db)
+	sentenceRepo := database.NewSentenceRepo(db)
 
 	uploadProcessor := upload.NewWorkProcessor(paragraphRepo, sentenceRepo)
 	searchProcessor := search.NewSearchProcessor(paragraphRepo, sentenceRepo)

@@ -7,7 +7,7 @@ import (
 	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/api/internal/errors"
 	"github.com/frhorschig/kant-search-backend/api/internal/mapper"
-	repository "github.com/frhorschig/kant-search-backend/database"
+	"github.com/frhorschig/kant-search-backend/database"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -17,10 +17,10 @@ type ParagraphHandler interface {
 }
 
 type paragraphHandlerImpl struct {
-	paragraphRepo repository.ParagraphRepo
+	paragraphRepo database.ParagraphRepo
 }
 
-func NewParagraphHandler(paragraphRepo repository.ParagraphRepo) ParagraphHandler {
+func NewParagraphHandler(paragraphRepo database.ParagraphRepo) ParagraphHandler {
 	return &paragraphHandlerImpl{paragraphRepo: paragraphRepo}
 }
 

@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/frhorschig/kant-search-backend/common/model"
-	repository "github.com/frhorschig/kant-search-backend/database"
+	"github.com/frhorschig/kant-search-backend/database"
 )
 
 type SearchProcessor interface {
@@ -14,11 +14,11 @@ type SearchProcessor interface {
 }
 
 type searchProcessorImpl struct {
-	paragraphRepo repository.ParagraphRepo
-	sentenceRepo  repository.SentenceRepo
+	paragraphRepo database.ParagraphRepo
+	sentenceRepo  database.SentenceRepo
 }
 
-func NewSearchProcessor(paragraphRepo repository.ParagraphRepo, sentenceRepo repository.SentenceRepo) SearchProcessor {
+func NewSearchProcessor(paragraphRepo database.ParagraphRepo, sentenceRepo database.SentenceRepo) SearchProcessor {
 	impl := searchProcessorImpl{paragraphRepo: paragraphRepo, sentenceRepo: sentenceRepo}
 	return &impl
 }

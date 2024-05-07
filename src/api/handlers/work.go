@@ -8,8 +8,8 @@ import (
 	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/api/internal/errors"
 	"github.com/frhorschig/kant-search-backend/api/internal/mapper"
-	processing "github.com/frhorschig/kant-search-backend/core/upload"
-	repository "github.com/frhorschig/kant-search-backend/database"
+	"github.com/frhorschig/kant-search-backend/core/upload"
+	"github.com/frhorschig/kant-search-backend/database"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -21,12 +21,12 @@ type WorkHandler interface {
 }
 
 type workHandlerImpl struct {
-	volumeRepo      repository.VolumeRepo
-	workRepo        repository.WorkRepo
-	uploadProcessor processing.WorkUploadProcessor
+	volumeRepo      database.VolumeRepo
+	workRepo        database.WorkRepo
+	uploadProcessor upload.WorkUploadProcessor
 }
 
-func NewWorkHandler(volumeRepo repository.VolumeRepo, workRepo repository.WorkRepo, uploadProcessor processing.WorkUploadProcessor) WorkHandler {
+func NewWorkHandler(volumeRepo database.VolumeRepo, workRepo database.WorkRepo, uploadProcessor upload.WorkUploadProcessor) WorkHandler {
 	return &workHandlerImpl{
 		volumeRepo:      volumeRepo,
 		workRepo:        workRepo,
