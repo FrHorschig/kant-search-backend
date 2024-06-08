@@ -3,4 +3,5 @@ kant-search-backend
 .venv/
 mocks
 coverage.out
+**/.sonar
 **/.scannerwork
