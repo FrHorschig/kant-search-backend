@@ -4,7 +4,7 @@ This is the Go backend for the kant-search project. It reads and writes frontend
 
 ## Contributing
 
-If you want to improve this OpenAPI specification, feel free to open a pull request. Make sure to explain any deviation from existing code conventions.
+If you want to improve this codebase or add a feature, feel free to open a pull request. Make sure to explain any deviation from existing code conventions.
 
 ## Installation
 
