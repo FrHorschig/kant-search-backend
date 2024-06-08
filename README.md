@@ -1,6 +1,10 @@
 # KantSearchBackend
 
-This is the Go backend for the kant-search project. It reads and writes frontend data to and from a PostgreSQL database. The Go application uses the `spacy` library in a python script for splitting texts into sentences.
+This is the Go backend for the kant-search project. It reads and writes frontend data to and from a PostgreSQL database. The application uses the `spacy` python library for splitting texts into sentences.
+
+## Contributing
+
+If you want to improve this OpenAPI specification, feel free to open a pull request. Make sure to explain any deviation from existing code conventions.
 
 ## Installation
 
@@ -12,11 +16,11 @@ This is the Go backend for the kant-search project. It reads and writes frontend
 ```bash
 docker run -d \
   -v /path/to/local/ssl/files:/ssl \
-  -e KSGO_CERT_PATH='/ssl/cert-file.pem' \
-  -e KSGO_KEY_PATH='/ssl/key-file.pem' \
+  -e KSGO_CERT_PATH='/ssl/<my-cert-name>.pem' \
+  -e KSGO_KEY_PATH='/ssl/<my-key-name>.pem' \
   # ... more environment variables
   -p 3000:3000
-  --name ks-backend \
+  --name ks-go \
   frhorschig/kant-search-backend
 ```
 
@@ -43,4 +47,4 @@ docker run -d \
 
 ## Development setup
 
-Refer to the [parent project](https://github.com/FrHorschig/kant-search) for information about the development setup.
+Refer to the [parent project](https://github.com/FrHorschig/kant-search) for a general overview and scripts for helping with the development setup, including a script to start the backend locally together with the database and the frontend.
