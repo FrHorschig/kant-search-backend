@@ -95,4 +95,5 @@ jobs:
           files: |
             kant-search-backend
             src_py/split_text.py
+            deployment/env.sh
           token: ${{ secrets.GITHUB_TOKEN }}
