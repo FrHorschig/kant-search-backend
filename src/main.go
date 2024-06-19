@@ -30,6 +30,9 @@ func initDbConnection() *sql.DB {
 
 func initEchoServer() *echo.Echo {
 	e := echo.New()
+	if !(os.Getenv("KSGO_DISABLE_SSL") == "true") {
+		e.Pre(middleware.HTTPSRedirect())
+	}
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
