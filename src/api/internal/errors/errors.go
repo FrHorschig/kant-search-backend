@@ -54,10 +54,10 @@ func mapCoreEnum(err errors.ErrMsg) models.ErrorMessage {
 		return models.INTERNAL_SERVER_ERROR
 
 	// search term parsing
-	case errors.WRONG_STARTING_CHAR:
-		return models.BAD_REQUEST_SYNTAX_WRONG_STARTING_CHAR
 	case errors.UNEXPECTED_TOKEN:
 		return models.BAD_REQUEST_SYNTAX_UNEXPECTED_TOKEN
+	case errors.WRONG_STARTING_CHAR:
+		return models.BAD_REQUEST_SYNTAX_WRONG_STARTING_CHAR
 	case errors.WRONG_ENDING_CHAR:
 		return models.BAD_REQUEST_SYNTAX_WRONG_ENDING_CHAR
 	case errors.UNEXPECTED_END_OF_INPUT:
@@ -70,12 +70,12 @@ func mapCoreEnum(err errors.ErrMsg) models.ErrorMessage {
 	// kantf parsing
 	case errors.UPLOAD_GO_ERR:
 		return models.INTERNAL_SERVER_ERROR
-	case errors.UPLOAD_WRONG_STARTING_CHAR:
-		return models.BAD_REQUEST_UPLOAD_WRONG_STARTING_CHAR
 	case errors.MISSING_EXPR_TYPE:
 		return models.BAD_REQUEST_UPLOAD_MISSING_EXPR_TYPE
 	case errors.MISSING_CLOSING_BRACE:
 		return models.BAD_REQUEST_UPLOAD_MISSING_CLOSING_BRACE
+	case errors.UPLOAD_WRONG_STARTING_CHAR:
+		return models.BAD_REQUEST_UPLOAD_WRONG_STARTING_CHAR
 	case errors.WRONG_START_EXPRESSION:
 		return models.BAD_REQUEST_UPLOAD_WRONG_START_EXPRESSION
 	case errors.WRONG_END_EXPRESSION:
