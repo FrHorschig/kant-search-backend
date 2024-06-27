@@ -57,14 +57,14 @@ func deleteExistingData(ctx context.Context, sentenceRepo database.SentenceRepo,
 	err := sentenceRepo.DeleteByWorkId(ctx, workId)
 	if err != nil {
 		return &errors.Error{
-			Msg:    errors.GO_ERR,
+			Msg:    errors.UPLOAD_GO_ERR,
 			Params: []string{err.Error()},
 		}
 	}
 	err = paragraphRepo.DeleteByWorkId(ctx, workId)
 	if err != nil {
 		return &errors.Error{
-			Msg:    errors.GO_ERR,
+			Msg:    errors.UPLOAD_GO_ERR,
 			Params: []string{err.Error()},
 		}
 	}
@@ -77,7 +77,7 @@ func persistParagraphs(ctx context.Context, repo database.ParagraphRepo, paragra
 		pId, err := repo.Insert(ctx, p)
 		if err != nil {
 			return &errors.Error{
-				Msg:    errors.GO_ERR,
+				Msg:    errors.UPLOAD_GO_ERR,
 				Params: []string{err.Error()},
 			}
 		}
@@ -90,7 +90,7 @@ func persistSentences(ctx context.Context, repo database.SentenceRepo, sentences
 	_, err := repo.Insert(ctx, sentences)
 	if err != nil {
 		return &errors.Error{
-			Msg:    errors.GO_ERR,
+			Msg:    errors.UPLOAD_GO_ERR,
 			Params: []string{err.Error()},
 		}
 	}

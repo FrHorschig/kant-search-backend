@@ -57,7 +57,7 @@ func TestFindSentencesPyUtilError(t *testing.T) {
 		{Id: 1, Text: "Das ist ein erster Satz. Das ist ein zweiter Satz!"},
 	}
 	expected := &errors.Error{
-		Msg:    errors.GO_ERR,
+		Msg:    errors.UPLOAD_GO_ERR,
 		Params: []string{"error"},
 	}
 

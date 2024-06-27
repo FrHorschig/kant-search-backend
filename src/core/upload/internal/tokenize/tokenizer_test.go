@@ -97,7 +97,7 @@ func TestTokenize(t *testing.T) {
 			in:   "}paragraph|some text}",
 			out:  nil,
 			err: &errors.Error{
-				Msg:    errors.WRONG_STARTING_CHAR,
+				Msg:    errors.UPLOAD_WRONG_STARTING_CHAR,
 				Params: []string{"}"},
 			},
 		},

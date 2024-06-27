@@ -29,7 +29,7 @@ func TestWorkUploadProcess(t *testing.T) {
 
 	ctx := context.Background()
 	testErr := &errors.Error{
-		Msg:    errors.GO_ERR,
+		Msg:    errors.UPLOAD_GO_ERR,
 		Params: nil,
 	}
 
@@ -54,7 +54,7 @@ func TestWorkUploadProcess(t *testing.T) {
 			text:   "test text",
 			workId: 4,
 			err: &errors.Error{
-				Msg:    errors.GO_ERR,
+				Msg:    errors.UPLOAD_GO_ERR,
 				Params: []string{"deleteSentences error"},
 			},
 			mockCalls: func() {
@@ -67,7 +67,7 @@ func TestWorkUploadProcess(t *testing.T) {
 			text:   "test text",
 			workId: 4,
 			err: &errors.Error{
-				Msg:    errors.GO_ERR,
+				Msg:    errors.UPLOAD_GO_ERR,
 				Params: []string{"deleteParagraphs error"},
 			},
 			mockCalls: func() {
@@ -81,7 +81,7 @@ func TestWorkUploadProcess(t *testing.T) {
 			text:   "test text",
 			workId: 4,
 			err: &errors.Error{
-				Msg:    errors.GO_ERR,
+				Msg:    errors.UPLOAD_GO_ERR,
 				Params: []string{"persistParagraphs error"},
 			},
 			mockCalls: func() {
@@ -109,7 +109,7 @@ func TestWorkUploadProcess(t *testing.T) {
 			text:   "test text",
 			workId: 6,
 			err: &errors.Error{
-				Msg:    errors.GO_ERR,
+				Msg:    errors.UPLOAD_GO_ERR,
 				Params: []string{"persistSentences error"},
 			},
 			mockCalls: func() {

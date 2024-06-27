@@ -8,11 +8,9 @@ type Error struct {
 type ErrMsg string
 
 const (
-	// common
+	// search term parsing
 	GO_ERR              ErrMsg = "GO_ERR" // for normal `error` errors
 	WRONG_STARTING_CHAR ErrMsg = "WRONG_STARTING_CHAR"
-
-	// search term parsing
 	UNEXPECTED_TOKEN            ErrMsg = "UNEXPECTED_TOKEN"
 	WRONG_ENDING_CHAR           ErrMsg = "WRONG_ENDING_CHAR"
 	UNEXPECTED_END_OF_INPUT     ErrMsg = "UNEXPECTED_END_OF_INPUT"
@@ -20,6 +18,8 @@ const (
 	UNTERMINATED_DOUBLE_QUOTE   ErrMsg = "UNTERMINATED_DOUBLE_QUOTE"
 
 	// kantf parsing
+	UPLOAD_GO_ERR              ErrMsg = "GO_ERR" // for normal `error` errors
+	UPLOAD_WRONG_STARTING_CHAR ErrMsg = "WRONG_STARTING_CHAR"
 	MISSING_EXPR_TYPE        ErrMsg = "MISSING_EXPR_TYPE"
 	MISSING_CLOSING_BRACE    ErrMsg = "MISSING_CLOSING_BRACE"
 	WRONG_START_EXPRESSION   ErrMsg = "WRONG_START_EXPRESSION"

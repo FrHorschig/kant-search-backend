@@ -12,7 +12,7 @@ func Tokenize(input string) ([]c.Token, *errors.Error) {
 	input = strings.TrimSpace(input)
 	if input[0] != '{' {
 		return nil, &errors.Error{
-			Msg:    errors.WRONG_STARTING_CHAR,
+			Msg:    errors.UPLOAD_WRONG_STARTING_CHAR,
 			Params: []string{string(input[0])},
 		}
 	}

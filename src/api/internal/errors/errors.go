@@ -50,13 +50,12 @@ func NotImplemented(ctx echo.Context, msg string) error {
 
 func mapCoreEnum(err errors.ErrMsg) models.ErrorMessage {
 	switch err {
-	// common
 	case errors.GO_ERR:
 		return models.INTERNAL_SERVER_ERROR
-	case errors.WRONG_STARTING_CHAR:
-		return models.BAD_REQUEST_COMMON_WRONG_STARTING_CHAR
 
 	// search term parsing
+	case errors.WRONG_STARTING_CHAR:
+		return models.BAD_REQUEST_SYNTAX_WRONG_STARTING_CHAR
 	case errors.UNEXPECTED_TOKEN:
 		return models.BAD_REQUEST_SYNTAX_UNEXPECTED_TOKEN
 	case errors.WRONG_ENDING_CHAR:
@@ -69,6 +68,10 @@ func mapCoreEnum(err errors.ErrMsg) models.ErrorMessage {
 		return models.BAD_REQUEST_SYNTAX_UNTERMINATED_DOUBLE_QUOTE
 
 	// kantf parsing
+	case errors.UPLOAD_GO_ERR:
+		return models.INTERNAL_SERVER_ERROR
+	case errors.UPLOAD_WRONG_STARTING_CHAR:
+		return models.BAD_REQUEST_UPLOAD_WRONG_STARTING_CHAR
 	case errors.MISSING_EXPR_TYPE:
 		return models.BAD_REQUEST_UPLOAD_MISSING_EXPR_TYPE
 	case errors.MISSING_CLOSING_BRACE:
@@ -79,6 +82,7 @@ func mapCoreEnum(err errors.ErrMsg) models.ErrorMessage {
 		return models.BAD_REQUEST_UPLOAD_WRONG_END_EXPRESSION
 	case errors.UNKNOWN_EXPRESSION_CLASS:
 		return models.BAD_REQUEST_UPLOAD_UNKNOWN_EXPRESSION_CLASS
+
 	default:
 		return models.BAD_REQUEST_GENERIC
 	}

@@ -18,7 +18,7 @@ func FindSentences(paragraphs []model.Paragraph, pyUtil pyutil.PythonUtil) ([]mo
 	sentencesByParagraphId, err := pyUtil.SplitIntoSentences(paragraphs)
 	if err != nil {
 		return nil, &errors.Error{
-			Msg:    errors.GO_ERR,
+			Msg:    errors.UPLOAD_GO_ERR,
 			Params: []string{err.Error()},
 		}
 	}
