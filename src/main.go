@@ -44,20 +44,21 @@ func initEchoServer() *echo.Echo {
 }
 
 func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, paragraphHandler handlers.ParagraphHandler, searchHandler handlers.SearchHandler) {
-	e.GET("/api/v1/volumes", func(ctx echo.Context) error {
+	e.GET("/api/read/v1/volumes", func(ctx echo.Context) error {
 		return workHandler.GetVolumes(ctx)
 	})
-	e.GET("/api/v1/works", func(ctx echo.Context) error {
+	e.GET("/api/read/v1/works", func(ctx echo.Context) error {
 		return workHandler.GetWorks(ctx)
 	})
-	e.POST("/api/v1/works/:workId", func(ctx echo.Context) error {
-		return workHandler.PostWork(ctx)
-	})
-	e.GET("/api/v1/works/:workId/paragraphs", func(ctx echo.Context) error {
+	e.GET("/api/read/v1/works/:workId/paragraphs", func(ctx echo.Context) error {
 		return paragraphHandler.GetParagraphs(ctx)
 	})
-	e.POST("/api/v1/search", func(ctx echo.Context) error {
+	e.POST("/api/read/v1/search", func(ctx echo.Context) error {
 		return searchHandler.Search(ctx)
+	})
+
+	e.POST("/api/write/v1/works/:workId", func(ctx echo.Context) error {
+		return workHandler.PostWork(ctx)
 	})
 }
 
