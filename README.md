@@ -1,6 +1,8 @@
 # KantSearchBackend
 
-This is the Go backend for the kant-search project. It reads and writes frontend data to and from a PostgreSQL database. The application uses the `spacy` python library for splitting texts into sentences.
+This is the Go backend for the kant-search project. It reads frontend data from a PostgreSQL database.
+
+This backend also implements the endpoint for uploading data and writing it to the PostgreSQL database. This corresponding code will be moved to a separate repository in the future.
 
 ## Contributing
 
