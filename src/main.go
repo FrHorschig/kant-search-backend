@@ -43,7 +43,7 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, paragraphHandler handlers.ParagraphHandler, searchHandler handlers.SearchHandler) {
+func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, paragraphHandler handlers.ParagraphHandler, searchHandler handlers.SearchHandler, uploadHandler handlers.UploadHandler) {
 	e.GET("/api/read/v1/volumes", func(ctx echo.Context) error {
 		return workHandler.GetVolumes(ctx)
 	})
@@ -58,7 +58,7 @@ func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, paragraphH
 	})
 
 	e.POST("/api/write/v1/works/:workId", func(ctx echo.Context) error {
-		return workHandler.PostWork(ctx)
+		return uploadHandler.PostWork(ctx)
 	})
 }
 
@@ -74,12 +74,13 @@ func main() {
 	uploadProcessor := upload.NewWorkProcessor(paragraphRepo, sentenceRepo)
 	searchProcessor := search.NewSearchProcessor(paragraphRepo, sentenceRepo)
 
-	workHandler := handlers.NewWorkHandler(volumeRepo, workRepo, uploadProcessor)
+	workHandler := handlers.NewWorkHandler(volumeRepo, workRepo)
 	paragraphHandler := handlers.NewParagraphHandler(paragraphRepo)
 	searchHandler := handlers.NewSearchHandler(searchProcessor)
+	uploadHandler := handlers.NewUploadHandler(workRepo, uploadProcessor)
 
 	e := initEchoServer()
-	registerHandlers(e, workHandler, paragraphHandler, searchHandler)
+	registerHandlers(e, workHandler, paragraphHandler, searchHandler, uploadHandler)
 	if os.Getenv("KSGO_DISABLE_SSL") == "true" {
 		e.Logger.Fatal(e.Start(":3000"))
 	} else {

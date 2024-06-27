@@ -27,6 +27,14 @@ func CoreError(ctx echo.Context, err *errors.Error) error {
 	})
 }
 
+func UploadError(ctx echo.Context, err *errors.Error) error {
+	code := http.StatusBadRequest
+	if err.Msg == errors.GO_ERR {
+		code = http.StatusInternalServerError
+	}
+	return ctx.JSON(code, mapUploadError(err.Msg))
+}
+
 func BadRequest(ctx echo.Context, err models.ErrorMessage) error {
 	return ctx.JSON(http.StatusBadRequest, models.HttpError{
 		Code:    http.StatusBadRequest,
@@ -67,23 +75,28 @@ func mapCoreEnum(err errors.ErrMsg) models.ErrorMessage {
 	case errors.UNTERMINATED_DOUBLE_QUOTE:
 		return models.BAD_REQUEST_SYNTAX_UNTERMINATED_DOUBLE_QUOTE
 
-	// kantf parsing
-	case errors.UPLOAD_GO_ERR:
-		return models.INTERNAL_SERVER_ERROR
-	case errors.MISSING_EXPR_TYPE:
-		return models.BAD_REQUEST_UPLOAD_MISSING_EXPR_TYPE
-	case errors.MISSING_CLOSING_BRACE:
-		return models.BAD_REQUEST_UPLOAD_MISSING_CLOSING_BRACE
-	case errors.UPLOAD_WRONG_STARTING_CHAR:
-		return models.BAD_REQUEST_UPLOAD_WRONG_STARTING_CHAR
-	case errors.WRONG_START_EXPRESSION:
-		return models.BAD_REQUEST_UPLOAD_WRONG_START_EXPRESSION
-	case errors.WRONG_END_EXPRESSION:
-		return models.BAD_REQUEST_UPLOAD_WRONG_END_EXPRESSION
-	case errors.UNKNOWN_EXPRESSION_CLASS:
-		return models.BAD_REQUEST_UPLOAD_UNKNOWN_EXPRESSION_CLASS
-
 	default:
 		return models.BAD_REQUEST_GENERIC
+	}
+}
+
+func mapUploadError(err errors.ErrMsg) string {
+	switch err {
+	case errors.UPLOAD_GO_ERR:
+		return "INTERNAL_SERVER_ERROR"
+	case errors.MISSING_EXPR_TYPE:
+		return "MISSING_EXPR_TYPE"
+	case errors.MISSING_CLOSING_BRACE:
+		return "MISSING_CLOSING_BRACE"
+	case errors.UPLOAD_WRONG_STARTING_CHAR:
+		return "BAD_REQUEST_UPLOAD_WRONG_STARTING_CHAR"
+	case errors.WRONG_START_EXPRESSION:
+		return "BAD_REQUEST_UPLOAD_WRONG_START_EXPRESSION"
+	case errors.WRONG_END_EXPRESSION:
+		return "BAD_REQUEST_UPLOAD_WRONG_END_EXPRESSION"
+	case errors.UNKNOWN_EXPRESSION_CLASS:
+		return "UNKNOWN_EXPRESSION_CLASS"
+	default:
+		return "BAD_REQUEST.GENERIC"
 	}
 }

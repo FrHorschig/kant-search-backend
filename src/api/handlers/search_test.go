@@ -106,7 +106,7 @@ func testSearchSyntaxError(t *testing.T, sut *searchHandlerImpl, searchProcessor
 	sut.Search(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assertErrorResponse(t, res, string(models.BAD_REQUEST_COMMON_WRONG_STARTING_CHAR))
+	assertErrorResponse(t, res, string(models.BAD_REQUEST_SYNTAX_WRONG_STARTING_CHAR))
 }
 
 func testSearchDatabaseError(t *testing.T, sut *searchHandlerImpl, searchProcessor *mocks.MockSearchProcessor) {
