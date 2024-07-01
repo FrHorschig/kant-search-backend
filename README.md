@@ -2,7 +2,7 @@
 
 This is the Go backend for the kant-search project. It reads frontend data from a PostgreSQL database.
 
-This backend also implements the endpoint for uploading data and writing it to the PostgreSQL database. This corresponding code will be moved to a separate repository in the future.
+This backend also implements the endpoint for uploading data and writing it to the PostgreSQL database. This corresponding code will be separated more clearly from the read and search code in the future.
 
 ## Contributing
 
