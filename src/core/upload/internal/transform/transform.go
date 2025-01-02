@@ -3,6 +3,7 @@ package transform
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/errors"
@@ -83,7 +84,7 @@ func createParagraph(
 ) (model.Paragraph, *errors.Error) {
 	par := model.Paragraph{
 		// TODO frhorsch: here we "just know" that content exists, fix when improving EBNF spec
-		Text:   *e.Content,
+		Text:   strings.TrimSpace(*e.Content),
 		Pages:  []int32{pn},
 		WorkId: workId,
 	}
