@@ -7,19 +7,11 @@ import (
 
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
 	"github.com/frhorschig/kant-search-backend/core/upload/model/abt1"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/abt2"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/abt31"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/abt32"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/vol14"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
 )
 
 type VolumeUploadProcessor interface {
-	ProcessAbt1(ctx context.Context, volNum int32, vol abt1.Band) error
-	ProcessAbt2(ctx context.Context, volNum int32, vol abt2.Band) error
-	ProcessVol14(ctx context.Context, volNum int32, vol vol14.Band) error
-	ProcessAbt31(ctx context.Context, volNum int32, vol abt31.Band) error
-	ProcessAbt32(ctx context.Context, volNum int32, vol abt32.Band) error
+	ProcessAbt1(ctx context.Context, volNum int32, vol abt1.Kantabt1) error
 }
 
 type volumeUploadProcessorImpl struct {
@@ -37,22 +29,6 @@ func NewVolumeProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dat
 	return &processor
 }
 
-func (rec *volumeUploadProcessorImpl) ProcessAbt1(ctx context.Context, volNum int32, vol abt1.Band) error {
-	return nil
-}
-
-func (rec *volumeUploadProcessorImpl) ProcessAbt2(ctx context.Context, volNum int32, vol abt2.Band) error {
-	return nil
-}
-
-func (rec *volumeUploadProcessorImpl) ProcessVol14(ctx context.Context, volNum int32, vol vol14.Band) error {
-	return nil
-}
-
-func (rec *volumeUploadProcessorImpl) ProcessAbt31(ctx context.Context, volNum int32, vol abt31.Band) error {
-	return nil
-}
-
-func (rec *volumeUploadProcessorImpl) ProcessAbt32(ctx context.Context, volNum int32, vol abt32.Band) error {
+func (rec *volumeUploadProcessorImpl) ProcessAbt1(ctx context.Context, volNum int32, vol abt1.Kantabt1) error {
 	return nil
 }
