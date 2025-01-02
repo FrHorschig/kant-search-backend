@@ -1,7 +1,6 @@
 package search
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/frhorschig/kant-search-api/generated/go/models"
@@ -45,7 +44,7 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 
 	searchString, e := validation.CheckSyntax(c.SearchString)
 	if e != nil {
-		log.Error().Msgf(fmt.Sprintf("Syntax error in search string: %s", e.Msg))
+		log.Error().Msgf("Syntax error in search string: %s", e.Msg)
 		return errors.CoreError(ctx, e)
 	}
 	c.SearchString = searchString
