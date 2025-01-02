@@ -16,10 +16,12 @@ import (
 
 func TestVolumeUploadProcess(t *testing.T) {
 	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	mockXmlMapper := mocks.NewMockXmlMapper(ctrl)
 	mockParagraphRepo := dbMocks.NewMockParagraphRepo(ctrl)
 	mockSentenceRepo := dbMocks.NewMockSentenceRepo(ctrl)
-	processor := &volumeUploadProcessorImpl{
+	sut := &volumeUploadProcessorImpl{
 		xmlMapper:     mockXmlMapper,
 		paragraphRepo: mockParagraphRepo,
 		sentenceRepo:  mockSentenceRepo,
@@ -46,7 +48,7 @@ func TestVolumeUploadProcess(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockCalls()
-			err := processor.ProcessAbt1(ctx, tc.volNum, tc.xml)
+			err := sut.ProcessAbt1(ctx, tc.volNum, tc.xml)
 			assert.Equal(t, tc.err, err)
 		})
 	}

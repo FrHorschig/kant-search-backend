@@ -44,28 +44,21 @@ func (rec *uploadHandlerImpl) PostVolume(ctx echo.Context) error {
 
 	switch {
 	case volNum >= 1 && volNum <= 9:
-		return rec.processVolume(ctx, volNum, body, func(vol interface{}) error {
-			return rec.volumeProcessor.ProcessAbt1(ctx.Request().Context(), int32(volNum), vol.(abt1.Kantabt1))
-		})
+		var vol abt1.Kantabt1
+		err := xml.Unmarshal(body, &vol)
+		if err != nil {
+			msg := fmt.Sprintf("Error unmarshaling request body: %v", err.Error())
+			log.Error().Err(err).Msg(msg)
+			return errors.BadRequest(ctx, msg)
+		}
+		if err := rec.volumeProcessor.ProcessAbt1(ctx.Request().Context(), int32(volNum), vol); err != nil {
+			msg := fmt.Sprintf("Error processing XML data for volume %d: %v", volNum, err.Error())
+			log.Error().Err(err).Msg(msg)
+			return errors.BadRequest(ctx, msg)
+		}
 	default:
 		msg := "Uploading volumes greater than 9 is not yet implemented"
 		log.Error().Msg(msg)
-		return errors.BadRequest(ctx, msg)
-	}
-}
-
-func (rec *uploadHandlerImpl) processVolume(ctx echo.Context, volNum int64, body []byte, processFunc func(interface{}) error) error {
-	var vol interface{}
-	err := xml.Unmarshal(body, &vol)
-	if err != nil {
-		msg := fmt.Sprintf("Error unmarshaling request body: %v", err.Error())
-		log.Error().Err(err).Msg(msg)
-		return errors.BadRequest(ctx, msg)
-	}
-
-	if err := processFunc(vol); err != nil {
-		msg := fmt.Sprintf("Error processing XML data for volume %d: %v", volNum, err.Error())
-		log.Error().Err(err).Msg(msg)
 		return errors.BadRequest(ctx, msg)
 	}
 
