@@ -7,13 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/frhorschig/kant-search-backend/api/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload"
-	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/model/abt1"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/abt2"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/abt31"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/abt32"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/vol14"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -49,27 +45,10 @@ func (rec *uploadHandlerImpl) PostVolume(ctx echo.Context) error {
 	switch {
 	case volNum >= 1 && volNum <= 9:
 		return rec.processVolume(ctx, volNum, body, func(vol interface{}) error {
-			return rec.volumeProcessor.ProcessAbt1(ctx.Request().Context(), int32(volNum), vol.(abt1.Band))
-		})
-	case volNum >= 10 && volNum <= 13:
-		return rec.processVolume(ctx, volNum, body, func(vol interface{}) error {
-			return rec.volumeProcessor.ProcessAbt2(ctx.Request().Context(), int32(volNum), vol.(abt2.Band))
-		})
-	case volNum == 14:
-		return rec.processVolume(ctx, volNum, body, func(vol interface{}) error {
-			return rec.volumeProcessor.ProcessVol14(ctx.Request().Context(), int32(volNum), vol.(vol14.Band))
-		})
-
-	case volNum >= 15 && volNum <= 19:
-		return rec.processVolume(ctx, volNum, body, func(vol interface{}) error {
-			return rec.volumeProcessor.ProcessAbt31(ctx.Request().Context(), int32(volNum), vol.(abt31.Band))
-		})
-	case volNum >= 20 && volNum <= 23:
-		return rec.processVolume(ctx, volNum, body, func(vol interface{}) error {
-			return rec.volumeProcessor.ProcessAbt32(ctx.Request().Context(), int32(volNum), vol.(abt32.Band))
+			return rec.volumeProcessor.ProcessAbt1(ctx.Request().Context(), int32(volNum), vol.(abt1.Kantabt1))
 		})
 	default:
-		msg := "The volume number must be a number from 1 to 23"
+		msg := "Uploading volumes greater than 9 is not yet implemented"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, msg)
 	}
