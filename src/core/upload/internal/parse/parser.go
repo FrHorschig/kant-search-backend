@@ -3,7 +3,7 @@ package parse
 import (
 	"regexp"
 
-	"github.com/frhorschig/kant-search-backend/core/errors"
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	c "github.com/frhorschig/kant-search-backend/core/upload/internal/common"
 )
 

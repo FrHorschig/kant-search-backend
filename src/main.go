@@ -5,10 +5,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/frhorschig/kant-search-backend/api/handlers"
+	"github.com/frhorschig/kant-search-backend/api/read"
+	apisearch "github.com/frhorschig/kant-search-backend/api/search"
+	apiupload "github.com/frhorschig/kant-search-backend/api/upload"
 	"github.com/frhorschig/kant-search-backend/core/search"
 	"github.com/frhorschig/kant-search-backend/core/upload"
-	"github.com/frhorschig/kant-search-backend/database"
+	database "github.com/frhorschig/kant-search-backend/dataaccess"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -43,7 +45,7 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerHandlers(e *echo.Echo, workHandler handlers.WorkHandler, paragraphHandler handlers.ParagraphHandler, searchHandler handlers.SearchHandler, uploadHandler handlers.UploadHandler) {
+func registerHandlers(e *echo.Echo, workHandler read.WorkHandler, paragraphHandler read.ParagraphHandler, searchHandler apisearch.SearchHandler, uploadHandler apiupload.UploadHandler) {
 	e.GET("/api/read/v1/volumes", func(ctx echo.Context) error {
 		return workHandler.GetVolumes(ctx)
 	})
@@ -74,10 +76,10 @@ func main() {
 	uploadProcessor := upload.NewWorkProcessor(paragraphRepo, sentenceRepo)
 	searchProcessor := search.NewSearchProcessor(paragraphRepo, sentenceRepo)
 
-	workHandler := handlers.NewWorkHandler(volumeRepo, workRepo)
-	paragraphHandler := handlers.NewParagraphHandler(paragraphRepo)
-	searchHandler := handlers.NewSearchHandler(searchProcessor)
-	uploadHandler := handlers.NewUploadHandler(workRepo, uploadProcessor)
+	workHandler := read.NewWorkHandler(volumeRepo, workRepo)
+	paragraphHandler := read.NewParagraphHandler(paragraphRepo)
+	searchHandler := apisearch.NewSearchHandler(searchProcessor)
+	uploadHandler := apiupload.NewUploadHandler(workRepo, uploadProcessor)
 
 	e := initEchoServer()
 	registerHandlers(e, workHandler, paragraphHandler, searchHandler, uploadHandler)

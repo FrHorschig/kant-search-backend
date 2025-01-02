@@ -3,8 +3,8 @@ package internal
 //go:generate mockgen -source=$GOFILE -destination=mocks/text_mapper_mock.go -package=mocks
 
 import (
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/common/model"
-	"github.com/frhorschig/kant-search-backend/core/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/parse"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/tokenize"
