@@ -59,9 +59,6 @@ func registerHandlers(e *echo.Echo, workHandler read.WorkHandler, paragraphHandl
 		return searchHandler.Search(ctx)
 	})
 
-	e.POST("/api/write/v1/works/:workId", func(ctx echo.Context) error {
-		return uploadHandler.PostWork(ctx)
-	})
 	e.POST("/api/write/v1/volumes/:volumeNumber", func(ctx echo.Context) error {
 		return uploadHandler.PostVolume(ctx)
 	})
@@ -76,14 +73,13 @@ func main() {
 	paragraphRepo := database.NewParagraphRepo(db)
 	sentenceRepo := database.NewSentenceRepo(db)
 
-	workProcessor := upload.NewWorkProcessor(paragraphRepo, sentenceRepo)
 	volumeProcessor := upload.NewVolumeProcessor(paragraphRepo, sentenceRepo)
 	searchProcessor := search.NewSearchProcessor(paragraphRepo, sentenceRepo)
 
 	workHandler := read.NewWorkHandler(volumeRepo, workRepo)
 	paragraphHandler := read.NewParagraphHandler(paragraphRepo)
 	searchHandler := apisearch.NewSearchHandler(searchProcessor)
-	uploadHandler := apiupload.NewUploadHandler(workProcessor, volumeProcessor)
+	uploadHandler := apiupload.NewUploadHandler(volumeProcessor)
 
 	e := initEchoServer()
 	registerHandlers(e, workHandler, paragraphHandler, searchHandler, uploadHandler)

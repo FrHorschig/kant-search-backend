@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/frhorschig/kant-search-api/generated/go/models"
-	apierrors "github.com/frhorschig/kant-search-backend/api/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/model/abt1"
@@ -21,47 +19,17 @@ import (
 )
 
 type UploadHandler interface {
-	PostWork(ctx echo.Context) error
 	PostVolume(ctx echo.Context) error
 }
 
 type uploadHandlerImpl struct {
-	workProcessor   upload.WorkUploadProcessor
 	volumeProcessor upload.VolumeUploadProcessor
 }
 
-func NewUploadHandler(uploadProcessor upload.WorkUploadProcessor, volumeProcessor upload.VolumeUploadProcessor) UploadHandler {
+func NewUploadHandler(volumeProcessor upload.VolumeUploadProcessor) UploadHandler {
 	return &uploadHandlerImpl{
-		workProcessor:   uploadProcessor,
 		volumeProcessor: volumeProcessor,
 	}
-}
-
-func (rec *uploadHandlerImpl) PostWork(ctx echo.Context) error {
-	workId, err := strconv.ParseInt(ctx.Param("workId"), 10, 32)
-	if err != nil {
-		log.Error().Err(err).Msgf("Error parsing work id: %v", err)
-		return apierrors.BadRequest(ctx, models.BAD_REQUEST_INVALID_WORK_SELECTION)
-	}
-
-	body, err := io.ReadAll(ctx.Request().Body)
-	if err != nil {
-		log.Error().Err(err).Msg("Error reading request body")
-		return apierrors.BadRequest(ctx, models.BAD_REQUEST_GENERIC)
-	}
-	text := string(body)
-	if text == "" {
-		log.Error().Err(err).Msg("Empty text")
-		return apierrors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORK_TEXT)
-	}
-
-	coreErr := rec.workProcessor.Process(ctx.Request().Context(), int32(workId), text)
-	if coreErr != nil {
-		log.Error().Str("Msg", string(coreErr.Msg)).Interface("Params", coreErr.Params).Msg("Error processing work")
-		return apierrors.UploadError(ctx, coreErr)
-	}
-
-	return ctx.NoContent(http.StatusCreated)
 }
 
 func (rec *uploadHandlerImpl) PostVolume(ctx echo.Context) error {
