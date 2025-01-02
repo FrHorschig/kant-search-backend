@@ -32,79 +32,73 @@ func TestUploadHandler(t *testing.T) {
 	volumeProcessor := procMocks.NewMockVolumeUploadProcessor(ctrl)
 	sut := NewUploadHandler(volumeProcessor).(*uploadHandlerImpl)
 
-	for scenario, fn := range map[string]func(t *testing.T, sut *uploadHandlerImpl, volumeProcessor *procMocks.MockVolumeUploadProcessor){
-		"PostVolumes invalid volume number error": testPostVolumesInvalidVolumeNumber,
-		"PostVolumes error reading body":          testPostVolumesErrorReadingBody,
-		"PostVolumes error processing abt1":       testPostVolumesErrorProcessingAbt1,
-		"PostVolumes success processing abt1":     testPostVolumesSuccessProcessingAbt1,
-	} {
-		t.Run(scenario, func(t *testing.T) {
-			fn(t, sut, volumeProcessor)
+	testCases := []struct {
+		name      string
+		xml       string
+		volNum    string
+		mockCalls func()
+		assert    func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder)
+	}{
+		{
+			name:      "Processing error due to invalid volume number",
+			xml:       abt1Xml,
+			volNum:    "x",
+			mockCalls: func() {},
+			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
+			},
+		},
+		{
+			name:      "Processing error due to empty xml body",
+			xml:       "",
+			volNum:    "1",
+			mockCalls: func() {},
+			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
+			},
+		},
+		{
+			name:   "Processing success for kant.abt1 volume",
+			xml:    abt1Xml,
+			volNum: "1",
+			mockCalls: func() {
+				volumeProcessor.EXPECT().ProcessAbt1(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+			},
+			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusCreated, ctx.Response().Status)
+				assert.Empty(t, res.Body.String())
+			},
+		},
+		{
+			name:   "Processing error for kant.abt1 volume",
+			xml:    abt1Xml,
+			volNum: "1",
+			mockCalls: func() {
+				volumeProcessor.EXPECT().ProcessAbt1(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
+			},
+			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			body := []byte(tc.xml)
+			// GIVEN
+			req := httptest.NewRequest(echo.GET, "/api/write/v1/volumes/"+tc.volNum, bytes.NewReader(body))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
+			res := httptest.NewRecorder()
+			ctx := echo.New().NewContext(req, res)
+			ctx.SetParamNames("volumeNumber")
+			ctx.SetParamValues(tc.volNum)
+			tc.mockCalls()
+
+			// WHEN
+			sut.PostVolume(ctx)
+
+			// THEN
+			tc.assert(t, ctx, res)
 		})
 	}
-}
-
-func testPostVolumesInvalidVolumeNumber(t *testing.T, sut *uploadHandlerImpl, volumeProcessor *procMocks.MockVolumeUploadProcessor) {
-	body := []byte("text")
-	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/write/v1/volumes/x", bytes.NewReader(body))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	res := httptest.NewRecorder()
-	ctx := echo.New().NewContext(req, res)
-	ctx.SetParamNames("volumeNumber")
-	ctx.SetParamValues("x")
-	// WHEN
-	sut.PostVolume(ctx)
-	// THEN
-	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-}
-
-func testPostVolumesErrorReadingBody(t *testing.T, sut *uploadHandlerImpl, volumeProcessor *procMocks.MockVolumeUploadProcessor) {
-	body := []byte("")
-	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/write/v1/volumes/1", bytes.NewReader(body))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
-	res := httptest.NewRecorder()
-	ctx := echo.New().NewContext(req, res)
-	ctx.SetParamNames("volumeNumber")
-	ctx.SetParamValues("1")
-	// WHEN
-	sut.PostVolume(ctx)
-	// THEN
-	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-}
-
-func testPostVolumesErrorProcessingAbt1(t *testing.T, sut *uploadHandlerImpl, volumeProcessor *procMocks.MockVolumeUploadProcessor) {
-	body := []byte(abt1Xml)
-	processErr := fmt.Errorf("error")
-	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/write/v1/volumes/1", bytes.NewReader(body))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
-	res := httptest.NewRecorder()
-	ctx := echo.New().NewContext(req, res)
-	ctx.SetParamNames("volumeNumber")
-	ctx.SetParamValues("1")
-	volumeProcessor.EXPECT().ProcessAbt1(gomock.Any(), gomock.Any(), gomock.Any()).Return(processErr)
-	// WHEN
-	sut.PostVolume(ctx)
-	// THEN
-	assert.Equal(t, http.StatusInternalServerError, ctx.Response().Status)
-}
-
-func testPostVolumesSuccessProcessingAbt1(t *testing.T, sut *uploadHandlerImpl, volumeProcessor *procMocks.MockVolumeUploadProcessor) {
-	body := []byte(abt1Xml)
-	// GIVEN
-	req := httptest.NewRequest(echo.POST, "/api/write/v1/volumes/1", bytes.NewReader(body))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
-	res := httptest.NewRecorder()
-	ctx := echo.New().NewContext(req, res)
-	ctx.SetParamNames("volumeNumber")
-	ctx.SetParamValues("1")
-	ctx.Request().Header.Set(echo.HeaderContentType, echo.MIMEApplicationXML)
-	volumeProcessor.EXPECT().ProcessAbt1(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-	// WHEN
-	sut.PostVolume(ctx)
-	// THEN
-	assert.Equal(t, http.StatusCreated, ctx.Response().Status)
-	assert.Empty(t, res.Body.String())
 }
