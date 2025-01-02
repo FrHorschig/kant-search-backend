@@ -1,48 +1,54 @@
 package internal
 
-//go:generate mockgen -source=$GOFILE -destination=mocks/text_mapper_mock.go -package=mocks
+//go:generate mockgen -source=$GOFILE -destination=mocks/xml_mapper_mock.go -package=mocks
 
 import (
-	"github.com/frhorschig/kant-search-backend/common/errors"
+	"context"
+
 	"github.com/frhorschig/kant-search-backend/common/model"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/parse"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/tokenize"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
+	"github.com/frhorschig/kant-search-backend/core/upload/model/abt1"
+	"github.com/frhorschig/kant-search-backend/core/upload/model/abt2"
+	"github.com/frhorschig/kant-search-backend/core/upload/model/abt31"
+	"github.com/frhorschig/kant-search-backend/core/upload/model/abt32"
+	"github.com/frhorschig/kant-search-backend/core/upload/model/vol14"
 )
 
-type TextMapper interface {
-	FindParagraphs(workId int32, text string) ([]model.Paragraph, *errors.Error)
-	FindSentences(paragraphs []model.Paragraph) ([]model.Sentence, *errors.Error)
+type XmlMapper interface {
+	MapAbt1(ctx context.Context, volNum int32, vol abt1.Band) (model.Volume, error)
+	MapAbt2(ctx context.Context, volNum int32, vol abt2.Band) (model.Volume, error)
+	MapVol14(ctx context.Context, volNum int32, vol vol14.Band) (model.Volume, error)
+	MapAbt31(ctx context.Context, volNum int32, vol abt31.Band) (model.Volume, error)
+	MapAbt32(ctx context.Context, volNum int32, vol abt32.Band) (model.Volume, error)
 }
 
-type textMapperImpl struct {
+type xmlMapperImpl struct {
 	pyUtil pyutil.PythonUtil
 }
 
-func NewTextMapper() TextMapper {
-	impl := textMapperImpl{
+func NewXmlMapper() XmlMapper {
+	impl := xmlMapperImpl{
 		pyUtil: pyutil.NewPythonUtil(),
 	}
 	return &impl
 }
 
-func (rec *textMapperImpl) FindParagraphs(workId int32, text string) ([]model.Paragraph, *errors.Error) {
-	tokens, err := tokenize.Tokenize(text)
-	if err != nil {
-		return nil, err
-	}
-	exprs, err := parse.Parse(tokens)
-	if err != nil {
-		return nil, err
-	}
-	pars, err := transform.Transform(workId, exprs)
-	if err != nil {
-		return nil, err
-	}
-	return transform.MergeParagraphs(pars), nil
+func (rec *xmlMapperImpl) MapAbt1(ctx context.Context, volNum int32, vol abt1.Band) (model.Volume, error) {
+	return model.Volume{}, nil
 }
 
-func (rec *textMapperImpl) FindSentences(paragraphs []model.Paragraph) ([]model.Sentence, *errors.Error) {
-	return transform.FindSentences(paragraphs, rec.pyUtil)
+func (rec *xmlMapperImpl) MapAbt2(ctx context.Context, volNum int32, vol abt2.Band) (model.Volume, error) {
+	return model.Volume{}, nil
+}
+
+func (rec *xmlMapperImpl) MapVol14(ctx context.Context, volNum int32, vol vol14.Band) (model.Volume, error) {
+	return model.Volume{}, nil
+}
+
+func (rec *xmlMapperImpl) MapAbt31(ctx context.Context, volNum int32, vol abt31.Band) (model.Volume, error) {
+	return model.Volume{}, nil
+}
+
+func (rec *xmlMapperImpl) MapAbt32(ctx context.Context, volNum int32, vol abt32.Band) (model.Volume, error) {
+	return model.Volume{}, nil
 }
