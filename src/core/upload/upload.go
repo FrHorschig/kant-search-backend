@@ -5,10 +5,10 @@ package upload
 import (
 	"context"
 
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/common/model"
-	"github.com/frhorschig/kant-search-backend/core/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
-	"github.com/frhorschig/kant-search-backend/database"
+	"github.com/frhorschig/kant-search-backend/dataaccess"
 )
 
 type WorkUploadProcessor interface {
@@ -16,12 +16,12 @@ type WorkUploadProcessor interface {
 }
 
 type workUploadProcessorImpl struct {
-	paragraphRepo database.ParagraphRepo
-	sentenceRepo  database.SentenceRepo
+	paragraphRepo dataaccess.ParagraphRepo
+	sentenceRepo  dataaccess.SentenceRepo
 	textMapper    internal.TextMapper
 }
 
-func NewWorkProcessor(paragraphRepo database.ParagraphRepo, sentenceRepo database.SentenceRepo) WorkUploadProcessor {
+func NewWorkProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dataaccess.SentenceRepo) WorkUploadProcessor {
 	processor := workUploadProcessorImpl{
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
@@ -53,7 +53,7 @@ func (rec *workUploadProcessorImpl) Process(ctx context.Context, workId int32, t
 	return persistSentences(ctx, rec.sentenceRepo, sentences)
 }
 
-func deleteExistingData(ctx context.Context, sentenceRepo database.SentenceRepo, paragraphRepo database.ParagraphRepo, workId int32) *errors.Error {
+func deleteExistingData(ctx context.Context, sentenceRepo dataaccess.SentenceRepo, paragraphRepo dataaccess.ParagraphRepo, workId int32) *errors.Error {
 	err := sentenceRepo.DeleteByWorkId(ctx, workId)
 	if err != nil {
 		return &errors.Error{
@@ -71,7 +71,7 @@ func deleteExistingData(ctx context.Context, sentenceRepo database.SentenceRepo,
 	return nil
 }
 
-func persistParagraphs(ctx context.Context, repo database.ParagraphRepo, paragraphs []model.Paragraph) *errors.Error {
+func persistParagraphs(ctx context.Context, repo dataaccess.ParagraphRepo, paragraphs []model.Paragraph) *errors.Error {
 	for i, p := range paragraphs {
 		// TODO frhorschig: write and use bulk insert
 		pId, err := repo.Insert(ctx, p)
@@ -86,7 +86,7 @@ func persistParagraphs(ctx context.Context, repo database.ParagraphRepo, paragra
 	return nil
 }
 
-func persistSentences(ctx context.Context, repo database.SentenceRepo, sentences []model.Sentence) *errors.Error {
+func persistSentences(ctx context.Context, repo dataaccess.SentenceRepo, sentences []model.Sentence) *errors.Error {
 	_, err := repo.Insert(ctx, sentences)
 	if err != nil {
 		return &errors.Error{

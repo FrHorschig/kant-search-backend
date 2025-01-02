@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/common/model"
-	"github.com/frhorschig/kant-search-backend/core/errors"
 	c "github.com/frhorschig/kant-search-backend/core/upload/internal/common"
 )
 

@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/common/model"
-	"github.com/frhorschig/kant-search-backend/core/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
