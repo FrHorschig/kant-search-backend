@@ -11,7 +11,6 @@ import (
 
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	procMocks "github.com/frhorschig/kant-search-backend/core/upload/mocks"
-	"github.com/frhorschig/kant-search-backend/dataaccess/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -21,9 +20,9 @@ func TestUploadHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	workRepo := mocks.NewMockWorkRepo(ctrl)
 	workProcessor := procMocks.NewMockWorkUploadProcessor(ctrl)
-	sut := NewUploadHandler(workRepo, workProcessor).(*uploadHandlerImpl)
+	volumeProcessor := procMocks.NewMockVolumeUploadProcessor(ctrl)
+	sut := NewUploadHandler(workProcessor, volumeProcessor).(*uploadHandlerImpl)
 
 	for scenario, fn := range map[string]func(t *testing.T, sut *uploadHandlerImpl, workProcessor *procMocks.MockWorkUploadProcessor){
 		"PostWorks invalid workId error": testPostWorksInvalidWorkId,
