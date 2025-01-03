@@ -4,6 +4,7 @@ package internal
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/model"
@@ -11,7 +12,7 @@ import (
 )
 
 type XmlMapper interface {
-	MapVolume(ctx context.Context, vol *etree.Document) ([]model.Work, error)
+	Map(ctx context.Context, xml []byte) ([]model.Work, error)
 }
 
 type xmlMapperImpl struct {
@@ -25,7 +26,13 @@ func NewXmlMapper() XmlMapper {
 	return &impl
 }
 
-func (rec *xmlMapperImpl) MapVolume(ctx context.Context, vol *etree.Document) ([]model.Work, error) {
+func (rec *xmlMapperImpl) Map(ctx context.Context, xml []byte) ([]model.Work, error) {
+	doc := etree.NewDocument()
+	if err := doc.ReadFromBytes(xml); err != nil {
+		return nil, fmt.Errorf("error unmarshaling request body: %v", err.Error())
+	}
+	println(doc.WriteToString())
+
 	// TODO frhorschig implement me
 	return []model.Work{}, nil
 }

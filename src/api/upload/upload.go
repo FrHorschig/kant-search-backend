@@ -17,10 +17,10 @@ type UploadHandler interface {
 }
 
 type uploadHandlerImpl struct {
-	volumeProcessor upload.VolumeUploadProcessor
+	volumeProcessor upload.UploadProcessor
 }
 
-func NewUploadHandler(volumeProcessor upload.VolumeUploadProcessor) UploadHandler {
+func NewUploadHandler(volumeProcessor upload.UploadProcessor) UploadHandler {
 	return &uploadHandlerImpl{
 		volumeProcessor: volumeProcessor,
 	}

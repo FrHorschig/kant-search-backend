@@ -4,25 +4,23 @@ package upload
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
 )
 
-type VolumeUploadProcessor interface {
-	Process(ctx context.Context, body []byte) error
+type UploadProcessor interface {
+	Process(ctx context.Context, xml []byte) error
 }
 
-type volumeUploadProcessorImpl struct {
+type uploadProcessorImpl struct {
 	paragraphRepo dataaccess.ParagraphRepo
 	sentenceRepo  dataaccess.SentenceRepo
 	xmlMapper     internal.XmlMapper
 }
 
-func NewVolumeProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dataaccess.SentenceRepo) VolumeUploadProcessor {
-	processor := volumeUploadProcessorImpl{
+func NewUploadProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dataaccess.SentenceRepo) UploadProcessor {
+	processor := uploadProcessorImpl{
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
 		xmlMapper:     internal.NewXmlMapper(),
@@ -30,13 +28,8 @@ func NewVolumeProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dat
 	return &processor
 }
 
-func (rec *volumeUploadProcessorImpl) Process(ctx context.Context, body []byte) error {
-	doc := etree.NewDocument()
-	if err := doc.ReadFromBytes(body); err != nil {
-		return fmt.Errorf("error unmarshaling request body: %v", err.Error())
-	}
-
-	_, err := rec.xmlMapper.MapVolume(ctx, doc)
+func (rec *uploadProcessorImpl) Process(ctx context.Context, xml []byte) error {
+	_, err := rec.xmlMapper.Map(ctx, xml)
 	if err != nil {
 		return err
 	}

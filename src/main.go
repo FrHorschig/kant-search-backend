@@ -73,7 +73,7 @@ func main() {
 	paragraphRepo := database.NewParagraphRepo(db)
 	sentenceRepo := database.NewSentenceRepo(db)
 
-	volumeProcessor := upload.NewVolumeProcessor(paragraphRepo, sentenceRepo)
+	volumeProcessor := upload.NewUploadProcessor(paragraphRepo, sentenceRepo)
 	searchProcessor := search.NewSearchProcessor(paragraphRepo, sentenceRepo)
 
 	workHandler := read.NewWorkHandler(volumeRepo, workRepo)
