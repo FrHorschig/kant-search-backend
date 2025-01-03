@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/beevik/etree"
+	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
 	dbMocks "github.com/frhorschig/kant-search-backend/dataaccess/mocks"
 	"github.com/golang/mock/gomock"
@@ -30,26 +30,34 @@ func TestVolumeUploadProcess(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := []struct {
-		name      string
-		volNum    int32
-		xml       *etree.Document
-		err       error
-		mockCalls func()
+		name        string
+		xml         []byte
+		errContains string
+		mockCalls   func()
 	}{
 		{
-			name:      "Processing is successful",
-			xml:       etree.NewDocument(),
-			volNum:    1,
-			err:       nil,
-			mockCalls: func() {},
+			name:        "Processing is successful",
+			xml:         []byte(""),
+			errContains: "",
+			mockCalls: func() {
+				mockXmlMapper.EXPECT().MapVolume(gomock.Any(), gomock.Any()).Return([]model.Work{}, nil)
+			},
+		},
+		{
+			name:        "Processing error due to invalid xml",
+			xml:         []byte("<my-tag>"),
+			errContains: "error unmarshaling request body:",
+			mockCalls:   func() {},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockCalls()
-			err := sut.Process(ctx, tc.volNum, tc.xml)
-			assert.Equal(t, tc.err, err)
+			err := sut.Process(ctx, tc.xml)
+			if tc.errContains != "" {
+				assert.Contains(t, err.Error(), tc.errContains)
+			}
 		})
 	}
 }
