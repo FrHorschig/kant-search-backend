@@ -32,7 +32,7 @@ package pyutil
 // 	}
 // 	// GIVEN
 // 	os.Setenv("KSGO_PYTHON_BIN_PATH", "../../../../../src_py/.venv/bin/python3")
-// 	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py/split_text.py")
+// 	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py")
 // 	// WHEN
 // 	result, err := pyUtil.SplitIntoSentences(paragraphs)
 // 	// THEN
@@ -43,7 +43,7 @@ package pyutil
 // func TestSplitIntoSentencesWrongBinPath(t *testing.T) {
 // 	pyUtil := NewPythonUtil()
 // 	os.Setenv("KSGO_PYTHON_BIN_PATH", "../")
-// 	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py/split_text.py")
+// 	os.Setenv("KSGO_PYTHON_SCRIPT_PATH", "../../../../../src_py")
 // 	paragraphs := []model.Paragraph{
 // 		{
 // 			Id:   1,

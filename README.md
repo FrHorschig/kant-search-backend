@@ -45,7 +45,7 @@ docker run -d \
 - `KSGO_CERT_PATH` - path to the SSL certificate
 - `KSGO_KEY_PATH` - path to the SSL key
 - `KSGO_PYTHON_BIN_PATH` - path to the python executable
-- `KSGO_PYTHON_SCRIPT_PATH` - path to the `split_text.py` python script
+- `KSGO_PYTHON_SCRIPT_PATH` - path to the python scripts directory
 
 ## Development setup
 

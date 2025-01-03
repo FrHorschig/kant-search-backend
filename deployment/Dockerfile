@@ -11,7 +11,7 @@ RUN . .venv/bin/activate \
   python -m spacy download en_core_web_sm
 COPY src_py/split_text.py .
 ENV KSGO_PYTHON_BIN_PATH=".venv/bin/python3"
-ENV KSGO_PYTHON_SCRIPT_PATH="split_text.py"
+ENV KSGO_PYTHON_SCRIPT_PATH="."
 
 EXPOSE 3000
 CMD ["./kant-search-backend"]

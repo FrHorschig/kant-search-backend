@@ -13,6 +13,7 @@ import (
 )
 
 type PythonUtil interface {
+	PreprocessXml(xml []byte) ([]byte, error)
 	SplitIntoSentences(paragraphs []model.Paragraph) (map[int32][]string, error)
 }
 
@@ -24,6 +25,20 @@ func NewPythonUtil() PythonUtil {
 	return &impl
 }
 
+func (util *pythonUtilImpl) PreprocessXml(xml []byte) ([]byte, error) {
+	binPath := os.Getenv("KSGO_PYTHON_BIN_PATH")
+	scriptPath := os.Getenv("KSGO_PYTHON_SCRIPT_PATH" + "/preprocess-xml.py")
+	cmd := exec.Command(binPath, scriptPath)
+
+	cmd.Stdin = bytes.NewReader(xml)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("error running python script: %v", string(output))
+	}
+
+	return output, nil
+}
+
 // Returns a map of paragraph ids to sentences and error
 func (util *pythonUtilImpl) SplitIntoSentences(paragraphs []model.Paragraph) (map[int32][]string, error) {
 	inputData, err := json.Marshal(paragraphs)
@@ -32,7 +47,7 @@ func (util *pythonUtilImpl) SplitIntoSentences(paragraphs []model.Paragraph) (ma
 	}
 
 	binPath := os.Getenv("KSGO_PYTHON_BIN_PATH")
-	scriptPath := os.Getenv("KSGO_PYTHON_SCRIPT_PATH")
+	scriptPath := os.Getenv("KSGO_PYTHON_SCRIPT_PATH" + "/split-text.py")
 	cmd := exec.Command(binPath, scriptPath)
 
 	cmd.Stdin = bytes.NewReader(inputData)
