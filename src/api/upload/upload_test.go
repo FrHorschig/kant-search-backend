@@ -49,8 +49,8 @@ func TestUploadHandler(t *testing.T) {
 			},
 		},
 		{
-			name:      "Processing error due to empty xml body",
-			xml:       "",
+			name:      "Processing error due to invalid xml",
+			xml:       "<my-tag>",
 			volNum:    "1",
 			mockCalls: func() {},
 			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
@@ -58,11 +58,11 @@ func TestUploadHandler(t *testing.T) {
 			},
 		},
 		{
-			name:   "Processing success for kant.abt1 volume",
+			name:   "Processing success",
 			xml:    abt1Xml,
 			volNum: "1",
 			mockCalls: func() {
-				volumeProcessor.EXPECT().ProcessAbt1(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
 			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusCreated, ctx.Response().Status)
@@ -70,11 +70,11 @@ func TestUploadHandler(t *testing.T) {
 			},
 		},
 		{
-			name:   "Processing error for kant.abt1 volume",
+			name:   "Processing error",
 			xml:    abt1Xml,
 			volNum: "1",
 			mockCalls: func() {
-				volumeProcessor.EXPECT().ProcessAbt1(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
+				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
 			},
 			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)

@@ -7,8 +7,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/abt1"
 	dbMocks "github.com/frhorschig/kant-search-backend/dataaccess/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -32,13 +32,13 @@ func TestVolumeUploadProcess(t *testing.T) {
 	testCases := []struct {
 		name      string
 		volNum    int32
-		xml       abt1.Kantabt1
+		xml       *etree.Document
 		err       error
 		mockCalls func()
 	}{
 		{
 			name:      "Processing is successful",
-			xml:       abt1.Kantabt1{},
+			xml:       etree.NewDocument(),
 			volNum:    1,
 			err:       nil,
 			mockCalls: func() {},
@@ -48,7 +48,7 @@ func TestVolumeUploadProcess(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockCalls()
-			err := sut.ProcessAbt1(ctx, tc.volNum, tc.xml)
+			err := sut.Process(ctx, tc.volNum, tc.xml)
 			assert.Equal(t, tc.err, err)
 		})
 	}

@@ -5,13 +5,13 @@ package internal
 import (
 	"context"
 
+	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/abt1"
 )
 
 type XmlMapper interface {
-	MapAbt1(ctx context.Context, volNum int32, vol abt1.Kantabt1) (model.Volume, error)
+	MapAbt1(ctx context.Context, volNum int32, vol *etree.Document) (model.Volume, error)
 }
 
 type xmlMapperImpl struct {
@@ -25,6 +25,6 @@ func NewXmlMapper() XmlMapper {
 	return &impl
 }
 
-func (rec *xmlMapperImpl) MapAbt1(ctx context.Context, volNum int32, vol abt1.Kantabt1) (model.Volume, error) {
+func (rec *xmlMapperImpl) MapAbt1(ctx context.Context, volNum int32, vol *etree.Document) (model.Volume, error) {
 	return model.Volume{}, nil
 }

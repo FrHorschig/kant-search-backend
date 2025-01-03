@@ -1,15 +1,14 @@
 package upload
 
 import (
-	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 
+	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/api/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload"
-	"github.com/frhorschig/kant-search-backend/core/upload/model/abt1"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -33,33 +32,36 @@ func (rec *uploadHandlerImpl) PostVolume(ctx echo.Context) error {
 	if err != nil {
 		msg := fmt.Sprintf("Error parsing volume number: %v", err.Error())
 		log.Error().Err(err).Msg(msg)
-		return errors.BadRequest(ctx, msg)
+		return errors.JsonError(ctx, http.StatusBadRequest, msg)
 	}
 	body, err := io.ReadAll(ctx.Request().Body)
 	if err != nil {
 		msg := fmt.Sprintf("Error reading request body: %v", err.Error())
 		log.Error().Err(err).Msg(msg)
-		return errors.BadRequest(ctx, msg)
+		return errors.JsonError(ctx, http.StatusBadRequest, msg)
 	}
 
-	switch {
-	case volNum >= 1 && volNum <= 9:
-		var vol abt1.Kantabt1
-		err := xml.Unmarshal(body, &vol)
-		if err != nil {
-			msg := fmt.Sprintf("Error unmarshaling request body: %v", err.Error())
-			log.Error().Err(err).Msg(msg)
-			return errors.BadRequest(ctx, msg)
-		}
-		if err := rec.volumeProcessor.ProcessAbt1(ctx.Request().Context(), int32(volNum), vol); err != nil {
-			msg := fmt.Sprintf("Error processing XML data for volume %d: %v", volNum, err.Error())
-			log.Error().Err(err).Msg(msg)
-			return errors.BadRequest(ctx, msg)
-		}
-	default:
+	if volNum < 1 {
+		msg := "The volume number must be between 1 and 9"
+		log.Error().Msg(msg)
+		return errors.JsonError(ctx, http.StatusBadRequest, msg)
+	} else if volNum > 9 {
 		msg := "Uploading volumes greater than 9 is not yet implemented"
 		log.Error().Msg(msg)
-		return errors.BadRequest(ctx, msg)
+		return errors.JsonError(ctx, http.StatusNotImplemented, msg)
+	}
+
+	doc := etree.NewDocument()
+	if err := doc.ReadFromBytes(body); err != nil {
+		msg := fmt.Sprintf("Error unmarshaling request body: %v", err.Error())
+		log.Error().Err(err).Msg(msg)
+		return errors.JsonError(ctx, http.StatusBadRequest, msg)
+	}
+
+	if err := rec.volumeProcessor.Process(ctx.Request().Context(), int32(volNum), doc); err != nil {
+		msg := fmt.Sprintf("Error processing XML data for volume %d: %v", volNum, err.Error())
+		log.Error().Err(err).Msg(msg)
+		return errors.JsonError(ctx, http.StatusBadRequest, msg)
 	}
 
 	return ctx.NoContent(http.StatusCreated)
