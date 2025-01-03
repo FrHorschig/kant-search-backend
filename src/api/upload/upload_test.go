@@ -29,7 +29,7 @@ func TestUploadHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	volumeProcessor := procMocks.NewMockVolumeUploadProcessor(ctrl)
+	volumeProcessor := procMocks.NewMockUploadProcessor(ctrl)
 	sut := NewUploadHandler(volumeProcessor).(*uploadHandlerImpl)
 
 	testCases := []struct {

@@ -5,6 +5,7 @@ package upload
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/frhorschig/kant-search-backend/common/model"
@@ -14,40 +15,44 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestVolumeUploadProcess(t *testing.T) {
+func TestUploadProcess(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockXmlMapper := mocks.NewMockXmlMapper(ctrl)
-	mockParagraphRepo := dbMocks.NewMockParagraphRepo(ctrl)
-	mockSentenceRepo := dbMocks.NewMockSentenceRepo(ctrl)
-	sut := &volumeUploadProcessorImpl{
-		xmlMapper:     mockXmlMapper,
-		paragraphRepo: mockParagraphRepo,
-		sentenceRepo:  mockSentenceRepo,
+	xmlMapper := mocks.NewMockXmlMapper(ctrl)
+	paragraphRepo := dbMocks.NewMockParagraphRepo(ctrl)
+	sentenceRepo := dbMocks.NewMockSentenceRepo(ctrl)
+	sut := &uploadProcessorImpl{
+		xmlMapper:     xmlMapper,
+		paragraphRepo: paragraphRepo,
+		sentenceRepo:  sentenceRepo,
 	}
 
 	ctx := context.Background()
+	e := errors.New("Mock error")
 
 	testCases := []struct {
-		name        string
-		xml         []byte
-		errContains string
-		mockCalls   func()
+		name      string
+		xml       []byte
+		err       error
+		mockCalls func()
+		assert    func(t *testing.T)
 	}{
 		{
-			name:        "Processing is successful",
-			xml:         []byte(""),
-			errContains: "",
+			name: "Processing is successful",
+			xml:  []byte(""),
+			err:  nil,
 			mockCalls: func() {
-				mockXmlMapper.EXPECT().MapVolume(gomock.Any(), gomock.Any()).Return([]model.Work{}, nil)
+				xmlMapper.EXPECT().Map(gomock.Any(), gomock.Any()).Return([]model.Work{}, nil)
 			},
 		},
 		{
-			name:        "Processing error due to invalid xml",
-			xml:         []byte("<my-tag>"),
-			errContains: "error unmarshaling request body:",
-			mockCalls:   func() {},
+			name: "Processing error due to failed mapping",
+			xml:  []byte(""),
+			err:  e,
+			mockCalls: func() {
+				xmlMapper.EXPECT().Map(gomock.Any(), gomock.Any()).Return(nil, e)
+			},
 		},
 	}
 
@@ -55,9 +60,7 @@ func TestVolumeUploadProcess(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockCalls()
 			err := sut.Process(ctx, tc.xml)
-			if tc.errContains != "" {
-				assert.Contains(t, err.Error(), tc.errContains)
-			}
+			assert.Equal(t, tc.err, err)
 		})
 	}
 }
