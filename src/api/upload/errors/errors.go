@@ -1,8 +1,6 @@
 package errors
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v4"
 )
 
@@ -11,16 +9,9 @@ type HttpError struct {
 	Message string `json:"message"`
 }
 
-func BadRequest(ctx echo.Context, msg string) error {
-	return ctx.JSON(http.StatusBadRequest, HttpError{
-		Code:    http.StatusBadRequest,
-		Message: msg,
-	})
-}
-
-func UploadError(ctx echo.Context, msg string) error {
-	return ctx.JSON(http.StatusBadRequest, HttpError{
-		Code:    http.StatusInternalServerError,
+func JsonError(ctx echo.Context, code int, msg string) error {
+	return ctx.JSON(code, HttpError{
+		Code:    int32(code),
 		Message: msg,
 	})
 }
