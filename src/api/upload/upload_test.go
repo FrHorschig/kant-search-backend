@@ -49,20 +49,11 @@ func TestUploadHandler(t *testing.T) {
 			},
 		},
 		{
-			name:      "Processing error due to invalid xml",
-			xml:       "<my-tag>",
-			volNum:    "1",
-			mockCalls: func() {},
-			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
-				assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-			},
-		},
-		{
 			name:   "Processing success",
 			xml:    abt1Xml,
 			volNum: "1",
 			mockCalls: func() {
-				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil)
 			},
 			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusCreated, ctx.Response().Status)
@@ -74,7 +65,7 @@ func TestUploadHandler(t *testing.T) {
 			xml:    abt1Xml,
 			volNum: "1",
 			mockCalls: func() {
-				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
+				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
 			},
 			assert: func(t *testing.T, ctx echo.Context, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)

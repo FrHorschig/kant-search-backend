@@ -11,7 +11,7 @@ import (
 )
 
 type XmlMapper interface {
-	MapAbt1(ctx context.Context, volNum int32, vol *etree.Document) (model.Volume, error)
+	MapVolume(ctx context.Context, vol *etree.Document) ([]model.Work, error)
 }
 
 type xmlMapperImpl struct {
@@ -25,6 +25,7 @@ func NewXmlMapper() XmlMapper {
 	return &impl
 }
 
-func (rec *xmlMapperImpl) MapAbt1(ctx context.Context, volNum int32, vol *etree.Document) (model.Volume, error) {
-	return model.Volume{}, nil
+func (rec *xmlMapperImpl) MapVolume(ctx context.Context, vol *etree.Document) ([]model.Work, error) {
+	// TODO frhorschig implement me
+	return []model.Work{}, nil
 }
