@@ -6,6 +6,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mapping"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
 )
 
 type XmlMapper interface {
@@ -24,7 +25,11 @@ func NewXmlMapper() XmlMapper {
 }
 
 func (rec *xmlMapperImpl) Map(xml string) ([]model.Work, error) {
-	_, _, err := mapping.Map(xml)
+	xml = transform.Simplify(xml)
+	_, _, err := mapping.MapToSections(xml)
+	if err != nil {
+		return nil, err
+	}
 	// TODO frhorsch implement me
 	return nil, err
 }

@@ -1,4 +1,4 @@
-package mapping
+package transform
 
 import (
 	"testing"
@@ -46,7 +46,7 @@ func TestSimplify(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := simplify(tc.xml)
+			got := Simplify(tc.xml)
 			assert.Equal(t, got, tc.want)
 		})
 	}
