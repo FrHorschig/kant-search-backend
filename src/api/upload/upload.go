@@ -46,57 +46,55 @@ func (rec *uploadHandlerImpl) PostVolume(ctx echo.Context) error {
 		log.Error().Msg(msg)
 		return errors.JsonError(ctx, http.StatusBadRequest, msg)
 	}
+
 	xml = replaceHtml(xml)
 	xml = replaceCustomEntities(xml)
-
-	doc := etree.NewDocument()
-	if err := doc.ReadFromString(xml); err != nil {
-		msg := fmt.Sprintf("error unmarshaling request body: %v", err.Error())
+	volNum, code, msg := validateXmlContent(xml)
+	if code != 0 {
 		log.Error().Msg(msg)
-		return errors.JsonError(ctx, http.StatusBadRequest, msg)
+		return errors.JsonError(ctx, code, msg)
 	}
 
-	band := doc.FindElement("//band")
-	if band == nil || band.SelectAttr("nr") == nil {
-		msg := "missing element 'band' with attribute 'nr'"
-		log.Error().Msg(msg)
-		return errors.JsonError(ctx, http.StatusBadRequest, msg)
-	}
-	nrStr := strings.TrimLeft(band.SelectAttr("nr").Value, "0")
-	if nrStr == "" {
-		msg := "the volume number is 0, but it must be between 1 and 9"
-		log.Error().Msg(msg)
-		return errors.JsonError(ctx, http.StatusBadRequest, msg)
-	}
-	volNum, err := strconv.ParseInt(nrStr, 10, 32)
-	if err != nil {
-		msg := fmt.Sprintf("attribute 'nr' of element 'band' can't be converted to a number: %v", err.Error())
-		log.Error().Msg(msg)
-		return errors.JsonError(ctx, http.StatusBadRequest, msg)
-	}
-	if volNum < 1 {
-		msg := fmt.Sprintf("the volume number is %d, but it must be between 1 and 9", volNum)
-		log.Error().Msg(msg)
-		return errors.JsonError(ctx, http.StatusBadRequest, msg)
-	} else if volNum > 9 {
-		msg := "uploading volumes greater than 9 is not yet implemented"
-		log.Error().Msg(msg)
-		return errors.JsonError(ctx, http.StatusNotImplemented, msg)
-	}
-
-	xml, err = doc.WriteToString()
-	if err != nil {
-		msg := fmt.Sprintf("error when writing xml to string: %v", err.Error())
-		log.Error().Err(err).Msg(msg)
-		return errors.JsonError(ctx, http.StatusInternalServerError, msg)
-	}
-	if err := rec.volumeProcessor.Process(ctx.Request().Context(), int32(volNum), xml); err != nil {
-		msg := fmt.Sprintf("error processing XML data for volume %d", volNum)
+	if err := rec.volumeProcessor.Process(ctx.Request().Context(), volNum, xml); err != nil {
+		msg := "error processing XML data"
 		log.Error().Err(err).Msg(msg)
 		return errors.JsonError(ctx, http.StatusInternalServerError, msg)
 	}
 
 	return ctx.NoContent(http.StatusCreated)
+}
+
+func validateXmlContent(xml string) (int32, int, string) {
+	doc := etree.NewDocument()
+	if err := doc.ReadFromString(xml); err != nil {
+		msg := fmt.Sprintf("error unmarshaling request body: %v", err.Error())
+		return 0, http.StatusBadRequest, msg
+	}
+
+	band := doc.FindElement("//band")
+	if band == nil || band.SelectAttr("nr") == nil {
+		msg := "missing element 'band' with attribute 'nr'"
+		return 0, http.StatusBadRequest, msg
+	}
+	nrStr := strings.TrimLeft(band.SelectAttr("nr").Value, "0")
+	if nrStr == "" {
+		msg := "the volume number is 0, but it must be between 1 and 9"
+		return 0, http.StatusBadRequest, msg
+	}
+	volNum, err := strconv.ParseInt(nrStr, 10, 32)
+	if err != nil {
+		msg := fmt.Sprintf("attribute 'nr' of element 'band' can't be converted to a number: %v", err.Error())
+		return 0, http.StatusBadRequest, msg
+	}
+	if volNum < 1 {
+		msg := fmt.Sprintf("the volume number is %d, but it must be between 1 and 9", volNum)
+		return 0, http.StatusBadRequest, msg
+	} else if volNum > 9 {
+		msg := "uploading volumes greater than 9 is not yet implemented"
+		return 0, http.StatusNotImplemented, msg
+	}
+
+	return int32(volNum), 0, ""
 }
 
 func readToString(input []byte) (string, error) {

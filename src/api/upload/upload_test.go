@@ -94,7 +94,7 @@ func TestUploadHandler(t *testing.T) {
 			xml:       xmlBase + `<root><band nr="5"></band></root>`,
 			mockError: errors.New("processing error"),
 			wantCode:  http.StatusInternalServerError,
-			wantMsg:   "error processing XML data for volume 5",
+			wantMsg:   "error processing XML data",
 		},
 	}
 
