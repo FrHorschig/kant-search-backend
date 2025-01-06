@@ -8,7 +8,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
 	dbMocks "github.com/frhorschig/kant-search-backend/dataaccess/mocks"
@@ -30,7 +29,6 @@ func TestUploadProcess(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	doc := etree.NewDocument()
 	e := errors.New("Mock error")
 
 	testCases := []struct {
@@ -59,11 +57,9 @@ func TestUploadProcess(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		doc = etree.NewDocument()
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockCalls()
-			doc.ReadFromString(tc.xml)
-			err := sut.Process(ctx, doc)
+			err := sut.Process(ctx, 1, tc.xml)
 			assert.Equal(t, tc.err, err)
 		})
 	}
