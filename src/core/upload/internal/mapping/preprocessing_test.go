@@ -1,45 +1,10 @@
-package preprocessing
+package mapping
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func TestPreprocess(t *testing.T) {
-	testcases := []struct {
-		input    string
-		expected string
-	}{
-		{"&alpha;", "α"},
-		{"&beta;", "β"},
-		{"&gamma;", "γ"},
-		{"&delta;", "δ"},
-		{"&epsilon;", "ε"},
-		{"&omega;", "ω"},
-
-		{"&Alpha;", "Α"},
-		{"&Beta;", "Β"},
-		{"&Gamma;", "Γ"},
-		{"&Delta;", "Δ"},
-		{"&Epsilon;", "Ε"},
-		{"&Omega;", "Ω"},
-
-		{"&sigma2;", "ς"},
-		{"&theata;", "θ"},
-
-		{"This is &alpha; and &beta;.", "This is α and β."},
-		{"&Gamma;&Delta;&Epsilon;", "ΓΔΕ"},
-		{"&lt;div&gt;Hello &amp; World&lt;/div&gt;", "<div>Hello & World</div>"},
-		{"No encodings here!", "No encodings here!"},
-	}
-
-	for _, tc := range testcases {
-		t.Run(tc.input, func(t *testing.T) {
-			assert.Equal(t, ReplaceHtml(tc.input), tc.expected)
-		})
-	}
-}
 
 func TestSimplify(t *testing.T) {
 	tests := []struct {
