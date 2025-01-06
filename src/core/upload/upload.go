@@ -5,13 +5,12 @@ package upload
 import (
 	"context"
 
-	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
 )
 
 type UploadProcessor interface {
-	Process(ctx context.Context, doc *etree.Document) error
+	Process(ctx context.Context, volNum int32, xml string) error
 }
 
 type uploadProcessorImpl struct {
@@ -29,8 +28,8 @@ func NewUploadProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dat
 	return &processor
 }
 
-func (rec *uploadProcessorImpl) Process(ctx context.Context, doc *etree.Document) error {
-	_, err := rec.xmlMapper.Map(ctx, doc)
+func (rec *uploadProcessorImpl) Process(ctx context.Context, volNum int32, xml string) error {
+	_, err := rec.xmlMapper.Map(ctx, xml)
 	if err != nil {
 		return err
 	}

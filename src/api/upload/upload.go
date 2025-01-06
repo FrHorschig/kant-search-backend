@@ -68,7 +68,7 @@ func (rec *uploadHandlerImpl) PostVolume(ctx echo.Context) error {
 		log.Error().Msg(msg)
 		return errors.JsonError(ctx, http.StatusBadRequest, msg)
 	}
-	volNum, err := strconv.Atoi(nrStr)
+	volNum, err := strconv.ParseInt(nrStr, 10, 32)
 	if err != nil {
 		msg := fmt.Sprintf("attribute 'nr' of element 'band' can't be converted to a number: %v", err.Error())
 		log.Error().Msg(msg)
@@ -84,7 +84,13 @@ func (rec *uploadHandlerImpl) PostVolume(ctx echo.Context) error {
 		return errors.JsonError(ctx, http.StatusNotImplemented, msg)
 	}
 
-	if err := rec.volumeProcessor.Process(ctx.Request().Context(), doc); err != nil {
+	xml, err = doc.WriteToString()
+	if err != nil {
+		msg := fmt.Sprintf("error when writing xml to string: %v", err.Error())
+		log.Error().Err(err).Msg(msg)
+		return errors.JsonError(ctx, http.StatusInternalServerError, msg)
+	}
+	if err := rec.volumeProcessor.Process(ctx.Request().Context(), int32(volNum), xml); err != nil {
 		msg := fmt.Sprintf("error processing XML data for volume %d", volNum)
 		log.Error().Err(err).Msg(msg)
 		return errors.JsonError(ctx, http.StatusInternalServerError, msg)

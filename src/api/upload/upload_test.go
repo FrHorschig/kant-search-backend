@@ -107,10 +107,10 @@ func TestUploadHandler(t *testing.T) {
 			rec := httptest.NewRecorder()
 			ctx := echo.New().NewContext(req, rec)
 			if tc.mockSuccess {
-				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(nil)
+				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			}
 			if tc.mockError != nil {
-				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any()).Return(tc.mockError)
+				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(tc.mockError)
 			}
 
 			// WHEN
