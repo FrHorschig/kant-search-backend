@@ -1,28 +1,27 @@
 package model
 
+import "github.com/frhorschig/kant-search-backend/common/model"
+
+type Work struct {
+	Title    string
+	Year     *string
+	Sections []Section
+}
+
 type Section struct {
-	Heading   Heading
-	Paragraph []string
-	Sections  []Section
+	Heading    Heading
+	Paragraphs []string
+	Sections   []Section
 }
 
 type Heading struct {
-	Name  string
-	Level Level
+	Title string
+	Level model.Level
 }
 
-type Level int
-
-const (
-	Work Level = iota + 1
-	H1
-	H2
-	H3
-	H4
-	H5
-	H6
-	H7
-)
+type Randtext struct {
+	// TODO frhorschig implement me
+}
 
 type Footnote struct {
 	// TODO frhorschig implement me
