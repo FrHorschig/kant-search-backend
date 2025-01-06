@@ -43,7 +43,7 @@ func TestUploadProcess(t *testing.T) {
 			xml:  "",
 			err:  nil,
 			mockCalls: func() {
-				xmlMapper.EXPECT().Map(gomock.Any(), gomock.Any()).Return([]model.Work{}, nil)
+				xmlMapper.EXPECT().Map(gomock.Any()).Return([]model.Work{}, nil)
 			},
 		},
 		{
@@ -51,7 +51,7 @@ func TestUploadProcess(t *testing.T) {
 			xml:  "",
 			err:  e,
 			mockCalls: func() {
-				xmlMapper.EXPECT().Map(gomock.Any(), gomock.Any()).Return(nil, e)
+				xmlMapper.EXPECT().Map(gomock.Any()).Return(nil, e)
 			},
 		},
 	}

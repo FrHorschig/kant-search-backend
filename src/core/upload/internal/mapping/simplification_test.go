@@ -46,7 +46,7 @@ func TestSimplify(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := Simplify(tc.xml)
+			got := simplify(tc.xml)
 			assert.Equal(t, got, tc.want)
 		})
 	}
