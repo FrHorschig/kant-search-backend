@@ -8,7 +8,7 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/model"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/preprocessing"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/mapping"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
 )
 
@@ -32,8 +32,7 @@ func (rec *xmlMapperImpl) Map(ctx context.Context, doc *etree.Document) ([]model
 	if err != nil {
 		return nil, fmt.Errorf("error when writing xml to string: %v", err.Error())
 	}
-	xmlStr = preprocessing.ReplaceHtml(xmlStr)
-	xmlStr = preprocessing.Simplify(xmlStr)
+	xmlStr = mapping.Simplify(xmlStr)
 	println(xmlStr)
 	doc.ReadFromString(xmlStr)
 	// vol := doc.FindElement("//band")
