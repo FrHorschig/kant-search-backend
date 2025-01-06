@@ -59,7 +59,7 @@ func registerHandlers(e *echo.Echo, workHandler read.WorkHandler, paragraphHandl
 		return searchHandler.Search(ctx)
 	})
 
-	e.POST("/api/write/v1/volumes/:volumeNumber", func(ctx echo.Context) error {
+	e.POST("/api/write/v1/volumes", func(ctx echo.Context) error {
 		return uploadHandler.PostVolume(ctx)
 	})
 }
