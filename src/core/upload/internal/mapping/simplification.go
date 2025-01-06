@@ -4,7 +4,7 @@ import (
 	"regexp"
 )
 
-func Simplify(xml string) string {
+func simplify(xml string) string {
 	reZeile := regexp.MustCompile(`<zeile\s+nr="(\d+)"\s*/>`)
 	xml = reZeile.ReplaceAllString(xml, `{l$1}`)
 	reSeite := regexp.MustCompile(`<seite\s*[^>]\s*nr="(\d+)"\s*[^>]*\s*/>`)

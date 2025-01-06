@@ -29,7 +29,7 @@ func NewUploadProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dat
 }
 
 func (rec *uploadProcessorImpl) Process(ctx context.Context, volNum int32, xml string) error {
-	_, err := rec.xmlMapper.Map(ctx, xml)
+	_, err := rec.xmlMapper.Map(xml)
 	if err != nil {
 		return err
 	}
