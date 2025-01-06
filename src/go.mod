@@ -10,6 +10,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/lib/pq v1.10.9
+	golang.org/x/text v0.14.0
 	github.com/rs/zerolog v1.33.0
 	github.com/beevik/etree v1.4.1
 	github.com/stretchr/testify v1.9.0
@@ -71,7 +72,6 @@ require (
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230731190214-cbb8c96f2d6d // indirect
