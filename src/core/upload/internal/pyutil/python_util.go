@@ -13,7 +13,6 @@ import (
 )
 
 type PythonUtil interface {
-	PreprocessXml(xml []byte) ([]byte, error)
 	SplitIntoSentences(paragraphs []model.Paragraph) (map[int32][]string, error)
 }
 
@@ -23,20 +22,6 @@ type pythonUtilImpl struct {
 func NewPythonUtil() PythonUtil {
 	impl := pythonUtilImpl{}
 	return &impl
-}
-
-func (util *pythonUtilImpl) PreprocessXml(xml []byte) ([]byte, error) {
-	binPath := os.Getenv("KSGO_PYTHON_BIN_PATH")
-	scriptPath := os.Getenv("KSGO_PYTHON_SCRIPT_PATH" + "/preprocess-xml.py")
-	cmd := exec.Command(binPath, scriptPath)
-
-	cmd.Stdin = bytes.NewReader(xml)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("error running python script: %v", string(output))
-	}
-
-	return output, nil
 }
 
 // Returns a map of paragraph ids to sentences and error

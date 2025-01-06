@@ -8,11 +8,12 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/preprocessing"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
 )
 
 type XmlMapper interface {
-	Map(ctx context.Context, xml []byte) ([]model.Work, error)
+	Map(ctx context.Context, doc *etree.Document) ([]model.Work, error)
 }
 
 type xmlMapperImpl struct {
@@ -26,12 +27,17 @@ func NewXmlMapper() XmlMapper {
 	return &impl
 }
 
-func (rec *xmlMapperImpl) Map(ctx context.Context, xml []byte) ([]model.Work, error) {
-	doc := etree.NewDocument()
-	if err := doc.ReadFromBytes(xml); err != nil {
-		return nil, fmt.Errorf("error unmarshaling request body: %v", err.Error())
+func (rec *xmlMapperImpl) Map(ctx context.Context, doc *etree.Document) ([]model.Work, error) {
+	xmlStr, err := doc.WriteToString()
+	if err != nil {
+		return nil, fmt.Errorf("error when writing xml to string: %v", err.Error())
 	}
-	println(doc.WriteToString())
+	xmlStr = preprocessing.ReplaceHtml(xmlStr)
+	xmlStr = preprocessing.Simplify(xmlStr)
+	println(xmlStr)
+	doc.ReadFromString(xmlStr)
+	// vol := doc.FindElement("//band")
+	// println(etree.NewDocumentWithRoot(vol).WriteToString())
 
 	// TODO frhorschig implement me
 	return []model.Work{}, nil
