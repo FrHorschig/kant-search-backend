@@ -3,6 +3,7 @@ package internal
 //go:generate mockgen -source=$GOFILE -destination=mocks/xml_mapper_mock.go -package=mocks
 
 import (
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mapping"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
@@ -10,7 +11,7 @@ import (
 )
 
 type XmlMapper interface {
-	Map(xml string) ([]model.Work, error)
+	Map(xml string) ([]model.Work, errors.ErrorNew)
 }
 
 type xmlMapperImpl struct {
@@ -24,12 +25,12 @@ func NewXmlMapper() XmlMapper {
 	return &impl
 }
 
-func (rec *xmlMapperImpl) Map(xml string) ([]model.Work, error) {
+func (rec *xmlMapperImpl) Map(xml string) ([]model.Work, errors.ErrorNew) {
 	xml = transform.Simplify(xml)
-	_, _, err := mapping.MapToSections(xml)
-	if err != nil {
+	_, err := mapping.MapToWorks(xml)
+	if err.HasError {
 		return nil, err
 	}
 	// TODO frhorsch implement me
-	return nil, err
+	return nil, errors.NilError()
 }

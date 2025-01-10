@@ -1,5 +1,28 @@
 package errors
 
+// TODO frhorschig: rename
+type ErrorNew struct {
+	HasError       bool
+	DomainError    error
+	TechnicalError error
+}
+
+func NewError(domainErr error, techError error) ErrorNew {
+	hasError := false
+	if domainErr != nil || techError != nil {
+		hasError = true
+	}
+	return ErrorNew{
+		HasError:       hasError,
+		DomainError:    domainErr,
+		TechnicalError: techError,
+	}
+}
+
+func NilError() ErrorNew {
+	return ErrorNew{false, nil, nil}
+}
+
 type Error struct {
 	Msg    ErrMsg
 	Params []string

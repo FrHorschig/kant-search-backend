@@ -2,36 +2,42 @@ package mapping
 
 import (
 	"github.com/beevik/etree"
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 )
 
-func MapToSections(xml string) ([]model.Section, []model.Footnote, error) {
+func MapToWorks(xml string) ([]model.Work, errors.ErrorNew) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
 
 	vol := doc.FindElement("//band")
-	sections := findSections(vol.FindElement("//hauptteil"))
+	works, _ := findWorks(vol.FindElement("//hauptteil"))
 	randtexte := findRandtexte(vol.FindElement("//randtexte"))
-	footnotes := findFootnotes(vol.FindElement("//fussnoten"))
 	if len(randtexte) > 0 {
-		mergeRandtexteIntoSections(sections, randtexte)
+		mergeRandtexte(works, randtexte)
 	}
+	footnotes := findFootnotes(vol.FindElement("//fussnoten"))
+	mergeFootnotes(works, footnotes)
 
-	return sections, footnotes, nil
+	return works, errors.NilError()
 }
 
-func findSections(element *etree.Element) []model.Section {
+func findWorks(hauptteil *etree.Element) ([]model.Work, error) {
 	panic("unimplemented")
 }
 
-func findRandtexte(element *etree.Element) []model.Randtext {
+func findRandtexte(randtexte *etree.Element) []model.Randtext {
 	panic("unimplemented")
 }
 
-func findFootnotes(element *etree.Element) []model.Footnote {
+func findFootnotes(fussnoten *etree.Element) []model.Footnote {
 	panic("unimplemented")
 }
 
-func mergeRandtexteIntoSections(sections, randtexte any) {
+func mergeRandtexte(works []model.Work, randtexte []model.Randtext) {
+	panic("unimplemented")
+}
+
+func mergeFootnotes(works []model.Work, footnotes []model.Footnote) {
 	panic("unimplemented")
 }

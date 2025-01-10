@@ -15,12 +15,12 @@ func TestSimplify(t *testing.T) {
 		{
 			name: "valid xml with <zeile> and <seite>",
 			xml:  `<zeile nr="1"/><seite nr="2" />`,
-			want: `{l1}{p2}`,
+			want: `{l1}<seite nr="2" />`,
 		},
 		{
 			name: "valid xml with <zeile>, <seite> and <trenn>",
 			xml:  `<zeile nr="1"/><seite nr="2" />Text<trenn/>abschnitt<trenn />`,
-			want: `{l1}{p2}Textabschnitt`,
+			want: `{l1}<seite nr="2" />Textabschnitt`,
 		},
 		{
 			name: "valid xml with no match",
@@ -30,7 +30,7 @@ func TestSimplify(t *testing.T) {
 		{
 			name: "valid xml with multiple <zeile> and <seite>",
 			xml:  `<zeile nr="10"/><seite nr="20" /><zeile nr="30"/>`,
-			want: `{l10}{p20}{l30}`,
+			want: `{l10}<seite nr="20" />{l30}`,
 		},
 		{
 			name: "empty xml",
@@ -38,9 +38,9 @@ func TestSimplify(t *testing.T) {
 			want: ``,
 		},
 		{
-			name: "malformed <seite> tag",
-			xml:  `<seite nr="42"`,
-			want: `<seite nr="42"`,
+			name: "malformed <zeile> tag",
+			xml:  `<zeile nr="42"`,
+			want: `<zeile nr="42"`,
 		},
 	}
 

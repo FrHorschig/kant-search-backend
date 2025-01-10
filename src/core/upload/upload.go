@@ -5,12 +5,13 @@ package upload
 import (
 	"context"
 
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
 )
 
 type UploadProcessor interface {
-	Process(ctx context.Context, volNum int32, xml string) error
+	Process(ctx context.Context, volNum int32, xml string) errors.ErrorNew
 }
 
 type uploadProcessorImpl struct {
@@ -28,12 +29,12 @@ func NewUploadProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dat
 	return &processor
 }
 
-func (rec *uploadProcessorImpl) Process(ctx context.Context, volNum int32, xml string) error {
+func (rec *uploadProcessorImpl) Process(ctx context.Context, volNum int32, xml string) errors.ErrorNew {
 	_, err := rec.xmlMapper.Map(xml)
-	if err != nil {
+	if err.HasError {
 		return err
 	}
 
 	// TODO frhorschig: implement writing to database
-	return nil
+	return errors.NilError()
 }

@@ -55,10 +55,16 @@ func (rec *uploadHandlerImpl) PostVolume(ctx echo.Context) error {
 		return errors.JsonError(ctx, code, msg)
 	}
 
-	if err := rec.volumeProcessor.Process(ctx.Request().Context(), volNum, xml); err != nil {
+	if err := rec.volumeProcessor.Process(ctx.Request().Context(), volNum, xml); err.HasError {
 		msg := "error processing XML data"
-		log.Error().Err(err).Msg(msg)
-		return errors.JsonError(ctx, http.StatusInternalServerError, msg)
+		if err.DomainError != nil {
+			msg += ": " + err.DomainError.Error()
+			log.Error().Msg(msg)
+			return errors.JsonError(ctx, http.StatusBadRequest, msg)
+		} else {
+			log.Error().Err(err.TechnicalError).Msg(msg)
+			return errors.JsonError(ctx, http.StatusInternalServerError, msg)
+		}
 	}
 
 	return ctx.NoContent(http.StatusCreated)

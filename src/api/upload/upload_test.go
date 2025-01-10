@@ -5,11 +5,12 @@ package upload
 
 import (
 	"bytes"
-	"errors"
+	stderr "errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	procMocks "github.com/frhorschig/kant-search-backend/core/upload/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -37,7 +38,7 @@ func TestUploadHandler(t *testing.T) {
 		name        string
 		xml         string
 		mockSuccess bool
-		mockError   error
+		mockError   errors.ErrorNew
 		wantCode    int
 		wantMsg     string
 	}{
@@ -90,9 +91,16 @@ func TestUploadHandler(t *testing.T) {
 			wantMsg:  "uploading volumes greater than 9 is not yet implemented",
 		},
 		{
-			name:      "Error processing XML",
+			name:      "Domain error processing XML",
 			xml:       xmlBase + `<root><band nr="5"></band></root>`,
-			mockError: errors.New("processing error"),
+			mockError: errors.NewError(stderr.New("processing error"), nil),
+			wantCode:  http.StatusBadRequest,
+			wantMsg:   "error processing XML data",
+		},
+		{
+			name:      "Technical error processing XML",
+			xml:       xmlBase + `<root><band nr="5"></band></root>`,
+			mockError: errors.NewError(nil, stderr.New("processing error")),
 			wantCode:  http.StatusInternalServerError,
 			wantMsg:   "error processing XML data",
 		},
@@ -107,9 +115,9 @@ func TestUploadHandler(t *testing.T) {
 			rec := httptest.NewRecorder()
 			ctx := echo.New().NewContext(req, rec)
 			if tc.mockSuccess {
-				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.NilError())
 			}
-			if tc.mockError != nil {
+			if tc.mockError.HasError {
 				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(tc.mockError)
 			}
 
