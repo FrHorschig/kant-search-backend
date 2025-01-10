@@ -5,9 +5,10 @@ package upload
 
 import (
 	"context"
-	"errors"
+	stderr "errors"
 	"testing"
 
+	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
 	dbMocks "github.com/frhorschig/kant-search-backend/dataaccess/mocks"
@@ -29,21 +30,21 @@ func TestUploadProcess(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	e := errors.New("Mock error")
+	e := errors.NewError(stderr.New("domain error"), nil)
 
 	testCases := []struct {
 		name      string
 		xml       string
-		err       error
+		err       errors.ErrorNew
 		mockCalls func()
 		assert    func(t *testing.T)
 	}{
 		{
 			name: "Processing is successful",
 			xml:  "",
-			err:  nil,
+			err:  errors.NilError(),
 			mockCalls: func() {
-				xmlMapper.EXPECT().Map(gomock.Any()).Return([]model.Work{}, nil)
+				xmlMapper.EXPECT().Map(gomock.Any()).Return([]model.Work{}, errors.NilError())
 			},
 		},
 		{
