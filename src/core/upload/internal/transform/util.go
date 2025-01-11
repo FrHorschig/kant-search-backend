@@ -1,6 +1,11 @@
 package transform
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/beevik/etree"
+	"github.com/frhorschig/kant-search-backend/common/errors"
+)
 
 func arabicToRoman(number int32) string {
 	conversions := []struct {
@@ -29,4 +34,24 @@ func arabicToRoman(number int32) string {
 		}
 	}
 	return roman.String()
+}
+
+func extractText(element *etree.Element, switchFn func(el *etree.Element) (string, errors.ErrorNew)) (string, errors.ErrorNew) {
+	text := ""
+	for _, ch := range element.Child {
+		if str, ok := ch.(*etree.CharData); ok {
+			text += strings.TrimSpace(str.Data)
+		} else if childEl, ok := ch.(*etree.Element); ok {
+			extracted, err := switchFn(childEl)
+			if extracted == "" {
+				continue
+			}
+			if err.HasError {
+				return "", err
+			}
+			text += extracted
+		}
+		text += " "
+	}
+	return strings.TrimSpace(text), errors.NilError()
 }

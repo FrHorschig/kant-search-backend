@@ -72,41 +72,35 @@ func Hx(hx *etree.Element) (model.Heading, errors.ErrorNew) {
 }
 
 func Hu(hu *etree.Element) (string, errors.ErrorNew) {
-	text := ""
-	for _, ch := range hu.Child {
-		if str, ok := ch.(*etree.CharData); ok {
-			text += strings.TrimSpace(str.Data)
-		} else if el, ok := ch.(*etree.Element); ok {
-			switch el.Tag {
-			case "seite":
-				text += Seite(el)
-			case "zeile":
-				text += zeile(el)
-			case "fremdsprache":
-				text += fremdsprache(el)
-			case "romzahl":
-				text += romzahl(el)
-			case "gesperrt":
-				text += gesperrt(el)
-			case "name":
-				text += name(el)
-			case "fett":
-				text += fett(el)
-			case "em1":
-				text += em1(el)
-			case "fr":
-				text += fr(el)
-			case "op":
-				continue
-			case "trenn":
-				continue
-			default:
-				return "", errors.NewError(fmt.Errorf("unknown tag '%s' in hu element", el.Tag), nil)
-			}
+	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+		switch el.Tag {
+		case "seite":
+			return Seite(el), errors.NilError()
+		case "zeile":
+			return zeile(el), errors.NilError()
+		case "fremdsprache":
+			return fremdsprache(el), errors.NilError()
+		case "romzahl":
+			return romzahl(el), errors.NilError()
+		case "gesperrt":
+			return gesperrt(el), errors.NilError()
+		case "name":
+			return name(el), errors.NilError()
+		case "fett":
+			return fett(el), errors.NilError()
+		case "em1":
+			return em1(el), errors.NilError()
+		case "fr":
+			return fr(el), errors.NilError()
+		case "op":
+			return "", errors.NilError()
+		case "trenn":
+			return "", errors.NilError()
+		default:
+			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, hu.Tag), nil)
 		}
-		text += " "
 	}
-	return strings.TrimSpace(text), errors.NilError()
+	return extractText(hu, switchFn)
 }
 
 func level(el *etree.Element) commonmodel.Level {
