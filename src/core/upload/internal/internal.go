@@ -3,11 +3,11 @@ package internal
 //go:generate mockgen -source=$GOFILE -destination=mocks/xml_mapper_mock.go -package=mocks
 
 import (
+	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mapping"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
 )
 
 type XmlMapper interface {
@@ -26,8 +26,10 @@ func NewXmlMapper() XmlMapper {
 }
 
 func (rec *xmlMapperImpl) Map(xml string) ([]model.Work, errors.ErrorNew) {
-	xml = transform.Simplify(xml)
-	_, err := mapping.MapToWorks(xml)
+	doc := etree.NewDocument()
+	doc.ReadFromString(xml)
+
+	_, err := mapping.MapToTree(doc)
 	if err.HasError {
 		return nil, err
 	}
