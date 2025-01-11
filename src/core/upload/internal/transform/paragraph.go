@@ -19,21 +19,21 @@ func P(p *etree.Element) (string, errors.ErrorNew) {
 		case "em2":
 			return em2(el), errors.NilError()
 		case "fett":
-			return fett(el), errors.NilError()
+			return fett(el)
 		case "formel":
 			return formel(el), errors.NilError()
 		case "fr":
 			return fr(el), errors.NilError()
 		case "fremdsprache":
-			return fremdsprache(el), errors.NilError()
+			return fremdsprache(el)
 		case "gesperrt":
-			return gesperrt(el), errors.NilError()
+			return gesperrt(el)
 		case "name":
-			return name(el), errors.NilError()
+			return name(el)
 		case "op":
 			return "", errors.NilError()
 		case "romzahl":
-			return romzahl(el), errors.NilError()
+			return romzahl(el)
 		case "seite":
 			return Seite(el), errors.NilError()
 		case "trenn":
