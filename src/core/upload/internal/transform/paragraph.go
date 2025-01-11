@@ -20,6 +20,8 @@ func P(p *etree.Element) (string, errors.ErrorNew) {
 				text += antiqua(el)
 			case "em1":
 				text += em1(el)
+			case "em2":
+				text += em2(el)
 			case "fett":
 				text += fett(el)
 			case "formel":
@@ -52,30 +54,37 @@ func P(p *etree.Element) (string, errors.ErrorNew) {
 }
 
 func Table(table *etree.Element) (string, errors.ErrorNew) {
-	// TODO implement me
+	// TODO implement me: many things ...
 	return "", errors.NilError()
 }
 
 func antiqua(antiqua *etree.Element) string {
-	// TODO implement me
+	// TODO implement me: zeile, trenn, seite, gesperrt, name, fett
 	return ""
 }
 
 func bild(bild *etree.Element) string {
 	// TODO implement me
+	// attributes: src, beschreibung, typ, Ort, z_anfang, z_ende, ausrichtung
 	return ""
 }
 
 func bildverweis(bildverweis *etree.Element) string {
 	// TODO implement me
+	// attributes: src, beschreibung, typ, Ort, z_anfang, z_ende, ausrichtung
 	return ""
 }
-func em2(em2 *etree.Element) string {
+func em2(em2El *etree.Element) string {
 	// TODO implement me
-	return ""
+	text := ""
+	// TODO check the AA scans to maybe find something better
+	return fmt.Sprintf(
+		"<ks-tracked>%s</ks-tracked>",
+		strings.TrimSpace(text),
+	)
 }
 
 func formel(formel *etree.Element) string {
-	// TODO implement me
-	return ""
+	// TODO implement me: em1
+	return strings.TrimSpace(formel.Text())
 }
