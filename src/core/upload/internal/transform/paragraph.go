@@ -10,47 +10,41 @@ import (
 
 func P(p *etree.Element) (string, errors.ErrorNew) {
 	// TODO improvement: handle 'ausrichtung' attribute
-	text := ""
-	for _, ch := range p.Child {
-		if str, ok := ch.(*etree.CharData); ok {
-			text += strings.TrimSpace(str.Data)
-		} else if el, ok := ch.(*etree.Element); ok {
-			switch el.Tag {
-			case "antiqua":
-				text += antiqua(el)
-			case "em1":
-				text += em1(el)
-			case "em2":
-				text += em2(el)
-			case "fett":
-				text += fett(el)
-			case "formel":
-				text += formel(el)
-			case "fr":
-				text += fr(el)
-			case "fremdsprache":
-				text += fremdsprache(el)
-			case "gesperrt":
-				text += gesperrt(el)
-			case "name":
-				text += name(el)
-			case "op":
-				continue
-			case "romzahl":
-				text += romzahl(el)
-			case "seite":
-				text += Seite(el)
-			case "trenn":
-				continue
-			case "zeile":
-				text += zeile(el)
-			default:
-				return "", errors.NewError(fmt.Errorf("unknown tag '%s' in hu element", el.Tag), nil)
-			}
+	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+		switch el.Tag {
+		case "antiqua":
+			return antiqua(el), errors.NilError()
+		case "em1":
+			return em1(el), errors.NilError()
+		case "em2":
+			return em2(el), errors.NilError()
+		case "fett":
+			return fett(el), errors.NilError()
+		case "formel":
+			return formel(el), errors.NilError()
+		case "fr":
+			return fr(el), errors.NilError()
+		case "fremdsprache":
+			return fremdsprache(el), errors.NilError()
+		case "gesperrt":
+			return gesperrt(el), errors.NilError()
+		case "name":
+			return name(el), errors.NilError()
+		case "op":
+			return "", errors.NilError()
+		case "romzahl":
+			return romzahl(el), errors.NilError()
+		case "seite":
+			return Seite(el), errors.NilError()
+		case "trenn":
+			return "", errors.NilError()
+		case "zeile":
+			return zeile(el), errors.NilError()
+		default:
+			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, p.Tag), nil)
 		}
-		text += " "
 	}
-	return strings.TrimSpace(text), errors.NilError()
+	return extractText(p, switchFn)
 }
 
 func Table(table *etree.Element) (string, errors.ErrorNew) {
