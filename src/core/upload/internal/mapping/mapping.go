@@ -29,10 +29,6 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 	pagePrefix := ""
 	for _, el := range hauptteil.ChildElements() {
 		switch el.Tag {
-		case "hj":
-			// We use the year data from https://kant.bbaw.de/de/akademieausgabe, so we ignore these year elements
-			continue
-
 		case "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9":
 			hx, err := transform.Hx(el)
 			if err.HasError {
@@ -59,6 +55,10 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 			parent.Sections = append(parent.Sections, sec)
 			currentSec = &parent.Sections[len(parent.Sections)-1]
 
+		case "hj":
+			// We use the year data from https://kant.bbaw.de/de/akademieausgabe, so we ignore these year elements
+			continue
+
 		case "hu":
 			hu, err := transform.Hu(el)
 			if err.HasError {
@@ -69,6 +69,9 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 				pagePrefix = ""
 			}
 			currentSec.Paragraphs = append(currentSec.Paragraphs, hu)
+
+		case "op":
+			continue
 
 		case "p":
 			p, err := transform.P(el)
@@ -83,8 +86,7 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 
 		case "seite":
 			pagePrefix += transform.Seite(el)
-		case "op":
-			continue
+
 		case "table":
 			// TODO implement me
 
@@ -119,8 +121,4 @@ func findParent(hx model.Heading, current *model.Section) *model.Section {
 	} else { // new heading is higher in hierarchy
 		return findParent(hx, current.Parent)
 	}
-}
-
-func prnt(el *etree.Element) {
-	println(etree.NewDocumentWithRoot(el).WriteToString())
 }
