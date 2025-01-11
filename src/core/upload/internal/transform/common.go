@@ -42,7 +42,7 @@ func romzahl(el *etree.Element) string {
 }
 
 func Seite(el *etree.Element) string {
-	// TODO improvement: handle 'satz' attribute with value 'querformat'
+	// TODO improvement: handle 'satz' attribute
 	return fmt.Sprintf(
 		"<ks-page>%s</ks-page>",
 		el.SelectAttrValue("nr", "MISSING_PAGE_NUMBER"),
