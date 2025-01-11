@@ -19,6 +19,20 @@ func Hx(hx *etree.Element) (model.Heading, errors.ErrorNew) {
 			tocTitle += str.Data
 		} else if el, ok := ch.(*etree.Element); ok {
 			switch el.Tag {
+			case "fett":
+				fett := fett(el)
+				tocTitle += fett
+				textTitle += fett
+			case "fr":
+				textTitle += fr(el)
+			case "fremdsprache":
+				fremdsprache := fremdsprache(el)
+				tocTitle += fremdsprache
+				textTitle += fremdsprache
+			case "gesperrt":
+				gesperrt := gesperrt(el)
+				tocTitle += gesperrt
+				textTitle += gesperrt
 			case "hi":
 				tocTitle += strings.TrimSpace(el.Text())
 			case "hu":
@@ -27,36 +41,22 @@ func Hx(hx *etree.Element) (model.Heading, errors.ErrorNew) {
 					return model.Heading{}, err
 				}
 				textTitle += hu
-			case "zeile":
-				textTitle += zeile(el)
-			case "seite":
-				textTitle += Seite(el)
-			case "op":
-				continue
-			case "fremdsprache":
-				fremdsprache := fremdsprache(el)
-				tocTitle += fremdsprache
-				textTitle += fremdsprache
-			case "romzahl":
-				romzahl := romzahl(el)
-				tocTitle += romzahl
-				textTitle += romzahl
-			case "gesperrt":
-				gesperrt := gesperrt(el)
-				tocTitle += gesperrt
-				textTitle += gesperrt
 			case "name":
 				name := name(el)
 				tocTitle += name
 				textTitle += name
-			case "fett":
-				fett := fett(el)
-				tocTitle += fett
-				textTitle += fett
-			case "fr":
-				textTitle += fr(el)
+			case "op":
+				continue
+			case "romzahl":
+				romzahl := romzahl(el)
+				tocTitle += romzahl
+				textTitle += romzahl
+			case "seite":
+				textTitle += Seite(el)
 			case "trenn":
 				continue
+			case "zeile":
+				textTitle += zeile(el)
 			default:
 				return model.Heading{}, errors.NewError(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
 			}

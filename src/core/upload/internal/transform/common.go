@@ -6,6 +6,14 @@ import (
 	"github.com/beevik/etree"
 )
 
+func Seite(el *etree.Element) string {
+	// TODO improvement: handle 'satz' attribute
+	return fmt.Sprintf(
+		"<ks-page>%s</ks-page>",
+		el.SelectAttrValue("nr", "MISSING_PAGE_NUMBER"),
+	)
+}
+
 func em1(el *etree.Element) string {
 	// TODO implement me
 	return ""
@@ -39,14 +47,6 @@ func name(el *etree.Element) string {
 func romzahl(el *etree.Element) string {
 	// TODO implement me
 	return ""
-}
-
-func Seite(el *etree.Element) string {
-	// TODO improvement: handle 'satz' attribute
-	return fmt.Sprintf(
-		"<ks-page>%s</ks-page>",
-		el.SelectAttrValue("nr", "MISSING_PAGE_NUMBER"),
-	)
 }
 
 func zeile(el *etree.Element) string {
