@@ -7,9 +7,9 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/errors"
 )
 
-func arabicToRoman(number int32) string {
+func arabicToRoman(number int64) string {
 	conversions := []struct {
-		value int32
+		value int64
 		digit string
 	}{
 		{1000, "M"},

@@ -20,17 +20,26 @@ func Hx(hx *etree.Element) (model.Heading, errors.ErrorNew) {
 		} else if el, ok := ch.(*etree.Element); ok {
 			switch el.Tag {
 			case "fett":
-				fett := fett(el)
+				fett, err := fett(el)
+				if err.HasError {
+					return model.Heading{}, err
+				}
 				tocTitle += fett
 				textTitle += fett
 			case "fr":
 				textTitle += fr(el)
 			case "fremdsprache":
-				fremdsprache := fremdsprache(el)
+				fremdsprache, err := fremdsprache(el)
+				if err.HasError {
+					return model.Heading{}, err
+				}
 				tocTitle += fremdsprache
 				textTitle += fremdsprache
 			case "gesperrt":
-				gesperrt := gesperrt(el)
+				gesperrt, err := gesperrt(el)
+				if err.HasError {
+					return model.Heading{}, err
+				}
 				tocTitle += gesperrt
 				textTitle += gesperrt
 			case "hi":
@@ -42,13 +51,19 @@ func Hx(hx *etree.Element) (model.Heading, errors.ErrorNew) {
 				}
 				textTitle += hu
 			case "name":
-				name := name(el)
+				name, err := name(el)
+				if err.HasError {
+					return model.Heading{}, err
+				}
 				tocTitle += name
 				textTitle += name
 			case "op":
 				continue
 			case "romzahl":
-				romzahl := romzahl(el)
+				romzahl, err := romzahl(el)
+				if err.HasError {
+					return model.Heading{}, err
+				}
 				tocTitle += romzahl
 				textTitle += romzahl
 			case "seite":
@@ -74,28 +89,28 @@ func Hx(hx *etree.Element) (model.Heading, errors.ErrorNew) {
 func Hu(hu *etree.Element) (string, errors.ErrorNew) {
 	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
-		case "seite":
-			return Seite(el), errors.NilError()
-		case "zeile":
-			return zeile(el), errors.NilError()
-		case "fremdsprache":
-			return fremdsprache(el), errors.NilError()
-		case "romzahl":
-			return romzahl(el), errors.NilError()
-		case "gesperrt":
-			return gesperrt(el), errors.NilError()
-		case "name":
-			return name(el), errors.NilError()
-		case "fett":
-			return fett(el), errors.NilError()
 		case "em1":
 			return em1(el), errors.NilError()
+		case "fett":
+			return fett(el)
 		case "fr":
 			return fr(el), errors.NilError()
+		case "fremdsprache":
+			return fremdsprache(el)
+		case "gesperrt":
+			return gesperrt(el)
+		case "name":
+			return name(el)
 		case "op":
 			return "", errors.NilError()
+		case "romzahl":
+			return romzahl(el)
+		case "seite":
+			return Seite(el), errors.NilError()
 		case "trenn":
 			return "", errors.NilError()
+		case "zeile":
+			return zeile(el), errors.NilError()
 		default:
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, hu.Tag), nil)
 		}
