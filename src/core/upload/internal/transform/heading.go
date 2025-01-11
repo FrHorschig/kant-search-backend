@@ -15,12 +15,12 @@ func Hx(hx *etree.Element) (model.Heading, errors.ErrorNew) {
 	tocTitle := ""
 	for _, ch := range hx.Child {
 		if str, ok := ch.(*etree.CharData); ok {
-			textTitle += str.Data
+			textTitle += strings.TrimSpace(str.Data)
 			tocTitle += str.Data
 		} else if el, ok := ch.(*etree.Element); ok {
 			switch el.Tag {
 			case "hi":
-				tocTitle += el.Text()
+				tocTitle += strings.TrimSpace(el.Text())
 			case "hu":
 				hu, err := Hu(el)
 				if err.HasError {
@@ -61,10 +61,12 @@ func Hx(hx *etree.Element) (model.Heading, errors.ErrorNew) {
 				return model.Heading{}, errors.NewError(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
 			}
 		}
+		tocTitle += " "
+		textTitle += " "
 	}
 	return model.Heading{
-		TocTitle:  tocTitle,
-		TextTitle: textTitle,
+		TocTitle:  strings.TrimSpace(tocTitle),
+		TextTitle: strings.TrimSpace(textTitle),
 		Level:     level(hx),
 	}, errors.NilError()
 }
