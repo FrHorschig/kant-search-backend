@@ -15,12 +15,16 @@ type XmlMapper interface {
 }
 
 type xmlMapperImpl struct {
-	pyUtil pyutil.PythonUtil
+	treeMapper  mapping.TreeMapper
+	modelMapper mapping.ModelMapper
+	pyUtil      pyutil.PythonUtil
 }
 
 func NewXmlMapper() XmlMapper {
 	impl := xmlMapperImpl{
-		pyUtil: pyutil.NewPythonUtil(),
+		treeMapper:  mapping.NewTreeMapper(),
+		modelMapper: mapping.NewModelMapper(),
+		pyUtil:      pyutil.NewPythonUtil(),
 	}
 	return &impl
 }
@@ -29,7 +33,7 @@ func (rec *xmlMapperImpl) Map(xml string) ([]model.Work, errors.ErrorNew) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
 
-	_, err := mapping.MapToTree(doc)
+	_, err := rec.treeMapper.Map(doc)
 	if err.HasError {
 		return nil, err
 	}

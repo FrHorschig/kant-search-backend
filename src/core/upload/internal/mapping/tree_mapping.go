@@ -1,5 +1,7 @@
 package mapping
 
+//go:generate mockgen -source=$GOFILE -destination=mocks/tree_mapper.go -package=mocks
+
 import (
 	"fmt"
 
@@ -10,27 +12,43 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
 )
 
-func MapToTree(doc *etree.Document) ([]model.Section, errors.ErrorNew) {
+type TreeMapper interface {
+	Map(doc *etree.Document) ([]model.Section, errors.ErrorNew)
+}
+
+type TreeMapperImpl struct {
+	trafo transform.XmlTransformator
+}
+
+func NewTreeMapper() TreeMapper {
+	impl := TreeMapperImpl{
+		trafo: transform.NewXmlTransformator(),
+	}
+	return &impl
+}
+
+func (rec *TreeMapperImpl) Map(doc *etree.Document) ([]model.Section, errors.ErrorNew) {
+	// TODO implement me
 	vol := doc.FindElement("//band")
-	works, _ := findSections(vol.FindElement("//hauptteil"))
-	// randtexte := findRandtexte(vol.FindElement("//randtexte"))
+	works, _ := rec.findSections(vol.FindElement("//hauptteil"))
+	// randtexte := rec.findRandtexte(vol.FindElement("//randtexte"))
 	// if len(randtexte) > 0 {
 	// 	mergeRandtexte(works, randtexte)
 	// }
-	// footnotes := findFootnotes(vol.FindElement("//fussnoten"))
+	// footnotes := rec.findFootnotes(vol.FindElement("//fussnoten"))
 	// mergeFootnotes(works, footnotes)
 
 	return works, errors.NilError()
 }
 
-func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
+func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 	secs := make([]model.Section, 0)
 	var currentSec *model.Section
 	pagePrefix := ""
 	for _, el := range hauptteil.ChildElements() {
 		switch el.Tag {
 		case "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9":
-			hx, err := transform.Hx(el)
+			hx, err := rec.trafo.Hx(el)
 			if err.HasError {
 				return nil, err
 			}
@@ -38,7 +56,7 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 				hx.TextTitle = pagePrefix + hx.TextTitle
 				pagePrefix = ""
 			}
-			if hx.TocTitle == "" { // this happens if the hx only consists of an hu element
+			if hx.TocTitle == "" { // this happens if hx only has an hu element
 				currentSec.Paragraphs = append(currentSec.Paragraphs, hx.TextTitle)
 				continue
 			}
@@ -60,7 +78,7 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 			continue
 
 		case "hu":
-			hu, err := transform.Hu(el)
+			hu, err := rec.trafo.Hu(el)
 			if err.HasError {
 				return nil, err
 			}
@@ -74,7 +92,7 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 			continue
 
 		case "p":
-			p, err := transform.P(el)
+			p, err := rec.trafo.P(el)
 			if err.HasError {
 				return nil, err
 			}
@@ -85,7 +103,7 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 			currentSec.Paragraphs = append(currentSec.Paragraphs, p)
 
 		case "seite":
-			pagePrefix += transform.Seite(el)
+			pagePrefix += rec.trafo.Seite(el)
 
 		case "table":
 			// TODO implement me
@@ -97,11 +115,11 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 	return secs, errors.NilError()
 }
 
-func findRandtexte(randtexte *etree.Element) []model.Randtext {
+func (rec *TreeMapperImpl) findRandtexte(randtexte *etree.Element) []model.Randtext {
 	panic("unimplemented")
 }
 
-func findFootnotes(fussnoten *etree.Element) []model.Footnote {
+func (rec *TreeMapperImpl) findFootnotes(fussnoten *etree.Element) []model.Footnote {
 	panic("unimplemented")
 }
 
