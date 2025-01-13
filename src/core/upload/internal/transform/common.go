@@ -14,7 +14,7 @@ func Seite(seite *etree.Element) string {
 	// TODO improvement: handle 'satz' attribute
 	return fmt.Sprintf(
 		"<ks-page>%s</ks-page>",
-		seite.SelectAttrValue("nr", "MISSING_PAGE_NUMBER"),
+		strings.TrimSpace(seite.SelectAttrValue("nr", "MISSING_PAGE_NUMBER")),
 	)
 }
 
