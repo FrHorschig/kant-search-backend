@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/beevik/etree"
@@ -43,13 +44,15 @@ func extractText(element *etree.Element, switchFn func(el *etree.Element) (strin
 			text += strings.TrimSpace(str.Data)
 		} else if childEl, ok := ch.(*etree.Element); ok {
 			extracted, err := switchFn(childEl)
-			if extracted == "" {
-				continue
-			}
 			if err.HasError {
 				return "", err
 			}
+			if extracted == "" {
+				continue
+			}
 			text += extracted
+		} else {
+			return "", errors.NewError(nil, fmt.Errorf("unknown child type in tag '%v', it is neither CharData nor Element", element.Tag))
 		}
 		text += " "
 	}
