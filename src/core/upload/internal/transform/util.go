@@ -6,7 +6,30 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
+	commonmodel "github.com/frhorschig/kant-search-backend/common/model"
 )
+
+func level(el *etree.Element) commonmodel.Level {
+	switch el.Tag {
+	case "h1":
+		return commonmodel.H1
+	case "h2":
+		return commonmodel.H2
+	case "h3":
+		return commonmodel.H3
+	case "h4":
+		return commonmodel.H4
+	case "h5":
+		return commonmodel.H5
+	case "h6":
+		return commonmodel.H6
+	case "h7":
+		return commonmodel.H7
+	case "h8":
+		return commonmodel.H8
+	}
+	return commonmodel.H9
+}
 
 func arabicToRoman(number int64) string {
 	conversions := []struct {
