@@ -19,6 +19,7 @@ func TestHx(t *testing.T) {
 		{
 			name:              "pure text",
 			text:              "Some text",
+			expectedTocTitle:  "Some text",
 			expectedTextTitle: "Some text",
 		},
 		{
@@ -54,12 +55,12 @@ func TestHx(t *testing.T) {
 			text:              "Test text",
 			child:             createElement("hi", nil, "hiText", nil),
 			expectedTocTitle:  "Test text hiText",
-			expectedTextTitle: "Test text hiText",
+			expectedTextTitle: "Test text",
 		},
 		{
 			name:              "text with hu child element",
 			text:              "Test text",
-			child:             createElement("hi", nil, "huText", nil),
+			child:             createElement("hu", nil, "huText", nil),
 			expectedTocTitle:  "Test text",
 			expectedTextTitle: "Test text huText",
 		},
@@ -88,7 +89,7 @@ func TestHx(t *testing.T) {
 			name:              "text with seite child element",
 			text:              "Test text",
 			child:             createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expectedTocTitle:  "Test text <ks-meta-page>384</ks-meta-page>",
+			expectedTocTitle:  "Test text",
 			expectedTextTitle: "Test text <ks-meta-page>384</ks-meta-page>",
 		},
 		{
@@ -254,19 +255,19 @@ func TestP(t *testing.T) {
 			name:     "text with antiqua child element",
 			text:     "Test text",
 			child:    createElement("antiqua", nil, "antiquaText", nil),
-			expected: "Test text",
+			expected: "Test text antiquaText",
 		},
 		{
 			name:     "text with bild child element",
 			text:     "Test text",
 			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `Test text{image-extract src="source" description="description text"}`,
+			expected: `Test text {image-extract src="source" desc="description text"}`,
 		},
 		{
 			name:     "text with bildverweis child element",
 			text:     "Test text",
 			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `Test text {image-extract src="source" description="description text"}"`,
+			expected: `Test text {image-extract src="source" desc="description text"}`,
 		},
 		{
 			name:     "text with em1 child element",
@@ -278,7 +279,7 @@ func TestP(t *testing.T) {
 			name:     "text with em2 child element",
 			text:     "Test text",
 			child:    createElement("em2", nil, "em2Text", nil),
-			expected: "Test text <ks-fmt-tracked>em2Text</ks-fmt-tracked>",
+			expected: "Test text <ks-fmt-emph2>em2Text</ks-fmt-emph2>",
 		},
 		{
 			name:     "text with fett child element",
@@ -371,7 +372,7 @@ func TestP(t *testing.T) {
 			for k, v := range tc.attrs {
 				el.CreateAttr(k, v)
 			}
-			result, err := fremdsprache(el)
+			result, err := p(el)
 			if tc.expectError {
 				assert.NotNil(t, err)
 			}
@@ -390,27 +391,27 @@ func TestSeite(t *testing.T) {
 		{
 			name:     "number is extracted",
 			attrs:    map[string]string{"nr": "254"},
-			expected: "<ks-page>254</ks-page>",
+			expected: "<ks-meta-page>254</ks-meta-page>",
 		},
 		{
 			name:     "default value is used due to missing number",
-			expected: "<ks-page>MISSING_PAGE_NUMBER</ks-page>",
+			expected: "<ks-meta-page>MISSING_PAGE_NUMBER</ks-meta-page>",
 		},
 		{
 			name:     "text is ignored",
 			text:     "Some text",
 			attrs:    map[string]string{"nr": "847"},
-			expected: "<ks-page>847</ks-page>",
+			expected: "<ks-meta-page>847</ks-meta-page>",
 		},
 		{
 			name:     "nr attribute is non-numerical string",
 			attrs:    map[string]string{"nr": "kdfghsd"},
-			expected: "<ks-page>kdfghsd</ks-page>",
+			expected: "<ks-meta-page>kdfghsd</ks-meta-page>",
 		},
 		{
 			name:     "nr attribute with leading and trailing spaces",
 			attrs:    map[string]string{"nr": " 2     "},
-			expected: "<ks-page>2</ks-page>",
+			expected: "<ks-meta-page>2</ks-meta-page>",
 		},
 	}
 

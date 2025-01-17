@@ -27,19 +27,19 @@ func TestAntiqua(t *testing.T) {
 			name:     "text with fett child element",
 			text:     "Test text",
 			child:    createElement("fett", nil, "fettText", nil),
-			expected: "<ks-meta-lang>Test text <ks-fmt-bold>fettText</ks-fmt-bold></ks-meta-lang>",
+			expected: "Test text <ks-fmt-bold>fettText</ks-fmt-bold>",
 		},
 		{
 			name:     "text with gesperrt child element",
 			text:     "Test text",
 			child:    createElement("gesperrt", nil, "gesperrtText", nil),
-			expected: "<ks-meta-lang>Test text <ks-fmt-tracked>gesperrtText</ks-fmt-tracked></ks-meta-lang>",
+			expected: "Test text <ks-fmt-tracked>gesperrtText</ks-fmt-tracked>",
 		},
 		{
 			name:     "text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: "<ks-meta-lang>Test text nameText</ks-meta-lang>",
+			expected: "Test text nameText",
 		},
 		{
 			name:     "text with seite child element",
@@ -92,14 +92,19 @@ func TestBildBildverweis(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "bild text is ignored",
-			text:     "some text",
-			expected: "{image-extract}",
+			name:     "default values due to missing attributes",
+			expected: `{image-extract src="MISSING_IMG_SRC" desc="MISSING_IMG_DESC"}`,
 		},
 		{
 			name:     "bild attributes are extracted",
 			attrs:    map[string]string{"src": "source string", "beschreibung": "description text"},
-			expected: `{image-extract src="source string" desc="description text}`,
+			expected: `{image-extract src="source string" desc="description text"}`,
+		},
+		{
+			name:     "text is ignored",
+			attrs:    map[string]string{"src": "s", "beschreibung": "d"},
+			text:     "some text",
+			expected: `{image-extract src="s" desc="d"}`,
 		},
 	}
 
@@ -109,7 +114,7 @@ func TestBildBildverweis(t *testing.T) {
 			for k, v := range tc.attrs {
 				el.CreateAttr(k, v)
 			}
-			result := em1(el)
+			result := bildBildverweis(el)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -159,13 +164,13 @@ func TestEm2(t *testing.T) {
 			name:     "text with bild child element",
 			text:     "Test text",
 			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `<ks-fmt-emph2>Test text{image-extract src="source" description="description text"}</ks-fmt-emph2>`,
+			expected: `<ks-fmt-emph2>Test text {image-extract src="source" desc="description text"}</ks-fmt-emph2>`,
 		},
 		{
 			name:     "text with bildverweis child element",
 			text:     "Test text",
 			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `<ks-fmt-emph2>Test text {image-extract src="source" description="description text"}"</ks-fmt-emph2>`,
+			expected: `<ks-fmt-emph2>Test text {image-extract src="source" desc="description text"}</ks-fmt-emph2>`,
 		},
 		{
 			name:     "text with em1 child element",
@@ -231,7 +236,7 @@ func TestEm2(t *testing.T) {
 			name:     "text with trenn child element",
 			text:     "Test text",
 			child:    createElement("trenn", nil, "trennText", nil),
-			expected: "Test text</ks-fmt-emph2>",
+			expected: "<ks-fmt-emph2>Test text</ks-fmt-emph2>",
 		},
 		{
 			name:     "text with zeile child element",
@@ -242,7 +247,6 @@ func TestEm2(t *testing.T) {
 		{
 			name:     "text with leading and trailing spaces",
 			text:     "   Test text       ",
-			child:    nil,
 			expected: "<ks-fmt-emph2>Test text</ks-fmt-emph2>",
 		},
 		{
@@ -254,8 +258,11 @@ func TestEm2(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			el := createElement("element", nil, tc.text, nil)
-			result := em1(el)
+			el := createElement("element", nil, tc.text, tc.child)
+			result, err := em2(el)
+			if tc.expectError {
+				assert.NotNil(t, err)
+			}
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -376,21 +383,21 @@ func TestFremdsprache(t *testing.T) {
 		},
 		{
 			name:     "text with language attributes",
-			text:     "Some foreing language text",
-			attrs:    map[string]string{"sprache": "language", "zeichen": "some alphabet", "umschrift": "transcribed"},
-			expected: `<ks-meta-lang lang="language" alphabet="some alphabet", "transcript"="transcribed text">Some foreing language text</ks-meta-lang>`,
+			text:     "Some foreign language text",
+			attrs:    map[string]string{"sprache": "language", "zeichen": "some alphabet", "umschrift": "transcribed text"},
+			expected: `<ks-meta-lang lang="language" alphabet="some alphabet" transcript="transcribed text">Some foreign language text</ks-meta-lang>`,
 		},
 		{
 			name:     "text with bild child element",
 			text:     "Test text",
 			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `<ks-meta-lang>Test text{image-extract src="source" description="description text"}</ks-meta-lang>`,
+			expected: `<ks-meta-lang>Test text {image-extract src="source" desc="description text"}</ks-meta-lang>`,
 		},
 		{
 			name:     "text with bildverweis child element",
 			text:     "Test text",
 			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `<ks-meta-lang>Test text {image-extract src="source" description="description text"}</ks-meta-lang>"`,
+			expected: `<ks-meta-lang>Test text {image-extract src="source" desc="description text"}</ks-meta-lang>`,
 		},
 		{
 			name:     "text with em1 child element",
@@ -426,7 +433,7 @@ func TestFremdsprache(t *testing.T) {
 			name:     "text with fremdsprache child element",
 			text:     "Test text",
 			child:    createElement("fremdsprache", nil, "fremdspracheText", nil),
-			expected: "<ks-meta-lang>Test text fremdspracheText</ks-meta-lang>",
+			expected: "<ks-meta-lang>Test text <ks-meta-lang>fremdspracheText</ks-meta-lang></ks-meta-lang>",
 		},
 		{
 			name:     "text with gesperrt child element",
