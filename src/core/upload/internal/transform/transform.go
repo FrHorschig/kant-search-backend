@@ -160,14 +160,18 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
 		case "antiqua":
 			return antiqua(el)
+		case "bild":
+			return bildBildverweis(el), errors.NilError()
+		case "bildverweis":
+			return bildBildverweis(el), errors.NilError()
 		case "em1":
 			return em1(el), errors.NilError()
 		case "em2":
-			return em2(el), errors.NilError()
+			return em2(el)
 		case "fett":
 			return fett(el)
 		case "formel":
-			return formel(el), errors.NilError()
+			return formel(el)
 		case "fr":
 			return fr(el), errors.NilError()
 		case "fremdsprache":
@@ -180,6 +184,8 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 			return "", errors.NilError()
 		case "romzahl":
 			return romzahl(el)
+		case "table":
+			return table(), errors.NilError()
 		case "seite":
 			return seite(el), errors.NilError()
 		case "trenn":
@@ -195,7 +201,7 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 
 func seite(elem *etree.Element) string {
 	return fmt.Sprintf(
-		"<ks-page>%s</ks-page>",
+		"<ks-meta-page>%s</ks-meta-page>",
 		strings.TrimSpace(elem.SelectAttrValue("nr", "MISSING_PAGE_NUMBER")),
 	)
 }

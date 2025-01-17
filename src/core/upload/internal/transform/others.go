@@ -11,75 +11,43 @@ import (
 )
 
 func antiqua(elem *etree.Element) (string, errors.ErrorNew) {
-	// TODO implement me: zeile, trenn, seite, gesperrt, name, fett
-	return "", errors.NilError()
+	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+		switch el.Tag {
+		case "fett":
+			return fett(el)
+		case "gesperrt":
+			return gesperrt(el)
+		case "name":
+			return name(el)
+		case "seite":
+			return seite(el), errors.NilError()
+		case "trenn":
+			return "", errors.NilError()
+		case "zeile":
+			return zeile(el), errors.NilError()
+		default:
+			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+		}
+	}
+	return extractText(elem, switchFn)
 }
 
 func bildBildverweis(elem *etree.Element) string {
-	// TODO implement me
-	// attributes: src, beschreibung, typ, Ort, z_anfang, z_ende, ausrichtung
 	return fmt.Sprintf(
-		"<ks-img>%s</ks-img>",
+		`{image-extract src="%s" desc="%s"}`,
 		strings.TrimSpace(elem.SelectAttrValue("src", "MISSING_IMG_SRC")),
+		strings.TrimSpace(elem.SelectAttrValue("beschreibung", "MISSING_IMG_DESC")),
 	)
 }
 
 func em1(elem *etree.Element) string {
 	return fmt.Sprintf(
-		"<em>%s</em>",
+		"<ks-fmt-emph>%s</ks-fmt-emph>",
 		strings.TrimSpace(elem.Text()),
 	)
 }
 
-func em2(elem *etree.Element) string {
-	// TODO implement me
-	text := elem.Text()
-	// TODO check the AA scans to maybe find something better
-	return fmt.Sprintf(
-		"<ks-tracked>%s</ks-tracked>",
-		strings.TrimSpace(text),
-	)
-}
-
-func fett(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
-		switch el.Tag {
-		case "seite":
-			return seite(el), errors.NilError()
-		case "zeile":
-			return zeile(el), errors.NilError()
-		case "trenn":
-			return "", errors.NilError()
-		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
-		}
-	}
-	extracted, err := extractText(elem, switchFn)
-	if err.HasError {
-		return "", err
-	}
-	return fmt.Sprintf("<b>%s</b>", extracted), errors.NilError()
-}
-
-func formel(elem *etree.Element) string {
-	// TODO implement me: em1
-	return fmt.Sprintf(
-		"<ks-formula>%s</ks-formula>",
-		strings.TrimSpace(elem.Text()),
-	)
-}
-
-func fr(elem *etree.Element) string {
-	return fmt.Sprintf(
-		"<ks-fn-ref>%s.%s</ks-fn-ref>",
-		strings.TrimSpace(elem.SelectAttrValue("seite", "MISSING_FR_PAGE")),
-		strings.TrimSpace(elem.SelectAttrValue("nr", "MISSING_FR_NUMBER")),
-	)
-}
-
-func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
-	// TODO implement me
-	// attributes: sprache, zeichen, umschrift
+func em2(elem *etree.Element) (string, errors.ErrorNew) {
 	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
 		case "bild":
@@ -89,11 +57,11 @@ func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
 		case "em1":
 			return em1(el), errors.NilError()
 		case "em2":
-			return em2(el), errors.NilError()
+			return em2(el)
 		case "fett":
 			return fett(el)
 		case "formel":
-			return formel(el), errors.NilError()
+			return formel(el)
 		case "fr":
 			return fr(el), errors.NilError()
 		case "fremdsprache":
@@ -114,7 +82,107 @@ func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
-	return extractText(elem, switchFn)
+	extracted, err := extractText(elem, switchFn)
+	if err.HasError {
+		return "", err
+	}
+	return fmt.Sprintf(
+		"<ks-fmt-emph2>%s</ks-fmt-emph2>",
+		extracted,
+	), errors.NilError()
+}
+
+func fett(elem *etree.Element) (string, errors.ErrorNew) {
+	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+		switch el.Tag {
+		case "seite":
+			return seite(el), errors.NilError()
+		case "zeile":
+			return zeile(el), errors.NilError()
+		case "trenn":
+			return "", errors.NilError()
+		default:
+			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+		}
+	}
+	extracted, err := extractText(elem, switchFn)
+	if err.HasError {
+		return "", err
+	}
+	return fmt.Sprintf("<ks-fmt-bold>%s</ks-fmt-bold>", extracted), errors.NilError()
+}
+
+func formel(elem *etree.Element) (string, errors.ErrorNew) {
+	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+		switch el.Tag {
+		case "em1":
+			return em1(el), errors.NilError()
+		default:
+			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+		}
+	}
+	extracted, err := extractText(elem, switchFn)
+	if err.HasError {
+		return "", err
+	}
+	return fmt.Sprintf(
+		"<ks-fmt-formula>%s</ks-fmt-formula>",
+		extracted,
+	), errors.NilError()
+}
+
+func fr(elem *etree.Element) string {
+	return fmt.Sprintf(
+		"<ks-fmt-fnref>%s.%s</ks-fmt-fnref>",
+		strings.TrimSpace(elem.SelectAttrValue("seite", "MISSING_FNREF_PAGE")),
+		strings.TrimSpace(elem.SelectAttrValue("nr", "MISSING_FNREF_NUMBER")),
+	)
+}
+
+func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
+	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+		switch el.Tag {
+		case "bild":
+			return bildBildverweis(el), errors.NilError()
+		case "bildverweis":
+			return bildBildverweis(el), errors.NilError()
+		case "em1":
+			return em1(el), errors.NilError()
+		case "em2":
+			return em2(el)
+		case "fett":
+			return fett(el)
+		case "formel":
+			return formel(el)
+		case "fr":
+			return fr(el), errors.NilError()
+		case "fremdsprache":
+			return fremdsprache(el)
+		case "gesperrt":
+			return gesperrt(el)
+		case "name":
+			return name(el)
+		case "romzahl":
+			return romzahl(el)
+		case "seite":
+			return seite(el), errors.NilError()
+		case "trenn":
+			return "", errors.NilError()
+		case "zeile":
+			return zeile(el), errors.NilError()
+		default:
+			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+		}
+	}
+	extracted, err := extractText(elem, switchFn)
+	if err.HasError {
+		return "", err
+	}
+	return fmt.Sprintf(
+		`<ks-meta-lang%s>%s</ks-meta-lang>`,
+		extractForeignLangAttrs(elem),
+		extracted,
+	), errors.NilError()
 }
 
 func gesperrt(elem *etree.Element) (string, errors.ErrorNew) {
@@ -138,7 +206,7 @@ func gesperrt(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf("<ks-tracked>%s</ks-tracked>", extracted), errors.NilError()
+	return fmt.Sprintf("<ks-fmt-tracked>%s</ks-fmt-tracked>", extracted), errors.NilError()
 }
 
 func name(elem *etree.Element) (string, errors.ErrorNew) {
@@ -173,7 +241,24 @@ func romzahl(elem *etree.Element) (string, errors.ErrorNew) {
 
 func zeile(elem *etree.Element) string {
 	return fmt.Sprintf(
-		"<ks-line>%s</ks-line>",
+		"<ks-meta-line>%s</ks-meta-line>",
 		strings.TrimSpace(elem.SelectAttrValue("nr", "MISSING_LINE_NUMBER")),
 	)
+}
+
+func extractForeignLangAttrs(el *etree.Element) string {
+	result := ""
+	lang := strings.TrimSpace(el.SelectAttrValue("sprache", ""))
+	if lang != "" {
+		result = result + ` lang="` + lang + `"`
+	}
+	alphabet := strings.TrimSpace(el.SelectAttrValue("zeichen", ""))
+	if alphabet != "" {
+		result = result + ` alphabet="` + alphabet + `"`
+	}
+	transcript := strings.TrimSpace(el.SelectAttrValue("umschrift", ""))
+	if transcript != "" {
+		result = result + ` transcript="` + transcript + `"`
+	}
+	return result
 }
