@@ -16,7 +16,7 @@ type XmlTransformator interface {
 	Hu(el *etree.Element) (string, errors.ErrorNew)
 	P(el *etree.Element) (string, errors.ErrorNew)
 	Seite(el *etree.Element) string
-	Table(el *etree.Element) (string, errors.ErrorNew)
+	Table() string
 }
 
 type XmlTransformatorImpl struct {
@@ -43,8 +43,8 @@ func (rec *XmlTransformatorImpl) Seite(el *etree.Element) string {
 	return seite(el)
 }
 
-func (rec *XmlTransformatorImpl) Table(el *etree.Element) (string, errors.ErrorNew) {
-	return table(el)
+func (rec *XmlTransformatorImpl) Table() string {
+	return table()
 }
 
 func hx(elem *etree.Element) (model.Heading, errors.ErrorNew) {
@@ -156,7 +156,6 @@ func hu(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func p(elem *etree.Element) (string, errors.ErrorNew) {
-	// TODO improvement: handle 'ausrichtung' attribute
 	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
 		case "antiqua":
@@ -195,14 +194,12 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func seite(elem *etree.Element) string {
-	// TODO improvement: handle 'satz' attribute
 	return fmt.Sprintf(
 		"<ks-page>%s</ks-page>",
 		strings.TrimSpace(elem.SelectAttrValue("nr", "MISSING_PAGE_NUMBER")),
 	)
 }
 
-func table(elem *etree.Element) (string, errors.ErrorNew) {
-	// TODO implement me: many things ...
-	return "", errors.NilError()
+func table() string {
+	return "{table-extract}"
 }
