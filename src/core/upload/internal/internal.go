@@ -33,7 +33,7 @@ func (rec *xmlMapperImpl) Map(xml string) ([]model.Work, errors.ErrorNew) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
 
-	_, err := rec.treeMapper.Map(doc)
+	_, _, _, err := rec.treeMapper.Map(doc)
 	if err.HasError {
 		return nil, err
 	}

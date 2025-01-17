@@ -17,7 +17,7 @@ type XmlTransformator interface {
 	P(el *etree.Element) (string, errors.ErrorNew)
 	Seite(el *etree.Element) (string, errors.ErrorNew)
 	Table() string
-	Randtext(el *etree.Element) (model.Randtext, errors.ErrorNew)
+	Summary(el *etree.Element) (model.Summary, errors.ErrorNew)
 	Footnote(el *etree.Element) (model.Footnote, errors.ErrorNew)
 }
 
@@ -49,8 +49,8 @@ func (rec *XmlTransformatorImpl) Table() string {
 	return table()
 }
 
-func (rec *XmlTransformatorImpl) Randtext(el *etree.Element) (model.Randtext, errors.ErrorNew) {
-	return randtext(el)
+func (rec *XmlTransformatorImpl) Summary(el *etree.Element) (model.Summary, errors.ErrorNew) {
+	return summary(el)
 }
 
 func (rec *XmlTransformatorImpl) Footnote(el *etree.Element) (model.Footnote, errors.ErrorNew) {
@@ -232,7 +232,7 @@ func table() string {
 	return "{table-extract}"
 }
 
-func randtext(elem *etree.Element) (model.Randtext, errors.ErrorNew) {
+func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {
 	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
 		case "p":
@@ -243,17 +243,17 @@ func randtext(elem *etree.Element) (model.Randtext, errors.ErrorNew) {
 	}
 	text, err := extractText(elem, switchFn)
 	if err.HasError {
-		return model.Randtext{}, err
+		return model.Summary{}, err
 	}
 	page, err := extractNumericAttribute(elem, "seite")
 	if err.HasError {
-		return model.Randtext{}, err
+		return model.Summary{}, err
 	}
 	line, err := extractNumericAttribute(elem, "anfang")
 	if err.HasError {
-		return model.Randtext{}, err
+		return model.Summary{}, err
 	}
-	return model.Randtext{
+	return model.Summary{
 		Page: page,
 		Line: line,
 		Text: text,

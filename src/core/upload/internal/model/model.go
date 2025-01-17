@@ -27,7 +27,7 @@ const (
 	H9
 )
 
-type Randtext struct {
+type Summary struct {
 	Page int32
 	Line int32
 	Text string

@@ -12,7 +12,7 @@ import (
 )
 
 type TreeMapper interface {
-	Map(doc *etree.Document) ([]model.Section, []model.Footnote, errors.ErrorNew)
+	Map(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.ErrorNew)
 }
 
 type TreeMapperImpl struct {
@@ -26,21 +26,18 @@ func NewTreeMapper() TreeMapper {
 	return &impl
 }
 
-func (rec *TreeMapperImpl) Map(doc *etree.Document) ([]model.Section, []model.Footnote, errors.ErrorNew) {
+func (rec *TreeMapperImpl) Map(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.ErrorNew) {
 	vol := doc.FindElement("//band")
 	works, _ := rec.findSections(vol.FindElement("//hauptteil"))
-	randtexte, err := rec.findRandtexte(vol.FindElement("//randtexte"))
+	summaries, err := rec.findSummaries(vol.FindElement("//randtexte"))
 	if err.HasError {
-		return nil, nil, err
-	}
-	if len(randtexte) > 0 {
-		mergeRandtexte(works, randtexte)
+		return nil, nil, nil, err
 	}
 	footnotes, err := rec.findFootnotes(vol.FindElement("//fussnoten"))
 	if err.HasError {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	return works, footnotes, errors.NilError()
+	return works, summaries, footnotes, errors.NilError()
 }
 
 func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
@@ -121,10 +118,10 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 	return secs, errors.NilError()
 }
 
-func (rec *TreeMapperImpl) findRandtexte(randtexte *etree.Element) ([]model.Randtext, errors.ErrorNew) {
-	result := make([]model.Randtext, 0)
-	for _, el := range randtexte.ChildElements() {
-		rt, err := rec.trafo.Randtext(el)
+func (rec *TreeMapperImpl) findSummaries(summaries *etree.Element) ([]model.Summary, errors.ErrorNew) {
+	result := make([]model.Summary, 0)
+	for _, el := range summaries.ChildElements() {
+		rt, err := rec.trafo.Summary(el)
 		if err.HasError {
 			return nil, err
 		}
@@ -143,10 +140,6 @@ func (rec *TreeMapperImpl) findFootnotes(fussnoten *etree.Element) ([]model.Foot
 		result = append(result, rt)
 	}
 	return result, errors.NilError()
-}
-
-func mergeRandtexte(sections []model.Section, randtexte []model.Randtext) {
-	panic("unimplemented")
 }
 
 func findParent(hx model.Heading, current *model.Section) *model.Section {
