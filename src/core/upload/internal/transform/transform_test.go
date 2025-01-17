@@ -335,11 +335,10 @@ func TestP(t *testing.T) {
 			expected: "Test text <ks-meta-page>384</ks-meta-page>",
 		},
 		{
-			// TODO implement me
 			name:     "text with table child element",
 			text:     "Test text",
 			child:    createElement("table", nil, "tableText", nil),
-			expected: "Test text",
+			expected: "Test text {table-extract}",
 		},
 		{
 			name:     "text with trenn child element",
