@@ -114,8 +114,16 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 	return secs, errors.NilError()
 }
 
-func (rec *TreeMapperImpl) findRandtexte(randtexte *etree.Element) []model.Randtext {
-	panic("unimplemented")
+func (rec *TreeMapperImpl) findRandtexte(randtexte *etree.Element) ([]model.Randtext, errors.ErrorNew) {
+	result := make([]model.Randtext, 0)
+	for _, el := range randtexte.ChildElements() {
+		rt, err := rec.trafo.Randtext(el)
+		if err.HasError {
+			return nil, err
+		}
+		result = append(result, rt)
+	}
+	return result, errors.NilError()
 }
 
 func (rec *TreeMapperImpl) findFootnotes(fussnoten *etree.Element) []model.Footnote {
