@@ -125,9 +125,7 @@ func TestHx(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", nil, tc.text, tc.child)
 			result, err := hx(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expectedTocTitle, result.TocTitle)
 			assert.Equal(t, tc.expectedTextTitle, result.TextTitle)
 		})
@@ -230,9 +228,7 @@ func TestHu(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", nil, tc.text, tc.child)
 			result, err := hu(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -374,9 +370,7 @@ func TestP(t *testing.T) {
 				el.CreateAttr(k, v)
 			}
 			result, err := p(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -384,19 +378,16 @@ func TestP(t *testing.T) {
 
 func TestSeite(t *testing.T) {
 	testCases := []struct {
-		name     string
-		text     string
-		attrs    map[string]string
-		expected string
+		name        string
+		text        string
+		attrs       map[string]string
+		expected    string
+		expectError bool
 	}{
 		{
 			name:     "number is extracted",
 			attrs:    map[string]string{"nr": "254"},
 			expected: "<ks-meta-page>254</ks-meta-page>",
-		},
-		{
-			name:     "default value is used due to missing number",
-			expected: "<ks-meta-page>MISSING_PAGE_NUMBER</ks-meta-page>",
 		},
 		{
 			name:     "text is ignored",
@@ -405,21 +396,26 @@ func TestSeite(t *testing.T) {
 			expected: "<ks-meta-page>847</ks-meta-page>",
 		},
 		{
-			name:     "nr attribute is non-numerical string",
-			attrs:    map[string]string{"nr": "kdfghsd"},
-			expected: "<ks-meta-page>kdfghsd</ks-meta-page>",
-		},
-		{
 			name:     "nr attribute with leading and trailing spaces",
 			attrs:    map[string]string{"nr": " 2     "},
 			expected: "<ks-meta-page>2</ks-meta-page>",
+		},
+		{
+			name:        "error due to missing number",
+			expectError: true,
+		},
+		{
+			name:        "error due to non-numeric number attribute",
+			attrs:       map[string]string{"nr": "asdh234"},
+			expectError: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", tc.attrs, tc.text, nil)
-			result := seite(el)
+			result, err := seite(el)
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -440,25 +436,27 @@ func TestRandtext(t *testing.T) {
 		expectError bool
 	}{
 		{
-			name:     "pure text",
-			text:     "Some text",
-			expected: model.Randtext{Page: "MISSING_RANDTEXT_PAGE", Line: "MISSING_RANDTEXT_LINE", Text: "Some text"},
+			name:        "pure text",
+			text:        "Some text",
+			expectError: true,
 		},
 		{
 			name:     "text with randtext attributes",
 			text:     "Some text",
 			attrs:    map[string]string{"seite": "123", "anfang": "567"},
-			expected: model.Randtext{Page: "123", Line: "567", Text: "Some text"},
+			expected: model.Randtext{Page: 123, Line: 567, Text: "Some text"},
 		},
 		{
 			name:     "text with p child element",
 			text:     "Some text",
 			attrs:    map[string]string{"seite": "123", "anfang": "567"},
 			child:    createElement("p", nil, "pText", nil),
-			expected: model.Randtext{Page: "123", Line: "567", Text: "Some text pText"},
+			expected: model.Randtext{Page: 123, Line: 567, Text: "Some text pText"},
 		},
 		{
 			name:        "Text with unknown child element",
+			text:        "Some text",
+			attrs:       map[string]string{"seite": "123", "anfang": "567"},
 			child:       createElement("my-custom-tag", nil, "", nil),
 			expectError: true,
 		},
@@ -471,9 +469,7 @@ func TestRandtext(t *testing.T) {
 				el.CreateAttr(k, v)
 			}
 			result, err := randtext(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected.Page, result.Page)
 			assert.Equal(t, tc.expected.Line, result.Line)
 			assert.Equal(t, tc.expected.Text, result.Text)

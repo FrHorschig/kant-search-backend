@@ -28,8 +28,8 @@ const (
 )
 
 type Randtext struct {
-	Page string
-	Line string
+	Page int32
+	Line int32
 	Text string
 }
 

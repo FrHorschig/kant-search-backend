@@ -76,9 +76,7 @@ func TestAntiqua(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", nil, tc.text, tc.child)
 			result, err := antiqua(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -260,9 +258,7 @@ func TestEm2(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", nil, tc.text, tc.child)
 			result, err := em2(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -316,9 +312,7 @@ func TestFett(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", nil, tc.text, tc.child)
 			result, err := fett(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -491,9 +485,7 @@ func TestFremdsprache(t *testing.T) {
 				el.CreateAttr(k, v)
 			}
 			result, err := fremdsprache(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -559,9 +551,7 @@ func TestGesperrt(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", nil, tc.text, tc.child)
 			result, err := gesperrt(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -615,9 +605,7 @@ func TestName(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", nil, tc.text, tc.child)
 			result, err := name(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -651,9 +639,7 @@ func TestRomzahl(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", nil, tc.text, nil)
 			result, err := romzahl(el)
-			if tc.expectError {
-				assert.NotNil(t, err)
-			}
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -661,19 +647,16 @@ func TestRomzahl(t *testing.T) {
 
 func TestZeile(t *testing.T) {
 	testCases := []struct {
-		name     string
-		text     string
-		attrs    map[string]string
-		expected string
+		name        string
+		text        string
+		attrs       map[string]string
+		expected    string
+		expectError bool
 	}{
 		{
 			name:     "number is extracted",
 			attrs:    map[string]string{"nr": "254"},
 			expected: "<ks-meta-line>254</ks-meta-line>",
-		},
-		{
-			name:     "default value is used due to missing number",
-			expected: "<ks-meta-line>MISSING_LINE_NUMBER</ks-meta-line>",
 		},
 		{
 			name:     "text is ignored",
@@ -682,21 +665,28 @@ func TestZeile(t *testing.T) {
 			expected: "<ks-meta-line>847</ks-meta-line>",
 		},
 		{
-			name:     "nr attribute is non-numerical string",
-			attrs:    map[string]string{"nr": "kdfghsd"},
-			expected: "<ks-meta-line>kdfghsd</ks-meta-line>",
-		},
-		{
 			name:     "nr attribute with leading and trailing spaces",
 			attrs:    map[string]string{"nr": " 2     "},
 			expected: "<ks-meta-line>2</ks-meta-line>",
+		},
+		{
+			name:        "error due to missing number",
+			expected:    "",
+			expectError: true,
+		},
+		{
+			name:        "error due to non-numerical number",
+			attrs:       map[string]string{"nr": "abf382"},
+			expected:    "",
+			expectError: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", tc.attrs, tc.text, nil)
-			result := zeile(el)
+			result, err := zeile(el)
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}

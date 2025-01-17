@@ -102,7 +102,11 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			currentSec.Paragraphs = append(currentSec.Paragraphs, p)
 
 		case "seite":
-			pagePrefix += rec.trafo.Seite(el)
+			page, err := rec.trafo.Seite(el)
+			if err.HasError {
+				return nil, err
+			}
+			pagePrefix += page
 
 		case "table":
 			currentSec.Paragraphs = append(currentSec.Paragraphs, rec.trafo.Table())

@@ -15,7 +15,7 @@ type XmlTransformator interface {
 	Hx(el *etree.Element) (model.Heading, errors.ErrorNew)
 	Hu(el *etree.Element) (string, errors.ErrorNew)
 	P(el *etree.Element) (string, errors.ErrorNew)
-	Seite(el *etree.Element) string
+	Seite(el *etree.Element) (string, errors.ErrorNew)
 	Table() string
 	Randtext(el *etree.Element) (model.Randtext, errors.ErrorNew)
 }
@@ -40,7 +40,7 @@ func (rec *XmlTransformatorImpl) P(el *etree.Element) (string, errors.ErrorNew) 
 	return p(el)
 }
 
-func (rec *XmlTransformatorImpl) Seite(el *etree.Element) string {
+func (rec *XmlTransformatorImpl) Seite(el *etree.Element) (string, errors.ErrorNew) {
 	return seite(el)
 }
 
@@ -109,11 +109,19 @@ func hx(elem *etree.Element) (model.Heading, errors.ErrorNew) {
 				tocTitle += romzahl
 				textTitle += romzahl
 			case "seite":
-				textTitle += seite(el)
+				page, err := seite(el)
+				if err.HasError {
+					return model.Heading{}, err
+				}
+				textTitle += page
 			case "trenn":
 				continue
 			case "zeile":
-				textTitle += zeile(el)
+				line, err := zeile(el)
+				if err.HasError {
+					return model.Heading{}, err
+				}
+				textTitle += line
 			default:
 				return model.Heading{}, errors.NewError(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
 			}
@@ -148,11 +156,11 @@ func hu(elem *etree.Element) (string, errors.ErrorNew) {
 		case "romzahl":
 			return romzahl(el)
 		case "seite":
-			return seite(el), errors.NilError()
+			return seite(el)
 		case "trenn":
 			return "", errors.NilError()
 		case "zeile":
-			return zeile(el), errors.NilError()
+			return zeile(el)
 		default:
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
@@ -192,11 +200,11 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 		case "table":
 			return table(), errors.NilError()
 		case "seite":
-			return seite(el), errors.NilError()
+			return seite(el)
 		case "trenn":
 			return "", errors.NilError()
 		case "zeile":
-			return zeile(el), errors.NilError()
+			return zeile(el)
 		default:
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
@@ -204,11 +212,15 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 	return extractText(elem, switchFn)
 }
 
-func seite(elem *etree.Element) string {
+func seite(elem *etree.Element) (string, errors.ErrorNew) {
+	page, err := extractNumericAttribute(elem, "nr")
+	if err.HasError {
+		return "", err
+	}
 	return fmt.Sprintf(
-		"<ks-meta-page>%s</ks-meta-page>",
-		strings.TrimSpace(elem.SelectAttrValue("nr", "MISSING_PAGE_NUMBER")),
-	)
+		"<ks-meta-page>%d</ks-meta-page>",
+		page,
+	), errors.NilError()
 }
 
 func table() string {
@@ -224,13 +236,21 @@ func randtext(elem *etree.Element) (model.Randtext, errors.ErrorNew) {
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
-	text, err := extractText(elem, switchFn)
+	paragraph, err := extractText(elem, switchFn)
+	if err.HasError {
+		return model.Randtext{}, err
+	}
+	page, err := extractNumericAttribute(elem, "seite")
+	if err.HasError {
+		return model.Randtext{}, err
+	}
+	line, err := extractNumericAttribute(elem, "anfang")
 	if err.HasError {
 		return model.Randtext{}, err
 	}
 	return model.Randtext{
-		Page: elem.SelectAttrValue("seite", "MISSING_RANDTEXT_PAGE"),
-		Line: elem.SelectAttrValue("anfang", "MISSING_RANDTEXT_LINE"),
-		Text: text,
+		Page: page,
+		Line: line,
+		Text: paragraph,
 	}, errors.NilError()
 }
