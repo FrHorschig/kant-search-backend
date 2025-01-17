@@ -63,7 +63,7 @@ func em2(elem *etree.Element) (string, errors.ErrorNew) {
 		case "formel":
 			return formel(el)
 		case "fr":
-			return fr(el), errors.NilError()
+			return fr(el)
 		case "fremdsprache":
 			return fremdsprache(el)
 		case "gesperrt":
@@ -131,12 +131,20 @@ func formel(elem *etree.Element) (string, errors.ErrorNew) {
 	), errors.NilError()
 }
 
-func fr(elem *etree.Element) string {
+func fr(elem *etree.Element) (string, errors.ErrorNew) {
+	page, err := extractNumericAttribute(elem, "seite")
+	if err.HasError {
+		return "", err
+	}
+	nr, err := extractNumericAttribute(elem, "nr")
+	if err.HasError {
+		return "", err
+	}
 	return fmt.Sprintf(
-		"<ks-fmt-fnref>%s.%s</ks-fmt-fnref>",
-		strings.TrimSpace(elem.SelectAttrValue("seite", "MISSING_FNREF_PAGE")),
-		strings.TrimSpace(elem.SelectAttrValue("nr", "MISSING_FNREF_NUMBER")),
-	)
+		"<ks-fmt-fnref>%d.%d</ks-fmt-fnref>",
+		page,
+		nr,
+	), errors.NilError()
 }
 
 func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
@@ -155,7 +163,7 @@ func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
 		case "formel":
 			return formel(el)
 		case "fr":
-			return fr(el), errors.NilError()
+			return fr(el)
 		case "fremdsprache":
 			return fremdsprache(el)
 		case "gesperrt":

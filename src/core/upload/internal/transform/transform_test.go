@@ -396,6 +396,11 @@ func TestSeite(t *testing.T) {
 			expected: "<ks-meta-page>847</ks-meta-page>",
 		},
 		{
+			name:     "Nr attribute with leading zeros",
+			attrs:    map[string]string{"nr": "00045"},
+			expected: "<ks-meta-page>45</ks-meta-page>",
+		},
+		{
 			name:     "Nr attribute with leading and trailing spaces",
 			attrs:    map[string]string{"nr": " 2     "},
 			expected: "<ks-meta-page>2</ks-meta-page>",

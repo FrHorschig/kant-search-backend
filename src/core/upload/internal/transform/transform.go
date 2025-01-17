@@ -1,7 +1,5 @@
 package transform
 
-//go:generate mockgen -source=$GOFILE -destination=mocks/xml_transformator.go -package=mocks
-
 import (
 	"fmt"
 	"strings"
@@ -63,7 +61,7 @@ func hx(elem *etree.Element) (model.Heading, errors.ErrorNew) {
 	for _, ch := range elem.Child {
 		if str, ok := ch.(*etree.CharData); ok {
 			textTitle += strings.TrimSpace(str.Data)
-			tocTitle += str.Data
+			tocTitle += " " + str.Data
 		} else if el, ok := ch.(*etree.Element); ok {
 			switch el.Tag {
 			case "fett":
@@ -74,7 +72,11 @@ func hx(elem *etree.Element) (model.Heading, errors.ErrorNew) {
 				tocTitle += fett
 				textTitle += fett
 			case "fr":
-				textTitle += fr(el)
+				fr, err := fr(el)
+				if err.HasError {
+					return model.Heading{}, err
+				}
+				textTitle += fr
 			case "fremdsprache":
 				fremdsprache, err := fremdsprache(el)
 				if err.HasError {
@@ -149,7 +151,7 @@ func hu(elem *etree.Element) (string, errors.ErrorNew) {
 		case "fett":
 			return fett(el)
 		case "fr":
-			return fr(el), errors.NilError()
+			return fr(el)
 		case "fremdsprache":
 			return fremdsprache(el)
 		case "gesperrt":
@@ -191,7 +193,7 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 		case "formel":
 			return formel(el)
 		case "fr":
-			return fr(el), errors.NilError()
+			return fr(el)
 		case "fremdsprache":
 			return fremdsprache(el)
 		case "gesperrt":
