@@ -73,7 +73,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			currentSec = &parent.Sections[len(parent.Sections)-1]
 
 		case "hj":
-			// We use the year data from https://kant.bbaw.de/de/akademieausgabe, so we ignore these year elements
+			// TODO implement me
 			continue
 
 		case "hu":
@@ -118,9 +118,12 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 	return secs, errors.NilError()
 }
 
-func (rec *TreeMapperImpl) findSummaries(summaries *etree.Element) ([]model.Summary, errors.ErrorNew) {
+func (rec *TreeMapperImpl) findSummaries(randtexte *etree.Element) ([]model.Summary, errors.ErrorNew) {
+	if randtexte == nil {
+		return []model.Summary{}, errors.NilError()
+	}
 	result := make([]model.Summary, 0)
-	for _, el := range summaries.ChildElements() {
+	for _, el := range randtexte.ChildElements() {
 		rt, err := rec.trafo.Summary(el)
 		if err.HasError {
 			return nil, err
@@ -131,6 +134,9 @@ func (rec *TreeMapperImpl) findSummaries(summaries *etree.Element) ([]model.Summ
 }
 
 func (rec *TreeMapperImpl) findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.ErrorNew) {
+	if fussnoten == nil {
+		return []model.Footnote{}, errors.NilError()
+	}
 	result := make([]model.Footnote, 0)
 	for _, el := range fussnoten.ChildElements() {
 		rt, err := rec.trafo.Footnote(el)
