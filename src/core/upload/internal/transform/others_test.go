@@ -142,6 +142,125 @@ func TestEm1(t *testing.T) {
 	}
 }
 
+func TestEm2(t *testing.T) {
+	testCases := []struct {
+		name        string
+		text        string
+		child       *etree.Element
+		expected    string
+		expectError bool
+	}{
+		{
+			name:     "pure text",
+			text:     "Some emph2 text",
+			expected: "<ks-fmt-emph2>Some emph2 text</ks-fmt-emph2>",
+		},
+		{
+			name:     "text with bild child element",
+			text:     "Test text",
+			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
+			expected: `<ks-fmt-emph2>Test text{image-extract src="source" description="description text"}</ks-fmt-emph2>`,
+		},
+		{
+			name:     "text with bildverweis child element",
+			text:     "Test text",
+			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
+			expected: `<ks-fmt-emph2>Test text {image-extract src="source" description="description text"}"</ks-fmt-emph2>`,
+		},
+		{
+			name:     "text with em1 child element",
+			text:     "Test text",
+			child:    createElement("em1", nil, "em1Text", nil),
+			expected: "<ks-fmt-emph2>Test text <ks-fmt-emph>em1Text</ks-fmt-emph></ks-fmt-emph2>",
+		},
+		{
+			name:     "text with em2 child element",
+			text:     "Test text",
+			child:    createElement("em2", nil, "em2Text", nil),
+			expected: "<ks-fmt-emph2>Test text <ks-fmt-emph2>em2Text</ks-fmt-emph2></ks-fmt-emph2>",
+		},
+		{
+			name:     "text with fett child element",
+			text:     "Test text",
+			child:    createElement("fett", nil, "fettText", nil),
+			expected: "<ks-fmt-emph2>Test text <ks-fmt-bold>fettText</ks-fmt-bold></ks-fmt-emph2>",
+		},
+		{
+			name:     "text with formel child element",
+			text:     "Test text",
+			child:    createElement("formel", nil, "formelText", nil),
+			expected: "<ks-fmt-emph2>Test text <ks-fmt-formula>formelText</ks-fmt-formula></ks-fmt-emph2>",
+		},
+		{
+			name:     "text with fr child element",
+			text:     "Test text",
+			child:    createElement("fr", map[string]string{"seite": "1", "nr": "2"}, "", nil),
+			expected: "<ks-fmt-emph2>Test text <ks-fmt-fnref>1.2</ks-fmt-fnref></ks-fmt-emph2>",
+		},
+		{
+			name:     "text with fremdsprache child element",
+			text:     "Test text",
+			child:    createElement("fremdsprache", nil, "fremdspracheText", nil),
+			expected: "<ks-fmt-emph2>Test text <ks-meta-lang>fremdspracheText</ks-meta-lang></ks-fmt-emph2>",
+		},
+		{
+			name:     "text with gesperrt child element",
+			text:     "Test text",
+			child:    createElement("gesperrt", nil, "gesperrtText", nil),
+			expected: "<ks-fmt-emph2>Test text <ks-fmt-tracked>gesperrtText</ks-fmt-tracked></ks-fmt-emph2>",
+		},
+		{
+			name:     "text with name child element",
+			text:     "Test text",
+			child:    createElement("name", nil, "nameText", nil),
+			expected: "<ks-fmt-emph2>Test text nameText</ks-fmt-emph2>",
+		},
+		{
+			name:     "text with romzahl child element",
+			text:     "Test text",
+			child:    createElement("romzahl", nil, "2.", nil),
+			expected: "<ks-fmt-emph2>Test text II.</ks-fmt-emph2>",
+		},
+		{
+			name:     "text with seite child element",
+			text:     "Test text",
+			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
+			expected: "<ks-fmt-emph2>Test text <ks-meta-page>384</ks-meta-page></ks-fmt-emph2>",
+		},
+		{
+			name:     "text with trenn child element",
+			text:     "Test text",
+			child:    createElement("trenn", nil, "trennText", nil),
+			expected: "Test text</ks-fmt-emph2>",
+		},
+		{
+			name:     "text with zeile child element",
+			text:     "Test text",
+			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
+			expected: "<ks-fmt-emph2>Test text <ks-meta-line>328</ks-meta-line></ks-fmt-emph2>",
+		},
+		{
+			name:     "text with leading and trailing spaces",
+			text:     "   Test text       ",
+			child:    nil,
+			expected: "<ks-fmt-emph2>Test text</ks-fmt-emph2>",
+		},
+		{
+			name:        "Text with unknown child element",
+			child:       createElement("my-custom-tag", nil, "", nil),
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			el := createElement("element", nil, tc.text, nil)
+			result := em1(el)
+			assert.Equal(t, tc.expected, result)
+		})
+	}
+}
+
 func TestFett(t *testing.T) {
 	testCases := []struct {
 		name        string
@@ -283,7 +402,7 @@ func TestFremdsprache(t *testing.T) {
 			name:     "text with em2 child element",
 			text:     "Test text",
 			child:    createElement("em2", nil, "em2Text", nil),
-			expected: "<ks-meta-lang>Test text <ks-fmt-tracked>em2Text</ks-fmt-tracked></ks-meta-lang>",
+			expected: "<ks-meta-lang>Test text <ks-fmt-emph2>em2Text</ks-fmt-emph2></ks-meta-lang>",
 		},
 		{
 			name:     "text with fett child element",
