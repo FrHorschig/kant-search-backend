@@ -7,7 +7,6 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
-	commonmodel "github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
 )
@@ -62,7 +61,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			}
 
 			sec := model.Section{Heading: hx, Paragraphs: []string{}, Sections: []model.Section{}}
-			if hx.Level == commonmodel.H1 {
+			if hx.Level == model.H1 {
 				secs = append(secs, sec)
 				currentSec = &secs[len(secs)-1]
 				continue

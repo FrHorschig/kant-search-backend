@@ -6,29 +6,29 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
-	commonmodel "github.com/frhorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 )
 
-func level(el *etree.Element) commonmodel.Level {
+func level(el *etree.Element) model.Level {
 	switch el.Tag {
 	case "h1":
-		return commonmodel.H1
+		return model.H1
 	case "h2":
-		return commonmodel.H2
+		return model.H2
 	case "h3":
-		return commonmodel.H3
+		return model.H3
 	case "h4":
-		return commonmodel.H4
+		return model.H4
 	case "h5":
-		return commonmodel.H5
+		return model.H5
 	case "h6":
-		return commonmodel.H6
+		return model.H6
 	case "h7":
-		return commonmodel.H7
+		return model.H7
 	case "h8":
-		return commonmodel.H8
+		return model.H8
 	}
-	return commonmodel.H9
+	return model.H9
 }
 
 func arabicToRoman(number int64) string {

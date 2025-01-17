@@ -18,5 +18,6 @@ func NewModelMapper() ModelMapper {
 
 func (rec *ModelMapperImpl) MyFunc(ctx context.Context) error {
 	// TODO implement me
+	// don't forget to extract possible page numbers from headings and if necessary to add them to the start of the appropriate paragraphs
 	return nil
 }

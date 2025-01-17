@@ -160,7 +160,7 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
 		case "antiqua":
-			return antiqua(el), errors.NilError()
+			return antiqua(el)
 		case "em1":
 			return em1(el), errors.NilError()
 		case "em2":

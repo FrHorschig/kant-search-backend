@@ -10,25 +10,16 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/errors"
 )
 
-func antiqua(elem *etree.Element) string {
+func antiqua(elem *etree.Element) (string, errors.ErrorNew) {
 	// TODO implement me: zeile, trenn, seite, gesperrt, name, fett
-	return ""
+	return "", errors.NilError()
 }
 
-func bild(elem *etree.Element) string {
+func bildBildverweis(elem *etree.Element) string {
 	// TODO implement me
 	// attributes: src, beschreibung, typ, Ort, z_anfang, z_ende, ausrichtung
 	return fmt.Sprintf(
 		"<ks-img>%s</ks-img>",
-		strings.TrimSpace(elem.SelectAttrValue("src", "MISSING_IMG_SRC")),
-	)
-}
-
-func bildverweis(elem *etree.Element) string {
-	// TODO implement me
-	// attributes: src, beschreibung, typ, Ort, z_anfang, z_ende, ausrichtung
-	return fmt.Sprintf(
-		"<ks-img-ref>%s</ks-img-ref>",
 		strings.TrimSpace(elem.SelectAttrValue("src", "MISSING_IMG_SRC")),
 	)
 }
@@ -92,9 +83,9 @@ func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
 	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
 		case "bild":
-			return bild(el), errors.NilError()
+			return bildBildverweis(el), errors.NilError()
 		case "bildverweis":
-			return bildverweis(el), errors.NilError()
+			return bildBildverweis(el), errors.NilError()
 		case "em1":
 			return em1(el), errors.NilError()
 		case "em2":
@@ -183,6 +174,6 @@ func romzahl(elem *etree.Element) (string, errors.ErrorNew) {
 func zeile(elem *etree.Element) string {
 	return fmt.Sprintf(
 		"<ks-line>%s</ks-line>",
-		elem.SelectAttrValue("nr", "MISSING_LINE_NUMBER"),
+		strings.TrimSpace(elem.SelectAttrValue("nr", "MISSING_LINE_NUMBER")),
 	)
 }
