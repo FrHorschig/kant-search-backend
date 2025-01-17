@@ -435,21 +435,21 @@ func TestRandtext(t *testing.T) {
 		text        string
 		attrs       map[string]string
 		child       *etree.Element
-		expected    model.Randtext
+		expected    model.Summary
 		expectError bool
 	}{
 		{
 			name:     "text with randtext attributes",
 			text:     "Some text",
 			attrs:    map[string]string{"seite": "123", "anfang": "567"},
-			expected: model.Randtext{Page: 123, Line: 567, Text: "Some text"},
+			expected: model.Summary{Page: 123, Line: 567, Text: "Some text"},
 		},
 		{
 			name:     "text with p child element",
 			text:     "Some text",
 			attrs:    map[string]string{"seite": "123", "anfang": "567"},
 			child:    createElement("p", nil, "pText", nil),
-			expected: model.Randtext{Page: 123, Line: 567, Text: "Some text pText"},
+			expected: model.Summary{Page: 123, Line: 567, Text: "Some text pText"},
 		},
 		{
 			name:        "Text with unknown child element",
@@ -471,7 +471,7 @@ func TestRandtext(t *testing.T) {
 			for k, v := range tc.attrs {
 				el.CreateAttr(k, v)
 			}
-			result, err := randtext(el)
+			result, err := summary(el)
 			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected.Page, result.Page)
 			assert.Equal(t, tc.expected.Line, result.Line)
