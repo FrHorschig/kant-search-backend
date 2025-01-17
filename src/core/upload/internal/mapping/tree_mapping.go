@@ -12,7 +12,7 @@ import (
 )
 
 type TreeMapper interface {
-	Map(doc *etree.Document) ([]model.Section, errors.ErrorNew)
+	Map(doc *etree.Document) ([]model.Section, []model.Footnote, errors.ErrorNew)
 }
 
 type TreeMapperImpl struct {
@@ -26,18 +26,21 @@ func NewTreeMapper() TreeMapper {
 	return &impl
 }
 
-func (rec *TreeMapperImpl) Map(doc *etree.Document) ([]model.Section, errors.ErrorNew) {
-	// TODO implement me
+func (rec *TreeMapperImpl) Map(doc *etree.Document) ([]model.Section, []model.Footnote, errors.ErrorNew) {
 	vol := doc.FindElement("//band")
 	works, _ := rec.findSections(vol.FindElement("//hauptteil"))
-	// randtexte := rec.findRandtexte(vol.FindElement("//randtexte"))
-	// if len(randtexte) > 0 {
-	// 	mergeRandtexte(works, randtexte)
-	// }
-	// footnotes := rec.findFootnotes(vol.FindElement("//fussnoten"))
-	// mergeFootnotes(works, footnotes)
-
-	return works, errors.NilError()
+	randtexte, err := rec.findRandtexte(vol.FindElement("//randtexte"))
+	if err.HasError {
+		return nil, nil, err
+	}
+	if len(randtexte) > 0 {
+		mergeRandtexte(works, randtexte)
+	}
+	footnotes, err := rec.findFootnotes(vol.FindElement("//fussnoten"))
+	if err.HasError {
+		return nil, nil, err
+	}
+	return works, footnotes, errors.NilError()
 }
 
 func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
@@ -130,15 +133,19 @@ func (rec *TreeMapperImpl) findRandtexte(randtexte *etree.Element) ([]model.Rand
 	return result, errors.NilError()
 }
 
-func (rec *TreeMapperImpl) findFootnotes(fussnoten *etree.Element) []model.Footnote {
-	panic("unimplemented")
+func (rec *TreeMapperImpl) findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.ErrorNew) {
+	result := make([]model.Footnote, 0)
+	for _, el := range fussnoten.ChildElements() {
+		rt, err := rec.trafo.Footnote(el)
+		if err.HasError {
+			return nil, err
+		}
+		result = append(result, rt)
+	}
+	return result, errors.NilError()
 }
 
 func mergeRandtexte(sections []model.Section, randtexte []model.Randtext) {
-	panic("unimplemented")
-}
-
-func mergeFootnotes(sections []model.Section, footnotes []model.Footnote) {
 	panic("unimplemented")
 }
 

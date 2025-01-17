@@ -18,6 +18,7 @@ type XmlTransformator interface {
 	Seite(el *etree.Element) (string, errors.ErrorNew)
 	Table() string
 	Randtext(el *etree.Element) (model.Randtext, errors.ErrorNew)
+	Footnote(el *etree.Element) (model.Footnote, errors.ErrorNew)
 }
 
 type XmlTransformatorImpl struct {
@@ -50,6 +51,10 @@ func (rec *XmlTransformatorImpl) Table() string {
 
 func (rec *XmlTransformatorImpl) Randtext(el *etree.Element) (model.Randtext, errors.ErrorNew) {
 	return randtext(el)
+}
+
+func (rec *XmlTransformatorImpl) Footnote(el *etree.Element) (model.Footnote, errors.ErrorNew) {
+	return footnote(el)
 }
 
 func hx(elem *etree.Element) (model.Heading, errors.ErrorNew) {
@@ -236,7 +241,7 @@ func randtext(elem *etree.Element) (model.Randtext, errors.ErrorNew) {
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
-	paragraph, err := extractText(elem, switchFn)
+	text, err := extractText(elem, switchFn)
 	if err.HasError {
 		return model.Randtext{}, err
 	}
@@ -251,6 +256,34 @@ func randtext(elem *etree.Element) (model.Randtext, errors.ErrorNew) {
 	return model.Randtext{
 		Page: page,
 		Line: line,
-		Text: paragraph,
+		Text: text,
+	}, errors.NilError()
+}
+
+func footnote(elem *etree.Element) (model.Footnote, errors.ErrorNew) {
+	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+		switch el.Tag {
+		case "p":
+			return p(el)
+		default:
+			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+		}
+	}
+	text, err := extractText(elem, switchFn)
+	if err.HasError {
+		return model.Footnote{}, err
+	}
+	page, err := extractNumericAttribute(elem, "seite")
+	if err.HasError {
+		return model.Footnote{}, err
+	}
+	nr, err := extractNumericAttribute(elem, "nr")
+	if err.HasError {
+		return model.Footnote{}, err
+	}
+	return model.Footnote{
+		Page: page,
+		Nr:   nr,
+		Text: text,
 	}, errors.NilError()
 }
