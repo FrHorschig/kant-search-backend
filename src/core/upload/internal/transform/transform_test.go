@@ -425,7 +425,8 @@ func TestSeite(t *testing.T) {
 }
 
 func TestTable(t *testing.T) {
-	// TODO implement me
+	result := table()
+	assert.Equal(t, "{table-extract}", result)
 }
 
 func createElement(tag string, attrs map[string]string, text string, child *etree.Element) *etree.Element {

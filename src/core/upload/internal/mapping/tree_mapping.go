@@ -105,7 +105,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			pagePrefix += rec.trafo.Seite(el)
 
 		case "table":
-			// TODO implement me
+			currentSec.Paragraphs = append(currentSec.Paragraphs, rec.trafo.Table())
 
 		default:
 			return nil, errors.NewError(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
