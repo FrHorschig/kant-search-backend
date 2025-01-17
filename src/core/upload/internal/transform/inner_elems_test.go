@@ -685,6 +685,9 @@ func TestZeile(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", tc.attrs, tc.text, nil)
+			for k, v := range tc.attrs {
+				el.CreateAttr(k, v)
+			}
 			result, err := zeile(el)
 			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)

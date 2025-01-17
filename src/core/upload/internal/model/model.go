@@ -34,5 +34,7 @@ type Randtext struct {
 }
 
 type Footnote struct {
-	// TODO frhorschig implement me
+	Page int32
+	Nr   int32
+	Text string
 }
