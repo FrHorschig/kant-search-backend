@@ -320,19 +320,16 @@ func TestFett(t *testing.T) {
 
 func TestFr(t *testing.T) {
 	testCases := []struct {
-		name     string
-		text     string
-		attrs    map[string]string
-		expected string
+		name        string
+		text        string
+		attrs       map[string]string
+		expected    string
+		expectError bool
 	}{
 		{
 			name:     "Page and number are extracted",
 			attrs:    map[string]string{"seite": "27", "nr": "254"},
 			expected: "<ks-fmt-fnref>27.254</ks-fmt-fnref>",
-		},
-		{
-			name:     "Default values are used due to missing attributes",
-			expected: "<ks-fmt-fnref>MISSING_FNREF_PAGE.MISSING_FNREF_NUMBER</ks-fmt-fnref>",
 		},
 		{
 			name:     "Text is ignored",
@@ -341,21 +338,31 @@ func TestFr(t *testing.T) {
 			expected: "<ks-fmt-fnref>223845.5</ks-fmt-fnref>",
 		},
 		{
-			name:     "Attribute is non-numerical strings",
-			attrs:    map[string]string{"seite": "skdhsi", "nr": "sdk"},
-			expected: "<ks-fmt-fnref>skdhsi.sdk</ks-fmt-fnref>",
-		},
-		{
 			name:     "Attributes with leading and trailing spaces",
 			attrs:    map[string]string{"seite": "  8  ", "nr": " 2     "},
 			expected: "<ks-fmt-fnref>8.2</ks-fmt-fnref>",
+		},
+		{
+			name:        "Error due to missing attributes",
+			expectError: true,
+		},
+		{
+			name:        "Error due to non-numeric seite attribute",
+			attrs:       map[string]string{"seite": "asdf", "nr": "254"},
+			expectError: true,
+		},
+		{
+			name:        "Error due to non-numeric nr attribute",
+			attrs:       map[string]string{"seite": "asdf", "nr": "254"},
+			expectError: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			el := createElement("element", tc.attrs, tc.text, nil)
-			result := fr(el)
+			result, err := fr(el)
+			assert.Equal(t, tc.expectError, err.HasError)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
@@ -665,6 +672,11 @@ func TestZeile(t *testing.T) {
 			expected: "<ks-meta-line>847</ks-meta-line>",
 		},
 		{
+			name:     "Nr attribute with leading zeros",
+			attrs:    map[string]string{"nr": "00002"},
+			expected: "<ks-meta-line>2</ks-meta-line>",
+		},
+		{
 			name:     "Nr attribute with leading and trailing spaces",
 			attrs:    map[string]string{"nr": " 2     "},
 			expected: "<ks-meta-line>2</ks-meta-line>",
@@ -675,7 +687,7 @@ func TestZeile(t *testing.T) {
 			expectError: true,
 		},
 		{
-			name:        "Error due to non-numerical number",
+			name:        "Error due to non-numerical attribute",
 			attrs:       map[string]string{"nr": "abf382"},
 			expected:    "",
 			expectError: true,
