@@ -2,6 +2,7 @@ package transform
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/beevik/etree"
@@ -60,9 +61,9 @@ func arabicToRoman(number int64) string {
 	return roman.String()
 }
 
-func extractText(element *etree.Element, switchFn func(el *etree.Element) (string, errors.ErrorNew)) (string, errors.ErrorNew) {
+func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, errors.ErrorNew)) (string, errors.ErrorNew) {
 	text := ""
-	for _, ch := range element.Child {
+	for _, ch := range elem.Child {
 		if str, ok := ch.(*etree.CharData); ok {
 			text += strings.TrimSpace(str.Data)
 		} else if childEl, ok := ch.(*etree.Element); ok {
@@ -75,9 +76,22 @@ func extractText(element *etree.Element, switchFn func(el *etree.Element) (strin
 			}
 			text += extracted
 		} else {
-			return "", errors.NewError(nil, fmt.Errorf("unknown child type in tag '%v', it is neither CharData nor Element", element.Tag))
+			return "", errors.NewError(nil, fmt.Errorf("unknown child type in tag '%v', it is neither CharData nor Element", elem.Tag))
 		}
 		text += " "
 	}
 	return strings.TrimSpace(text), errors.NilError()
+}
+
+func extractNumericAttribute(el *etree.Element, attr string) (int32, errors.ErrorNew) {
+	defaultStr := "DEFAULT_STRING"
+	nStr := strings.TrimSpace(el.SelectAttrValue(attr, defaultStr))
+	if nStr == defaultStr {
+		return 0, errors.NewError(fmt.Errorf("missing '%s' attribute in '%s' element", attr, el.Tag), nil)
+	}
+	n, err := strconv.ParseInt(nStr, 10, 32)
+	if err != nil {
+		return 0, errors.NewError(nil, fmt.Errorf("error converting string '%s' to number: %v", nStr, err.Error()))
+	}
+	return int32(n), errors.NilError()
 }

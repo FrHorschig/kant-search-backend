@@ -20,11 +20,11 @@ func antiqua(elem *etree.Element) (string, errors.ErrorNew) {
 		case "name":
 			return name(el)
 		case "seite":
-			return seite(el), errors.NilError()
+			return seite(el)
 		case "trenn":
 			return "", errors.NilError()
 		case "zeile":
-			return zeile(el), errors.NilError()
+			return zeile(el)
 		default:
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
@@ -73,11 +73,11 @@ func em2(elem *etree.Element) (string, errors.ErrorNew) {
 		case "romzahl":
 			return romzahl(el)
 		case "seite":
-			return seite(el), errors.NilError()
+			return seite(el)
 		case "trenn":
 			return "", errors.NilError()
 		case "zeile":
-			return zeile(el), errors.NilError()
+			return zeile(el)
 		default:
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
@@ -96,9 +96,9 @@ func fett(elem *etree.Element) (string, errors.ErrorNew) {
 	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
 		case "seite":
-			return seite(el), errors.NilError()
+			return seite(el)
 		case "zeile":
-			return zeile(el), errors.NilError()
+			return zeile(el)
 		case "trenn":
 			return "", errors.NilError()
 		default:
@@ -165,11 +165,11 @@ func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
 		case "romzahl":
 			return romzahl(el)
 		case "seite":
-			return seite(el), errors.NilError()
+			return seite(el)
 		case "trenn":
 			return "", errors.NilError()
 		case "zeile":
-			return zeile(el), errors.NilError()
+			return zeile(el)
 		default:
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
@@ -193,11 +193,11 @@ func gesperrt(elem *etree.Element) (string, errors.ErrorNew) {
 		case "name":
 			return name(el)
 		case "seite":
-			return seite(el), errors.NilError()
+			return seite(el)
 		case "trenn":
 			return "", errors.NilError()
 		case "zeile":
-			return zeile(el), errors.NilError()
+			return zeile(el)
 		default:
 			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
@@ -213,9 +213,9 @@ func name(elem *etree.Element) (string, errors.ErrorNew) {
 	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
 		case "seite":
-			return seite(el), errors.NilError()
+			return seite(el)
 		case "zeile":
-			return zeile(el), errors.NilError()
+			return zeile(el)
 		case "trenn":
 			return "", errors.NilError()
 		default:
@@ -234,16 +234,20 @@ func romzahl(elem *etree.Element) (string, errors.ErrorNew) {
 	}
 	num, err := strconv.ParseInt(matches[1], 10, 64)
 	if err != nil {
-		return "", errors.NewError(nil, fmt.Errorf("error converting number: %v", err.Error()))
+		return "", errors.NewError(nil, fmt.Errorf("error converting string '%s' to number: %v", matches[1], err.Error()))
 	}
 	return arabicToRoman(num) + matches[2], errors.NilError()
 }
 
-func zeile(elem *etree.Element) string {
+func zeile(elem *etree.Element) (string, errors.ErrorNew) {
+	line, err := extractNumericAttribute(elem, "nr")
+	if err.HasError {
+		return "", err
+	}
 	return fmt.Sprintf(
-		"<ks-meta-line>%s</ks-meta-line>",
-		strings.TrimSpace(elem.SelectAttrValue("nr", "MISSING_LINE_NUMBER")),
-	)
+		"<ks-meta-line>%d</ks-meta-line>",
+		line,
+	), errors.NilError()
 }
 
 func extractForeignLangAttrs(el *etree.Element) string {
