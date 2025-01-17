@@ -17,6 +17,7 @@ type XmlTransformator interface {
 	P(el *etree.Element) (string, errors.ErrorNew)
 	Seite(el *etree.Element) string
 	Table() string
+	Randtext(el *etree.Element) (model.Randtext, errors.ErrorNew)
 }
 
 type XmlTransformatorImpl struct {
@@ -45,6 +46,10 @@ func (rec *XmlTransformatorImpl) Seite(el *etree.Element) string {
 
 func (rec *XmlTransformatorImpl) Table() string {
 	return table()
+}
+
+func (rec *XmlTransformatorImpl) Randtext(el *etree.Element) (model.Randtext, errors.ErrorNew) {
+	return randtext(el)
 }
 
 func hx(elem *etree.Element) (model.Heading, errors.ErrorNew) {
@@ -208,4 +213,24 @@ func seite(elem *etree.Element) string {
 
 func table() string {
 	return "{table-extract}"
+}
+
+func randtext(elem *etree.Element) (model.Randtext, errors.ErrorNew) {
+	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+		switch el.Tag {
+		case "p":
+			return p(el)
+		default:
+			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+		}
+	}
+	text, err := extractText(elem, switchFn)
+	if err.HasError {
+		return model.Randtext{}, err
+	}
+	return model.Randtext{
+		Page: elem.SelectAttrValue("seite", "MISSING_RANDTEXT_PAGE"),
+		Line: elem.SelectAttrValue("anfang", "MISSING_RANDTEXT_LINE"),
+		Text: text,
+	}, errors.NilError()
 }

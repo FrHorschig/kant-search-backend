@@ -28,7 +28,9 @@ const (
 )
 
 type Randtext struct {
-	// TODO frhorschig implement me
+	Page string
+	Line string
+	Text string
 }
 
 type Footnote struct {

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/beevik/etree"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -427,6 +428,57 @@ func TestSeite(t *testing.T) {
 func TestTable(t *testing.T) {
 	result := table()
 	assert.Equal(t, "{table-extract}", result)
+}
+
+func TestRandtext(t *testing.T) {
+	testCases := []struct {
+		name        string
+		text        string
+		attrs       map[string]string
+		child       *etree.Element
+		expected    model.Randtext
+		expectError bool
+	}{
+		{
+			name:     "pure text",
+			text:     "Some text",
+			expected: model.Randtext{Page: "MISSING_RANDTEXT_PAGE", Line: "MISSING_RANDTEXT_LINE", Text: "Some text"},
+		},
+		{
+			name:     "text with randtext attributes",
+			text:     "Some text",
+			attrs:    map[string]string{"seite": "123", "anfang": "567"},
+			expected: model.Randtext{Page: "123", Line: "567", Text: "Some text"},
+		},
+		{
+			name:     "text with p child element",
+			text:     "Some text",
+			attrs:    map[string]string{"seite": "123", "anfang": "567"},
+			child:    createElement("p", nil, "pText", nil),
+			expected: model.Randtext{Page: "123", Line: "567", Text: "Some text pText"},
+		},
+		{
+			name:        "Text with unknown child element",
+			child:       createElement("my-custom-tag", nil, "", nil),
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			el := createElement("element", nil, tc.text, tc.child)
+			for k, v := range tc.attrs {
+				el.CreateAttr(k, v)
+			}
+			result, err := randtext(el)
+			if tc.expectError {
+				assert.NotNil(t, err)
+			}
+			assert.Equal(t, tc.expected.Page, result.Page)
+			assert.Equal(t, tc.expected.Line, result.Line)
+			assert.Equal(t, tc.expected.Text, result.Text)
+		})
+	}
 }
 
 func createElement(tag string, attrs map[string]string, text string, child *etree.Element) *etree.Element {
