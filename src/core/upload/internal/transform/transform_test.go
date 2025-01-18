@@ -468,6 +468,18 @@ func TestRandtext(t *testing.T) {
 			text:        "Some text",
 			expectError: true,
 		},
+		{
+			name:        "Error due to non-numerical seite attribute",
+			text:        "Some text",
+			attrs:       map[string]string{"seite": "s812k", "anfang": "567"},
+			expectError: true,
+		},
+		{
+			name:        "Error due to non-numerical anfang attribute",
+			text:        "Some text",
+			attrs:       map[string]string{"seite": "234", "anfang": "s3j2"},
+			expectError: true,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -517,6 +529,18 @@ func TestFootnote(t *testing.T) {
 		{
 			name:        "Error due to missing attributes",
 			text:        "Some text",
+			expectError: true,
+		},
+		{
+			name:        "Error due to non-numerical seite attribute",
+			text:        "Some text",
+			attrs:       map[string]string{"seite": "s812k", "anfang": "567"},
+			expectError: true,
+		},
+		{
+			name:        "Error due to non-numerical nr attribute",
+			text:        "Some text",
+			attrs:       map[string]string{"seite": "234", "nr": "s3j2"},
 			expectError: true,
 		},
 	}
