@@ -9,9 +9,9 @@ import (
 	"testing"
 
 	"github.com/frhorschig/kant-search-backend/common/errors"
-	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
 	dbMocks "github.com/frhorschig/kant-search-backend/dataaccess/mocks"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -24,9 +24,9 @@ func TestUploadProcess(t *testing.T) {
 	paragraphRepo := dbMocks.NewMockParagraphRepo(ctrl)
 	sentenceRepo := dbMocks.NewMockSentenceRepo(ctrl)
 	sut := &uploadProcessorImpl{
-		xmlMapper:     xmlMapper,
 		paragraphRepo: paragraphRepo,
 		sentenceRepo:  sentenceRepo,
+		xmlMapper:     xmlMapper,
 	}
 
 	ctx := context.Background()
