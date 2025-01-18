@@ -318,6 +318,48 @@ func TestFett(t *testing.T) {
 	}
 }
 
+func TestFormel(t *testing.T) {
+	testCases := []struct {
+		name        string
+		text        string
+		child       *etree.Element
+		expected    string
+		expectError bool
+	}{
+		{
+			name:     "Pure text",
+			text:     "Some formula text",
+			expected: "<ks-fmt-formula>Some formula text</ks-fmt-formula>",
+		},
+		{
+			name:     "Text with em1 child element",
+			text:     "Test text",
+			child:    createElement("em1", nil, "em1Text", nil),
+			expected: "<ks-fmt-formula>Test text <ks-fmt-emph>em1Text</ks-fmt-emph></ks-fmt-formula>",
+		},
+		{
+			name:     "Text with leading and trailing spaces",
+			text:     "   Test text       ",
+			child:    nil,
+			expected: "<ks-fmt-formula>Test text</ks-fmt-formula>",
+		},
+		{
+			name:        "Text with unknown child element",
+			child:       createElement("my-custom-tag", nil, "", nil),
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			el := createElement("element", nil, tc.text, tc.child)
+			result, err := formel(el)
+			assert.Equal(t, tc.expectError, err.HasError)
+			assert.Equal(t, tc.expected, result)
+		})
+	}
+}
+
 func TestFr(t *testing.T) {
 	testCases := []struct {
 		name        string
@@ -353,7 +395,7 @@ func TestFr(t *testing.T) {
 		},
 		{
 			name:        "Error due to non-numeric nr attribute",
-			attrs:       map[string]string{"seite": "asdf", "nr": "254"},
+			attrs:       map[string]string{"seite": "23", "nr": "asdfjk"},
 			expectError: true,
 		},
 	}
