@@ -34,7 +34,7 @@ func antiqua(elem *etree.Element) (string, errors.ErrorNew) {
 
 func bildBildverweis(elem *etree.Element) string {
 	return fmt.Sprintf(
-		`{image-extract src="%s" desc="%s"}`,
+		`{extract-image src="%s" desc="%s"}`,
 		strings.TrimSpace(elem.SelectAttrValue("src", "MISSING_IMG_SRC")),
 		strings.TrimSpace(elem.SelectAttrValue("beschreibung", "MISSING_IMG_DESC")),
 	)

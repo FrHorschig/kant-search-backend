@@ -258,13 +258,13 @@ func TestP(t *testing.T) {
 			name:     "Text with bild child element",
 			text:     "Test text",
 			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `Test text {image-extract src="source" desc="description text"}`,
+			expected: `Test text {extract-image src="source" desc="description text"}`,
 		},
 		{
 			name:     "Text with bildverweis child element",
 			text:     "Test text",
 			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `Test text {image-extract src="source" desc="description text"}`,
+			expected: `Test text {extract-image src="source" desc="description text"}`,
 		},
 		{
 			name:     "Text with em1 child element",
@@ -336,7 +336,7 @@ func TestP(t *testing.T) {
 			name:     "Text with table child element",
 			text:     "Test text",
 			child:    createElement("table", nil, "tableText", nil),
-			expected: "Test text {table-extract}",
+			expected: "Test text {extract-table}",
 		},
 		{
 			name:     "Text with trenn child element",
@@ -431,7 +431,7 @@ func TestSeite(t *testing.T) {
 
 func TestTable(t *testing.T) {
 	result := table()
-	assert.Equal(t, "{table-extract}", result)
+	assert.Equal(t, "{extract-table}", result)
 }
 
 func TestRandtext(t *testing.T) {

@@ -434,14 +434,14 @@ func testTableExtraction(t *testing.T, sut *TreeMapperImpl) {
 	assert.False(t, err.HasError)
 	assert.Equal(t, 1, len(works))
 	assert.Equal(t, 3, len(works[0].Paragraphs))
-	assert.Equal(t, "{table-extract}", works[0].Paragraphs[0])
+	assert.Equal(t, "{extract-table}", works[0].Paragraphs[0])
 	assert.Equal(t, "paragraph 1.1", works[0].Paragraphs[1])
-	assert.Equal(t, "{table-extract}", works[0].Paragraphs[2])
+	assert.Equal(t, "{extract-table}", works[0].Paragraphs[2])
 
 	assert.Equal(t, 1, len(works[0].Sections))
 	assert.Equal(t, 3, len(works[0].Sections[0].Paragraphs))
 	assert.Equal(t, "paragraph 2.1", works[0].Sections[0].Paragraphs[0])
-	assert.Equal(t, "{table-extract}", works[0].Sections[0].Paragraphs[1])
+	assert.Equal(t, "{extract-table}", works[0].Sections[0].Paragraphs[1])
 	assert.Equal(t, "paragraph 2.2", works[0].Sections[0].Paragraphs[2])
 }
 
