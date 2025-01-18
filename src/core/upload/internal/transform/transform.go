@@ -231,7 +231,7 @@ func seite(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func table() string {
-	return "{table-extract}"
+	return "{extract-table}"
 }
 
 func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {

@@ -91,18 +91,18 @@ func TestBildBildverweis(t *testing.T) {
 	}{
 		{
 			name:     "Default values due to missing attributes",
-			expected: `{image-extract src="MISSING_IMG_SRC" desc="MISSING_IMG_DESC"}`,
+			expected: `{extract-image src="MISSING_IMG_SRC" desc="MISSING_IMG_DESC"}`,
 		},
 		{
 			name:     "Bild attributes are extracted",
 			attrs:    map[string]string{"src": "source string", "beschreibung": "description text"},
-			expected: `{image-extract src="source string" desc="description text"}`,
+			expected: `{extract-image src="source string" desc="description text"}`,
 		},
 		{
 			name:     "Text is ignored",
 			attrs:    map[string]string{"src": "s", "beschreibung": "d"},
 			text:     "some text",
-			expected: `{image-extract src="s" desc="d"}`,
+			expected: `{extract-image src="s" desc="d"}`,
 		},
 	}
 
@@ -162,13 +162,13 @@ func TestEm2(t *testing.T) {
 			name:     "Text with bild child element",
 			text:     "Test text",
 			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `<ks-fmt-emph2>Test text {image-extract src="source" desc="description text"}</ks-fmt-emph2>`,
+			expected: `<ks-fmt-emph2>Test text {extract-image src="source" desc="description text"}</ks-fmt-emph2>`,
 		},
 		{
 			name:     "Text with bildverweis child element",
 			text:     "Test text",
 			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `<ks-fmt-emph2>Test text {image-extract src="source" desc="description text"}</ks-fmt-emph2>`,
+			expected: `<ks-fmt-emph2>Test text {extract-image src="source" desc="description text"}</ks-fmt-emph2>`,
 		},
 		{
 			name:     "Text with em1 child element",
@@ -434,13 +434,13 @@ func TestFremdsprache(t *testing.T) {
 			name:     "Text with bild child element",
 			text:     "Test text",
 			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `<ks-meta-lang>Test text {image-extract src="source" desc="description text"}</ks-meta-lang>`,
+			expected: `<ks-meta-lang>Test text {extract-image src="source" desc="description text"}</ks-meta-lang>`,
 		},
 		{
 			name:     "Text with bildverweis child element",
 			text:     "Test text",
 			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: `<ks-meta-lang>Test text {image-extract src="source" desc="description text"}</ks-meta-lang>`,
+			expected: `<ks-meta-lang>Test text {extract-image src="source" desc="description text"}</ks-meta-lang>`,
 		},
 		{
 			name:     "Text with em1 child element",
