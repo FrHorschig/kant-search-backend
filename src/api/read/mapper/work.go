@@ -2,8 +2,8 @@ package mapper
 
 import (
 	"github.com/frhorschig/kant-search-api/generated/go/models"
-	"github.com/frhorschig/kant-search-backend/api/common/util"
 	"github.com/frhorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/common/util"
 )
 
 func WorksToApiModels(works []model.Work) []models.Work {
