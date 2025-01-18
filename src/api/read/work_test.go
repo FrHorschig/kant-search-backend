@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/frhorschig/kant-search-api/generated/go/models"
-	"github.com/frhorschig/kant-search-backend/api/common/util"
 	"github.com/frhorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
