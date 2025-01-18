@@ -5,9 +5,9 @@ package internal
 import (
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
-	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mapping"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
 type XmlMapper interface {
@@ -32,11 +32,9 @@ func NewXmlMapper() XmlMapper {
 func (rec *xmlMapperImpl) Map(xml string) ([]model.Work, errors.ErrorNew) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
-
-	_, _, _, err := rec.treeMapper.Map(doc)
+	sections, summaries, footnotes, err := rec.treeMapper.Map(doc)
 	if err.HasError {
 		return nil, err
 	}
-	// TODO frhorsch implement me
-	return nil, errors.NilError()
+	return rec.modelMapper.Map(sections, summaries, footnotes)
 }
