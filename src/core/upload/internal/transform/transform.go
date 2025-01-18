@@ -137,9 +137,9 @@ func hx(elem *etree.Element) (model.Heading, errors.ErrorNew) {
 		textTitle += " "
 	}
 	return model.Heading{
+		Level:     level(elem),
 		TocTitle:  strings.TrimSpace(tocTitle),
 		TextTitle: strings.TrimSpace(textTitle),
-		Level:     level(elem),
 	}, errors.NilError()
 }
 

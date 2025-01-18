@@ -8,9 +8,10 @@ type Section struct {
 }
 
 type Heading struct {
+	Level     Level
 	TocTitle  string
 	TextTitle string
-	Level     Level
+	Year      string
 }
 
 type Level int
