@@ -4,6 +4,7 @@ package mapping
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
@@ -28,7 +29,10 @@ func NewTreeMapper() TreeMapper {
 
 func (rec *TreeMapperImpl) Map(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.ErrorNew) {
 	vol := doc.FindElement("//band")
-	works, _ := rec.findSections(vol.FindElement("//hauptteil"))
+	works, err := rec.findSections(vol.FindElement("//hauptteil"))
+	if err.HasError {
+		return nil, nil, nil, err
+	}
 	summaries, err := rec.findSummaries(vol.FindElement("//randtexte"))
 	if err.HasError {
 		return nil, nil, nil, err
@@ -43,6 +47,7 @@ func (rec *TreeMapperImpl) Map(doc *etree.Document) ([]model.Section, []model.Su
 func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 	secs := make([]model.Section, 0)
 	var currentSec *model.Section
+	currentYear := ""
 	pagePrefix := ""
 	for _, el := range hauptteil.ChildElements() {
 		switch el.Tag {
@@ -52,7 +57,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 				return nil, err
 			}
 			if pagePrefix != "" {
-				hx.TextTitle = pagePrefix + hx.TextTitle
+				hx.TextTitle = pagePrefix + " " + hx.TextTitle
 				pagePrefix = ""
 			}
 			if hx.TocTitle == "" { // this happens if hx only has an hu element
@@ -62,9 +67,14 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 
 			sec := model.Section{Heading: hx, Paragraphs: []string{}, Sections: []model.Section{}}
 			if hx.Level == model.H1 {
+				sec.Heading.Year = currentYear
 				secs = append(secs, sec)
 				currentSec = &secs[len(secs)-1]
 				continue
+			} else {
+				if len(secs) == 0 {
+					return nil, errors.NewError(fmt.Errorf("the first heading is '%s', but must be h1", el.Tag), nil)
+				}
 			}
 
 			parent := findParent(hx, currentSec)
@@ -73,8 +83,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			currentSec = &parent.Sections[len(parent.Sections)-1]
 
 		case "hj":
-			// TODO implement me
-			continue
+			currentYear = strings.TrimSpace(el.Text())
 
 		case "hu":
 			hu, err := rec.trafo.Hu(el)
@@ -82,7 +91,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 				return nil, err
 			}
 			if pagePrefix != "" {
-				hu = pagePrefix + hu
+				hu = pagePrefix + " " + hu
 				pagePrefix = ""
 			}
 			currentSec.Paragraphs = append(currentSec.Paragraphs, hu)
@@ -96,7 +105,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 				return nil, err
 			}
 			if pagePrefix != "" {
-				p = pagePrefix + p
+				p = pagePrefix + " " + p
 				pagePrefix = ""
 			}
 			currentSec.Paragraphs = append(currentSec.Paragraphs, p)
