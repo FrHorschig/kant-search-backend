@@ -35,6 +35,8 @@ func (rec *uploadProcessorImpl) Process(ctx context.Context, volNum int32, xml s
 		return err
 	}
 
-	// TODO frhorschig: implement writing to database
+	// TODO frhorschig: implement me
+	//    - add work metadata
+	//    - write data to DB
 	return errors.NilError()
 }
