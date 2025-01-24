@@ -4,9 +4,11 @@
 package transform
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/beevik/etree"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -45,13 +47,13 @@ func TestAntiqua(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "Test text <ks-meta-page>384</ks-meta-page>",
+			expected: "Test text " + fmt.Sprintf(model.PageFmt, 384) + "",
 		},
 		{
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "Test text <ks-meta-line>328</ks-meta-line>",
+			expected: "Test text " + fmt.Sprintf(model.LineFmt, 328),
 		},
 		{
 			name:     "Text with trenn child element",
@@ -228,7 +230,7 @@ func TestEm2(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "<ks-fmt-emph2>Test text <ks-meta-page>384</ks-meta-page></ks-fmt-emph2>",
+			expected: "<ks-fmt-emph2>Test text " + fmt.Sprintf(model.PageFmt, 384) + "</ks-fmt-emph2>",
 		},
 		{
 			name:     "Text with trenn child element",
@@ -240,7 +242,7 @@ func TestEm2(t *testing.T) {
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "<ks-fmt-emph2>Test text <ks-meta-line>328</ks-meta-line></ks-fmt-emph2>",
+			expected: "<ks-fmt-emph2>Test text " + fmt.Sprintf(model.LineFmt, 328) + "</ks-fmt-emph2>",
 		},
 		{
 			name:     "Text with leading and trailing spaces",
@@ -281,13 +283,13 @@ func TestFett(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "<ks-fmt-bold>Test text <ks-meta-page>384</ks-meta-page></ks-fmt-bold>",
+			expected: "<ks-fmt-bold>Test text " + fmt.Sprintf(model.PageFmt, 384) + "</ks-fmt-bold>",
 		},
 		{
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "<ks-fmt-bold>Test text <ks-meta-line>328</ks-meta-line></ks-fmt-bold>",
+			expected: "<ks-fmt-bold>Test text " + fmt.Sprintf(model.LineFmt, 328) + "</ks-fmt-bold>",
 		},
 		{
 			name:     "Text with trenn child element",
@@ -500,7 +502,7 @@ func TestFremdsprache(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "<ks-meta-lang>Test text <ks-meta-page>384</ks-meta-page></ks-meta-lang>",
+			expected: "<ks-meta-lang>Test text " + fmt.Sprintf(model.PageFmt, 384) + "</ks-meta-lang>",
 		},
 		{
 			name:     "Text with trenn child element",
@@ -512,7 +514,7 @@ func TestFremdsprache(t *testing.T) {
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "<ks-meta-lang>Test text <ks-meta-line>328</ks-meta-line></ks-meta-lang>",
+			expected: "<ks-meta-lang>Test text " + fmt.Sprintf(model.LineFmt, 328) + "</ks-meta-lang>",
 		},
 		{
 			name:     "Text with leading and trailing spaces",
@@ -569,7 +571,7 @@ func TestGesperrt(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "<ks-fmt-tracked>Test text <ks-meta-page>384</ks-meta-page></ks-fmt-tracked>",
+			expected: "<ks-fmt-tracked>Test text " + fmt.Sprintf(model.PageFmt, 384) + "</ks-fmt-tracked>",
 		},
 		{
 			name:     "Text with trenn child element",
@@ -581,7 +583,7 @@ func TestGesperrt(t *testing.T) {
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "<ks-fmt-tracked>Test text <ks-meta-line>328</ks-meta-line></ks-fmt-tracked>",
+			expected: "<ks-fmt-tracked>Test text " + fmt.Sprintf(model.LineFmt, 328) + "</ks-fmt-tracked>",
 		},
 		{
 			name:     "Text with leading and trailing spaces",
@@ -623,7 +625,7 @@ func TestName(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "Test text <ks-meta-page>384</ks-meta-page>",
+			expected: "Test text " + fmt.Sprintf(model.PageFmt, 384),
 		},
 		{
 			name:     "Text with trenn child element",
@@ -635,7 +637,7 @@ func TestName(t *testing.T) {
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "Test text <ks-meta-line>328</ks-meta-line>",
+			expected: "Test text " + fmt.Sprintf(model.LineFmt, 328),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
@@ -705,23 +707,23 @@ func TestZeile(t *testing.T) {
 		{
 			name:     "Number is extracted",
 			attrs:    map[string]string{"nr": "254"},
-			expected: "<ks-meta-line>254</ks-meta-line>",
+			expected: fmt.Sprintf(model.LineFmt, 254),
 		},
 		{
 			name:     "Text is ignored",
 			text:     "Some text",
 			attrs:    map[string]string{"nr": "847"},
-			expected: "<ks-meta-line>847</ks-meta-line>",
+			expected: fmt.Sprintf(model.LineFmt, 847),
 		},
 		{
 			name:     "Nr attribute with leading zeros",
 			attrs:    map[string]string{"nr": "00002"},
-			expected: "<ks-meta-line>2</ks-meta-line>",
+			expected: fmt.Sprintf(model.LineFmt, 2),
 		},
 		{
 			name:     "Nr attribute with leading and trailing spaces",
 			attrs:    map[string]string{"nr": " 2     "},
-			expected: "<ks-meta-line>2</ks-meta-line>",
+			expected: fmt.Sprintf(model.LineFmt, 2),
 		},
 		{
 			name:        "Error due to missing number",
