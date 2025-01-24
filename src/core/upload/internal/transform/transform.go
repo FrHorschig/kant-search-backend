@@ -224,14 +224,11 @@ func seite(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(
-		"<ks-meta-page>%d</ks-meta-page>",
-		page,
-	), errors.NilError()
+	return fmt.Sprintf(model.PageFmt, page), errors.NilError()
 }
 
 func table() string {
-	return "{extract-table}"
+	return model.TableExtract
 }
 
 func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {

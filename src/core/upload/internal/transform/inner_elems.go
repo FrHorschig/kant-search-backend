@@ -8,6 +8,7 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 )
 
 func antiqua(elem *etree.Element) (string, errors.ErrorNew) {
@@ -252,10 +253,7 @@ func zeile(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(
-		"<ks-meta-line>%d</ks-meta-line>",
-		line,
-	), errors.NilError()
+	return fmt.Sprintf(model.LineFmt, line), errors.NilError()
 }
 
 func extractForeignLangAttrs(el *etree.Element) string {

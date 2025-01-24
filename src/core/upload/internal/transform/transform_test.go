@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/beevik/etree"
@@ -91,7 +92,7 @@ func TestHx(t *testing.T) {
 			text:              "Test text",
 			child:             createElement("seite", map[string]string{"nr": "384"}, "", nil),
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "Test text <ks-meta-page>384</ks-meta-page>",
+			expectedTextTitle: "Test text " + fmt.Sprintf(model.PageFmt, 384) + "",
 		},
 		{
 			name:              "Text with trenn child element",
@@ -105,7 +106,7 @@ func TestHx(t *testing.T) {
 			text:              "Test text",
 			child:             createElement("zeile", map[string]string{"nr": "328"}, "", nil),
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "Test text <ks-meta-line>328</ks-meta-line>",
+			expectedTextTitle: "Test text " + fmt.Sprintf(model.LineFmt, 328),
 		},
 		{
 			name:              "Text with leading and trailing spaces",
@@ -197,7 +198,7 @@ func TestHu(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "Test text <ks-meta-page>384</ks-meta-page>",
+			expected: "Test text " + fmt.Sprintf(model.PageFmt, 384),
 		},
 		{
 			name:     "Text with trenn child element",
@@ -209,7 +210,7 @@ func TestHu(t *testing.T) {
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "Test text <ks-meta-line>328</ks-meta-line>",
+			expected: "Test text " + fmt.Sprintf(model.LineFmt, 328),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
@@ -330,7 +331,7 @@ func TestP(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "Test text <ks-meta-page>384</ks-meta-page>",
+			expected: "Test text " + fmt.Sprintf(model.PageFmt, 384),
 		},
 		{
 			name:     "Text with table child element",
@@ -348,7 +349,7 @@ func TestP(t *testing.T) {
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "Test text <ks-meta-line>328</ks-meta-line>",
+			expected: "Test text " + fmt.Sprintf(model.LineFmt, 328),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
@@ -387,23 +388,23 @@ func TestSeite(t *testing.T) {
 		{
 			name:     "Number is extracted",
 			attrs:    map[string]string{"nr": "254"},
-			expected: "<ks-meta-page>254</ks-meta-page>",
+			expected: fmt.Sprintf(model.PageFmt, 254),
 		},
 		{
 			name:     "Text is ignored",
 			text:     "Some text",
 			attrs:    map[string]string{"nr": "847"},
-			expected: "<ks-meta-page>847</ks-meta-page>",
+			expected: fmt.Sprintf(model.PageFmt, 847),
 		},
 		{
 			name:     "Nr attribute with leading zeros",
 			attrs:    map[string]string{"nr": "00045"},
-			expected: "<ks-meta-page>45</ks-meta-page>",
+			expected: fmt.Sprintf(model.PageFmt, 45),
 		},
 		{
 			name:     "Nr attribute with leading and trailing spaces",
 			attrs:    map[string]string{"nr": " 2     "},
-			expected: "<ks-meta-page>2</ks-meta-page>",
+			expected: fmt.Sprintf(model.PageFmt, 2),
 		},
 		{
 			name:        "Error due to missing number",
