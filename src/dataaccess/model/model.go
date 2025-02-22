@@ -50,7 +50,7 @@ type Paragraph struct {
 	Id           int32
 	Text         string
 	Pages        []int32
-	FnReferences []int32
+	FnReferences []string
 	Sentences    []Sentence
 	WorkId       int32
 }

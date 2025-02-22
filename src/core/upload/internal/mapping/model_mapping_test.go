@@ -1,6 +1,7 @@
 package mapping
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/frhorschig/kant-search-backend/common/util"
@@ -171,44 +172,166 @@ func TestModelMapping(t *testing.T) {
 			},
 		},
 		{
-			name: "Extract pages from paragraphs",
-			// TODO
-		},
-		{
-			name: "Extract footnote references from paragraphs",
-			// TODO
+			name: "Extract pages and footnote references from paragraphs",
+			sections: []model.Section{{
+				Heading: model.Heading{Level: model.H1},
+				Paragraphs: []string{
+					fnr(2, 64) + page(2),
+					"This " + fnr(83, 3) + "is a" + page(254) + " test text.",
+					"It " + fnr(582, 1) + " continues " + page(942) + fnr(298481, 2485) + page(942) + " in the " + fnr(3, 5281) + " next" + page(943) + "paragraph.",
+					page(23) + fnr(4, 23)},
+				Sections: []model.Section{
+					{
+						Heading: model.Heading{Level: model.H2},
+						Paragraphs: []string{
+							page(28471) + "This paragraph" + fnr(4, 2) + "starts with a page",
+							"This paragraph ends with a page." + fnr(482, 148) + page(3),
+						},
+					},
+				},
+			}},
+			model: []dbmodel.Work{{
+				TextData: dbmodel.Section{
+					Heading: dbmodel.Heading{Level: dbmodel.HWork},
+					Paragraphs: []dbmodel.Paragraph{
+						{
+							Text:         fnr(2, 64) + page(2),
+							Pages:        []int32{2},
+							FnReferences: []string{"2.64"},
+						},
+						{
+							Text:         "This " + fnr(83, 3) + "is a" + page(254) + " test text.",
+							Pages:        []int32{254},
+							FnReferences: []string{"83.3"},
+						},
+						{
+							Text:         "It " + fnr(582, 1) + " continues " + page(942) + fnr(298481, 2485) + page(942) + " in the " + fnr(3, 5281) + " next" + page(943) + "paragraph.",
+							Pages:        []int32{941, 942, 943},
+							FnReferences: []string{"582.1", "298481.2485", "3.5281"},
+						},
+						{
+							Text:         page(23) + fnr(4, 23),
+							Pages:        []int32{23},
+							FnReferences: []string{"4.23"},
+						},
+					},
+					Sections: []dbmodel.Section{
+						{
+							Heading: dbmodel.Heading{Level: dbmodel.H1},
+							Paragraphs: []dbmodel.Paragraph{
+								{
+									Text:         page(28471) + "This paragraph" + fnr(4, 3) + " starts with a page.",
+									Pages:        []int32{28471},
+									FnReferences: []string{"4.3"},
+								},
+								{
+									Text:         "This paragraph ends with a page." + fnr(482, 148) + page(3),
+									Pages:        []int32{3},
+									FnReferences: []string{"482.148"},
+								},
+							},
+						},
+					},
+				},
+			}},
 		},
 		{
 			name: "Merge summaries into paragraphs",
-			// TODO
+			sections: []model.Section{{
+				Heading: model.Heading{Level: model.H1},
+				Paragraphs: []string{
+					page(43) + line(348) + "I'm a paragraph.",
+					"I'm a paragraph with the line " + line(58685) + " number at the end",
+				},
+				Sections: []model.Section{
+					{
+						Heading: model.Heading{Level: model.H2},
+						Paragraphs: []string{
+							page(95) + line(123) + "I'm a paragraph." + page(96) + line(1) + "I'm another paragraph.",
+							"I'm a paragraph with the line " + page(483) + line(2) + " number at the end " + page(484) + line(5) + "that continues over multiple pages.",
+						},
+					},
+				},
+			}},
+			summaries: []model.Summary{
+				{Page: 43, Line: 348, Text: "Summary 1"},
+				{Page: 43, Line: 58685, Text: "Summary 2"},
+				{Page: 96, Line: 1, Text: "Summary 3"},
+				{Page: 484, Line: 5, Text: "Summary 4"},
+			},
+			model: []dbmodel.Work{{
+				TextData: dbmodel.Section{
+					Heading: dbmodel.Heading{Level: dbmodel.HWork},
+					Paragraphs: []dbmodel.Paragraph{
+						{
+							Text:  summ("Summary 1") + page(43) + line(348) + "I'm  paragraph.",
+							Pages: []int32{43},
+						},
+						{
+							Text:  summ("Summary 2") + page(43) + line(348) + "I'm a paragraph.",
+							Pages: []int32{58685},
+						},
+					},
+					Sections: []dbmodel.Section{
+						{
+							Heading: dbmodel.Heading{Level: dbmodel.H1},
+							Paragraphs: []dbmodel.Paragraph{
+								{
+									Text:  summ("Summary 3") + page(95) + line(123) + "I'm a paragraph.",
+									Pages: []int32{95, 96},
+								},
+								{
+									Text:  summ("Summary 4") + "I'm a paragraph with the line " + page(483) + line(2) + " number at the end " + page(484) + line(5) + "that continues over multiple pages.",
+									Pages: []int32{483, 484},
+								},
+							},
+						},
+					},
+				},
+			}},
 		},
 		{
-			name: "Map footnotes",
-			// TODO
+			name: "Map footnote name",
+			footnotes: []model.Footnote{
+				{Page: 2, Nr: 5, Text: "This is a footnote."},
+				{Page: 4, Nr: 20, Text: "This is a 2nd footnote."},
+			},
+			model: []dbmodel.Work{{
+				Footnotes: []dbmodel.Footnote{
+					{Name: "2.5", Text: "This is a footnote.", Pages: []int32{2}},
+					{Name: "4.20", Text: "This is a 2nd footnote.", Pages: []int32{4}},
+				},
+			}},
 		},
 		{
-			name: "Extract pages from footnotes",
-			// TODO
+			name: "Extract pages from footnote text",
+			footnotes: []model.Footnote{
+				{
+					Page: 881,
+					Nr:   284,
+					Text: "This " + page(9582) + "is a " + page(383) + "footnote.",
+				},
+				{
+					Page: 2,
+					Nr:   9,
+					Text: "This " + page(30) + "is a 2nd footnote.",
+				},
+			},
+			model: []dbmodel.Work{{
+				Footnotes: []dbmodel.Footnote{
+					{
+						Name:  "881.284",
+						Text:  "This " + page(9582) + "is a " + page(383) + "footnote.",
+						Pages: []int32{881, 9582, 383},
+					},
+					{
+						Name:  "2.9",
+						Text:  "This " + page(30) + "is a 2nd footnote.",
+						Pages: []int32{2, 30},
+					},
+				},
+			}},
 		},
-		// {
-		// 	name: "Test name",
-		// 	sections: []model.Section{{
-		// 		Heading:    model.Heading{},
-		// 		Paragraphs: []string{},
-		// 		Sections:   []model.Section{},
-		// 	}},
-		// 	summaries: []model.Summary{},
-		// 	footnotes: []model.Footnote{},
-		// 	model: []dbmodel.Work{{
-		// 		TextData: dbmodel.Section{
-		// 			Heading:    dbmodel.Heading{},
-		// 			Paragraphs: []dbmodel.Paragraph{},
-		// 			Sentences:  []dbmodel.Sentence{},
-		// 			Sections:   []dbmodel.Section{},
-		// 		},
-		// 		Footnotes: []dbmodel.Footnote{},
-		// 	}},
-		// },
 	}
 
 	sut := &modelMapperImpl{}
@@ -246,29 +369,30 @@ func assertSections(t *testing.T, exp dbmodel.Section, act dbmodel.Section) {
 	assert.Equal(t, exp.Heading.Level, act.Heading.Level)
 	assert.Equal(t, exp.Heading.TocTitle, act.Heading.TocTitle)
 	assert.Equal(t, exp.Heading.TextTitle, act.Heading.TextTitle)
-
 	assert.Equal(t, len(exp.Paragraphs), len(act.Paragraphs))
 	for i := range exp.Paragraphs {
-		pExp := exp.Paragraphs[i]
-		pAct := act.Paragraphs[i]
-		assert.Equal(t, pExp.Text, pAct.Text)
-		assert.ElementsMatch(t, pExp.Pages, pAct.Pages)
-		assert.ElementsMatch(t, pExp.FnReferences, pAct.FnReferences)
-
-		assert.Equal(t, len(pExp.Sentences), len(pAct.Sentences))
-		for i := range pExp.Sentences {
-			sExp := pExp.Sentences[i]
-			sAct := pAct.Sentences[i]
-			assert.Equal(t, sExp.Text, sAct.Text)
-			assert.ElementsMatch(t, sExp.Pages, sAct.Pages)
-		}
-
+		assertParagraph(t, exp.Paragraphs[i], act.Paragraphs[i])
 	}
-
 	assert.Equal(t, len(exp.Sections), len(act.Sections))
 	for i := range exp.Sections {
 		assertSections(t, exp.Sections[i], act.Sections[i])
 	}
+}
+
+func assertParagraph(t *testing.T, exp dbmodel.Paragraph, act dbmodel.Paragraph) {
+	assert.Equal(t, exp.Text, act.Text)
+	assert.ElementsMatch(t, exp.Pages, act.Pages)
+	assert.ElementsMatch(t, exp.FnReferences, act.FnReferences)
+	if len(exp.Sentences) > 0 {
+		assert.Equal(t, len(exp.Sentences), len(act.Sentences))
+		for i := range exp.Sentences {
+			sExp := exp.Sentences[i]
+			sAct := act.Sentences[i]
+			assert.Equal(t, sExp.Text, sAct.Text)
+			assert.ElementsMatch(t, sExp.Pages, sAct.Pages)
+		}
+	}
+
 }
 
 func assertFootnotes(t *testing.T, exp []dbmodel.Footnote, act []dbmodel.Footnote) {
@@ -278,4 +402,20 @@ func assertFootnotes(t *testing.T, exp []dbmodel.Footnote, act []dbmodel.Footnot
 		assert.Equal(t, exp[i].Text, act[i].Text)
 		assert.ElementsMatch(t, exp[i].Pages, act[i].Pages)
 	}
+}
+
+func line(line int32) string {
+	return fmt.Sprintf(model.LineFmt, line)
+}
+
+func page(page int32) string {
+	return fmt.Sprintf(model.PageFmt, page)
+}
+
+func fnr(page int32, nr int32) string {
+	return fmt.Sprintf(model.FnRefFmt, page, nr)
+}
+
+func summ(text string) string {
+	return fmt.Sprintf(model.SummaryFmt, text)
 }
