@@ -23,3 +23,8 @@ const (
 const (
 	TableExtract = "{extract-table}"
 )
+
+const (
+	SummaryFmt = "<ks-summary>%s</ks-summary>"
+	// SummaryRegex = "<ks-summary>%s</ks-summary>"
+)
