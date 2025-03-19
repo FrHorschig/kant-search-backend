@@ -12,7 +12,7 @@ type Work struct {
 	Title        string
 	Abbreviation *string
 	Year         *string
-	TextData     Section
+	Sections     []Section
 	Footnotes    []Footnote
 	Volume       int32
 }
@@ -36,8 +36,7 @@ type Heading struct {
 type Level int32
 
 const (
-	HWork Level = iota + 1
-	H1
+	H1 Level = iota + 1
 	H2
 	H3
 	H4
