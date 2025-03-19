@@ -9,8 +9,8 @@ type Volume struct {
 type Work struct {
 	Id           int32
 	Code         string
-	Title        string
 	Abbreviation *string
+	Title        string
 	Year         *string
 	Sections     []Section
 	Footnotes    []Footnote
