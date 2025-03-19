@@ -57,9 +57,9 @@ func TestModelMapping(t *testing.T) {
 			model: []dbmodel.Work{{
 				Title: "work title",
 				Year:  util.ToStrPtr("1724"),
-				TextData: dbmodel.Section{
+				Sections: []dbmodel.Section{{
 					Heading: dbmodel.Heading{
-						Level:     dbmodel.HWork,
+						Level:     dbmodel.H1,
 						TocTitle:  "work title TOC text",
 						TextTitle: "work title",
 					},
@@ -83,7 +83,7 @@ func TestModelMapping(t *testing.T) {
 							},
 						},
 					},
-				},
+				}},
 			}},
 		},
 		{
@@ -130,8 +130,8 @@ func TestModelMapping(t *testing.T) {
 			},
 			model: []dbmodel.Work{
 				{
-					TextData: dbmodel.Section{
-						Heading: dbmodel.Heading{Level: dbmodel.HWork},
+					Sections: []dbmodel.Section{{
+						Heading: dbmodel.Heading{Level: dbmodel.H1},
 						Sections: []dbmodel.Section{
 							{
 								Heading: dbmodel.Heading{Level: dbmodel.H1},
@@ -165,10 +165,10 @@ func TestModelMapping(t *testing.T) {
 								},
 							},
 						},
-					},
+					}},
 				},
-				{TextData: dbmodel.Section{Heading: dbmodel.Heading{Level: dbmodel.HWork}}},
-				{TextData: dbmodel.Section{Heading: dbmodel.Heading{Level: dbmodel.HWork}}},
+				{Sections: []dbmodel.Section{{Heading: dbmodel.Heading{Level: dbmodel.H1}}}},
+				{Sections: []dbmodel.Section{{Heading: dbmodel.Heading{Level: dbmodel.H1}}}},
 			},
 		},
 		{
@@ -191,8 +191,8 @@ func TestModelMapping(t *testing.T) {
 				},
 			}},
 			model: []dbmodel.Work{{
-				TextData: dbmodel.Section{
-					Heading: dbmodel.Heading{Level: dbmodel.HWork},
+				Sections: []dbmodel.Section{{
+					Heading: dbmodel.Heading{Level: dbmodel.H1},
 					Paragraphs: []dbmodel.Paragraph{
 						{
 							Text:         fnr(2, 64) + page(2),
@@ -232,7 +232,7 @@ func TestModelMapping(t *testing.T) {
 							},
 						},
 					},
-				},
+				}},
 			}},
 		},
 		{
@@ -260,8 +260,8 @@ func TestModelMapping(t *testing.T) {
 				{Page: 484, Line: 5, Text: "Summary 4"},
 			},
 			model: []dbmodel.Work{{
-				TextData: dbmodel.Section{
-					Heading: dbmodel.Heading{Level: dbmodel.HWork},
+				Sections: []dbmodel.Section{{
+					Heading: dbmodel.Heading{Level: dbmodel.H1},
 					Paragraphs: []dbmodel.Paragraph{
 						{
 							Text:  summ("Summary 1") + page(43) + line(348) + "I'm  paragraph.",
@@ -287,7 +287,7 @@ func TestModelMapping(t *testing.T) {
 							},
 						},
 					},
-				},
+				}},
 			}},
 		},
 		{
@@ -342,26 +342,30 @@ func TestModelMapping(t *testing.T) {
 				assert.True(t, err.HasError)
 				assert.Nil(t, result)
 			}
-			assertWorks(t, tc.model, result)
+			assert.Equal(t, len(tc.model), len(result))
+			for i := range tc.model {
+				assertWork(t, tc.model[i], result[i])
+			}
 		})
 	}
 }
 
-func assertWorks(t *testing.T, expected []dbmodel.Work, actual []dbmodel.Work) {
-	assert.Equal(t, len(expected), len(actual))
-	for i := range expected {
-		exp := expected[i]
-		act := actual[i]
-		assert.NotNil(t, exp)
-		assert.NotNil(t, act)
+func assertWork(t *testing.T, exp dbmodel.Work, act dbmodel.Work) {
+	assert.NotNil(t, exp)
+	assert.NotNil(t, act)
 
-		assert.Equal(t, exp.Code, act.Code)
-		assert.Equal(t, util.ToStrVal(exp.Abbreviation), util.ToStrVal(act.Abbreviation))
-		assert.Equal(t, util.ToStrVal(exp.Year), util.ToStrVal(act.Year))
-		assert.Equal(t, exp.Volume, act.Volume)
+	assert.Equal(t, exp.Code, act.Code)
+	assert.Equal(t, util.ToStrVal(exp.Abbreviation), util.ToStrVal(act.Abbreviation))
+	assert.Equal(t, util.ToStrVal(exp.Year), util.ToStrVal(act.Year))
+	assert.Equal(t, exp.Volume, act.Volume)
 
-		assertSections(t, exp.TextData, act.TextData)
-		assertFootnotes(t, exp.Footnotes, act.Footnotes)
+	assert.Equal(t, len(exp.Sections), len(act.Sections))
+	for j := range exp.Sections {
+		assertSections(t, exp.Sections[j], act.Sections[j])
+	}
+	assert.Equal(t, len(exp.Footnotes), len(act.Footnotes))
+	for j := range exp.Sections {
+		assertFootnote(t, exp.Footnotes[j], act.Footnotes[j])
 	}
 }
 
@@ -395,13 +399,10 @@ func assertParagraph(t *testing.T, exp dbmodel.Paragraph, act dbmodel.Paragraph)
 
 }
 
-func assertFootnotes(t *testing.T, exp []dbmodel.Footnote, act []dbmodel.Footnote) {
-	assert.Equal(t, len(exp), len(act))
-	for i := range exp {
-		assert.Equal(t, exp[i].Name, act[i].Name)
-		assert.Equal(t, exp[i].Text, act[i].Text)
-		assert.ElementsMatch(t, exp[i].Pages, act[i].Pages)
-	}
+func assertFootnote(t *testing.T, exp dbmodel.Footnote, act dbmodel.Footnote) {
+	assert.Equal(t, exp.Name, act.Name)
+	assert.Equal(t, exp.Text, act.Text)
+	assert.ElementsMatch(t, exp.Pages, act.Pages)
 }
 
 func line(line int32) string {
