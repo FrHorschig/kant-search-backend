@@ -13,7 +13,12 @@ import (
 )
 
 type TreeMapper interface {
-	Map(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.ErrorNew)
+	Map(doc *etree.Document) (
+		sections []model.Section,
+		summaries []model.Summary,
+		footnotes []model.Footnote,
+		err errors.ErrorNew,
+	)
 }
 
 type TreeMapperImpl struct {
@@ -28,16 +33,15 @@ func NewTreeMapper() TreeMapper {
 }
 
 func (rec *TreeMapperImpl) Map(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.ErrorNew) {
-	vol := doc.FindElement("//band")
-	works, err := rec.findSections(vol.FindElement("//hauptteil"))
+	works, err := rec.findSections(doc.FindElement("//hauptteil"))
 	if err.HasError {
 		return nil, nil, nil, err
 	}
-	summaries, err := rec.findSummaries(vol.FindElement("//randtexte"))
+	summaries, err := rec.findSummaries(doc.FindElement("//randtexte"))
 	if err.HasError {
 		return nil, nil, nil, err
 	}
-	footnotes, err := rec.findFootnotes(vol.FindElement("//fussnoten"))
+	footnotes, err := rec.findFootnotes(doc.FindElement("//fussnoten"))
 	if err.HasError {
 		return nil, nil, nil, err
 	}

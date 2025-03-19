@@ -133,11 +133,11 @@ func formel(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func fr(elem *etree.Element) (string, errors.ErrorNew) {
-	page, err := extractNumericAttribute(elem, "seite")
+	page, err := ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return "", err
 	}
-	nr, err := extractNumericAttribute(elem, "nr")
+	nr, err := ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}
@@ -249,7 +249,7 @@ func romzahl(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func zeile(elem *etree.Element) (string, errors.ErrorNew) {
-	line, err := extractNumericAttribute(elem, "nr")
+	line, err := ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}

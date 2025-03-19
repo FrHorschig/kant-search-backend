@@ -220,7 +220,7 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func seite(elem *etree.Element) (string, errors.ErrorNew) {
-	page, err := extractNumericAttribute(elem, "nr")
+	page, err := ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}
@@ -244,11 +244,11 @@ func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {
 	if err.HasError {
 		return model.Summary{}, err
 	}
-	page, err := extractNumericAttribute(elem, "seite")
+	page, err := ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return model.Summary{}, err
 	}
-	line, err := extractNumericAttribute(elem, "anfang")
+	line, err := ExtractNumericAttribute(elem, "anfang")
 	if err.HasError {
 		return model.Summary{}, err
 	}
@@ -272,11 +272,11 @@ func footnote(elem *etree.Element) (model.Footnote, errors.ErrorNew) {
 	if err.HasError {
 		return model.Footnote{}, err
 	}
-	page, err := extractNumericAttribute(elem, "seite")
+	page, err := ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return model.Footnote{}, err
 	}
-	nr, err := extractNumericAttribute(elem, "nr")
+	nr, err := ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return model.Footnote{}, err
 	}
