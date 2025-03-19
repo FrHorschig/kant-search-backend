@@ -17,6 +17,7 @@ func TestModelMapping(t *testing.T) {
 
 	testCases := []struct {
 		name        string
+		volume      int32
 		sections    []model.Section
 		summaries   []model.Summary
 		footnotes   []model.Footnote
@@ -24,7 +25,8 @@ func TestModelMapping(t *testing.T) {
 		expectError bool
 	}{
 		{
-			name: "Multiple sections with simple content are mapped",
+			name:   "Multiple sections with simple content are mapped",
+			volume: 1,
 			sections: []model.Section{{
 				Heading: model.Heading{
 					Level:     model.H1,
@@ -55,8 +57,9 @@ func TestModelMapping(t *testing.T) {
 				},
 			}},
 			model: []dbmodel.Work{{
-				Title: "work title",
-				Year:  util.ToStrPtr("1724"),
+				Title:  "work title",
+				Year:   util.ToStrPtr("1724"),
+				Volume: 1,
 				Sections: []dbmodel.Section{{
 					Heading: dbmodel.Heading{
 						Level:     dbmodel.H1,
@@ -87,7 +90,8 @@ func TestModelMapping(t *testing.T) {
 			}},
 		},
 		{
-			name: "Multiple nested works and sections are mapped",
+			name:   "Multiple nested works and sections are mapped",
+			volume: 2,
 			sections: []model.Section{
 				{
 					Heading: model.Heading{Level: model.H1},
@@ -130,6 +134,7 @@ func TestModelMapping(t *testing.T) {
 			},
 			model: []dbmodel.Work{
 				{
+					Volume: 2,
 					Sections: []dbmodel.Section{{
 						Heading: dbmodel.Heading{Level: dbmodel.H1},
 						Sections: []dbmodel.Section{
@@ -172,7 +177,8 @@ func TestModelMapping(t *testing.T) {
 			},
 		},
 		{
-			name: "Extract pages and footnote references from paragraphs",
+			name:   "Extract pages and footnote references from paragraphs",
+			volume: 3,
 			sections: []model.Section{{
 				Heading: model.Heading{Level: model.H1},
 				Paragraphs: []string{
@@ -191,6 +197,7 @@ func TestModelMapping(t *testing.T) {
 				},
 			}},
 			model: []dbmodel.Work{{
+				Volume: 3,
 				Sections: []dbmodel.Section{{
 					Heading: dbmodel.Heading{Level: dbmodel.H1},
 					Paragraphs: []dbmodel.Paragraph{
@@ -236,7 +243,8 @@ func TestModelMapping(t *testing.T) {
 			}},
 		},
 		{
-			name: "Merge summaries into paragraphs",
+			name:   "Merge summaries into paragraphs",
+			volume: 4,
 			sections: []model.Section{{
 				Heading: model.Heading{Level: model.H1},
 				Paragraphs: []string{
@@ -260,6 +268,7 @@ func TestModelMapping(t *testing.T) {
 				{Page: 484, Line: 5, Text: "Summary 4"},
 			},
 			model: []dbmodel.Work{{
+				Volume: 4,
 				Sections: []dbmodel.Section{{
 					Heading: dbmodel.Heading{Level: dbmodel.H1},
 					Paragraphs: []dbmodel.Paragraph{
@@ -337,7 +346,7 @@ func TestModelMapping(t *testing.T) {
 	sut := &modelMapperImpl{}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := sut.Map(tc.sections, tc.summaries, tc.footnotes)
+			result, err := sut.Map(tc.volume, tc.sections, tc.summaries, tc.footnotes)
 			if tc.expectError {
 				assert.True(t, err.HasError)
 				assert.Nil(t, result)

@@ -12,20 +12,8 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/model"
 )
 
-type PythonUtil interface {
-	SplitIntoSentences(paragraphs []model.Paragraph) (map[int32][]string, error)
-}
-
-type pythonUtilImpl struct {
-}
-
-func NewPythonUtil() PythonUtil {
-	impl := pythonUtilImpl{}
-	return &impl
-}
-
 // Returns a map of paragraph ids to sentences and error
-func (util *pythonUtilImpl) SplitIntoSentences(paragraphs []model.Paragraph) (map[int32][]string, error) {
+func SplitIntoSentences(paragraphs []model.Paragraph) (map[int32][]string, error) {
 	inputData, err := json.Marshal(paragraphs)
 	if err != nil {
 		return nil, err
