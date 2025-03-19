@@ -7,15 +7,15 @@ type ErrorNew struct {
 	TechnicalError error
 }
 
-func NewError(domainErr error, techError error) ErrorNew {
+func NewError(domainErr error, technicalError error) ErrorNew {
 	hasError := false
-	if domainErr != nil || techError != nil {
+	if domainErr != nil || technicalError != nil {
 		hasError = true
 	}
 	return ErrorNew{
 		HasError:       hasError,
 		DomainError:    domainErr,
-		TechnicalError: techError,
+		TechnicalError: technicalError,
 	}
 }
 

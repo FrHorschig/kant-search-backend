@@ -36,6 +36,7 @@ func (rec *uploadProcessorImpl) Process(ctx context.Context, volNum int32, xml s
 	}
 
 	// TODO frhorschig: implement me
+	//    - split sentences
 	//    - add work metadata
 	//    - write data to DB
 	return errors.NilError()

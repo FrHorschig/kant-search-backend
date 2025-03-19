@@ -6,7 +6,6 @@ import (
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mapping"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/pyutil"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
 	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
@@ -18,14 +17,12 @@ type XmlMapper interface {
 type xmlMapperImpl struct {
 	treeMapper  mapping.TreeMapper
 	modelMapper mapping.ModelMapper
-	pyUtil      pyutil.PythonUtil
 }
 
 func NewXmlMapper() XmlMapper {
 	impl := xmlMapperImpl{
 		treeMapper:  mapping.NewTreeMapper(),
 		modelMapper: mapping.NewModelMapper(),
-		pyUtil:      pyutil.NewPythonUtil(),
 	}
 	return &impl
 }
@@ -37,18 +34,15 @@ func (rec *xmlMapperImpl) Map(xml string) ([]dbmodel.Work, errors.ErrorNew) {
 	if err.HasError {
 		return nil, err
 	}
-	works, err := rec.modelMapper.Map(sections, summaries, footnotes)
-	if err.HasError {
-		return nil, err
-	}
 
 	vol := doc.FindElement("//band")
 	volNo, err := transform.ExtractNumericAttribute(vol, "nr")
 	if err.HasError {
 		return nil, err
 	}
-	for i := range works {
-		works[i].Volume = volNo
+	works, err := rec.modelMapper.Map(volNo, sections, summaries, footnotes)
+	if err.HasError {
+		return nil, err
 	}
 
 	return works, errors.NilError()
