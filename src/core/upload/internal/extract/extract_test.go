@@ -49,7 +49,12 @@ func TestExtractPages(t *testing.T) {
 		{
 			name:     "Valid page numbers",
 			text:     "Text with" + page(4) + " page " + page(23) + "numbers.",
-			expected: []int32{1, 2, 3, 4},
+			expected: []int32{3, 4, 23},
+		},
+		{
+			name:     "Valid page numbers",
+			text:     page(9248) + "starting with" + page(284) + " a number",
+			expected: []int32{9248, 284},
 		},
 		{
 			name:     "No page numbers",
@@ -59,13 +64,11 @@ func TestExtractPages(t *testing.T) {
 		{
 			name:      "Malformed page number",
 			text:      "Invalid page: <ks-meta-page>letters234</ks-meta-page>abc.",
-			expected:  []int32{},
 			expectErr: true,
 		},
 		{
 			name:      "Conversion error (int32 overflow)",
 			text:      "Large page number: <ks-meta-page>1023147483648</ks-meta-page>abc.",
-			expected:  []int32{},
 			expectErr: true,
 		},
 	}
