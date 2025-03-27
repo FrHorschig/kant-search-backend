@@ -10,7 +10,7 @@ import (
 )
 
 func ExtractFnRefs(text string) []string {
-	re := regexp.MustCompile(model.FnRefExtract)
+	re := regexp.MustCompile(model.FnRefMatch)
 	matches := re.FindAllStringSubmatch(text, -1)
 	result := []string{}
 	for _, match := range matches {
@@ -20,7 +20,7 @@ func ExtractFnRefs(text string) []string {
 }
 
 func ExtractPages(text string) ([]int32, errors.ErrorNew) {
-	re := regexp.MustCompile(model.PageExtract)
+	re := regexp.MustCompile(model.PageMatch)
 	matches := re.FindAllStringSubmatch(text, -1)
 	result := []int32{}
 	for _, match := range matches {

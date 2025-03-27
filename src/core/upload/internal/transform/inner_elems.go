@@ -34,8 +34,9 @@ func antiqua(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func bildBildverweis(elem *etree.Element) string {
+	// TODO adjust to extract imgref instead of img
 	return fmt.Sprintf(
-		`{extract-image src="%s" desc="%s"}`,
+		model.ImageFmt,
 		strings.TrimSpace(elem.SelectAttrValue("src", "MISSING_IMG_SRC")),
 		strings.TrimSpace(elem.SelectAttrValue("beschreibung", "MISSING_IMG_DESC")),
 	)
@@ -43,7 +44,7 @@ func bildBildverweis(elem *etree.Element) string {
 
 func em1(elem *etree.Element) string {
 	return fmt.Sprintf(
-		"<ks-fmt-emph>%s</ks-fmt-emph>",
+		model.EmphFmt,
 		strings.TrimSpace(elem.Text()),
 	)
 }
@@ -87,10 +88,7 @@ func em2(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(
-		"<ks-fmt-emph2>%s</ks-fmt-emph2>",
-		extracted,
-	), errors.NilError()
+	return fmt.Sprintf(model.Emph2Fmt, extracted), errors.NilError()
 }
 
 func fett(elem *etree.Element) (string, errors.ErrorNew) {
@@ -110,7 +108,7 @@ func fett(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf("<ks-fmt-bold>%s</ks-fmt-bold>", extracted), errors.NilError()
+	return fmt.Sprintf(model.BoldFmt, extracted), errors.NilError()
 }
 
 func formel(elem *etree.Element) (string, errors.ErrorNew) {
@@ -126,10 +124,7 @@ func formel(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(
-		"<ks-fmt-formula>%s</ks-fmt-formula>",
-		extracted,
-	), errors.NilError()
+	return fmt.Sprintf(model.FormulaFmt, extracted), errors.NilError()
 }
 
 func fr(elem *etree.Element) (string, errors.ErrorNew) {
@@ -142,7 +137,7 @@ func fr(elem *etree.Element) (string, errors.ErrorNew) {
 		return "", err
 	}
 	return fmt.Sprintf(
-		"<ks-fmt-fnref>%d.%d</ks-fmt-fnref>",
+		model.FnRefFmt,
 		page,
 		nr,
 	), errors.NilError()
@@ -188,7 +183,7 @@ func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
 		return "", err
 	}
 	return fmt.Sprintf(
-		`<ks-meta-lang%s>%s</ks-meta-lang>`,
+		model.LangFmt,
 		extractForeignLangAttrs(elem),
 		extracted,
 	), errors.NilError()
@@ -215,7 +210,7 @@ func gesperrt(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf("<ks-fmt-tracked>%s</ks-fmt-tracked>", extracted), errors.NilError()
+	return fmt.Sprintf(model.TrackedFmt, extracted), errors.NilError()
 }
 
 func name(elem *etree.Element) (string, errors.ErrorNew) {
