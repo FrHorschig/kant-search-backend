@@ -228,7 +228,7 @@ func seite(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func table() string {
-	return model.TableExtract
+	return model.TableMatch
 }
 
 func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {
@@ -255,7 +255,7 @@ func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {
 	return model.Summary{
 		Page: page,
 		Line: line,
-		Text: text,
+		Text: fmt.Sprintf(model.SummaryFmt, text),
 	}, errors.NilError()
 }
 

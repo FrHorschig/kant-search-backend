@@ -26,7 +26,7 @@ func TestExtractFnRefs(t *testing.T) {
 		},
 		{
 			name:     "Malformed footnote reference",
-			text:     "This is a malformed reference: <ks-fmt-fnref>letters</ks-fmt-fnref>.",
+			text:     "This is a malformed reference: <ks-meta-fnref>letters</ks-meta-fnref>.",
 			expected: []string{},
 		},
 	}
