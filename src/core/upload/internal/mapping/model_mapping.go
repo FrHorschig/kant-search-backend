@@ -4,8 +4,10 @@ package mapping
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/frhorschig/kant-search-backend/common/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
@@ -36,12 +38,17 @@ func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries [
 		}
 		works = append(works, work)
 	}
+	// do page extraction with linearized paragraph list
 	mergeSummariesToWorks(works, summaries)
 	// TODO handle images and tables
 
 	fns := []dbmodel.Footnote{}
 	for _, f := range footnotes {
-		fns = append(fns, mapFootnote(f))
+		fn, err := mapFootnote(f)
+		if err.HasError {
+			return works, err
+		}
+		fns = append(fns, fn)
 	}
 	matchFnsToWorks(works, fns)
 
@@ -73,8 +80,7 @@ func mapSection(s model.Section) (dbmodel.Section, errors.ErrorNew) {
 	}
 	section.Heading = heading
 	for _, par := range s.Paragraphs {
-		dbPar := mapParagraph(par)
-		section.Paragraphs = append(section.Paragraphs, dbPar)
+		section.Paragraphs = append(section.Paragraphs, mapParagraph(par))
 	}
 	for _, sec := range s.Sections {
 		dbSec, err := mapSection(sec)
@@ -123,31 +129,40 @@ func mapLevel(lvl model.Level) (dbmodel.Level, errors.ErrorNew) {
 func mapParagraph(p string) dbmodel.Paragraph {
 	paragraph := dbmodel.Paragraph{}
 	paragraph.Text = p
-	paragraph.Pages = extractPages(p)
-	paragraph.FnReferences = extractFnRefs(p)
+	paragraph.FnReferences = extract.ExtractFnRefs(p)
 	return paragraph
 }
 
-func extractFnRefs(text string) []string {
-	// TODO
-	return []string{}
-}
-
 func mergeSummariesToWorks(works []dbmodel.Work, summaries []model.Summary) {
-	// TODO
+	// TODO very inefficient, check if this matters
+	for _, summ := range summaries {
+		page := fmt.Sprintf(model.PageFmt, summ.Page)
+		line := fmt.Sprintf(model.LineFmt, summ.Line)
+		for _, work := range works {
+			for i := range work.Sections {
+				par := extract.FindParagraph(&work.Sections[i], summ.Page, summ.Line)
+				parts := strings.Split(par.Text, page)
+				if len(parts) == 1 {
+					par.Text = strings.Replace(par.Text, line, summ.Text+line, 1)
+				}
+				if len(parts) > 1 {
+					par.Text = parts[0] + strings.Replace(parts[1], line, summ.Text+line, 1)
+				}
+			}
+		}
+	}
 }
 
-func mapFootnote(f model.Footnote) dbmodel.Footnote {
+func mapFootnote(f model.Footnote) (dbmodel.Footnote, errors.ErrorNew) {
 	footnote := dbmodel.Footnote{}
 	footnote.Name = fmt.Sprintf("%d.%d", f.Page, f.Nr)
-	footnote.Pages = extractPages(f.Text)
+	pages, err := extract.ExtractPages(f.Text)
+	if err.HasError {
+		return footnote, err
+	}
+	footnote.Pages = pages
 	footnote.Text = f.Text
-	return footnote
-}
-
-func extractPages(text string) []int32 {
-	// TODO
-	return []int32{}
+	return footnote, errors.NilError()
 }
 
 func matchFnsToWorks(works []dbmodel.Work, fns []dbmodel.Footnote) {

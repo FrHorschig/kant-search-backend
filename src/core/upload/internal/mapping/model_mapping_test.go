@@ -264,8 +264,7 @@ func TestModelMapping(t *testing.T) {
 			summaries: []model.Summary{
 				{Page: 43, Line: 348, Text: "Summary 1"},
 				{Page: 43, Line: 58685, Text: "Summary 2"},
-				{Page: 96, Line: 1, Text: "Summary 3"},
-				{Page: 484, Line: 5, Text: "Summary 4"},
+				{Page: 484, Line: 5, Text: "Summary 3"},
 			},
 			model: []dbmodel.Work{{
 				Volume: 4,
@@ -273,12 +272,8 @@ func TestModelMapping(t *testing.T) {
 					Heading: dbmodel.Heading{Level: dbmodel.H1},
 					Paragraphs: []dbmodel.Paragraph{
 						{
-							Text:  summ("Summary 1") + page(43) + line(348) + "I'm  paragraph.",
+							Text:  page(43) + summ("Summary 1") + line(348) + "I'm  line." + summ("Summary 2") + line(58685) + "I'm a second line.",
 							Pages: []int32{43},
-						},
-						{
-							Text:  summ("Summary 2") + page(43) + line(348) + "I'm a paragraph.",
-							Pages: []int32{58685},
 						},
 					},
 					Sections: []dbmodel.Section{
@@ -286,12 +281,8 @@ func TestModelMapping(t *testing.T) {
 							Heading: dbmodel.Heading{Level: dbmodel.H1},
 							Paragraphs: []dbmodel.Paragraph{
 								{
-									Text:  summ("Summary 3") + page(95) + line(123) + "I'm a paragraph.",
-									Pages: []int32{95, 96},
-								},
-								{
-									Text:  summ("Summary 4") + "I'm a paragraph with the line " + page(483) + line(2) + " number at the end " + page(484) + line(5) + "that continues over multiple pages.",
-									Pages: []int32{483, 484},
+									Text:  "I'm a paragraph with the line " + page(483) + line(5) + " number at the end " + page(484) + summ("Summary 3") + line(5) + "that continues over multiple pages.",
+									Pages: []int32{482, 483, 484},
 								},
 							},
 						},

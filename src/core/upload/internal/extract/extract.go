@@ -8,6 +8,7 @@ import (
 
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
 func ExtractFnRefs(text string) []string {
@@ -37,5 +38,30 @@ func ExtractPages(text string) ([]int32, errors.ErrorNew) {
 	if parts[0] != "" && len(result) > 0 {
 		result = append([]int32{result[0] - 1}, result...)
 	}
+
 	return result, errors.NilError()
+}
+
+func FindParagraph(sec *dbmodel.Section, page int32, line int32) *dbmodel.Paragraph {
+	for iPar := range sec.Paragraphs {
+		par := &sec.Paragraphs[iPar]
+		for _, pg := range par.Pages {
+			if page == pg {
+				parts := strings.Split(par.Text, fmt.Sprintf(model.PageFmt, page))
+				part := ""
+				if len(parts) == 1 {
+					part = par.Text
+				} else if len(parts) > 1 {
+					part = strings.Split(parts[1], fmt.Sprintf(model.PageFmt, page+1))[0]
+				}
+				if strings.Contains(part, fmt.Sprintf(model.LineFmt, line)) {
+					return par
+				}
+			}
+		}
+	}
+	for i := range sec.Sections {
+		return FindParagraph(&sec.Sections[i], page, line)
+	}
+	return nil
 }
