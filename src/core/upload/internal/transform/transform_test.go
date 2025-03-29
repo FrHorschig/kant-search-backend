@@ -42,8 +42,8 @@ func TestHx(t *testing.T) {
 			name:              "Text with fremdsprache child element",
 			text:              "Test text",
 			child:             createElement("fremdsprache", nil, "fremdspracheText", nil),
-			expectedTocTitle:  "Test text " + fmt.Sprintf(model.LangFmt, "", "fremdspracheText"),
-			expectedTextTitle: "Test text " + fmt.Sprintf(model.LangFmt, "", "fremdspracheText"),
+			expectedTocTitle:  "Test text " + fmt.Sprintf(model.LangFmt, "fremdspracheText"),
+			expectedTextTitle: "Test text " + fmt.Sprintf(model.LangFmt, "fremdspracheText"),
 		},
 		{
 			name:              "Text with gesperrt child element",
@@ -168,7 +168,7 @@ func TestHu(t *testing.T) {
 			name:     "Text with fremdsprache child element",
 			text:     "Test text",
 			child:    createElement("fremdsprache", nil, "fremdspracheText", nil),
-			expected: "Test text " + fmt.Sprintf(model.LangFmt, "", "fremdspracheText"),
+			expected: "Test text " + fmt.Sprintf(model.LangFmt, "fremdspracheText"),
 		},
 		{
 			name:     "Text with gesperrt child element",
@@ -301,7 +301,7 @@ func TestP(t *testing.T) {
 			name:     "Text with fremdsprache child element",
 			text:     "Test text",
 			child:    createElement("fremdsprache", nil, "fremdspracheText", nil),
-			expected: "Test text " + fmt.Sprintf(model.LangFmt, "", "fremdspracheText"),
+			expected: "Test text " + fmt.Sprintf(model.LangFmt, "fremdspracheText"),
 		},
 		{
 			name:     "Text with gesperrt child element",

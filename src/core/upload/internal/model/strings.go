@@ -7,7 +7,7 @@ const (
 	PageMatch  = `<ks-meta-page>(\d+)</ks-meta-page>`
 	FnRefFmt   = `<ks-meta-fnref>%d.%d</ks-meta-fnref>`
 	FnRefMatch = `<ks-meta-fnref>(\d+\.\d+)</ks-meta-fnref>`
-	LangFmt    = `<ks-meta-lang %s>%s</ks-meta-lang>`
+	LangFmt    = `%s`
 )
 
 const (
@@ -15,8 +15,8 @@ const (
 	EmphFmt    = "<ks-fmt-emph>%s</ks-fmt-emph>"
 	Emph2Fmt   = "<ks-fmt-emph2>%s</ks-fmt-emph2>"
 	BoldFmt    = "<ks-fmt-bold>%s</ks-fmt-bold>"
-	FormulaFmt = "<ks-fmt-fks-fmt-trackedormula>%s</ks-fmt-formula>"
-	TrackedFmt = "<>%s</ks-fmt-tracked>"
+	FormulaFmt = "<ks-fmt-formula>%s</ks-fmt-formula>"
+	TrackedFmt = "<ks-fmt-tracked>%s</ks-fmt-tracked>"
 )
 
 const (
