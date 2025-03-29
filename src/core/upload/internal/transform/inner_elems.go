@@ -184,7 +184,7 @@ func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
 	}
 	return fmt.Sprintf(
 		model.LangFmt,
-		extractForeignLangAttrs(elem),
+		// extractForeignLangAttrs(elem),
 		extracted,
 	), errors.NilError()
 }
