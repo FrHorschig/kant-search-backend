@@ -55,7 +55,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 	pagePrefix := ""
 	for _, el := range hauptteil.ChildElements() {
 		switch el.Tag {
-		case "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9":
+		case "h1":
 			hx, err := rec.trafo.Hx(el)
 			if err.HasError {
 				return nil, err
@@ -64,26 +64,40 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 				hx.TextTitle = pagePrefix + " " + hx.TextTitle
 				pagePrefix = ""
 			}
-			if hx.TocTitle == "" { // this happens if hx only has an hu element
-				currentSec.Paragraphs = append(currentSec.Paragraphs, hx.TextTitle)
+
+			sec := model.Section{Heading: hx, Paragraphs: []string{}, Sections: []model.Section{}}
+			if hx.Level == model.HWork {
+				sec.Heading.Year = currentYear
+				secs = append(secs, sec)
+				currentSec = &secs[len(secs)-1]
+			}
+
+		case "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9":
+			hx, err := rec.trafo.Hx(el)
+			if err.HasError {
+				return nil, err
+			}
+			if pagePrefix != "" {
+				hx.TextTitle = pagePrefix + " " + hx.TextTitle
+				pagePrefix = ""
+			}
+			if hx.TocTitle == "" {
+				// this happens if hx only has an hu element, which is the part of the heading that is not displayed in the TOC
+				currentSec.Paragraphs = append(currentSec.Paragraphs, fmt.Sprintf(model.ParHeadFmt, hx.TextTitle))
 				continue
 			}
 
 			sec := model.Section{Heading: hx, Paragraphs: []string{}, Sections: []model.Section{}}
-			if hx.Level == model.H1 {
-				sec.Heading.Year = currentYear
-				secs = append(secs, sec)
-				currentSec = &secs[len(secs)-1]
-				continue
-			} else {
-				if len(secs) == 0 {
-					return nil, errors.NewError(fmt.Errorf("the first heading is '%s', but must be h1", el.Tag), nil)
-				}
+			if len(secs) == 0 {
+				return nil, errors.NewError(fmt.Errorf("the first heading is '%s', but must be h1", el.Tag), nil)
 			}
 
 			parent := findParent(hx, currentSec)
 			sec.Parent = parent
-			parent.Sections = append(parent.Sections, sec)
+			// this ensures a level difference of 1 in parent-child headings
+			sec.Heading.Level = parent.Heading.Level + 1
+			sec.Heading.TextTitle = fmt.Sprintf(model.HeadingFmt, sec.Heading.Level, sec.Heading.TextTitle, sec.Heading.Level)
+
 			currentSec = &parent.Sections[len(parent.Sections)-1]
 
 		case "hj":
@@ -98,7 +112,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 				hu = pagePrefix + " " + hu
 				pagePrefix = ""
 			}
-			currentSec.Paragraphs = append(currentSec.Paragraphs, hu)
+			currentSec.Paragraphs = append(currentSec.Paragraphs, fmt.Sprintf(model.ParHeadFmt, hu))
 
 		case "op":
 			continue
