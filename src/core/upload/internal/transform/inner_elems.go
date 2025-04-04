@@ -8,7 +8,7 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
 func antiqua(elem *etree.Element) (string, errors.ErrorNew) {
@@ -35,18 +35,14 @@ func antiqua(elem *etree.Element) (string, errors.ErrorNew) {
 
 func bildBildverweis(elem *etree.Element) string {
 	// TODO adjust to extract imgref instead of img
-	return fmt.Sprintf(
-		model.ImageFmt,
+	return util.FmtImage(
 		strings.TrimSpace(elem.SelectAttrValue("src", "MISSING_IMG_SRC")),
 		strings.TrimSpace(elem.SelectAttrValue("beschreibung", "MISSING_IMG_DESC")),
 	)
 }
 
 func em1(elem *etree.Element) string {
-	return fmt.Sprintf(
-		model.EmphFmt,
-		strings.TrimSpace(elem.Text()),
-	)
+	return util.FmtEmph(strings.TrimSpace(elem.Text()))
 }
 
 func em2(elem *etree.Element) (string, errors.ErrorNew) {
@@ -88,7 +84,7 @@ func em2(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(model.Emph2Fmt, extracted), errors.NilError()
+	return util.FmtEmph2(extracted), errors.NilError()
 }
 
 func fett(elem *etree.Element) (string, errors.ErrorNew) {
@@ -108,7 +104,7 @@ func fett(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(model.BoldFmt, extracted), errors.NilError()
+	return util.FmtBold(extracted), errors.NilError()
 }
 
 func formel(elem *etree.Element) (string, errors.ErrorNew) {
@@ -124,23 +120,19 @@ func formel(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(model.FormulaFmt, extracted), errors.NilError()
+	return util.FmtFormula(extracted), errors.NilError()
 }
 
 func fr(elem *etree.Element) (string, errors.ErrorNew) {
-	page, err := ExtractNumericAttribute(elem, "seite")
+	page, err := util.ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return "", err
 	}
-	nr, err := ExtractNumericAttribute(elem, "nr")
+	nr, err := util.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(
-		model.FnRefFmt,
-		page,
-		nr,
-	), errors.NilError()
+	return util.FmtFnRef(page, nr), errors.NilError()
 }
 
 func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
@@ -182,11 +174,7 @@ func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(
-		model.LangFmt,
-		// extractForeignLangAttrs(elem),
-		extracted,
-	), errors.NilError()
+	return util.FmtLang(extracted), errors.NilError()
 }
 
 func gesperrt(elem *etree.Element) (string, errors.ErrorNew) {
@@ -210,7 +198,7 @@ func gesperrt(elem *etree.Element) (string, errors.ErrorNew) {
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(model.TrackedFmt, extracted), errors.NilError()
+	return util.FmtTracked(extracted), errors.NilError()
 }
 
 func name(elem *etree.Element) (string, errors.ErrorNew) {
@@ -244,11 +232,11 @@ func romzahl(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func zeile(elem *etree.Element) (string, errors.ErrorNew) {
-	line, err := ExtractNumericAttribute(elem, "nr")
+	line, err := util.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(model.LineFmt, line), errors.NilError()
+	return util.FmtLine(line), errors.NilError()
 }
 
 func extractForeignLangAttrs(el *etree.Element) string {

@@ -14,7 +14,7 @@ type Heading struct {
 	Year      string
 }
 
-type Level int
+type Level int32
 
 const (
 	HWork Level = iota + 0

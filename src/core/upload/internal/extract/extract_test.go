@@ -1,10 +1,9 @@
 package extract
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -81,10 +80,51 @@ func TestExtractPages(t *testing.T) {
 	}
 }
 
-func page(page int32) string {
-	return fmt.Sprintf(model.PageFmt, page)
+func TestRemoveTags(t *testing.T) {
+	tests := []struct {
+		name     string
+		text     string
+		expected string
+	}{
+		{
+			name:     "Text with nested tags",
+			text:     "<div><span>Nested</span> tags</div>",
+			expected: "Nested tags",
+		},
+		{
+			name:     "Text with no tags",
+			text:     "Plain text without tags.",
+			expected: "Plain text without tags.",
+		},
+		{
+			name:     "Empty string",
+			text:     "",
+			expected: "",
+		},
+		{
+			name:     "Text with malformed tags",
+			text:     "Malformed <tag text.",
+			expected: "Malformed <tag text.",
+		},
+		{
+			name:     "Text with self-closing tags",
+			text:     "Image: <img src='image.jpg'/> here.",
+			expected: "Image:  here.",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := RemoveTags(tt.text)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
 }
 
-func fnRef(a int, b int) string {
-	return fmt.Sprintf(model.FnRefFmt, a, b)
+func page(page int32) string {
+	return util.FmtPage(page)
+}
+
+func fnRef(a int32, b int32) string {
+	return util.FmtFnRef(a, b)
 }

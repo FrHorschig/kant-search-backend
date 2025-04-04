@@ -1,11 +1,11 @@
 package mapping
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/frhorschig/kant-search-backend/common/util"
+	commonutil "github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -58,7 +58,7 @@ func TestModelMapping(t *testing.T) {
 			}},
 			model: []dbmodel.Work{{
 				Title: "work title",
-				Year:  util.ToStrPtr("1724"),
+				Year:  commonutil.ToStrPtr("1724"),
 				Sections: []dbmodel.Section{{
 					Heading: dbmodel.Heading{
 						Text:    "work title",
@@ -341,8 +341,8 @@ func assertWork(t *testing.T, exp dbmodel.Work, act dbmodel.Work) {
 	assert.NotNil(t, act)
 
 	assert.Equal(t, exp.Code, act.Code)
-	assert.Equal(t, util.ToStrVal(exp.Abbreviation), util.ToStrVal(act.Abbreviation))
-	assert.Equal(t, util.ToStrVal(exp.Year), util.ToStrVal(act.Year))
+	assert.Equal(t, commonutil.ToStrVal(exp.Abbreviation), commonutil.ToStrVal(act.Abbreviation))
+	assert.Equal(t, commonutil.ToStrVal(exp.Year), commonutil.ToStrVal(act.Year))
 
 	assert.Equal(t, len(exp.Sections), len(act.Sections))
 	for j := range exp.Sections {
@@ -380,17 +380,17 @@ func assertFootnote(t *testing.T, exp dbmodel.Footnote, act dbmodel.Footnote) {
 }
 
 func line(line int32) string {
-	return fmt.Sprintf(model.LineFmt, line)
+	return util.FmtLine(line)
 }
 
 func page(page int32) string {
-	return fmt.Sprintf(model.PageFmt, page)
+	return util.FmtPage(page)
 }
 
 func fnr(page int32, nr int32) string {
-	return fmt.Sprintf(model.FnRefFmt, page, nr)
+	return util.FmtFnRef(page, nr)
 }
 
 func summ(text string) string {
-	return fmt.Sprintf(model.SummaryFmt, text)
+	return util.FmtSummary(text)
 }
