@@ -179,6 +179,7 @@ func processSection(section *dbmodel.Section, maxPage *int32) {
 			*maxPage = lastPage
 		}
 	} else {
+		// this happens when a heading is in the middle of a page
 		head.Pages = []int32{*maxPage}
 	}
 
@@ -196,7 +197,7 @@ func processSection(section *dbmodel.Section, maxPage *int32) {
 			}
 
 		} else {
-			// This happens when a paragraph is fully inside a page and does not start at the beginning of the page.
+			// this happens when a paragraph is fully inside a page
 			par.Pages = []int32{*maxPage}
 		}
 	}
@@ -219,7 +220,17 @@ func postprocessFootnotePages(fn *dbmodel.Footnote, fnStartPage int32) {
 }
 
 func matchFnsToWorks(works []dbmodel.Work, fns []dbmodel.Footnote) {
-
+	for i := range works {
+		var min int32 = 0
+		var max int32 = 0
+		findMinMaxPages(works[i].Sections, &min, &max)
+		for j := range fns {
+			pages := fns[j].Pages
+			if pages[0] >= min && pages[len(pages)-1] <= max {
+				works[i].Footnotes = append(works[i].Footnotes, fns[j])
+			}
+		}
+	}
 }
 
 func insertSummaryRef(summary dbmodel.Summary, works []dbmodel.Work) {
@@ -227,11 +238,45 @@ func insertSummaryRef(summary dbmodel.Summary, works []dbmodel.Work) {
 }
 
 func mapSummariesToWorks(works []dbmodel.Work, summaries []dbmodel.Summary) {
-	// TODO
+	for i := range works {
+		var min int32 = 0
+		var max int32 = 0
+		findMinMaxPages(works[i].Sections, &min, &max)
+		for j := range summaries {
+			pages := summaries[j].Pages
+			if pages[0] >= min && pages[len(pages)-1] <= max {
+				works[i].Summaries = append(works[i].Summaries, summaries[j])
+			}
+		}
+	}
 }
 
 func startsWithPageRef(text, pageRef string) bool {
 	index := strings.Index(text, pageRef)
 	cleaned := extract.RemoveTags(text[:index])
 	return cleaned == "" // text before page ref is only formatting code, so the "real text" starts with the page ref
+}
+
+func findMinMaxPages(sections []dbmodel.Section, min, max *int32) {
+	for _, s := range sections {
+		if len(s.Heading.Pages) > 0 {
+			if *min == 0 || s.Heading.Pages[0] < *min {
+				*min = s.Heading.Pages[0]
+			}
+			if s.Heading.Pages[len(s.Heading.Pages)-1] > *max {
+				*max = s.Heading.Pages[len(s.Heading.Pages)-1]
+			}
+		}
+		for _, p := range s.Paragraphs {
+			if len(p.Pages) > 0 {
+				if *min == 0 || p.Pages[0] < *min {
+					*min = p.Pages[0]
+				}
+				if p.Pages[len(p.Pages)-1] > *max {
+					*max = p.Pages[len(p.Pages)-1]
+				}
+			}
+		}
+		findMinMaxPages(s.Sections, min, max)
+	}
 }
