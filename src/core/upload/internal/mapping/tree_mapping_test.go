@@ -71,20 +71,30 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 	assert.False(t, err.HasError)
 	assert.Equal(t, 2, len(works))
 
-	assert.Equal(t, model.H1, works[0].Heading.Level)
+	assert.Equal(t, model.HWork, works[0].Heading.Level)
 	assert.Equal(t, 1, len(works[0].
 		Sections))
-	assert.Equal(t, model.H2, works[0].
+	assert.Equal(t, model.H1, works[0].
 		Sections[0].
 		Heading.Level)
 	assert.Equal(t, 1, len(works[0].
+		Sections[0].
+		Sections))
+	assert.Equal(t, model.H2, works[0].
+		Sections[0].
+		Sections[0].
+		Heading.Level)
+	assert.Equal(t, 1, len(works[0].
+		Sections[0].
 		Sections[0].
 		Sections))
 	assert.Equal(t, model.H3, works[0].
 		Sections[0].
 		Sections[0].
+		Sections[0].
 		Heading.Level)
 	assert.Equal(t, 1, len(works[0].
+		Sections[0].
 		Sections[0].
 		Sections[0].
 		Sections))
@@ -92,8 +102,10 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 		Sections[0].
 		Sections[0].
 		Sections[0].
+		Sections[0].
 		Heading.Level)
 	assert.Equal(t, 1, len(works[0].
+		Sections[0].
 		Sections[0].
 		Sections[0].
 		Sections[0].
@@ -103,8 +115,10 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 		Sections[0].
 		Sections[0].
 		Sections[0].
+		Sections[0].
 		Heading.Level)
 	assert.Equal(t, 1, len(works[0].
+		Sections[0].
 		Sections[0].
 		Sections[0].
 		Sections[0].
@@ -116,8 +130,10 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 		Sections[0].
 		Sections[0].
 		Sections[0].
+		Sections[0].
 		Heading.Level)
 	assert.Equal(t, 1, len(works[0].
+		Sections[0].
 		Sections[0].
 		Sections[0].
 		Sections[0].
@@ -131,8 +147,10 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 		Sections[0].
 		Sections[0].
 		Sections[0].
+		Sections[0].
 		Heading.Level)
 	assert.Equal(t, 1, len(works[0].
+		Sections[0].
 		Sections[0].
 		Sections[0].
 		Sections[0].
@@ -141,24 +159,6 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 		Sections[0].
 		Sections))
 	assert.Equal(t, model.H8, works[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Heading.Level)
-	assert.Equal(t, 1, len(works[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Sections[0].
-		Sections))
-	assert.Equal(t, model.H9, works[0].
 		Sections[0].
 		Sections[0].
 		Sections[0].
@@ -175,23 +175,23 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 	//   --3
 	//     --8
 	// --2
-	assert.Equal(t, model.H1, works[1].Heading.Level)
+	assert.Equal(t, model.HWork, works[1].Heading.Level)
 	assert.Equal(t, 2, len(works[1].
 		Sections))
-	assert.Equal(t, model.H2, works[1].
+	assert.Equal(t, model.H1, works[1].
 		Sections[0].
 		Heading.Level)
-	assert.Equal(t, model.H2, works[1].
+	assert.Equal(t, model.H1, works[1].
 		Sections[1].
 		Heading.Level)
 	assert.Equal(t, 2, len(works[1].
 		Sections[0].
 		Sections))
-	assert.Equal(t, model.H5, works[1].
+	assert.Equal(t, model.H4, works[1].
 		Sections[0].
 		Sections[0].
 		Heading.Level)
-	assert.Equal(t, model.H3, works[1].
+	assert.Equal(t, model.H2, works[1].
 		Sections[0].
 		Sections[1].
 		Heading.Level)
@@ -199,7 +199,7 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 		Sections[0].
 		Sections[1].
 		Sections))
-	assert.Equal(t, model.H8, works[1].
+	assert.Equal(t, model.H7, works[1].
 		Sections[0].
 		Sections[1].
 		Sections[0].
@@ -225,37 +225,37 @@ func testMultipleEqualHeadings(t *testing.T, sut *TreeMapperImpl) {
 	assert.False(t, err.HasError)
 	assert.Equal(t, 1, len(works))
 
-	assert.Equal(t, model.H1, works[0].Heading.Level)
+	assert.Equal(t, model.HWork, works[0].Heading.Level)
 	assert.Equal(t, 3, len(works[0].
 		Sections))
-	assert.Equal(t, model.H2, works[0].
+	assert.Equal(t, model.H1, works[0].
 		Sections[0].
 		Heading.Level)
-	assert.Equal(t, model.H2, works[0].
+	assert.Equal(t, model.H1, works[0].
 		Sections[1].
 		Heading.Level)
-	assert.Equal(t, model.H2, works[0].
+	assert.Equal(t, model.H1, works[0].
 		Sections[2].
 		Heading.Level)
 	assert.Equal(t, 2, len(works[0].
 		Sections[1].
 		Sections))
-	assert.Equal(t, model.H3, works[0].
+	assert.Equal(t, model.H2, works[0].
 		Sections[1].
 		Sections[0].
 		Heading.Level)
-	assert.Equal(t, model.H3, works[0].
+	assert.Equal(t, model.H2, works[0].
 		Sections[1].
 		Sections[1].
 		Heading.Level)
 	assert.Equal(t, 2, len(works[0].
 		Sections[2].
 		Sections))
-	assert.Equal(t, model.H3, works[0].
+	assert.Equal(t, model.H2, works[0].
 		Sections[2].
 		Sections[0].
 		Heading.Level)
-	assert.Equal(t, model.H3, works[0].
+	assert.Equal(t, model.H2, works[0].
 		Sections[2].
 		Sections[1].
 		Heading.Level)
@@ -307,7 +307,7 @@ func testPureHuHeading(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, "hu paragraph", works[0].Paragraphs[0])
 
 	assert.Equal(t, 1, len(works[0].Sections))
-	assert.Equal(t, model.H3, works[0].Sections[0].Heading.Level)
+	assert.Equal(t, model.H2, works[0].Sections[0].Heading.Level)
 	assert.Equal(t, "h3 text", works[0].Sections[0].Heading.TextTitle)
 }
 
