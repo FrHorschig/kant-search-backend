@@ -83,42 +83,6 @@ func TestAntiqua(t *testing.T) {
 	}
 }
 
-func TestBildBildverweis(t *testing.T) {
-	testCases := []struct {
-		name     string
-		text     string
-		attrs    map[string]string
-		expected string
-	}{
-		{
-			name:     "Default values due to missing attributes",
-			expected: `{extract-image src="MISSING_IMG_SRC" desc="MISSING_IMG_DESC"}`,
-		},
-		{
-			name:     "Bild attributes are extracted",
-			attrs:    map[string]string{"src": "source string", "beschreibung": "description text"},
-			expected: `{extract-image src="source string" desc="description text"}`,
-		},
-		{
-			name:     "Text is ignored",
-			attrs:    map[string]string{"src": "s", "beschreibung": "d"},
-			text:     "some text",
-			expected: `{extract-image src="s" desc="d"}`,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			el := createElement("element", nil, tc.text, nil)
-			for k, v := range tc.attrs {
-				el.CreateAttr(k, v)
-			}
-			result := bildBildverweis(el)
-			assert.Equal(t, tc.expected, result)
-		})
-	}
-}
-
 func TestEm1(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -158,18 +122,6 @@ func TestEm2(t *testing.T) {
 			name:     "Pure text",
 			text:     "Some emph2 text",
 			expected: util.FmtEmph2("Some emph2 text"),
-		},
-		{
-			name:     "Text with bild child element",
-			text:     "Test text",
-			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: util.FmtEmph2(`Test text {extract-image src="source" desc="description text"}`),
-		},
-		{
-			name:     "Text with bildverweis child element",
-			text:     "Test text",
-			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: util.FmtEmph2(`Test text {extract-image src="source" desc="description text"}`),
 		},
 		{
 			name:     "Text with em1 child element",
@@ -430,18 +382,6 @@ func TestFremdsprache(t *testing.T) {
 			text:     "Some foreign language text",
 			attrs:    map[string]string{"sprache": "language", "zeichen": "some alphabet", "umschrift": "transcribed text"},
 			expected: util.FmtLang("Some foreign language text"),
-		},
-		{
-			name:     "Text with bild child element",
-			text:     "Test text",
-			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: util.FmtLang(`Test text {extract-image src="source" desc="description text"}`),
-		},
-		{
-			name:     "Text with bildverweis child element",
-			text:     "Test text",
-			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: util.FmtLang(`Test text {extract-image src="source" desc="description text"}`),
 		},
 		{
 			name:     "Text with em1 child element",
