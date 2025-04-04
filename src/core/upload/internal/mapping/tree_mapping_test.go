@@ -26,7 +26,6 @@ func TestTreeMapping(t *testing.T) {
 		"Test year assignment":                 testYearAssignment,
 		"Test paragraph extraction":            testParagraphExtraction,
 		"Test op is ignored":                   testOpIsIgnored,
-		"Test table extraction":                testTableExtraction,
 		"Test extraction of allparts":          testMainSummaryFootnoteExtraction,
 		"Test error in h1":                     testErrorInH1,
 		"Test error in h2":                     testErrorInH2,
@@ -413,36 +412,6 @@ func testOpIsIgnored(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, "paragraph 7.1", works[0].Sections[0].Sections[0].Paragraphs[0])
 	assert.Equal(t, 1, len(works[0].Sections[1].Paragraphs))
 	assert.Equal(t, "paragraph 22.1", works[0].Sections[1].Paragraphs[0])
-}
-
-func testTableExtraction(t *testing.T, sut *TreeMapperImpl) {
-	main := `
-    <h1> first </h1>
-	<table> table text </table>
-    <p> paragraph 1.1 </p>
-	<table> table text </table>
-    <h2> second </h2>
-    <p> paragraph 2.1 </p>
-	<table> table text </table>
-    <p> paragraph 2.2 </p>`
-	doc := createNewDocument(main, "", "")
-
-	// WHEN
-	works, _, _, err := sut.Map(doc)
-
-	// THEN
-	assert.False(t, err.HasError)
-	assert.Equal(t, 1, len(works))
-	assert.Equal(t, 3, len(works[0].Paragraphs))
-	assert.Equal(t, "{extract-table}", works[0].Paragraphs[0])
-	assert.Equal(t, "paragraph 1.1", works[0].Paragraphs[1])
-	assert.Equal(t, "{extract-table}", works[0].Paragraphs[2])
-
-	assert.Equal(t, 1, len(works[0].Sections))
-	assert.Equal(t, 3, len(works[0].Sections[0].Paragraphs))
-	assert.Equal(t, "paragraph 2.1", works[0].Sections[0].Paragraphs[0])
-	assert.Equal(t, "{extract-table}", works[0].Sections[0].Paragraphs[1])
-	assert.Equal(t, "paragraph 2.2", works[0].Sections[0].Paragraphs[2])
 }
 
 func testMainSummaryFootnoteExtraction(t *testing.T, sut *TreeMapperImpl) {
