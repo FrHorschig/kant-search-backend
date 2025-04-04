@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
@@ -37,6 +38,15 @@ func ExtractPages(text string) ([]int32, errors.ErrorNew) {
 }
 
 func RemoveTags(text string) string {
-	re := regexp.MustCompile(`<[^>]*>`)
-	return re.ReplaceAllString(text, "")
+	re := regexp.MustCompile(util.FnRefMatch)
+	text = re.ReplaceAllString(text, "")
+	re = regexp.MustCompile(util.LineMatch)
+	text = re.ReplaceAllString(text, "")
+	re = regexp.MustCompile(util.PageMatch)
+	text = re.ReplaceAllString(text, "")
+	re = regexp.MustCompile(`<[^>]*>`)
+	text = re.ReplaceAllString(text, "")
+	re = regexp.MustCompile(`\s+`)
+	text = re.ReplaceAllString(text, " ")
+	return strings.TrimSpace(text)
 }

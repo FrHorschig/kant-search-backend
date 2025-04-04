@@ -232,34 +232,6 @@ func table() string {
 	return util.TableMatch
 }
 
-func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
-		switch el.Tag {
-		case "p":
-			return p(el)
-		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
-		}
-	}
-	text, err := extractText(elem, switchFn)
-	if err.HasError {
-		return model.Summary{}, err
-	}
-	page, err := util.ExtractNumericAttribute(elem, "seite")
-	if err.HasError {
-		return model.Summary{}, err
-	}
-	line, err := util.ExtractNumericAttribute(elem, "anfang")
-	if err.HasError {
-		return model.Summary{}, err
-	}
-	return model.Summary{
-		Page: page,
-		Line: line,
-		Text: util.FmtSummary(text),
-	}, errors.NilError()
-}
-
 func footnote(elem *etree.Element) (model.Footnote, errors.ErrorNew) {
 	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
 		switch el.Tag {
@@ -284,6 +256,34 @@ func footnote(elem *etree.Element) (model.Footnote, errors.ErrorNew) {
 	return model.Footnote{
 		Page: page,
 		Nr:   nr,
+		Text: text,
+	}, errors.NilError()
+}
+
+func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {
+	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+		switch el.Tag {
+		case "p":
+			return p(el)
+		default:
+			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+		}
+	}
+	text, err := extractText(elem, switchFn)
+	if err.HasError {
+		return model.Summary{}, err
+	}
+	page, err := util.ExtractNumericAttribute(elem, "seite")
+	if err.HasError {
+		return model.Summary{}, err
+	}
+	line, err := util.ExtractNumericAttribute(elem, "anfang")
+	if err.HasError {
+		return model.Summary{}, err
+	}
+	return model.Summary{
+		Page: page,
+		Line: line,
 		Text: text,
 	}, errors.NilError()
 }
