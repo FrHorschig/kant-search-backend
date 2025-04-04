@@ -9,6 +9,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
@@ -112,7 +113,7 @@ func mapHeading(h model.Heading) (dbmodel.Heading, errors.ErrorNew) {
 		return dbmodel.Heading{}, err
 	}
 	heading := dbmodel.Heading{
-		Text:    fmt.Sprintf(model.HeadingFmt, h.Level, h.TextTitle, h.Level),
+		Text:    util.FmtHeading(int32(h.Level), h.TextTitle),
 		TocText: h.TocTitle,
 		Pages:   pages,
 		FnRefs:  extract.ExtractFnRefs(h.TextTitle),
@@ -169,7 +170,7 @@ func processSection(section *dbmodel.Section, maxPage *int32) {
 	head := section.Heading
 	if len(head.Pages) > 0 {
 		firstPage := head.Pages[0]
-		pageRef := fmt.Sprintf(model.PageFmt, firstPage)
+		pageRef := util.FmtPage(firstPage)
 		if !startsWithPageRef(head.Text, pageRef) {
 			head.Pages = append([]int32{firstPage - 1}, head.Pages...)
 		}
@@ -185,7 +186,7 @@ func processSection(section *dbmodel.Section, maxPage *int32) {
 		par := &section.Paragraphs[i]
 		if len(par.Pages) > 0 {
 			firstPage := par.Pages[0]
-			pageRef := fmt.Sprintf(model.PageFmt, firstPage)
+			pageRef := util.FmtPage(firstPage)
 			if !startsWithPageRef(par.Text, pageRef) {
 				par.Pages = append([]int32{firstPage - 1}, par.Pages...)
 			}
@@ -208,7 +209,7 @@ func processSection(section *dbmodel.Section, maxPage *int32) {
 func postprocessFootnotePages(fn *dbmodel.Footnote, fnStartPage int32) {
 	if len(fn.Pages) > 0 {
 		firstPage := fn.Pages[0]
-		pageRef := fmt.Sprintf(model.PageFmt, firstPage)
+		pageRef := util.FmtPage(firstPage)
 		if !startsWithPageRef(fn.Text, pageRef) {
 			fn.Pages = append([]int32{firstPage - 1}, fn.Pages...)
 		}

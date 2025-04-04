@@ -7,6 +7,7 @@ import (
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
 type XmlTransformator interface {
@@ -220,15 +221,15 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 }
 
 func seite(elem *etree.Element) (string, errors.ErrorNew) {
-	page, err := ExtractNumericAttribute(elem, "nr")
+	page, err := util.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}
-	return fmt.Sprintf(model.PageFmt, page), errors.NilError()
+	return util.FmtPage(page), errors.NilError()
 }
 
 func table() string {
-	return model.TableMatch
+	return util.TableMatch
 }
 
 func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {
@@ -244,18 +245,18 @@ func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {
 	if err.HasError {
 		return model.Summary{}, err
 	}
-	page, err := ExtractNumericAttribute(elem, "seite")
+	page, err := util.ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return model.Summary{}, err
 	}
-	line, err := ExtractNumericAttribute(elem, "anfang")
+	line, err := util.ExtractNumericAttribute(elem, "anfang")
 	if err.HasError {
 		return model.Summary{}, err
 	}
 	return model.Summary{
 		Page: page,
 		Line: line,
-		Text: fmt.Sprintf(model.SummaryFmt, text),
+		Text: util.FmtSummary(text),
 	}, errors.NilError()
 }
 
@@ -272,11 +273,11 @@ func footnote(elem *etree.Element) (model.Footnote, errors.ErrorNew) {
 	if err.HasError {
 		return model.Footnote{}, err
 	}
-	page, err := ExtractNumericAttribute(elem, "seite")
+	page, err := util.ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return model.Footnote{}, err
 	}
-	nr, err := ExtractNumericAttribute(elem, "nr")
+	nr, err := util.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return model.Footnote{}, err
 	}

@@ -4,11 +4,10 @@
 package transform
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,13 +28,13 @@ func TestAntiqua(t *testing.T) {
 			name:     "Text with fett child element",
 			text:     "Test text",
 			child:    createElement("fett", nil, "fettText", nil),
-			expected: "Test text " + fmt.Sprintf(model.BoldFmt, "fettText"),
+			expected: "Test text " + util.FmtBold("fettText"),
 		},
 		{
 			name:     "Text with gesperrt child element",
 			text:     "Test text",
 			child:    createElement("gesperrt", nil, "gesperrtText", nil),
-			expected: "Test text " + fmt.Sprintf(model.TrackedFmt, "gesperrtText"),
+			expected: "Test text " + util.FmtTracked("gesperrtText"),
 		},
 		{
 			name:     "Text with name child element",
@@ -47,13 +46,13 @@ func TestAntiqua(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "Test text " + fmt.Sprintf(model.PageFmt, 384) + "",
+			expected: "Test text " + util.FmtPage(384) + "",
 		},
 		{
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "Test text " + fmt.Sprintf(model.LineFmt, 328),
+			expected: "Test text " + util.FmtLine(328),
 		},
 		{
 			name:     "Text with trenn child element",
@@ -129,12 +128,12 @@ func TestEm1(t *testing.T) {
 		{
 			name:     "Text is extracted",
 			text:     "Something",
-			expected: fmt.Sprintf(model.EmphFmt, "Something"),
+			expected: util.FmtEmph("Something"),
 		},
 		{
 			name:     "Space is trimmed",
 			text:     " Some text     ",
-			expected: fmt.Sprintf(model.EmphFmt, "Some text"),
+			expected: util.FmtEmph("Some text"),
 		},
 	}
 
@@ -158,96 +157,96 @@ func TestEm2(t *testing.T) {
 		{
 			name:     "Pure text",
 			text:     "Some emph2 text",
-			expected: fmt.Sprintf(model.Emph2Fmt, "Some emph2 text"),
+			expected: util.FmtEmph2("Some emph2 text"),
 		},
 		{
 			name:     "Text with bild child element",
 			text:     "Test text",
 			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, `Test text {extract-image src="source" desc="description text"}`),
+			expected: util.FmtEmph2(`Test text {extract-image src="source" desc="description text"}`),
 		},
 		{
 			name:     "Text with bildverweis child element",
 			text:     "Test text",
 			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, `Test text {extract-image src="source" desc="description text"}`),
+			expected: util.FmtEmph2(`Test text {extract-image src="source" desc="description text"}`),
 		},
 		{
 			name:     "Text with em1 child element",
 			text:     "Test text",
 			child:    createElement("em1", nil, "em1Text", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text "+fmt.Sprintf(model.EmphFmt, "em1Text")),
+			expected: util.FmtEmph2("Test text " + util.FmtEmph("em1Text")),
 		},
 		{
 			name:     "Text with em2 child element",
 			text:     "Test text",
 			child:    createElement("em2", nil, "em2Text", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text "+fmt.Sprintf(model.Emph2Fmt, "em2Text")),
+			expected: util.FmtEmph2("Test text " + util.FmtEmph2("em2Text")),
 		},
 		{
 			name:     "Text with fett child element",
 			text:     "Test text",
 			child:    createElement("fett", nil, "fettText", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text "+fmt.Sprintf(model.BoldFmt, "fettText")),
+			expected: util.FmtEmph2("Test text " + util.FmtBold("fettText")),
 		},
 		{
 			name:     "Text with formel child element",
 			text:     "Test text",
 			child:    createElement("formel", nil, "formelText", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text "+fmt.Sprintf(model.FormulaFmt, "formelText")),
+			expected: util.FmtEmph2("Test text " + util.FmtFormula("formelText")),
 		},
 		{
 			name:     "Text with fr child element",
 			text:     "Test text",
 			child:    createElement("fr", map[string]string{"seite": "1", "nr": "2"}, "", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text "+fmt.Sprintf(model.FnRefFmt, 1, 2)),
+			expected: util.FmtEmph2("Test text " + util.FmtFnRef(1, 2)),
 		},
 		{
 			name:     "Text with fremdsprache child element",
 			text:     "Test text",
 			child:    createElement("fremdsprache", nil, "fremdspracheText", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text "+fmt.Sprintf(model.LangFmt, "fremdspracheText")),
+			expected: util.FmtEmph2("Test text " + util.FmtLang("fremdspracheText")),
 		},
 		{
 			name:     "Text with gesperrt child element",
 			text:     "Test text",
 			child:    createElement("gesperrt", nil, "gesperrtText", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text "+fmt.Sprintf(model.TrackedFmt, "gesperrtText")),
+			expected: util.FmtEmph2("Test text " + util.FmtTracked("gesperrtText")),
 		},
 		{
 			name:     "Text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text nameText"),
+			expected: util.FmtEmph2("Test text nameText"),
 		},
 		{
 			name:     "Text with romzahl child element",
 			text:     "Test text",
 			child:    createElement("romzahl", nil, "2.", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text II."),
+			expected: util.FmtEmph2("Test text II."),
 		},
 		{
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text "+fmt.Sprintf(model.PageFmt, 384)),
+			expected: util.FmtEmph2("Test text " + util.FmtPage(384)),
 		},
 		{
 			name:     "Text with trenn child element",
 			text:     "Test text",
 			child:    createElement("trenn", nil, "trennText", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text"),
+			expected: util.FmtEmph2("Test text"),
 		},
 		{
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text "+fmt.Sprintf(model.LineFmt, 328)),
+			expected: util.FmtEmph2("Test text " + util.FmtLine(328)),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
 			text:     "   Test text       ",
-			expected: fmt.Sprintf(model.Emph2Fmt, "Test text"),
+			expected: util.FmtEmph2("Test text"),
 		},
 		{
 			name:        "Text with unknown child element",
@@ -277,31 +276,31 @@ func TestFett(t *testing.T) {
 		{
 			name:     "Pure text",
 			text:     "Some bold text",
-			expected: "" + fmt.Sprintf(model.BoldFmt, "Some bold text"),
+			expected: "" + util.FmtBold("Some bold text"),
 		},
 		{
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "" + fmt.Sprintf(model.BoldFmt, "Test text "+fmt.Sprintf(model.PageFmt, 384)),
+			expected: "" + util.FmtBold("Test text "+util.FmtPage(384)),
 		},
 		{
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "" + fmt.Sprintf(model.BoldFmt, "Test text "+fmt.Sprintf(model.LineFmt, 328)),
+			expected: "" + util.FmtBold("Test text "+util.FmtLine(328)),
 		},
 		{
 			name:     "Text with trenn child element",
 			text:     "Test text",
 			child:    createElement("trenn", nil, "trennText", nil),
-			expected: "" + fmt.Sprintf(model.BoldFmt, "Test text"),
+			expected: "" + util.FmtBold("Test text"),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
 			text:     "   Test text       ",
 			child:    nil,
-			expected: "" + fmt.Sprintf(model.BoldFmt, "Test text"),
+			expected: "" + util.FmtBold("Test text"),
 		},
 		{
 			name:        "Text with unknown child element",
@@ -331,19 +330,19 @@ func TestFormel(t *testing.T) {
 		{
 			name:     "Pure text",
 			text:     "Some formula text",
-			expected: fmt.Sprintf(model.FormulaFmt, "Some formula text"),
+			expected: util.FmtFormula("Some formula text"),
 		},
 		{
 			name:     "Text with em1 child element",
 			text:     "Test text",
 			child:    createElement("em1", nil, "em1Text", nil),
-			expected: fmt.Sprintf(model.FormulaFmt, "Test text "+fmt.Sprintf(model.EmphFmt, "em1Text")+""),
+			expected: util.FmtFormula("Test text " + util.FmtEmph("em1Text") + ""),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
 			text:     "   Test text       ",
 			child:    nil,
-			expected: fmt.Sprintf(model.FormulaFmt, "Test text"),
+			expected: util.FmtFormula("Test text"),
 		},
 		{
 			name:        "Text with unknown child element",
@@ -373,18 +372,18 @@ func TestFr(t *testing.T) {
 		{
 			name:     "Page and number are extracted",
 			attrs:    map[string]string{"seite": "27", "nr": "254"},
-			expected: fmt.Sprintf(model.FnRefFmt, 27, 254),
+			expected: util.FmtFnRef(27, 254),
 		},
 		{
 			name:     "Text is ignored",
 			text:     "Some text",
 			attrs:    map[string]string{"seite": "223845", "nr": "5"},
-			expected: fmt.Sprintf(model.FnRefFmt, 223845, 5),
+			expected: util.FmtFnRef(223845, 5),
 		},
 		{
 			name:     "Attributes with leading and trailing spaces",
 			attrs:    map[string]string{"seite": "  8  ", "nr": " 2     "},
-			expected: fmt.Sprintf(model.FnRefFmt, 8, 2),
+			expected: util.FmtFnRef(8, 2),
 		},
 		{
 			name:        "Error due to missing attributes",
@@ -424,103 +423,103 @@ func TestFremdsprache(t *testing.T) {
 		{
 			name:     "Pure text",
 			text:     "Some foreing language text",
-			expected: fmt.Sprintf(model.LangFmt, "Some foreing language text"),
+			expected: util.FmtLang("Some foreing language text"),
 		},
 		{
 			name:     "Text with language attributes",
 			text:     "Some foreign language text",
 			attrs:    map[string]string{"sprache": "language", "zeichen": "some alphabet", "umschrift": "transcribed text"},
-			expected: fmt.Sprintf(model.LangFmt, "Some foreign language text"),
+			expected: util.FmtLang("Some foreign language text"),
 		},
 		{
 			name:     "Text with bild child element",
 			text:     "Test text",
 			child:    createElement("bild", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: fmt.Sprintf(model.LangFmt, `Test text {extract-image src="source" desc="description text"}`),
+			expected: util.FmtLang(`Test text {extract-image src="source" desc="description text"}`),
 		},
 		{
 			name:     "Text with bildverweis child element",
 			text:     "Test text",
 			child:    createElement("bildverweis", map[string]string{"src": "source", "beschreibung": "description text"}, "", nil),
-			expected: fmt.Sprintf(model.LangFmt, `Test text {extract-image src="source" desc="description text"}`),
+			expected: util.FmtLang(`Test text {extract-image src="source" desc="description text"}`),
 		},
 		{
 			name:     "Text with em1 child element",
 			text:     "Test text",
 			child:    createElement("em1", nil, "em1Text", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text "+fmt.Sprintf(model.EmphFmt, "em1Text")),
+			expected: util.FmtLang("Test text " + util.FmtEmph("em1Text")),
 		},
 		{
 			name:     "Text with em2 child element",
 			text:     "Test text",
 			child:    createElement("em2", nil, "em2Text", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text "+fmt.Sprintf(model.Emph2Fmt, "em2Text")),
+			expected: util.FmtLang("Test text " + util.FmtEmph2("em2Text")),
 		},
 		{
 			name:     "Text with fett child element",
 			text:     "Test text",
 			child:    createElement("fett", nil, "fettText", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text "+fmt.Sprintf(model.BoldFmt, "fettText")),
+			expected: util.FmtLang("Test text " + util.FmtBold("fettText")),
 		},
 		{
 			name:     "Text with formel child element",
 			text:     "Test text",
 			child:    createElement("formel", nil, "formelText", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text "+fmt.Sprintf(model.FormulaFmt, "formelText")),
+			expected: util.FmtLang("Test text " + util.FmtFormula("formelText")),
 		},
 		{
 			name:     "Text with fr child element",
 			text:     "Test text",
 			child:    createElement("fr", map[string]string{"seite": "1", "nr": "2"}, "", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text "+fmt.Sprintf(model.FnRefFmt, 1, 2)),
+			expected: util.FmtLang("Test text " + util.FmtFnRef(1, 2)),
 		},
 		{
 			name:     "Text with fremdsprache child element",
 			text:     "Test text",
 			child:    createElement("fremdsprache", nil, "fremdspracheText", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text "+fmt.Sprintf(model.LangFmt, "fremdspracheText")),
+			expected: util.FmtLang("Test text " + util.FmtLang("fremdspracheText")),
 		},
 		{
 			name:     "Text with gesperrt child element",
 			text:     "Test text",
 			child:    createElement("gesperrt", nil, "gesperrtText", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text "+fmt.Sprintf(model.TrackedFmt, "gesperrtText")),
+			expected: util.FmtLang("Test text " + util.FmtTracked("gesperrtText")),
 		},
 		{
 			name:     "Text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text nameText"),
+			expected: util.FmtLang("Test text nameText"),
 		},
 		{
 			name:     "Text with romzahl child element",
 			text:     "Test text",
 			child:    createElement("romzahl", nil, "2.", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text II."),
+			expected: util.FmtLang("Test text II."),
 		},
 		{
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text "+fmt.Sprintf(model.PageFmt, 384)),
+			expected: util.FmtLang("Test text " + util.FmtPage(384)),
 		},
 		{
 			name:     "Text with trenn child element",
 			text:     "Test text",
 			child:    createElement("trenn", nil, "trennText", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text"),
+			expected: util.FmtLang("Test text"),
 		},
 		{
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: fmt.Sprintf(model.LangFmt, "Test text "+fmt.Sprintf(model.LineFmt, 328)),
+			expected: util.FmtLang("Test text " + util.FmtLine(328)),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
 			text:     "   Test text       ",
 			child:    nil,
-			expected: fmt.Sprintf(model.LangFmt, "Test text"),
+			expected: util.FmtLang("Test text"),
 		},
 		{
 			name:        "Text with unknown child element",
@@ -553,43 +552,43 @@ func TestGesperrt(t *testing.T) {
 		{
 			name:     "Pure text",
 			text:     "Some tracked text",
-			expected: fmt.Sprintf(model.TrackedFmt, "Some tracked text"),
+			expected: util.FmtTracked("Some tracked text"),
 		},
 		{
 			name:     "Text with fett child element",
 			text:     "Test text",
 			child:    createElement("fett", nil, "fettText", nil),
-			expected: fmt.Sprintf(model.TrackedFmt, "Test text "+fmt.Sprintf(model.BoldFmt, "fettText")),
+			expected: util.FmtTracked("Test text " + util.FmtBold("fettText")),
 		},
 		{
 			name:     "Text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: fmt.Sprintf(model.TrackedFmt, "Test text nameText"),
+			expected: util.FmtTracked("Test text nameText"),
 		},
 		{
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: fmt.Sprintf(model.TrackedFmt, "Test text "+fmt.Sprintf(model.PageFmt, 384)),
+			expected: util.FmtTracked("Test text " + util.FmtPage(384)),
 		},
 		{
 			name:     "Text with trenn child element",
 			text:     "Test text",
 			child:    createElement("trenn", nil, "trennText", nil),
-			expected: fmt.Sprintf(model.TrackedFmt, "Test text"),
+			expected: util.FmtTracked("Test text"),
 		},
 		{
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: fmt.Sprintf(model.TrackedFmt, "Test text "+fmt.Sprintf(model.LineFmt, 328)),
+			expected: util.FmtTracked("Test text " + util.FmtLine(328)),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
 			text:     "   Test text       ",
 			child:    nil,
-			expected: fmt.Sprintf(model.TrackedFmt, "Test text"),
+			expected: util.FmtTracked("Test text"),
 		},
 		{
 			name:        "Text with unknown child element",
@@ -625,7 +624,7 @@ func TestName(t *testing.T) {
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "Test text " + fmt.Sprintf(model.PageFmt, 384),
+			expected: "Test text " + util.FmtPage(384),
 		},
 		{
 			name:     "Text with trenn child element",
@@ -637,7 +636,7 @@ func TestName(t *testing.T) {
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "Test text " + fmt.Sprintf(model.LineFmt, 328),
+			expected: "Test text " + util.FmtLine(328),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
@@ -707,23 +706,23 @@ func TestZeile(t *testing.T) {
 		{
 			name:     "Number is extracted",
 			attrs:    map[string]string{"nr": "254"},
-			expected: fmt.Sprintf(model.LineFmt, 254),
+			expected: util.FmtLine(254),
 		},
 		{
 			name:     "Text is ignored",
 			text:     "Some text",
 			attrs:    map[string]string{"nr": "847"},
-			expected: fmt.Sprintf(model.LineFmt, 847),
+			expected: util.FmtLine(847),
 		},
 		{
 			name:     "Nr attribute with leading zeros",
 			attrs:    map[string]string{"nr": "00002"},
-			expected: fmt.Sprintf(model.LineFmt, 2),
+			expected: util.FmtLine(2),
 		},
 		{
 			name:     "Nr attribute with leading and trailing spaces",
 			attrs:    map[string]string{"nr": " 2     "},
-			expected: fmt.Sprintf(model.LineFmt, 2),
+			expected: util.FmtLine(2),
 		},
 		{
 			name:        "Error due to missing number",

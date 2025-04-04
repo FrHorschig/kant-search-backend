@@ -6,7 +6,7 @@ import (
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mapping"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
@@ -36,7 +36,7 @@ func (rec *xmlMapperImpl) Map(xml string) ([]dbmodel.Work, errors.ErrorNew) {
 	}
 
 	vol := doc.FindElement("//band")
-	volNo, err := transform.ExtractNumericAttribute(vol, "nr")
+	volNo, err := util.ExtractNumericAttribute(vol, "nr")
 	if err.HasError {
 		return nil, err
 	}

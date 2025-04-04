@@ -6,11 +6,11 @@ import (
 	"strconv"
 
 	"github.com/frhorschig/kant-search-backend/common/errors"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
 func ExtractFnRefs(text string) []string {
-	re := regexp.MustCompile(model.FnRefMatch)
+	re := regexp.MustCompile(util.FnRefMatch)
 	matches := re.FindAllStringSubmatch(text, -1)
 	result := []string{}
 	for _, match := range matches {
@@ -20,7 +20,7 @@ func ExtractFnRefs(text string) []string {
 }
 
 func ExtractPages(text string) ([]int32, errors.ErrorNew) {
-	re := regexp.MustCompile(model.PageMatch)
+	re := regexp.MustCompile(util.PageMatch)
 	matches := re.FindAllStringSubmatch(text, -1)
 
 	result := []int32{}

@@ -10,6 +10,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
 type TreeMapper interface {
@@ -83,7 +84,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			}
 			if hx.TocTitle == "" {
 				// this happens if hx only has an hu element, which is the part of the heading that is not displayed in the TOC
-				currentSec.Paragraphs = append(currentSec.Paragraphs, fmt.Sprintf(model.ParHeadFmt, hx.TextTitle))
+				currentSec.Paragraphs = append(currentSec.Paragraphs, util.FmtParHeading(hx.TextTitle))
 				continue
 			}
 
@@ -96,7 +97,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			sec.Parent = parent
 			// this ensures a level difference of 1 in parent-child headings
 			sec.Heading.Level = parent.Heading.Level + 1
-			sec.Heading.TextTitle = fmt.Sprintf(model.HeadingFmt, sec.Heading.Level, sec.Heading.TextTitle, sec.Heading.Level)
+			sec.Heading.TextTitle = util.FmtHeading(int32(sec.Heading.Level), sec.Heading.TextTitle)
 
 			currentSec = &parent.Sections[len(parent.Sections)-1]
 
@@ -112,7 +113,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 				hu = pagePrefix + " " + hu
 				pagePrefix = ""
 			}
-			currentSec.Paragraphs = append(currentSec.Paragraphs, fmt.Sprintf(model.ParHeadFmt, hu))
+			currentSec.Paragraphs = append(currentSec.Paragraphs, util.FmtParHeading(hu))
 
 		case "op":
 			continue
