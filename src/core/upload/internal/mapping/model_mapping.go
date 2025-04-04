@@ -4,7 +4,6 @@ package mapping
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
@@ -36,10 +35,9 @@ func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries [
 		if err.HasError {
 			return nil, err
 		}
+		postprocessParagraphPages(&work)
 		works = append(works, work)
 	}
-	// do page extraction with linearized paragraph list
-	mergeSummariesToWorks(works, summaries)
 	// TODO handle images and tables
 
 	fns := []dbmodel.Footnote{}
@@ -48,9 +46,21 @@ func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries [
 		if err.HasError {
 			return works, err
 		}
+		postprocessFootnotePages(&fn)
 		fns = append(fns, fn)
 	}
 	matchFnsToWorks(works, fns)
+
+	sms := []dbmodel.Summary{}
+	for _, s := range summaries {
+		summary, err := mapSummary(s)
+		if err.HasError {
+			return works, err
+		}
+		insertSummaryRef(summary, works)
+		sms = append(sms, summary)
+	}
+	mapSummariesToWorks(works, sms)
 
 	return works, errors.NilError()
 }
@@ -68,7 +78,6 @@ func mapWork(h0 model.Section, vol int32, index int) (dbmodel.Work, errors.Error
 		}
 		work.Sections = append(work.Sections, sec)
 	}
-	work.Volume = vol
 	return work, errors.NilError()
 }
 
@@ -80,91 +89,90 @@ func mapSection(s model.Section) (dbmodel.Section, errors.ErrorNew) {
 	}
 	section.Heading = heading
 	for _, par := range s.Paragraphs {
-		section.Paragraphs = append(section.Paragraphs, mapParagraph(par))
+		dbPar, err := mapParagraph(par)
+		if err.HasError {
+			return section, err
+		}
+		section.Paragraphs = append(section.Paragraphs, dbPar)
 	}
 	for _, sec := range s.Sections {
 		dbSec, err := mapSection(sec)
 		if err.HasError {
 			return section, err
 		}
-		dbSec.Parent = &section
 		section.Sections = append(section.Sections, dbSec)
 	}
 	return section, errors.NilError()
 }
 
 func mapHeading(h model.Heading) (dbmodel.Heading, errors.ErrorNew) {
-	heading := dbmodel.Heading{}
-	lvl, err := mapLevel(h.Level)
+	pages, err := extract.ExtractPages(h.TextTitle)
 	if err.HasError {
-		return heading, err
+		return dbmodel.Heading{}, err
 	}
-	heading.Level = lvl
-	heading.TextTitle = h.TextTitle
-	heading.TocTitle = h.TocTitle
+	heading := dbmodel.Heading{
+		Text:    fmt.Sprintf(model.HeadingFmt, h.Level, h.TextTitle, h.Level),
+		TocText: h.TocTitle,
+		Pages:   pages,
+		FnRefs:  extract.ExtractFnRefs(h.TextTitle),
+	}
 	return heading, errors.NilError()
 }
 
-func mapLevel(lvl model.Level) (dbmodel.Level, errors.ErrorNew) {
-	switch lvl {
-	case model.H2:
-		return dbmodel.H1, errors.NilError()
-	case model.H3:
-		return dbmodel.H2, errors.NilError()
-	case model.H4:
-		return dbmodel.H3, errors.NilError()
-	case model.H5:
-		return dbmodel.H4, errors.NilError()
-	case model.H6:
-		return dbmodel.H5, errors.NilError()
-	case model.H7:
-		return dbmodel.H7, errors.NilError()
+func mapParagraph(p string) (dbmodel.Paragraph, errors.ErrorNew) {
+	pages, err := extract.ExtractPages(p)
+	if err.HasError {
+		return dbmodel.Paragraph{}, err
 	}
-	return dbmodel.H1, errors.NewError(
-		fmt.Errorf("invalid heading level %d", lvl),
-		nil,
-	)
-}
-
-func mapParagraph(p string) dbmodel.Paragraph {
-	paragraph := dbmodel.Paragraph{}
-	paragraph.Text = p
-	paragraph.FnReferences = extract.ExtractFnRefs(p)
-	return paragraph
-}
-
-func mergeSummariesToWorks(works []dbmodel.Work, summaries []model.Summary) {
-	// TODO very inefficient, check if this matters
-	for _, summ := range summaries {
-		page := fmt.Sprintf(model.PageFmt, summ.Page)
-		line := fmt.Sprintf(model.LineFmt, summ.Line)
-		for _, work := range works {
-			for i := range work.Sections {
-				par := extract.FindParagraph(&work.Sections[i], summ.Page, summ.Line)
-				parts := strings.Split(par.Text, page)
-				if len(parts) == 1 {
-					par.Text = strings.Replace(par.Text, line, summ.Text+line, 1)
-				}
-				if len(parts) > 1 {
-					par.Text = parts[0] + strings.Replace(parts[1], line, summ.Text+line, 1)
-				}
-			}
-		}
+	paragraph := dbmodel.Paragraph{
+		Text:   p,
+		Pages:  pages,
+		FnRefs: extract.ExtractFnRefs(p),
 	}
+	return paragraph, errors.NilError()
 }
 
 func mapFootnote(f model.Footnote) (dbmodel.Footnote, errors.ErrorNew) {
-	footnote := dbmodel.Footnote{}
-	footnote.Name = fmt.Sprintf("%d.%d", f.Page, f.Nr)
 	pages, err := extract.ExtractPages(f.Text)
 	if err.HasError {
-		return footnote, err
+		return dbmodel.Footnote{}, err
 	}
-	footnote.Pages = pages
-	footnote.Text = f.Text
-	return footnote, errors.NilError()
+	return dbmodel.Footnote{
+		Name:  fmt.Sprintf("%d.%d", f.Page, f.Nr),
+		Pages: pages,
+		Text:  f.Text,
+	}, errors.NilError()
+}
+
+func mapSummary(s model.Summary) (dbmodel.Summary, errors.ErrorNew) {
+	pages, err := extract.ExtractPages(s.Text)
+	if err.HasError {
+		return dbmodel.Summary{}, err
+	}
+	return dbmodel.Summary{
+		Name:   fmt.Sprintf("%d.%d", s.Page, s.Line),
+		Text:   s.Text,
+		Pages:  pages,
+		FnRefs: extract.ExtractFnRefs(s.Text),
+	}, errors.NilError()
+}
+
+func postprocessParagraphPages(work *dbmodel.Work) {
+	// TODO
+}
+
+func postprocessFootnotePages(fn *dbmodel.Footnote) {
+	// TODO
 }
 
 func matchFnsToWorks(works []dbmodel.Work, fns []dbmodel.Footnote) {
+	// TODO
+}
+
+func insertSummaryRef(summary dbmodel.Summary, works []dbmodel.Work) {
+	// TODO
+}
+
+func mapSummariesToWorks(works []dbmodel.Work, summaries []dbmodel.Summary) {
 	// TODO
 }
