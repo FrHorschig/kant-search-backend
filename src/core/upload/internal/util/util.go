@@ -23,20 +23,39 @@ func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errors.Erro
 }
 
 const (
-	boldFmt       = "<ks-fmt-bold>%s</ks-fmt-bold>"
-	emphFmt       = "<ks-fmt-emph>%s</ks-fmt-emph>"
-	emph2Fmt      = "<ks-fmt-emph2>%s</ks-fmt-emph2>"
 	fnRefFmt      = `<ks-meta-fnref>%d.%d</ks-meta-fnref>`
 	FnRefMatch    = `<ks-meta-fnref>(\d+\.\d+)</ks-meta-fnref>`
-	formulaFmt    = "<ks-fmt-formula>%s</ks-fmt-formula>"
-	headingFmt    = "<ks-fmt-h%d>%s</ks-fmt-h%d>"
-	langFmt       = `%s`
 	lineFmt       = `<ks-meta-line>%d</ks-meta-line>`
 	LineMatch     = `<ks-meta-line>(\d+)</ks-meta-line>`
 	pageFmt       = `<ks-meta-page>%d</ks-meta-page>`
 	PageMatch     = `<ks-meta-page>(\d+)</ks-meta-page>`
-	parHeadingFmt = "ks-fmt-parhead>%s</ks-fmt-parhead>"
-	summaryFmt    = "<ks-fmt-summary>%s</ks-fmt-summary>"
+	summaryRefFmt = "<ks-meta-sumref>%s</ks-meta-sumref>"
+)
+
+func FmtFnRef(page, nr int32) string {
+	return fmt.Sprintf(fnRefFmt, page, nr)
+}
+
+func FmtLine(line int32) string {
+	return fmt.Sprintf(lineFmt, line)
+}
+
+func FmtPage(page int32) string {
+	return fmt.Sprintf(pageFmt, page)
+}
+
+func FmtSummaryRef(name string) string {
+	return fmt.Sprintf(summaryRefFmt, name)
+}
+
+const (
+	boldFmt       = "<ks-fmt-bold>%s</ks-fmt-bold>"
+	emphFmt       = "<ks-fmt-emph>%s</ks-fmt-emph>"
+	emph2Fmt      = "<ks-fmt-emph2>%s</ks-fmt-emph2>"
+	formulaFmt    = "<ks-fmt-formula>%s</ks-fmt-formula>"
+	headingFmt    = "<ks-fmt-h%d>%s</ks-fmt-h%d>"
+	langFmt       = `%s`
+	parHeadingFmt = "ks-fmt-hpar>%s</ks-fmt-hpar>"
 	trackedFmt    = "<ks-fmt-tracked>%s</ks-fmt-tracked>"
 )
 
@@ -52,10 +71,6 @@ func FmtEmph2(content string) string {
 	return fmt.Sprintf(emph2Fmt, content)
 }
 
-func FmtFnRef(page, nr int32) string {
-	return fmt.Sprintf(fnRefFmt, page, nr)
-}
-
 func FmtFormula(content string) string {
 	return fmt.Sprintf(formulaFmt, content)
 }
@@ -68,20 +83,8 @@ func FmtLang(lang string) string {
 	return lang
 }
 
-func FmtLine(line int32) string {
-	return fmt.Sprintf(lineFmt, line)
-}
-
-func FmtPage(page int32) string {
-	return fmt.Sprintf(pageFmt, page)
-}
-
 func FmtParHeading(content string) string {
 	return fmt.Sprintf(parHeadingFmt, content)
-}
-
-func FmtSummary(content string) string {
-	return fmt.Sprintf(summaryFmt, content)
 }
 
 func FmtTracked(content string) string {
@@ -91,9 +94,9 @@ func FmtTracked(content string) string {
 const (
 	imageFmt      = `{extract-image src="%s" desc="%s"}`
 	ImageRefMatch = `{extract-image src=".+" desc=".+"}`
-	TableMatch    = `{extract-table}`
+	TableMatch    = `` // ignore for now
 )
 
 func FmtImage(src, desc string) string {
-	return fmt.Sprintf(imageFmt, src, desc)
+	return "" // ignore for now
 }

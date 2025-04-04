@@ -1,6 +1,7 @@
 package mapping
 
 import (
+	"fmt"
 	"testing"
 
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
@@ -174,16 +175,16 @@ func TestModelMapping(t *testing.T) {
 			sections: []model.Section{{
 				Heading: model.Heading{Level: model.HWork},
 				Paragraphs: []string{
-					fnr(2, 64) + page(2),
-					"This " + fnr(83, 3) + "is a" + page(254) + " test text.",
-					"It " + fnr(582, 1) + " continues " + page(942) + fnr(298481, 2485) + page(942) + " in the " + fnr(3, 5281) + " next" + page(943) + "paragraph.",
-					page(23) + fnr(4, 23)},
+					fnRef(2, 64) + page(2),
+					"This " + fnRef(83, 3) + "is a" + page(254) + " test text.",
+					"It " + fnRef(582, 1) + " continues " + page(942) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
+					page(23) + fnRef(4, 23)},
 				Sections: []model.Section{
 					{
 						Heading: model.Heading{Level: model.H1},
 						Paragraphs: []string{
-							page(28471) + "This paragraph" + fnr(4, 2) + "starts with a page",
-							"This paragraph ends with a page." + fnr(482, 148) + page(3),
+							page(28471) + "This paragraph" + fnRef(4, 2) + "starts with a page",
+							"This paragraph ends with a page." + fnRef(482, 148) + page(3),
 						},
 					},
 				},
@@ -192,22 +193,22 @@ func TestModelMapping(t *testing.T) {
 				Sections: []dbmodel.Section{{
 					Paragraphs: []dbmodel.Paragraph{
 						{
-							Text:   fnr(2, 64) + page(2),
+							Text:   fnRef(2, 64) + page(2),
 							Pages:  []int32{2},
 							FnRefs: []string{"2.64"},
 						},
 						{
-							Text:   "This " + fnr(83, 3) + "is a" + page(254) + " test text.",
+							Text:   "This " + fnRef(83, 3) + "is a" + page(254) + " test text.",
 							Pages:  []int32{254},
 							FnRefs: []string{"83.3"},
 						},
 						{
-							Text:   "It " + fnr(582, 1) + " continues " + page(942) + fnr(298481, 2485) + page(942) + " in the " + fnr(3, 5281) + " next" + page(943) + "paragraph.",
+							Text:   "It " + fnRef(582, 1) + " continues " + page(942) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
 							Pages:  []int32{941, 942, 943},
 							FnRefs: []string{"582.1", "298481.2485", "3.5281"},
 						},
 						{
-							Text:   page(23) + fnr(4, 23),
+							Text:   page(23) + fnRef(4, 23),
 							Pages:  []int32{23},
 							FnRefs: []string{"4.23"},
 						},
@@ -216,12 +217,12 @@ func TestModelMapping(t *testing.T) {
 						{
 							Paragraphs: []dbmodel.Paragraph{
 								{
-									Text:   page(28471) + "This paragraph" + fnr(4, 3) + " starts with a page.",
+									Text:   page(28471) + "This paragraph" + fnRef(4, 3) + " starts with a page.",
 									Pages:  []int32{28471},
 									FnRefs: []string{"4.3"},
 								},
 								{
-									Text:   "This paragraph ends with a page." + fnr(482, 148) + page(3),
+									Text:   "This paragraph ends with a page." + fnRef(482, 148) + page(3),
 									Pages:  []int32{3},
 									FnRefs: []string{"482.148"},
 								},
@@ -259,7 +260,7 @@ func TestModelMapping(t *testing.T) {
 				Sections: []dbmodel.Section{{
 					Paragraphs: []dbmodel.Paragraph{
 						{
-							Text:  page(43) + summ("Summary 1") + line(348) + "I'm  line." + summ("Summary 2") + line(58685) + "I'm a second line.",
+							Text:  page(43) + line(348) + sumRef(43, 348) + "I'm  line." + line(58685) + sumRef(43, 58685) + "I'm a second line.",
 							Pages: []int32{43},
 						},
 					},
@@ -267,13 +268,18 @@ func TestModelMapping(t *testing.T) {
 						{
 							Paragraphs: []dbmodel.Paragraph{
 								{
-									Text:  "I'm a paragraph with the line " + page(483) + line(5) + " number at the end " + page(484) + summ("Summary 3") + line(5) + "that continues over multiple pages.",
+									Text:  "I'm a paragraph with the line " + page(483) + line(5) + " number at the end " + page(484) + line(5) + sumRef(484, 5) + "that continues over multiple pages.",
 									Pages: []int32{482, 483, 484},
 								},
 							},
 						},
 					},
 				}},
+				Summaries: []dbmodel.Summary{
+					{Name: "43.348", Text: "Summary 1", Pages: []int32{43}},
+					{Name: "43.58685", Text: "Summary 2", Pages: []int32{43}},
+					{Name: "484.5", Text: "Summary 3", Pages: []int32{484}},
+				},
 			}},
 		},
 		{
@@ -387,10 +393,10 @@ func page(page int32) string {
 	return util.FmtPage(page)
 }
 
-func fnr(page int32, nr int32) string {
+func fnRef(page int32, nr int32) string {
 	return util.FmtFnRef(page, nr)
 }
 
-func summ(text string) string {
-	return util.FmtSummary(text)
+func sumRef(page, line int32) string {
+	return util.FmtSummaryRef(fmt.Sprintf("%d.%d", page, line))
 }

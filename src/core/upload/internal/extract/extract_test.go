@@ -87,14 +87,34 @@ func TestRemoveTags(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "Text with nested tags",
-			text:     "<div><span>Nested</span> tags</div>",
-			expected: "Nested tags",
+			name:     "Text with footnote references",
+			text:     "This is a text with " + fnRef(1, 2) + " and " + fnRef(3, 4) + ".",
+			expected: "This is a text with and .",
+		},
+		{
+			name:     "Text with line matches",
+			text:     "This is a text with " + line(12) + " tags.",
+			expected: "This is a text with tags.",
+		},
+		{
+			name:     "Text with page matches",
+			text:     "This is a text with " + page(5) + " and " + page(10) + ".",
+			expected: "This is a text with and .",
+		},
+		{
+			name:     "Text with HTML tags",
+			text:     "<div>This is <b>bold</b> and <i>italic</i>.</div>",
+			expected: "This is bold and italic.",
+		},
+		{
+			name:     "Text with mixed tags",
+			text:     "Mixed " + fnRef(1, 2) + " and <b>HTML</b> tags " + page(3) + ".",
+			expected: "Mixed and HTML tags .",
 		},
 		{
 			name:     "Text with no tags",
-			text:     "Plain text without tags.",
-			expected: "Plain text without tags.",
+			text:     "Plain text without any tags.",
+			expected: "Plain text without any tags.",
 		},
 		{
 			name:     "Empty string",
@@ -102,14 +122,14 @@ func TestRemoveTags(t *testing.T) {
 			expected: "",
 		},
 		{
-			name:     "Text with malformed tags",
+			name:     "Text with malformed HTML tags",
 			text:     "Malformed <tag text.",
 			expected: "Malformed <tag text.",
 		},
 		{
-			name:     "Text with self-closing tags",
+			name:     "Text with self-closing HTML tags",
 			text:     "Image: <img src='image.jpg'/> here.",
-			expected: "Image:  here.",
+			expected: "Image: here.",
 		},
 	}
 
@@ -119,6 +139,10 @@ func TestRemoveTags(t *testing.T) {
 			assert.Equal(t, tt.expected, actual)
 		})
 	}
+}
+
+func line(line int32) string {
+	return util.FmtLine(line)
 }
 
 func page(page int32) string {
