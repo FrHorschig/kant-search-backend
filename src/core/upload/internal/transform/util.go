@@ -26,23 +26,23 @@ func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errors.Erro
 func level(el *etree.Element) model.Level {
 	switch el.Tag {
 	case "h1":
-		return model.H1
+		return model.HWork
 	case "h2":
-		return model.H2
+		return model.H1
 	case "h3":
-		return model.H3
+		return model.H2
 	case "h4":
-		return model.H4
+		return model.H3
 	case "h5":
-		return model.H5
+		return model.H4
 	case "h6":
-		return model.H6
+		return model.H5
 	case "h7":
-		return model.H7
+		return model.H6
 	case "h8":
-		return model.H8
+		return model.H7
 	}
-	return model.H9
+	return model.H8
 }
 
 func arabicToRoman(number int64) string {

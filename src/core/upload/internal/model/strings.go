@@ -11,11 +11,13 @@ const (
 )
 
 const (
-	SummaryFmt = "<ks-fmt-summary>%s</ks-fmt-summary>"
+	BoldFmt    = "<ks-fmt-bold>%s</ks-fmt-bold>"
 	EmphFmt    = "<ks-fmt-emph>%s</ks-fmt-emph>"
 	Emph2Fmt   = "<ks-fmt-emph2>%s</ks-fmt-emph2>"
-	BoldFmt    = "<ks-fmt-bold>%s</ks-fmt-bold>"
 	FormulaFmt = "<ks-fmt-formula>%s</ks-fmt-formula>"
+	HeadingFmt = "<ks-fmt-h%d>%s</ks-fmt-h%d>"
+	ParHeadFmt = "ks-fmt-parhead>%s</ks-fmt-parhead>"
+	SummaryFmt = "<ks-fmt-summary>%s</ks-fmt-summary>"
 	TrackedFmt = "<ks-fmt-tracked>%s</ks-fmt-tracked>"
 )
 

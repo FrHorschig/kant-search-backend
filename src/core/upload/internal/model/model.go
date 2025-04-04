@@ -17,7 +17,8 @@ type Heading struct {
 type Level int
 
 const (
-	H1 Level = iota + 1
+	HWork Level = iota + 1
+	H1
 	H2
 	H3
 	H4
@@ -25,7 +26,6 @@ const (
 	H6
 	H7
 	H8
-	H9
 )
 
 type Summary struct {

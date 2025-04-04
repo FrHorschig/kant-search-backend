@@ -1,9 +1,16 @@
 package model
 
 type Volume struct {
+	Id      int32
 	Section int32
 	Title   string
-	Works   []Work
+	Works   []WorkRef
+}
+
+type WorkRef struct {
+	Id    int32
+	Code  string
+	Title string
 }
 
 type Work struct {
@@ -14,7 +21,7 @@ type Work struct {
 	Year         *string
 	Sections     []Section
 	Footnotes    []Footnote
-	Volume       int32
+	Summaries    []Summary
 }
 
 type Section struct {
@@ -22,50 +29,39 @@ type Section struct {
 	Heading    Heading
 	Paragraphs []Paragraph
 	Sections   []Section
-	Parent     *Section
 }
 
 type Heading struct {
-	Id        int32
-	Level     Level
-	TocTitle  string
-	TextTitle string
-	WorkId    int32
+	Id      int32
+	Text    string
+	TocText string
+	Pages   []int32
+	FnRefs  []string
+	WorkId  int32
 }
-
-type Level int32
-
-const (
-	H1 Level = iota + 1
-	H2
-	H3
-	H4
-	H5
-	H6
-	H7
-)
 
 type Paragraph struct {
-	Id           int32
-	Text         string
-	Pages        []int32
-	FnReferences []string
-	Sentences    []Sentence
-	WorkId       int32
-}
-
-type Sentence struct {
-	Id          int32
-	Text        string
-	Pages       []int32
-	ParagraphId int32
-	WorkId      int32
+	Id         int32
+	Text       string
+	Pages      []int32
+	FnRefs     []string
+	SummaryRef *string
+	WorkId     int32
 }
 
 type Footnote struct {
 	Id     int32
-	Name   string
+	Name   string // name of the footnote that goes in the FnRefs fields
 	Text   string
 	Pages  []int32
+	WorkId int32
+}
+
+type Summary struct {
+	Id     int32
+	Name   string // name of the summary that goes into Paragraph#SummaryRef
+	Text   string
+	Pages  []int32
+	FnRefs []string
 	WorkId int32
 }
