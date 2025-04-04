@@ -35,3 +35,8 @@ func ExtractPages(text string) ([]int32, errors.ErrorNew) {
 
 	return result, errors.NilError()
 }
+
+func RemoveTags(text string) string {
+	re := regexp.MustCompile(`<[^>]*>`)
+	return re.ReplaceAllString(text, "")
+}

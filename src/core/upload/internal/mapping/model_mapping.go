@@ -4,6 +4,7 @@ package mapping
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
@@ -35,7 +36,7 @@ func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries [
 		if err.HasError {
 			return nil, err
 		}
-		postprocessParagraphPages(&work)
+		postprocessSectionPages(&work)
 		works = append(works, work)
 	}
 	// TODO handle images and tables
@@ -46,7 +47,7 @@ func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries [
 		if err.HasError {
 			return works, err
 		}
-		postprocessFootnotePages(&fn)
+		postprocessFootnotePages(&fn, f.Page)
 		fns = append(fns, fn)
 	}
 	matchFnsToWorks(works, fns)
@@ -157,16 +158,67 @@ func mapSummary(s model.Summary) (dbmodel.Summary, errors.ErrorNew) {
 	}, errors.NilError()
 }
 
-func postprocessParagraphPages(work *dbmodel.Work) {
-	// TODO
+func postprocessSectionPages(work *dbmodel.Work) {
+	var maxPage int32 = 1
+	for _, sec := range work.Sections {
+		processSection(&sec, &maxPage)
+	}
 }
 
-func postprocessFootnotePages(fn *dbmodel.Footnote) {
-	// TODO
+func processSection(section *dbmodel.Section, maxPage *int32) {
+	head := section.Heading
+	if len(head.Pages) > 0 {
+		firstPage := head.Pages[0]
+		pageRef := fmt.Sprintf(model.PageFmt, firstPage)
+		if !startsWithPageRef(head.Text, pageRef) {
+			head.Pages = append([]int32{firstPage - 1}, head.Pages...)
+		}
+		lastPage := head.Pages[len(head.Pages)-1]
+		if lastPage > *maxPage {
+			*maxPage = lastPage
+		}
+	} else {
+		head.Pages = []int32{*maxPage}
+	}
+
+	for i := range section.Paragraphs {
+		par := &section.Paragraphs[i]
+		if len(par.Pages) > 0 {
+			firstPage := par.Pages[0]
+			pageRef := fmt.Sprintf(model.PageFmt, firstPage)
+			if !startsWithPageRef(par.Text, pageRef) {
+				par.Pages = append([]int32{firstPage - 1}, par.Pages...)
+			}
+			lastPage := par.Pages[len(par.Pages)-1]
+			if lastPage > *maxPage {
+				*maxPage = lastPage
+			}
+
+		} else {
+			// This happens when a paragraph is fully inside a page and does not start at the beginning of the page.
+			par.Pages = []int32{*maxPage}
+		}
+	}
+
+	for i := range section.Sections {
+		processSection(&section.Sections[i], maxPage)
+	}
+}
+
+func postprocessFootnotePages(fn *dbmodel.Footnote, fnStartPage int32) {
+	if len(fn.Pages) > 0 {
+		firstPage := fn.Pages[0]
+		pageRef := fmt.Sprintf(model.PageFmt, firstPage)
+		if !startsWithPageRef(fn.Text, pageRef) {
+			fn.Pages = append([]int32{firstPage - 1}, fn.Pages...)
+		}
+	} else {
+		fn.Pages = []int32{fnStartPage}
+	}
 }
 
 func matchFnsToWorks(works []dbmodel.Work, fns []dbmodel.Footnote) {
-	// TODO
+
 }
 
 func insertSummaryRef(summary dbmodel.Summary, works []dbmodel.Work) {
@@ -175,4 +227,10 @@ func insertSummaryRef(summary dbmodel.Summary, works []dbmodel.Work) {
 
 func mapSummariesToWorks(works []dbmodel.Work, summaries []dbmodel.Summary) {
 	// TODO
+}
+
+func startsWithPageRef(text, pageRef string) bool {
+	index := strings.Index(text, pageRef)
+	cleaned := extract.RemoveTags(text[:index])
+	return cleaned == "" // text before page ref is only formatting code, so the "real text" starts with the page ref
 }
