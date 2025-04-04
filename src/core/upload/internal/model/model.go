@@ -17,7 +17,7 @@ type Heading struct {
 type Level int
 
 const (
-	HWork Level = iota + 1
+	HWork Level = iota + 0
 	H1
 	H2
 	H3
