@@ -8,14 +8,10 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestModelMapping(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
 	testCases := []struct {
 		name        string
 		volume      int32
@@ -428,10 +424,9 @@ func TestModelMapping(t *testing.T) {
 		},
 	}
 
-	sut := &modelMapperImpl{}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := sut.Map(tc.volume, tc.sections, tc.summaries, tc.footnotes)
+			result, err := MapToModel(tc.volume, tc.sections, tc.summaries, tc.footnotes)
 			if tc.expectError {
 				assert.True(t, err.HasError)
 				assert.Nil(t, result)

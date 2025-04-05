@@ -1,7 +1,5 @@
 package mapping
 
-//go:generate mockgen -source=$GOFILE -destination=mocks/model_mapper.go -package=mocks
-
 import (
 	"fmt"
 	"slices"
@@ -15,24 +13,7 @@ import (
 	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
-type ModelMapper interface {
-	Map(
-		volume int32,
-		sections []model.Section,
-		summaries []model.Summary,
-		footnotes []model.Footnote,
-	) (works []dbmodel.Work, err errors.ErrorNew)
-}
-
-type modelMapperImpl struct {
-}
-
-func NewModelMapper() ModelMapper {
-	impl := modelMapperImpl{}
-	return &impl
-}
-
-func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries []model.Summary, footnotes []model.Footnote) ([]dbmodel.Work, errors.ErrorNew) {
+func MapToModel(vol int32, sections []model.Section, summaries []model.Summary, footnotes []model.Footnote) ([]dbmodel.Work, errors.ErrorNew) {
 	works := []dbmodel.Work{}
 	for i, w := range sections {
 		work, err := mapWork(w, vol, i)

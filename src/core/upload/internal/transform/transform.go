@@ -10,49 +10,31 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-type XmlTransformator interface {
-	Hx(el *etree.Element) (model.Heading, errors.ErrorNew)
-	Hu(el *etree.Element) (string, errors.ErrorNew)
-	P(el *etree.Element) (string, errors.ErrorNew)
-	Seite(el *etree.Element) (string, errors.ErrorNew)
-	Table() string
-	Summary(el *etree.Element) (model.Summary, errors.ErrorNew)
-	Footnote(el *etree.Element) (model.Footnote, errors.ErrorNew)
-}
-
-type XmlTransformatorImpl struct {
-}
-
-func NewXmlTransformator() XmlTransformator {
-	impl := XmlTransformatorImpl{}
-	return &impl
-}
-
-func (rec *XmlTransformatorImpl) Hx(el *etree.Element) (model.Heading, errors.ErrorNew) {
+func Hx(el *etree.Element) (model.Heading, errors.ErrorNew) {
 	return hx(el)
 }
 
-func (rec *XmlTransformatorImpl) Hu(el *etree.Element) (string, errors.ErrorNew) {
+func Hu(el *etree.Element) (string, errors.ErrorNew) {
 	return hu(el)
 }
 
-func (rec *XmlTransformatorImpl) P(el *etree.Element) (string, errors.ErrorNew) {
+func P(el *etree.Element) (string, errors.ErrorNew) {
 	return p(el)
 }
 
-func (rec *XmlTransformatorImpl) Seite(el *etree.Element) (string, errors.ErrorNew) {
+func Seite(el *etree.Element) (string, errors.ErrorNew) {
 	return seite(el)
 }
 
-func (rec *XmlTransformatorImpl) Table() string {
+func Table() string {
 	return table()
 }
 
-func (rec *XmlTransformatorImpl) Summary(el *etree.Element) (model.Summary, errors.ErrorNew) {
+func Summary(el *etree.Element) (model.Summary, errors.ErrorNew) {
 	return summary(el)
 }
 
-func (rec *XmlTransformatorImpl) Footnote(el *etree.Element) (model.Footnote, errors.ErrorNew) {
+func Footnote(el *etree.Element) (model.Footnote, errors.ErrorNew) {
 	return footnote(el)
 }
 

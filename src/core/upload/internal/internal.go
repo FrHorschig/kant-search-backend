@@ -15,22 +15,17 @@ type XmlMapper interface {
 }
 
 type xmlMapperImpl struct {
-	treeMapper  mapping.TreeMapper
-	modelMapper mapping.ModelMapper
 }
 
 func NewXmlMapper() XmlMapper {
-	impl := xmlMapperImpl{
-		treeMapper:  mapping.NewTreeMapper(),
-		modelMapper: mapping.NewModelMapper(),
-	}
+	impl := xmlMapperImpl{}
 	return &impl
 }
 
 func (rec *xmlMapperImpl) Map(xml string) ([]dbmodel.Work, errors.ErrorNew) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
-	sections, summaries, footnotes, err := rec.treeMapper.Map(doc)
+	sections, summaries, footnotes, err := mapping.MapToTree(doc)
 	if err.HasError {
 		return nil, err
 	}
@@ -40,7 +35,7 @@ func (rec *xmlMapperImpl) Map(xml string) ([]dbmodel.Work, errors.ErrorNew) {
 	if err.HasError {
 		return nil, err
 	}
-	works, err := rec.modelMapper.Map(volNo, sections, summaries, footnotes)
+	works, err := mapping.MapToModel(volNo, sections, summaries, footnotes)
 	if err.HasError {
 		return nil, err
 	}
