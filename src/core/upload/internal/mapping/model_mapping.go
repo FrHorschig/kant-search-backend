@@ -136,7 +136,7 @@ func mapFootnote(f model.Footnote) (dbmodel.Footnote, errors.ErrorNew) {
 		return dbmodel.Footnote{}, errors.NewError(fmt.Errorf("footnote page %d does not match the first page of the footnote %d", f.Page, pages[0]), nil)
 	}
 	return dbmodel.Footnote{
-		Name:  fmt.Sprintf("%d.%d", f.Page, f.Nr),
+		Ref:   fmt.Sprintf("%d.%d", f.Page, f.Nr),
 		Pages: pages,
 		Text:  f.Text,
 	}, errors.NilError()
@@ -156,7 +156,7 @@ func mapSummary(s model.Summary) (dbmodel.Summary, errors.ErrorNew) {
 		return dbmodel.Summary{}, errors.NewError(fmt.Errorf("summary page %d does not match the first page of the summary %d", s.Page, pages[0]), nil)
 	}
 	return dbmodel.Summary{
-		Name:   fmt.Sprintf("%d.%d", s.Page, s.Line),
+		Ref:    fmt.Sprintf("%d.%d", s.Page, s.Line),
 		Text:   s.Text,
 		Pages:  pages,
 		FnRefs: extract.ExtractFnRefs(s.Text),
@@ -296,7 +296,7 @@ func insertSummaryRef(summary *dbmodel.Summary, sections []dbmodel.Section) erro
 	if err.HasError {
 		return err
 	}
-	page, line := findPageLine(summary.Name)
+	page, line := findPageLine(summary.Ref)
 	if p == nil {
 		return errors.NewError(fmt.Errorf("could not find a paragraph for summary on page %d line %d", page, line), nil)
 	}
@@ -307,12 +307,13 @@ func insertSummaryRef(summary *dbmodel.Summary, sections []dbmodel.Section) erro
 	}
 	// line references should already by included in the summary text
 
-	p.Text = util.FmtSummaryRef(summary.Name) + p.Text
+	p.Text = util.FmtSummaryRef(summary.Ref) + p.Text
+	p.SummaryRef = &summary.Ref
 	return errors.NilError()
 }
 
 func findSummaryParagraph(summary *dbmodel.Summary, sections []dbmodel.Section) (*dbmodel.Paragraph, errors.ErrorNew) {
-	page, line := findPageLine(summary.Name)
+	page, line := findPageLine(summary.Ref)
 	for i := range sections {
 		s := &sections[i]
 		for iP := range s.Paragraphs {

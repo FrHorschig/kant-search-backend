@@ -51,7 +51,7 @@ type Paragraph struct {
 
 type Footnote struct {
 	Id     int32
-	Name   string // name of the footnote that goes in the FnRefs fields
+	Ref    string
 	Text   string
 	Pages  []int32
 	WorkId int32
@@ -59,7 +59,7 @@ type Footnote struct {
 
 type Summary struct {
 	Id     int32
-	Name   string // name of the summary that goes into Paragraph#SummaryRef
+	Ref    string
 	Text   string
 	Pages  []int32
 	FnRefs []string
