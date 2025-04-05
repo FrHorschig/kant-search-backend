@@ -6,20 +6,12 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTreeMapping(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	sut := &TreeMapperImpl{
-		trafo: transform.NewXmlTransformator(),
-	}
-	for scenario, fn := range map[string]func(t *testing.T, sut *TreeMapperImpl){
+	for scenario, fn := range map[string]func(t *testing.T){
 		"Test nested headings":                 testNestedHeadings,
 		"Test multiple equal leveled headings": testMultipleEqualHeadings,
 		"Test page before heading":             testPageBeforeHeading,
@@ -39,12 +31,12 @@ func TestTreeMapping(t *testing.T) {
 		"Test error in footnote":               testErrorInFootnote,
 	} {
 		t.Run(scenario, func(t *testing.T) {
-			fn(t, sut)
+			fn(t)
 		})
 	}
 }
 
-func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
+func testNestedHeadings(t *testing.T) {
 	main := `
     <h1> heading 1 </h1>
     <h2> heading 2 </h2>
@@ -65,7 +57,7 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.False(t, err.HasError)
@@ -206,7 +198,7 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 		Heading.Level)
 }
 
-func testMultipleEqualHeadings(t *testing.T, sut *TreeMapperImpl) {
+func testMultipleEqualHeadings(t *testing.T) {
 	main := `
     <h1> heading 1 </h1>
     <h2> heading 2 </h2>
@@ -219,7 +211,7 @@ func testMultipleEqualHeadings(t *testing.T, sut *TreeMapperImpl) {
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.False(t, err.HasError)
@@ -261,7 +253,7 @@ func testMultipleEqualHeadings(t *testing.T, sut *TreeMapperImpl) {
 		Heading.Level)
 }
 
-func testPageBeforeHeading(t *testing.T, sut *TreeMapperImpl) {
+func testPageBeforeHeading(t *testing.T) {
 	main := `
     <seite nr="34"/>
     <h1> first </h1>
@@ -275,7 +267,7 @@ func testPageBeforeHeading(t *testing.T, sut *TreeMapperImpl) {
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.False(t, err.HasError)
@@ -289,7 +281,7 @@ func testPageBeforeHeading(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, util.FmtHeading(1, page(99)+" three"), works[0].Sections[2].Heading.TextTitle)
 }
 
-func testPureHuHeading(t *testing.T, sut *TreeMapperImpl) {
+func testPureHuHeading(t *testing.T) {
 	main := `
     <h1> first </h1>
     <h2> <hu> hu paragraph </hu> </h2>
@@ -298,7 +290,7 @@ func testPureHuHeading(t *testing.T, sut *TreeMapperImpl) {
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.False(t, err.HasError)
@@ -311,7 +303,7 @@ func testPureHuHeading(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, util.FmtHeading(1, "h3 text"), works[0].Sections[0].Heading.TextTitle)
 }
 
-func testYearAssignment(t *testing.T, sut *TreeMapperImpl) {
+func testYearAssignment(t *testing.T) {
 	main := `
     <h1> first </h1>
 	<hj> 1724 </hj>
@@ -322,7 +314,7 @@ func testYearAssignment(t *testing.T, sut *TreeMapperImpl) {
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.False(t, err.HasError)
@@ -334,7 +326,7 @@ func testYearAssignment(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, "", works[1].Sections[0].Heading.Year)
 }
 
-func testParagraphExtraction(t *testing.T, sut *TreeMapperImpl) {
+func testParagraphExtraction(t *testing.T) {
 	main := `
     <h1> first </h1>
     <p> paragraph 1.1 </p>
@@ -349,7 +341,7 @@ func testParagraphExtraction(t *testing.T, sut *TreeMapperImpl) {
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.False(t, err.HasError)
@@ -369,7 +361,7 @@ func testParagraphExtraction(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, "paragraph 22.1", works[0].Sections[1].Paragraphs[0])
 }
 
-func testOpIsIgnored(t *testing.T, sut *TreeMapperImpl) {
+func testOpIsIgnored(t *testing.T) {
 	main := `
     <op> op text </op>
     <h1> first </h1>
@@ -395,7 +387,7 @@ func testOpIsIgnored(t *testing.T, sut *TreeMapperImpl) {
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.False(t, err.HasError)
@@ -415,7 +407,7 @@ func testOpIsIgnored(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, "paragraph 22.1", works[0].Sections[1].Paragraphs[0])
 }
 
-func testMainSummaryFootnoteExtraction(t *testing.T, sut *TreeMapperImpl) {
+func testMainSummaryFootnoteExtraction(t *testing.T) {
 	main := `
     <h1> first </h1>
     <p> paragraph 1.1 </p>`
@@ -428,7 +420,7 @@ func testMainSummaryFootnoteExtraction(t *testing.T, sut *TreeMapperImpl) {
 	doc := createNewDocument(main, randtexte, fussnoten)
 
 	// WHEN
-	works, summaries, footnotes, err := sut.Map(doc)
+	works, summaries, footnotes, err := MapToTree(doc)
 
 	// THEN
 	assert.False(t, err.HasError)
@@ -444,109 +436,109 @@ func testMainSummaryFootnoteExtraction(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, "footnote 2", footnotes[1].Text)
 }
 
-func testErrorInH1(t *testing.T, sut *TreeMapperImpl) {
+func testErrorInH1(t *testing.T) {
 	main := `<h1> <unknown/> first </h1>`
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.True(t, err.HasError)
 	assert.Nil(t, works)
 }
 
-func testErrorInH2(t *testing.T, sut *TreeMapperImpl) {
+func testErrorInH2(t *testing.T) {
 	main := `<h1> first </h1> <h2> <unknown> second </h2>
 	`
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.True(t, err.HasError)
 	assert.Nil(t, works)
 }
 
-func testErrorInHu(t *testing.T, sut *TreeMapperImpl) {
+func testErrorInHu(t *testing.T) {
 	main := `<h1> first </h1> <hu> <unknown> hu paragraph </p>`
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.True(t, err.HasError)
 	assert.Nil(t, works)
 }
 
-func testErrorInP(t *testing.T, sut *TreeMapperImpl) {
+func testErrorInP(t *testing.T) {
 	main := `<h1> first </h1> <p> <unknown> paragraph 1 </p>`
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.True(t, err.HasError)
 	assert.Nil(t, works)
 }
 
-func testErrorInSeite(t *testing.T, sut *TreeMapperImpl) {
+func testErrorInSeite(t *testing.T) {
 	main := `<h1> first </h1> <seite/>`
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.True(t, err.HasError)
 	assert.Nil(t, works)
 }
 
-func testUnknownElement(t *testing.T, sut *TreeMapperImpl) {
+func testUnknownElement(t *testing.T) {
 	main := `<h1> first </h1> <my-custom-element> text </my-custom-element>`
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.True(t, err.HasError)
 	assert.Nil(t, works)
 }
 
-func testMissingFirstH1(t *testing.T, sut *TreeMapperImpl) {
+func testMissingFirstH1(t *testing.T) {
 	main := `<h2> Oh no! </h2>`
 	doc := createNewDocument(main, "", "")
 
 	// WHEN
-	works, _, _, err := sut.Map(doc)
+	works, _, _, err := MapToTree(doc)
 
 	// THEN
 	assert.True(t, err.HasError)
 	assert.Nil(t, works)
 }
 
-func testErrorInSummary(t *testing.T, sut *TreeMapperImpl) {
+func testErrorInSummary(t *testing.T) {
 	randtexte := `<randtext> randtext </randtext>`
 	doc := createNewDocument("", randtexte, "")
 
 	// WHEN
-	_, summaries, _, err := sut.Map(doc)
+	_, summaries, _, err := MapToTree(doc)
 
 	// THEN
 	assert.True(t, err.HasError)
 	assert.Nil(t, summaries)
 }
 
-func testErrorInFootnote(t *testing.T, sut *TreeMapperImpl) {
+func testErrorInFootnote(t *testing.T) {
 	fussnoten := `<fn> footnote </fn>`
 	doc := createNewDocument("", "", fussnoten)
 
 	// WHEN
-	_, _, footnotes, err := sut.Map(doc)
+	_, _, footnotes, err := MapToTree(doc)
 
 	// THEN
 	assert.True(t, err.HasError)

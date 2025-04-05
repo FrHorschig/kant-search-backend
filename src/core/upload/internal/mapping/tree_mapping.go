@@ -1,7 +1,5 @@
 package mapping
 
-//go:generate mockgen -source=$GOFILE -destination=mocks/tree_mapper.go -package=mocks
-
 import (
 	"fmt"
 	"strings"
@@ -13,43 +11,23 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-type TreeMapper interface {
-	Map(doc *etree.Document) (
-		sections []model.Section,
-		summaries []model.Summary,
-		footnotes []model.Footnote,
-		err errors.ErrorNew,
-	)
-}
-
-type TreeMapperImpl struct {
-	trafo transform.XmlTransformator
-}
-
-func NewTreeMapper() TreeMapper {
-	impl := TreeMapperImpl{
-		trafo: transform.NewXmlTransformator(),
-	}
-	return &impl
-}
-
-func (rec *TreeMapperImpl) Map(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.ErrorNew) {
-	works, err := rec.findSections(doc.FindElement("//hauptteil"))
+func MapToTree(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.ErrorNew) {
+	works, err := findSections(doc.FindElement("//hauptteil"))
 	if err.HasError {
 		return nil, nil, nil, err
 	}
-	summaries, err := rec.findSummaries(doc.FindElement("//randtexte"))
+	summaries, err := findSummaries(doc.FindElement("//randtexte"))
 	if err.HasError {
 		return nil, nil, nil, err
 	}
-	footnotes, err := rec.findFootnotes(doc.FindElement("//fussnoten"))
+	footnotes, err := findFootnotes(doc.FindElement("//fussnoten"))
 	if err.HasError {
 		return nil, nil, nil, err
 	}
 	return works, summaries, footnotes, errors.NilError()
 }
 
-func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
+func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 	secs := make([]model.Section, 0)
 	var currentSec *model.Section
 	currentYear := ""
@@ -57,7 +35,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 	for _, el := range hauptteil.ChildElements() {
 		switch el.Tag {
 		case "h1":
-			hx, err := rec.trafo.Hx(el)
+			hx, err := transform.Hx(el)
 			if err.HasError {
 				return nil, err
 			}
@@ -72,7 +50,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			currentSec = &secs[len(secs)-1]
 
 		case "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9":
-			hx, err := rec.trafo.Hx(el)
+			hx, err := transform.Hx(el)
 			if err.HasError {
 				return nil, err
 			}
@@ -103,7 +81,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			currentYear = strings.TrimSpace(el.Text())
 
 		case "hu":
-			hu, err := rec.trafo.Hu(el)
+			hu, err := transform.Hu(el)
 			if err.HasError {
 				return nil, err
 			}
@@ -117,7 +95,7 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			continue
 
 		case "p":
-			p, err := rec.trafo.P(el)
+			p, err := transform.P(el)
 			if err.HasError {
 				return nil, err
 			}
@@ -128,14 +106,14 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			currentSec.Paragraphs = append(currentSec.Paragraphs, p)
 
 		case "seite":
-			page, err := rec.trafo.Seite(el)
+			page, err := transform.Seite(el)
 			if err.HasError {
 				return nil, err
 			}
 			pagePrefix += page
 
 		case "table":
-			currentSec.Paragraphs = append(currentSec.Paragraphs, rec.trafo.Table())
+			currentSec.Paragraphs = append(currentSec.Paragraphs, transform.Table())
 
 		default:
 			return nil, errors.NewError(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
@@ -144,13 +122,13 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 	return secs, errors.NilError()
 }
 
-func (rec *TreeMapperImpl) findSummaries(randtexte *etree.Element) ([]model.Summary, errors.ErrorNew) {
+func findSummaries(randtexte *etree.Element) ([]model.Summary, errors.ErrorNew) {
 	if randtexte == nil {
 		return []model.Summary{}, errors.NilError()
 	}
 	result := make([]model.Summary, 0)
 	for _, el := range randtexte.ChildElements() {
-		rt, err := rec.trafo.Summary(el)
+		rt, err := transform.Summary(el)
 		if err.HasError {
 			return nil, err
 		}
@@ -159,13 +137,13 @@ func (rec *TreeMapperImpl) findSummaries(randtexte *etree.Element) ([]model.Summ
 	return result, errors.NilError()
 }
 
-func (rec *TreeMapperImpl) findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.ErrorNew) {
+func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.ErrorNew) {
 	if fussnoten == nil {
 		return []model.Footnote{}, errors.NilError()
 	}
 	result := make([]model.Footnote, 0)
 	for _, el := range fussnoten.ChildElements() {
-		rt, err := rec.trafo.Footnote(el)
+		rt, err := transform.Footnote(el)
 		if err.HasError {
 			return nil, err
 		}
