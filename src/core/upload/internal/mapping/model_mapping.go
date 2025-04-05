@@ -4,6 +4,7 @@ package mapping
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -47,7 +48,7 @@ func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries [
 	for _, f := range footnotes {
 		fn, err := mapFootnote(f)
 		if err.HasError {
-			return works, err
+			return nil, err
 		}
 		fns = append(fns, fn)
 	}
@@ -57,12 +58,15 @@ func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries [
 	for _, s := range summaries {
 		summary, err := mapSummary(s)
 		if err.HasError {
-			return works, err
+			return nil, err
 		}
 		sms = append(sms, summary)
 	}
 	mapSummariesToWorks(works, sms)
-	insertSummaryRefs(works)
+	err := insertSummaryRefs(works)
+	if err.HasError {
+		return nil, err
+	}
 
 	return works, errors.NilError()
 }
@@ -240,15 +244,18 @@ func matchFnsToWorks(works []dbmodel.Work, fns []dbmodel.Footnote) {
 	}
 }
 
-func insertSummaryRefs(works []dbmodel.Work) {
+func insertSummaryRefs(works []dbmodel.Work) errors.ErrorNew {
 	for i := range works {
 		w := &works[i]
 		for j := range w.Summaries {
 			summary := &w.Summaries[j]
-			page, line := findPageLine(summary.Name)
-			insertSummaryRef(summary, page, line, w.Sections)
+			err := insertSummaryRef(summary, w.Sections)
+			if err.HasError {
+				return err
+			}
 		}
 	}
+	return errors.NilError()
 }
 
 func mapSummariesToWorks(works []dbmodel.Work, summaries []dbmodel.Summary) {
@@ -303,43 +310,70 @@ func findPageLine(name string) (int32, int32) {
 	return int32(page), int32(line)
 }
 
-func insertSummaryRef(summary *dbmodel.Summary, page, line int32, sections []dbmodel.Section) errors.ErrorNew {
-	for _, s := range sections {
-		if len(s.Paragraphs) == 0 {
-			return insertSummaryRef(summary, page, line, s.Sections)
-		}
-
-		for i := range s.Paragraphs {
-			p := &s.Paragraphs[i]
-			pageIndex := strings.Index(p.Text, util.FmtPage(page))
-			if pageIndex == -1 {
-				continue
-			}
-			lineIndex := strings.Index(p.Text[pageIndex:], util.FmtLine(line))
-			if lineIndex == -1 {
-				continue
-			}
-			index := pageIndex + lineIndex + len(util.FmtLine(line))
-
-			// sanity check: summary should be at the start of the paragraph
-			if !isSummaryAtStart(p.Text, index) {
-				return errors.NewError(fmt.Errorf("summary on page %d line %d is not at the start of paragraph", page, line), nil)
-			}
-			if line == 1 {
-				// move the page reference to the summary
-				summary.Text = util.FmtPage(page) + summary.Text
-				textWithoutPage := strings.Replace(p.Text, util.FmtPage(page), "", 1)
-				p.Text = util.FmtSummaryRef(summary.Name) + textWithoutPage
-			} else {
-				p.Text = p.Text[:index] +
-					util.FmtSummaryRef(summary.Name) +
-					p.Text[index:]
-			}
-			return errors.NilError()
-		}
-		return insertSummaryRef(summary, page, line, s.Sections)
+func insertSummaryRef(summary *dbmodel.Summary, sections []dbmodel.Section) errors.ErrorNew {
+	p, err := findSummaryParagraph(summary, sections)
+	if err.HasError {
+		return err
 	}
-	return errors.NewError(fmt.Errorf("could not find a paragraph for summary on page %d line %d", page, line), nil)
+	page, line := findPageLine(summary.Name)
+	if p == nil {
+		return errors.NewError(fmt.Errorf("could not find a paragraph for summary on page %d line %d", page, line), nil)
+	}
+
+	// duplicate page ref in the summary, so that summary and paragraph can be displayed independently from each other without loosing the page ref
+	if line == 1 && !strings.Contains(summary.Text, util.FmtPage(page)) {
+		summary.Text = util.FmtPage(page) + summary.Text
+	}
+	// line references should already by included in the summary text
+
+	p.Text = util.FmtSummaryRef(summary.Name) + p.Text
+	return errors.NilError()
+}
+
+func findSummaryParagraph(summary *dbmodel.Summary, sections []dbmodel.Section) (*dbmodel.Paragraph, errors.ErrorNew) {
+	page, line := findPageLine(summary.Name)
+	for i := range sections {
+		s := &sections[i]
+		for iP := range s.Paragraphs {
+			p := &s.Paragraphs[iP]
+			ok, err := isSummaryParagraph(p, page, line)
+			if err.HasError {
+				return nil, err
+			}
+			if ok {
+				return p, errors.NilError()
+			}
+		}
+		for iS := range s.Sections {
+			p, err := findSummaryParagraph(summary, s.Sections[iS].Sections)
+			if err.HasError {
+				return nil, err
+			}
+			if p != nil {
+				return p, errors.NilError()
+			}
+		}
+	}
+	return nil, errors.NilError()
+}
+
+func isSummaryParagraph(p *dbmodel.Paragraph, page, line int32) (bool, errors.ErrorNew) {
+	if !slices.Contains(p.Pages, page) {
+		return false, errors.NilError()
+	}
+	pageIndex := strings.Index(p.Text, util.FmtPage(page))
+	if pageIndex == -1 { // paragraph starts in the middle of the page
+		pageIndex = 0
+	}
+	lineIndex := strings.Index(p.Text[pageIndex:], util.FmtLine(line))
+	if lineIndex == -1 {
+		return false, errors.NilError()
+	}
+	index := pageIndex + lineIndex + len(util.FmtLine(line))
+	if !isSummaryAtStart(p.Text, index) {
+		return false, errors.NewError(fmt.Errorf("summary on page %d line %d is not at the start of paragraph", page, line), nil)
+	}
+	return true, errors.NilError()
 }
 
 func isSummaryAtStart(text string, startIndex int) bool {
