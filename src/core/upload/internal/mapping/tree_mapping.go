@@ -67,11 +67,9 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 			}
 
 			sec := model.Section{Heading: hx, Paragraphs: []string{}, Sections: []model.Section{}}
-			if hx.Level == model.HWork {
-				sec.Heading.Year = currentYear
-				secs = append(secs, sec)
-				currentSec = &secs[len(secs)-1]
-			}
+			sec.Heading.Year = currentYear
+			secs = append(secs, sec)
+			currentSec = &secs[len(secs)-1]
 
 		case "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9":
 			hx, err := rec.trafo.Hx(el)
@@ -95,10 +93,10 @@ func (rec *TreeMapperImpl) findSections(hauptteil *etree.Element) ([]model.Secti
 
 			parent := findParent(hx, currentSec)
 			sec.Parent = parent
-			// this ensures a level difference of 1 in parent-child headings
-			sec.Heading.Level = parent.Heading.Level + 1
+			sec.Heading.Level = parent.Heading.Level + 1 // this ensures a level difference of 1 in parent-child headings, even if by mistake a level is skipped
 			sec.Heading.TextTitle = util.FmtHeading(int32(sec.Heading.Level), sec.Heading.TextTitle)
 
+			sec.Parent.Sections = append(sec.Parent.Sections, sec)
 			currentSec = &parent.Sections[len(parent.Sections)-1]
 
 		case "hj":
