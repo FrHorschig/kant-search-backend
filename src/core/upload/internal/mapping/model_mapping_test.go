@@ -35,58 +35,68 @@ func TestModelMapping(t *testing.T) {
 					TextTitle: "work title",
 					Year:      "1724",
 				},
-				Paragraphs: []string{"paragraph 1 text", "some other paragraph text"},
 				Sections: []model.Section{
 					{
 						Heading: model.Heading{
 							Level:     model.H1,
 							TocTitle:  "subsection 1 title TOC text",
 							TextTitle: "subsection 1 title",
-							Year:      "",
 						},
-						Paragraphs: []string{"subsection 1 paragraph text", "second text"},
+						Paragraphs: []string{"subsection 1 par text", "second text"},
 					},
 					{
 						Heading: model.Heading{
 							Level:     model.H1,
 							TocTitle:  "subsection 2 title TOC text",
 							TextTitle: "subsection 2 title",
-							Year:      "",
 						},
-						Paragraphs: []string{"subsection 2 paragraph text", "another second text"},
+						Paragraphs: []string{"subsection 2 par text", "another second text"},
 					},
 				},
 			}},
 			model: []dbmodel.Work{{
 				Title: "work title",
 				Year:  commonutil.ToStrPtr("1724"),
-				Sections: []dbmodel.Section{{
-					Heading: dbmodel.Heading{
-						Text:    "work title",
-						TocText: "work title TOC text",
-					},
-					Paragraphs: []dbmodel.Paragraph{
-						{Text: "paragraph 1 text"},
-						{Text: "some other paragraph text"},
-					},
-					Sections: []dbmodel.Section{
-						{
-							Heading: dbmodel.Heading{Text: "h1"},
-							Paragraphs: []dbmodel.Paragraph{
-								{Text: "subsection 1 paragraph text"},
-								{Text: "second text"},
-							},
+				Sections: []dbmodel.Section{
+					{
+						Heading: dbmodel.Heading{
+							Text:    util.FmtHeading(1, "subsection 1 title"),
+							TocText: "subsection 1 title TOC text",
+							Pages:   []int32{1},
 						},
-						{
-							Heading: dbmodel.Heading{Text: "h1"},
-							Paragraphs: []dbmodel.Paragraph{
-								{Text: "subsection 2 paragraph text"},
-								{Text: "another second text"},
-							},
+						Paragraphs: []dbmodel.Paragraph{
+							{Text: "subsection 1 par text", Pages: []int32{1}},
+							{Text: "second text", Pages: []int32{1}},
 						},
 					},
-				}},
+					{
+						Heading: dbmodel.Heading{
+							Text:    util.FmtHeading(1, "subsection 2 title"),
+							TocText: "subsection 2 title TOC text",
+							Pages:   []int32{1},
+						},
+						Paragraphs: []dbmodel.Paragraph{
+							{Text: "subsection 2 par text", Pages: []int32{1}},
+							{Text: "another second text", Pages: []int32{1}},
+						},
+					},
+				},
 			}},
+		},
+		{
+			name:   "Paragraphs before the first non-work heading",
+			volume: 1,
+			sections: []model.Section{{
+				Heading: model.Heading{
+					Level:     model.HWork,
+					TocTitle:  "work title TOC text",
+					TextTitle: "work title",
+					Year:      "1724",
+				},
+				Paragraphs: []string{"paragraph 1 text", "some other paragraph text"},
+				Sections:   []model.Section{},
+			}},
+			expectError: true,
 		},
 		{
 			name:   "Multiple nested works and sections are mapped",
@@ -122,51 +132,57 @@ func TestModelMapping(t *testing.T) {
 										{Heading: model.Heading{Level: model.H3}},
 									},
 								},
+								{Heading: model.Heading{Level: model.H2}},
+								{Heading: model.Heading{Level: model.H2}},
 							},
 						},
-						{Heading: model.Heading{Level: model.H2}},
-						{Heading: model.Heading{Level: model.H2}},
 					},
 				},
-				{Heading: model.Heading{Level: model.HWork}},
-				{Heading: model.Heading{Level: model.HWork}},
+				{
+					Heading:  model.Heading{Level: model.HWork},
+					Sections: []model.Section{{Heading: model.Heading{Level: model.H1}}},
+				},
+				{
+					Heading:  model.Heading{Level: model.HWork},
+					Sections: []model.Section{{Heading: model.Heading{Level: model.H1}}},
+				},
 			},
 			model: []dbmodel.Work{
 				{
 					Sections: []dbmodel.Section{{
-						Heading: dbmodel.Heading{Text: "h1"},
+						Heading: dbmodel.Heading{Text: util.FmtHeading(1, ""), Pages: []int32{1}},
 						Sections: []dbmodel.Section{
 							{
-								Heading: dbmodel.Heading{Text: "h2"},
+								Heading: dbmodel.Heading{Text: util.FmtHeading(2, ""), Pages: []int32{1}},
 								Sections: []dbmodel.Section{
 									{
-										Heading: dbmodel.Heading{Text: "h3"},
+										Heading: dbmodel.Heading{Text: util.FmtHeading(3, ""), Pages: []int32{1}},
 										Sections: []dbmodel.Section{
 											{
-												Heading: dbmodel.Heading{Text: "h4"},
+												Heading: dbmodel.Heading{Text: util.FmtHeading(4, ""), Pages: []int32{1}},
 												Sections: []dbmodel.Section{
 													{
-														Heading: dbmodel.Heading{Text: "h5"},
+														Heading: dbmodel.Heading{Text: util.FmtHeading(5, ""), Pages: []int32{1}},
 														Sections: []dbmodel.Section{
 															{
-																Heading: dbmodel.Heading{Text: "h6"},
+																Heading: dbmodel.Heading{Text: util.FmtHeading(6, ""), Pages: []int32{1}},
 															},
 														},
 													},
 												},
 											},
-											{Heading: dbmodel.Heading{Text: "h3"}},
 										},
 									},
-									{Heading: dbmodel.Heading{Text: "h2"}},
-									{Heading: dbmodel.Heading{Text: "h2"}},
+									{Heading: dbmodel.Heading{Text: util.FmtHeading(3, ""), Pages: []int32{1}}},
 								},
 							},
+							{Heading: dbmodel.Heading{Text: util.FmtHeading(2, ""), Pages: []int32{1}}},
+							{Heading: dbmodel.Heading{Text: util.FmtHeading(2, ""), Pages: []int32{1}}},
 						},
 					}},
 				},
-				{Sections: []dbmodel.Section{{Heading: dbmodel.Heading{Text: "h1"}}}},
-				{Sections: []dbmodel.Section{{Heading: dbmodel.Heading{Text: "h1"}}}},
+				{Sections: []dbmodel.Section{{Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")}}}},
+				{Sections: []dbmodel.Section{{Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")}}}},
 			},
 		},
 		{
@@ -174,57 +190,62 @@ func TestModelMapping(t *testing.T) {
 			volume: 3,
 			sections: []model.Section{{
 				Heading: model.Heading{Level: model.HWork},
-				Paragraphs: []string{
-					fnRef(2, 64) + page(2),
-					"This " + fnRef(83, 3) + "is a" + page(254) + " test text.",
-					"It " + fnRef(582, 1) + " continues " + page(942) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
-					page(23) + fnRef(4, 23)},
 				Sections: []model.Section{
 					{
 						Heading: model.Heading{Level: model.H1},
 						Paragraphs: []string{
-							page(28471) + "This paragraph" + fnRef(4, 2) + "starts with a page",
 							"This paragraph ends with a page." + fnRef(482, 148) + page(3),
+							page(82) + "This paragraph" + fnRef(4, 2) + "starts with a page",
 						},
+						Sections: []model.Section{{
+							Heading: model.Heading{Level: model.H2},
+							Paragraphs: []string{
+								fnRef(2, 64) + page(2),
+								"This " + fnRef(83, 3) + "is a" + page(254) + " test text.",
+								"It " + fnRef(582, 1) + " continues " + page(942) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
+								page(23) + fnRef(4, 23)},
+						}},
 					},
 				},
 			}},
 			model: []dbmodel.Work{{
 				Sections: []dbmodel.Section{{
+					Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")},
 					Paragraphs: []dbmodel.Paragraph{
 						{
-							Text:   fnRef(2, 64) + page(2),
-							Pages:  []int32{2},
-							FnRefs: []string{"2.64"},
+							Text:   "This paragraph ends with a page." + fnRef(482, 148) + page(3),
+							Pages:  []int32{3},
+							FnRefs: []string{"482.148"},
 						},
 						{
-							Text:   "This " + fnRef(83, 3) + "is a" + page(254) + " test text.",
-							Pages:  []int32{254},
-							FnRefs: []string{"83.3"},
-						},
-						{
-							Text:   "It " + fnRef(582, 1) + " continues " + page(942) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
-							Pages:  []int32{941, 942, 943},
-							FnRefs: []string{"582.1", "298481.2485", "3.5281"},
-						},
-						{
-							Text:   page(23) + fnRef(4, 23),
-							Pages:  []int32{23},
-							FnRefs: []string{"4.23"},
+							Text:   page(82) + "This paragraph" + fnRef(4, 3) + " starts with a page.",
+							Pages:  []int32{82},
+							FnRefs: []string{"4.3"},
 						},
 					},
 					Sections: []dbmodel.Section{
 						{
+							Heading: dbmodel.Heading{Text: util.FmtHeading(2, "")},
 							Paragraphs: []dbmodel.Paragraph{
 								{
-									Text:   page(28471) + "This paragraph" + fnRef(4, 3) + " starts with a page.",
-									Pages:  []int32{28471},
-									FnRefs: []string{"4.3"},
+									Text:   fnRef(2, 64) + page(120),
+									Pages:  []int32{120},
+									FnRefs: []string{"2.64"},
 								},
 								{
-									Text:   "This paragraph ends with a page." + fnRef(482, 148) + page(3),
-									Pages:  []int32{3},
-									FnRefs: []string{"482.148"},
+									Text:   "This " + fnRef(83, 3) + "is a" + page(254) + " test text.",
+									Pages:  []int32{254},
+									FnRefs: []string{"83.3"},
+								},
+								{
+									Text:   "It " + fnRef(582, 1) + " continues " + page(942) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
+									Pages:  []int32{941, 942, 943},
+									FnRefs: []string{"582.1", "298481.2485", "3.5281"},
+								},
+								{
+									Text:   page(12840) + fnRef(4, 23),
+									Pages:  []int32{12840},
+									FnRefs: []string{"4.23"},
 								},
 							},
 						},
@@ -237,14 +258,12 @@ func TestModelMapping(t *testing.T) {
 			volume: 4,
 			sections: []model.Section{{
 				Heading: model.Heading{Level: model.HWork},
-				Paragraphs: []string{
-					page(43) + line(348) + "I'm a paragraph.",
-					"I'm a paragraph with the line " + line(58685) + " number at the end",
-				},
 				Sections: []model.Section{
 					{
 						Heading: model.Heading{Level: model.H1},
 						Paragraphs: []string{
+							page(43) + line(348) + "I'm a paragraph.",
+							"I'm a paragraph with the line " + line(58685) + " number at the end",
 							page(95) + line(123) + "I'm a paragraph." + page(96) + line(1) + "I'm another paragraph.",
 							"I'm a paragraph with the line " + page(483) + line(2) + " number at the end " + page(484) + line(5) + "that continues over multiple pages.",
 						},
@@ -258,15 +277,14 @@ func TestModelMapping(t *testing.T) {
 			},
 			model: []dbmodel.Work{{
 				Sections: []dbmodel.Section{{
-					Paragraphs: []dbmodel.Paragraph{
-						{
-							Text:  page(43) + line(348) + sumRef(43, 348) + "I'm  line." + line(58685) + sumRef(43, 58685) + "I'm a second line.",
-							Pages: []int32{43},
-						},
-					},
 					Sections: []dbmodel.Section{
 						{
+							Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")},
 							Paragraphs: []dbmodel.Paragraph{
+								{
+									Text:  page(43) + line(348) + sumRef(43, 348) + "I'm  line." + line(58685) + sumRef(43, 58685) + "I'm a second line.",
+									Pages: []int32{43},
+								},
 								{
 									Text:  "I'm a paragraph with the line " + page(483) + line(5) + " number at the end " + page(484) + line(5) + sumRef(484, 5) + "that continues over multiple pages.",
 									Pages: []int32{482, 483, 484},
@@ -345,18 +363,19 @@ func TestModelMapping(t *testing.T) {
 func assertWork(t *testing.T, exp dbmodel.Work, act dbmodel.Work) {
 	assert.NotNil(t, exp)
 	assert.NotNil(t, act)
-
-	assert.Equal(t, exp.Code, act.Code)
-	assert.Equal(t, commonutil.ToStrVal(exp.Abbreviation), commonutil.ToStrVal(act.Abbreviation))
 	assert.Equal(t, commonutil.ToStrVal(exp.Year), commonutil.ToStrVal(act.Year))
 
 	assert.Equal(t, len(exp.Sections), len(act.Sections))
-	for j := range exp.Sections {
-		assertSections(t, exp.Sections[j], act.Sections[j])
+	for i := range exp.Sections {
+		assertSections(t, exp.Sections[i], act.Sections[i])
 	}
 	assert.Equal(t, len(exp.Footnotes), len(act.Footnotes))
-	for j := range exp.Sections {
-		assertFootnote(t, exp.Footnotes[j], act.Footnotes[j])
+	for i := range exp.Footnotes {
+		assertFootnote(t, exp.Footnotes[i], act.Footnotes[i])
+	}
+	assert.Equal(t, len(exp.Summaries), len(act.Summaries))
+	for i := range exp.Summaries {
+		assertSummary(t, exp.Summaries[i], act.Summaries[i])
 	}
 }
 
@@ -380,6 +399,12 @@ func assertParagraph(t *testing.T, exp dbmodel.Paragraph, act dbmodel.Paragraph)
 }
 
 func assertFootnote(t *testing.T, exp dbmodel.Footnote, act dbmodel.Footnote) {
+	assert.Equal(t, exp.Name, act.Name)
+	assert.Equal(t, exp.Text, act.Text)
+	assert.ElementsMatch(t, exp.Pages, act.Pages)
+}
+
+func assertSummary(t *testing.T, exp dbmodel.Summary, act dbmodel.Summary) {
 	assert.Equal(t, exp.Name, act.Name)
 	assert.Equal(t, exp.Text, act.Text)
 	assert.ElementsMatch(t, exp.Pages, act.Pages)
