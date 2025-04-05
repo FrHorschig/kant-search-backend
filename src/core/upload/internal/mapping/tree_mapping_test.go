@@ -7,6 +7,7 @@ import (
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -186,7 +187,7 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, 2, len(works[1].
 		Sections[0].
 		Sections))
-	assert.Equal(t, model.H4, works[1].
+	assert.Equal(t, model.H2, works[1].
 		Sections[0].
 		Sections[0].
 		Heading.Level)
@@ -198,7 +199,7 @@ func testNestedHeadings(t *testing.T, sut *TreeMapperImpl) {
 		Sections[0].
 		Sections[1].
 		Sections))
-	assert.Equal(t, model.H7, works[1].
+	assert.Equal(t, model.H3, works[1].
 		Sections[0].
 		Sections[1].
 		Sections[0].
@@ -281,11 +282,11 @@ func testPageBeforeHeading(t *testing.T, sut *TreeMapperImpl) {
 	assert.Equal(t, 1, len(works))
 	assert.Equal(t, 3, len(works[0].Sections))
 	assert.Equal(t, page(34)+" first", works[0].Heading.TextTitle)
-	assert.Equal(t, page(59)+" one", works[0].Sections[0].Heading.TextTitle)
-	assert.Equal(t, "two", works[0].Sections[1].Heading.TextTitle)
+	assert.Equal(t, util.FmtHeading(1, page(59)+" one"), works[0].Sections[0].Heading.TextTitle)
+	assert.Equal(t, util.FmtHeading(1, "two"), works[0].Sections[1].Heading.TextTitle)
 	assert.Equal(t, 1, len(works[0].Sections[1].Paragraphs))
-	assert.Equal(t, page(78)+" hu paragraph", works[0].Sections[1].Paragraphs[0])
-	assert.Equal(t, page(99)+" three", works[0].Sections[2].Heading.TextTitle)
+	assert.Equal(t, util.FmtParHeading(page(78)+" hu paragraph"), works[0].Sections[1].Paragraphs[0])
+	assert.Equal(t, util.FmtHeading(1, page(99)+" three"), works[0].Sections[2].Heading.TextTitle)
 }
 
 func testPureHuHeading(t *testing.T, sut *TreeMapperImpl) {
@@ -303,11 +304,11 @@ func testPureHuHeading(t *testing.T, sut *TreeMapperImpl) {
 	assert.False(t, err.HasError)
 	assert.Equal(t, 1, len(works))
 	assert.Equal(t, 1, len(works[0].Paragraphs))
-	assert.Equal(t, "hu paragraph", works[0].Paragraphs[0])
+	assert.Equal(t, util.FmtParHeading("hu paragraph"), works[0].Paragraphs[0])
 
 	assert.Equal(t, 1, len(works[0].Sections))
-	assert.Equal(t, model.H2, works[0].Sections[0].Heading.Level)
-	assert.Equal(t, "h3 text", works[0].Sections[0].Heading.TextTitle)
+	assert.Equal(t, model.H1, works[0].Sections[0].Heading.Level)
+	assert.Equal(t, util.FmtHeading(1, "h3 text"), works[0].Sections[0].Heading.TextTitle)
 }
 
 func testYearAssignment(t *testing.T, sut *TreeMapperImpl) {

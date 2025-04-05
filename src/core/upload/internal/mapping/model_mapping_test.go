@@ -305,6 +305,15 @@ func TestModelMapping(t *testing.T) {
 		{
 			name:   "Map footnote with non matching page numbers",
 			volume: 1,
+			sections: []model.Section{{
+				Heading: model.Heading{Level: model.HWork},
+				Sections: []model.Section{
+					{
+						Heading:    model.Heading{Level: model.H1, TextTitle: util.FmtPage(1)},
+						Paragraphs: []string{util.FmtPage(5)},
+					},
+				},
+			}},
 			footnotes: []model.Footnote{{
 				Page: 43,
 				Nr:   348,
@@ -313,42 +322,17 @@ func TestModelMapping(t *testing.T) {
 			expectError: true,
 		},
 		{
-			name:   "Map summaries",
+			name:   "Map summary with non matching page numbers",
 			volume: 1,
 			sections: []model.Section{{
 				Heading: model.Heading{Level: model.HWork},
-			}},
-			summaries: []model.Summary{
-				{
-					Page: 43,
-					Line: 348,
-					Text: "Simple summary",
-				},
-				{
-					Page: 55,
-					Line: 58685,
-					Text: "Summary with " + page(56) + " page " + page(184) + " numbers",
-				},
-			},
-			model: []dbmodel.Work{{
-				Summaries: []dbmodel.Summary{
+				Sections: []model.Section{
 					{
-						Name:  "43.348",
-						Text:  "Simple summary",
-						Pages: []int32{43},
-					},
-					{
-						Name:  "55.58685",
-						Text:  "Summary with " + page(56) + " page " + page(184) + " numbers",
-						Pages: []int32{55, 56, 184},
+						Heading:    model.Heading{Level: model.H1, TextTitle: util.FmtPage(1)},
+						Paragraphs: []string{util.FmtPage(5)},
 					},
 				},
 			}},
-		},
-		{
-			name:     "Map summary with non matching page numbers",
-			volume:   1,
-			sections: []model.Section{{Heading: model.Heading{Level: model.HWork}}},
 			summaries: []model.Summary{{
 				Page: 43,
 				Line: 348,
@@ -359,49 +343,88 @@ func TestModelMapping(t *testing.T) {
 		{
 			name:   "Merge summaries into paragraphs",
 			volume: 1,
+			sections: []model.Section{
+				{
+					Heading: model.Heading{Level: model.HWork},
+					Sections: []model.Section{{
+						Heading: model.Heading{Level: model.H1},
+						Paragraphs: []string{
+							page(43) + line(348) + "I'm a paragraph.",
+							line(58685) + "I'm a paragraph without a page number.",
+						},
+					}},
+				},
+				{
+					Heading: model.Heading{Level: model.HWork},
+					Sections: []model.Section{{
+						Heading: model.Heading{Level: model.H1},
+						Paragraphs: []string{
+							line(5) + "I'm a paragraph with " + page(483) + " a page break inside.",
+						},
+					}},
+				},
+			},
+			summaries: []model.Summary{
+				{Page: 43, Line: 348, Text: "Summary 1"},
+				{Page: 43, Line: 58685, Text: "Summary 2"},
+				{Page: 482, Line: 5, Text: "Summary 3"},
+			},
+			model: []dbmodel.Work{
+				{
+					Sections: []dbmodel.Section{{
+						Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")},
+						Paragraphs: []dbmodel.Paragraph{
+							{
+								Text:  sumRef(43, 348) + page(43) + line(348) + "I'm a paragraph.",
+								Pages: []int32{43},
+							},
+							{
+								Text:  sumRef(43, 58685) + line(58685) + "I'm a paragraph without a page number.",
+								Pages: []int32{43},
+							},
+						},
+					}},
+					Summaries: []dbmodel.Summary{
+						{Name: "43.348", Text: "Summary 1", Pages: []int32{43}},
+						{Name: "43.58685", Text: "Summary 2", Pages: []int32{43}},
+					},
+				},
+				{
+					Sections: []dbmodel.Section{{
+						Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")},
+						Paragraphs: []dbmodel.Paragraph{
+							{
+								Text:  sumRef(482, 5) + line(5) + "I'm a paragraph with " + page(483) + " a page break inside.",
+								Pages: []int32{482, 483},
+							},
+						},
+					}},
+					Summaries: []dbmodel.Summary{
+						{Name: "482.5", Text: "Summary 3", Pages: []int32{482}},
+					},
+				},
+			},
+		},
+		{
+			name:   "Merge summary that starts in the middle of a paragraph",
+			volume: 1,
 			sections: []model.Section{{
 				Heading: model.Heading{Level: model.HWork},
 				Sections: []model.Section{
 					{
-						Heading: model.Heading{Level: model.H1},
+						Heading: model.Heading{Level: model.H1, TextTitle: util.FmtPage(1)},
 						Paragraphs: []string{
-							page(43) + line(348) + "I'm a paragraph.",
-							"I'm a paragraph with the line " + line(58685) + " number at the end",
-							page(95) + line(123) + "I'm a paragraph." + page(96) + line(1) + "I'm another paragraph.",
-							"I'm a paragraph with the line " + page(483) + line(2) + " number at the end " + page(484) + line(5) + "that continues over multiple pages.",
+							page(95) + line(123) + "I'm a sentence." + page(96) + line(31) + "I'm another sentence.",
 						},
 					},
 				},
 			}},
-			summaries: []model.Summary{
-				{Page: 43, Line: 348, Text: "Summary 1"},
-				{Page: 43, Line: 58685, Text: "Summary 2"},
-				{Page: 484, Line: 5, Text: "Summary 3"},
-			},
-			model: []dbmodel.Work{{
-				Sections: []dbmodel.Section{{
-					Sections: []dbmodel.Section{
-						{
-							Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")},
-							Paragraphs: []dbmodel.Paragraph{
-								{
-									Text:  page(43) + line(348) + sumRef(43, 348) + "I'm  line." + line(58685) + sumRef(43, 58685) + "I'm a second line.",
-									Pages: []int32{43},
-								},
-								{
-									Text:  "I'm a paragraph with the line " + page(483) + line(5) + " number at the end " + page(484) + line(5) + sumRef(484, 5) + "that continues over multiple pages.",
-									Pages: []int32{482, 483, 484},
-								},
-							},
-						},
-					},
-				}},
-				Summaries: []dbmodel.Summary{
-					{Name: "43.348", Text: "Summary 1", Pages: []int32{43}},
-					{Name: "43.58685", Text: "Summary 2", Pages: []int32{43}},
-					{Name: "484.5", Text: "Summary 3", Pages: []int32{484}},
-				},
+			summaries: []model.Summary{{
+				Page: 96,
+				Line: 31,
+				Text: "Summary.",
 			}},
+			expectError: true,
 		},
 	}
 
@@ -412,10 +435,11 @@ func TestModelMapping(t *testing.T) {
 			if tc.expectError {
 				assert.True(t, err.HasError)
 				assert.Nil(t, result)
-			}
-			assert.Equal(t, len(tc.model), len(result))
-			for i := range tc.model {
-				assertWork(t, tc.model[i], result[i])
+			} else {
+				assert.Equal(t, len(tc.model), len(result))
+				for i := range result {
+					assertWork(t, tc.model[i], result[i])
+				}
 			}
 		})
 	}
