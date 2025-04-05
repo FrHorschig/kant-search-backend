@@ -38,7 +38,7 @@ func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries [
 		if err.HasError {
 			return nil, err
 		}
-		postprocessSectionPages(&work)
+		postprocessSections(&work)
 		works = append(works, work)
 	}
 	// TODO (later) handle images and tables
@@ -163,15 +163,15 @@ func mapSummary(s model.Summary) (dbmodel.Summary, errors.ErrorNew) {
 	}, errors.NilError()
 }
 
-func postprocessSectionPages(work *dbmodel.Work) {
+func postprocessSections(work *dbmodel.Work) {
 	var maxPage int32 = 1
 	for _, sec := range work.Sections {
-		processSection(&sec, &maxPage)
+		postprocess(&sec, &maxPage)
 	}
 }
 
-func processSection(section *dbmodel.Section, latestPage *int32) {
-	head := section.Heading
+func postprocess(section *dbmodel.Section, latestPage *int32) {
+	head := &section.Heading
 	if len(head.Pages) > 0 {
 		firstPage := head.Pages[0]
 		pageRef := util.FmtPage(firstPage)
@@ -207,7 +207,7 @@ func processSection(section *dbmodel.Section, latestPage *int32) {
 	}
 
 	for i := range section.Sections {
-		processSection(&section.Sections[i], latestPage)
+		postprocess(&section.Sections[i], latestPage)
 	}
 }
 
