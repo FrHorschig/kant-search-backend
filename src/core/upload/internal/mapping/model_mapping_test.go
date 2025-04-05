@@ -286,12 +286,12 @@ func TestModelMapping(t *testing.T) {
 				}},
 				Footnotes: []dbmodel.Footnote{
 					{
-						Name:  "2.5",
+						Ref:   "2.5",
 						Text:  "This is a simple footnote.",
 						Pages: []int32{2},
 					},
 					{
-						Name:  "4.20",
+						Ref:   "4.20",
 						Text:  "This is a " + page(5) + " footnote with a page.",
 						Pages: []int32{4, 5},
 					},
@@ -381,8 +381,8 @@ func TestModelMapping(t *testing.T) {
 						},
 					}},
 					Summaries: []dbmodel.Summary{
-						{Name: "43.348", Text: "Summary 1", Pages: []int32{43}},
-						{Name: "43.58685", Text: "Summary 2", Pages: []int32{43}},
+						{Ref: "43.348", Text: "Summary 1", Pages: []int32{43}},
+						{Ref: "43.58685", Text: "Summary 2", Pages: []int32{43}},
 					},
 				},
 				{
@@ -396,7 +396,7 @@ func TestModelMapping(t *testing.T) {
 						},
 					}},
 					Summaries: []dbmodel.Summary{
-						{Name: "482.5", Text: "Summary 3", Pages: []int32{482}},
+						{Ref: "482.5", Text: "Summary 3", Pages: []int32{482}},
 					},
 				},
 			},
@@ -479,13 +479,13 @@ func assertParagraph(t *testing.T, exp dbmodel.Paragraph, act dbmodel.Paragraph)
 }
 
 func assertFootnote(t *testing.T, exp dbmodel.Footnote, act dbmodel.Footnote) {
-	assert.Equal(t, exp.Name, act.Name)
+	assert.Equal(t, exp.Ref, act.Ref)
 	assert.Equal(t, exp.Text, act.Text)
 	assert.ElementsMatch(t, exp.Pages, act.Pages)
 }
 
 func assertSummary(t *testing.T, exp dbmodel.Summary, act dbmodel.Summary) {
-	assert.Equal(t, exp.Name, act.Name)
+	assert.Equal(t, exp.Ref, act.Ref)
 	assert.Equal(t, exp.Text, act.Text)
 	assert.ElementsMatch(t, exp.Pages, act.Pages)
 }
