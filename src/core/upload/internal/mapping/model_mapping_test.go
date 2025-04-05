@@ -195,15 +195,15 @@ func TestModelMapping(t *testing.T) {
 						Heading: model.Heading{Level: model.H1},
 						Paragraphs: []string{
 							"This paragraph ends with a page." + fnRef(482, 148) + page(3),
-							page(82) + "This paragraph" + fnRef(4, 2) + "starts with a page",
+							page(82) + "This paragraph" + fnRef(4, 2) + "starts with a page.",
 						},
 						Sections: []model.Section{{
 							Heading: model.Heading{Level: model.H2},
 							Paragraphs: []string{
-								fnRef(2, 64) + page(2),
+								fnRef(2, 64) + page(120),
 								"This " + fnRef(83, 3) + "is a" + page(254) + " test text.",
-								"It " + fnRef(582, 1) + " continues " + page(942) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
-								page(23) + fnRef(4, 23)},
+								"It " + fnRef(582, 1) + " continues " + page(941) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
+								page(12840) + fnRef(4, 23)},
 						}},
 					},
 				},
@@ -214,13 +214,13 @@ func TestModelMapping(t *testing.T) {
 					Paragraphs: []dbmodel.Paragraph{
 						{
 							Text:   "This paragraph ends with a page." + fnRef(482, 148) + page(3),
-							Pages:  []int32{3},
+							Pages:  []int32{2, 3},
 							FnRefs: []string{"482.148"},
 						},
 						{
-							Text:   page(82) + "This paragraph" + fnRef(4, 3) + " starts with a page.",
+							Text:   page(82) + "This paragraph" + fnRef(4, 2) + "starts with a page.",
 							Pages:  []int32{82},
-							FnRefs: []string{"4.3"},
+							FnRefs: []string{"4.2"},
 						},
 					},
 					Sections: []dbmodel.Section{
@@ -234,12 +234,12 @@ func TestModelMapping(t *testing.T) {
 								},
 								{
 									Text:   "This " + fnRef(83, 3) + "is a" + page(254) + " test text.",
-									Pages:  []int32{254},
+									Pages:  []int32{253, 254},
 									FnRefs: []string{"83.3"},
 								},
 								{
-									Text:   "It " + fnRef(582, 1) + " continues " + page(942) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
-									Pages:  []int32{941, 942, 943},
+									Text:   "It " + fnRef(582, 1) + " continues " + page(941) + fnRef(298481, 2485) + page(942) + " in the " + fnRef(3, 5281) + " next" + page(943) + "paragraph.",
+									Pages:  []int32{940, 941, 942, 943},
 									FnRefs: []string{"582.1", "298481.2485", "3.5281"},
 								},
 								{
@@ -254,8 +254,111 @@ func TestModelMapping(t *testing.T) {
 			}},
 		},
 		{
+			name:   "Map footnote",
+			volume: 1,
+			sections: []model.Section{{
+				Heading: model.Heading{Level: model.HWork},
+				Sections: []model.Section{
+					{
+						Heading:    model.Heading{Level: model.H1, TextTitle: util.FmtPage(1)},
+						Paragraphs: []string{util.FmtPage(5)},
+					},
+				},
+			}},
+			footnotes: []model.Footnote{
+				{
+					Page: 2,
+					Nr:   5,
+					Text: "This is a simple footnote.",
+				},
+				{
+					Page: 4,
+					Nr:   20,
+					Text: "This is a " + page(5) + " footnote with a page.",
+				},
+			},
+			model: []dbmodel.Work{{
+				Sections: []dbmodel.Section{{
+					Heading: dbmodel.Heading{
+						Text:  util.FmtHeading(1, util.FmtPage(1)),
+						Pages: []int32{1},
+					},
+					Paragraphs: []dbmodel.Paragraph{{
+						Text:  util.FmtPage(5),
+						Pages: []int32{5},
+					}},
+				}},
+				Footnotes: []dbmodel.Footnote{
+					{
+						Name:  "2.5",
+						Text:  "This is a simple footnote.",
+						Pages: []int32{2},
+					},
+					{
+						Name:  "4.20",
+						Text:  "This is a " + page(5) + " footnote with a page.",
+						Pages: []int32{4, 5},
+					},
+				},
+			}},
+		},
+		{
+			name:   "Map footnote with non matching page numbers",
+			volume: 1,
+			footnotes: []model.Footnote{{
+				Page: 43,
+				Nr:   348,
+				Text: "Summary with non " + page(56) + " matching page numbers",
+			}},
+			expectError: true,
+		},
+		{
+			name:   "Map summaries",
+			volume: 1,
+			sections: []model.Section{{
+				Heading: model.Heading{Level: model.HWork},
+			}},
+			summaries: []model.Summary{
+				{
+					Page: 43,
+					Line: 348,
+					Text: "Simple summary",
+				},
+				{
+					Page: 55,
+					Line: 58685,
+					Text: "Summary with " + page(56) + " page " + page(184) + " numbers",
+				},
+			},
+			model: []dbmodel.Work{{
+				Summaries: []dbmodel.Summary{
+					{
+						Name:  "43.348",
+						Text:  "Simple summary",
+						Pages: []int32{43},
+					},
+					{
+						Name:  "55.58685",
+						Text:  "Summary with " + page(56) + " page " + page(184) + " numbers",
+						Pages: []int32{55, 56, 184},
+					},
+				},
+			}},
+		},
+		{
+			name:     "Map summary with non matching page numbers",
+			volume:   1,
+			sections: []model.Section{{Heading: model.Heading{Level: model.HWork}}},
+			summaries: []model.Summary{{
+				Page: 43,
+				Line: 348,
+				Text: "Summary with non " + page(56) + " matching page numbers",
+			}},
+			expectError: true,
+		},
+		{
 			name:   "Merge summaries into paragraphs",
-			volume: 4,
+			volume: 1,
 			sections: []model.Section{{
 				Heading: model.Heading{Level: model.HWork},
 				Sections: []model.Section{
@@ -297,48 +400,6 @@ func TestModelMapping(t *testing.T) {
 					{Name: "43.348", Text: "Summary 1", Pages: []int32{43}},
 					{Name: "43.58685", Text: "Summary 2", Pages: []int32{43}},
 					{Name: "484.5", Text: "Summary 3", Pages: []int32{484}},
-				},
-			}},
-		},
-		{
-			name: "Map footnote name",
-			footnotes: []model.Footnote{
-				{Page: 2, Nr: 5, Text: "This is a footnote."},
-				{Page: 4, Nr: 20, Text: "This is a 2nd footnote."},
-			},
-			model: []dbmodel.Work{{
-				Footnotes: []dbmodel.Footnote{
-					{Name: "2.5", Text: "This is a footnote.", Pages: []int32{2}},
-					{Name: "4.20", Text: "This is a 2nd footnote.", Pages: []int32{4}},
-				},
-			}},
-		},
-		{
-			name: "Extract pages from footnote text",
-			footnotes: []model.Footnote{
-				{
-					Page: 881,
-					Nr:   284,
-					Text: "This " + page(9582) + "is a " + page(383) + "footnote.",
-				},
-				{
-					Page: 2,
-					Nr:   9,
-					Text: "This " + page(30) + "is a 2nd footnote.",
-				},
-			},
-			model: []dbmodel.Work{{
-				Footnotes: []dbmodel.Footnote{
-					{
-						Name:  "881.284",
-						Text:  "This " + page(9582) + "is a " + page(383) + "footnote.",
-						Pages: []int32{881, 9582, 383},
-					},
-					{
-						Name:  "2.9",
-						Text:  "This " + page(30) + "is a 2nd footnote.",
-						Pages: []int32{2, 30},
-					},
 				},
 			}},
 		},
