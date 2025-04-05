@@ -49,7 +49,6 @@ func (rec *modelMapperImpl) Map(vol int32, sections []model.Section, summaries [
 		if err.HasError {
 			return works, err
 		}
-		postprocessFootnotePages(&fn, f.Page)
 		fns = append(fns, fn)
 	}
 	matchFnsToWorks(works, fns)
@@ -143,6 +142,14 @@ func mapFootnote(f model.Footnote) (dbmodel.Footnote, errors.ErrorNew) {
 	if err.HasError {
 		return dbmodel.Footnote{}, err
 	}
+	if len(pages) == 0 {
+		pages = []int32{f.Page}
+	} else if !startsWithPageRef(f.Text, util.FmtPage(pages[0])) {
+		pages = append([]int32{pages[0] - 1}, pages...)
+	}
+	if pages[0] != f.Page {
+		return dbmodel.Footnote{}, errors.NewError(fmt.Errorf("footnote page %d does not match the first page of the footnote %d", f.Page, pages[0]), nil)
+	}
 	return dbmodel.Footnote{
 		Name:  fmt.Sprintf("%d.%d", f.Page, f.Nr),
 		Pages: pages,
@@ -154,6 +161,14 @@ func mapSummary(s model.Summary) (dbmodel.Summary, errors.ErrorNew) {
 	pages, err := extract.ExtractPages(s.Text)
 	if err.HasError {
 		return dbmodel.Summary{}, err
+	}
+	if len(pages) == 0 {
+		pages = []int32{s.Page}
+	} else if !startsWithPageRef(s.Text, util.FmtPage(pages[0])) {
+		pages = append([]int32{pages[0] - 1}, pages...)
+	}
+	if pages[0] != s.Page {
+		return dbmodel.Summary{}, errors.NewError(fmt.Errorf("summary page %d does not match the first page of the summary %d", s.Page, pages[0]), nil)
 	}
 	return dbmodel.Summary{
 		Name:   fmt.Sprintf("%d.%d", s.Page, s.Line),
@@ -208,18 +223,6 @@ func postprocess(section *dbmodel.Section, latestPage *int32) {
 
 	for i := range section.Sections {
 		postprocess(&section.Sections[i], latestPage)
-	}
-}
-
-func postprocessFootnotePages(fn *dbmodel.Footnote, fnStartPage int32) {
-	if len(fn.Pages) > 0 {
-		firstPage := fn.Pages[0]
-		pageRef := util.FmtPage(firstPage)
-		if !startsWithPageRef(fn.Text, pageRef) {
-			fn.Pages = append([]int32{firstPage - 1}, fn.Pages...)
-		}
-	} else {
-		fn.Pages = []int32{fnStartPage}
 	}
 }
 
