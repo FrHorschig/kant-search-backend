@@ -74,6 +74,9 @@ func mapWork(h0 model.Section, vol int32, index int) (dbmodel.Work, errors.Error
 	work.Abbreviation = &model.Metadata[vol-1][index].Abbreviation
 	work.Title = h0.Heading.TextTitle
 	work.Year = &h0.Heading.Year
+	if len(h0.Paragraphs) > 0 {
+		return work, errors.NewError(fmt.Errorf("work has paragraphs before the first non-worktitle heading"), nil)
+	}
 	for _, s := range h0.Sections {
 		sec, err := mapSection(s)
 		if err.HasError {
@@ -167,7 +170,7 @@ func postprocessSectionPages(work *dbmodel.Work) {
 	}
 }
 
-func processSection(section *dbmodel.Section, maxPage *int32) {
+func processSection(section *dbmodel.Section, latestPage *int32) {
 	head := section.Heading
 	if len(head.Pages) > 0 {
 		firstPage := head.Pages[0]
@@ -176,12 +179,12 @@ func processSection(section *dbmodel.Section, maxPage *int32) {
 			head.Pages = append([]int32{firstPage - 1}, head.Pages...)
 		}
 		lastPage := head.Pages[len(head.Pages)-1]
-		if lastPage > *maxPage {
-			*maxPage = lastPage
+		if lastPage > *latestPage {
+			*latestPage = lastPage
 		}
 	} else {
 		// this happens when a heading is fully inside a page and at least on line away from the page start and end
-		head.Pages = []int32{*maxPage}
+		head.Pages = []int32{*latestPage}
 	}
 
 	for i := range section.Paragraphs {
@@ -193,18 +196,18 @@ func processSection(section *dbmodel.Section, maxPage *int32) {
 				par.Pages = append([]int32{firstPage - 1}, par.Pages...)
 			}
 			lastPage := par.Pages[len(par.Pages)-1]
-			if lastPage > *maxPage {
-				*maxPage = lastPage
+			if lastPage > *latestPage {
+				*latestPage = lastPage
 			}
 
 		} else {
 			// this happens when a paragraph is fully inside a page and at least on line away from the page start and end
-			par.Pages = []int32{*maxPage}
+			par.Pages = []int32{*latestPage}
 		}
 	}
 
 	for i := range section.Sections {
-		processSection(&section.Sections[i], maxPage)
+		processSection(&section.Sections[i], latestPage)
 	}
 }
 
