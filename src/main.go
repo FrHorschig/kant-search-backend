@@ -1,33 +1,35 @@
 package main
 
 import (
-	"database/sql"
+	"fmt"
 	"os"
 	"strings"
 
-	"github.com/frhorschig/kant-search-backend/api/read"
+	"github.com/elastic/go-elasticsearch/v8"
+	apiread "github.com/frhorschig/kant-search-backend/api/read"
 	apisearch "github.com/frhorschig/kant-search-backend/api/search"
 	apiupload "github.com/frhorschig/kant-search-backend/api/upload"
-	"github.com/frhorschig/kant-search-backend/core/search"
-	"github.com/frhorschig/kant-search-backend/core/upload"
-	database "github.com/frhorschig/kant-search-backend/dataaccess"
+	coreread "github.com/frhorschig/kant-search-backend/core/read"
+	coresearch "github.com/frhorschig/kant-search-backend/core/search"
+	coreupload "github.com/frhorschig/kant-search-backend/core/upload"
+	db "github.com/frhorschig/kant-search-backend/dataaccess"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func initDbConnection() *sql.DB {
-	connStr := "host=" + os.Getenv("KSGO_DB_HOST") +
-		" port=" + os.Getenv("KSDB_PORT") +
-		" user=" + os.Getenv("KSDB_USER") +
-		" password=" + os.Getenv("KSDB_PASSWORD") +
-		" dbname=" + os.Getenv("KSDB_NAME") +
-		" sslmode=" + os.Getenv("KSGO_DB_SSLMODE")
-
-	db, err := sql.Open("postgres", connStr)
+func initEsConnection() *elasticsearch.TypedClient {
+	es, err := elasticsearch.NewTypedClient(elasticsearch.Config{
+		Addresses: []string{fmt.Sprintf(
+			"%s:%s", os.Getenv("KSGO_ES_URL"), os.Getenv("KSDB_PORT"),
+		)},
+		Username:               os.Getenv("KSDB_USER"),
+		Password:               os.Getenv("KSDB_PWD"),
+		CertificateFingerprint: os.Getenv("KSDB_CERT_HASH"),
+	})
 	if err != nil {
 		panic(err)
 	}
-	return db
+	return es
 }
 
 func initEchoServer() *echo.Echo {
@@ -45,44 +47,30 @@ func initEchoServer() *echo.Echo {
 	return e
 }
 
-func registerHandlers(e *echo.Echo, workHandler read.WorkHandler, paragraphHandler read.ParagraphHandler, searchHandler apisearch.SearchHandler, uploadHandler apiupload.UploadHandler) {
-	e.GET("/api/read/v1/volumes", func(ctx echo.Context) error {
-		return workHandler.GetVolumes(ctx)
-	})
-	e.GET("/api/read/v1/works", func(ctx echo.Context) error {
-		return workHandler.GetWorks(ctx)
-	})
-	e.GET("/api/read/v1/works/:workId/paragraphs", func(ctx echo.Context) error {
-		return paragraphHandler.GetParagraphs(ctx)
-	})
-	e.POST("/api/read/v1/search", func(ctx echo.Context) error {
-		return searchHandler.Search(ctx)
-	})
-
+func registerHandlers(e *echo.Echo, uploadHandler apiupload.UploadHandler, readHandler apiread.ReadHandler, searchHandler apisearch.SearchHandler) {
+	// TODO implement me
 	e.POST("/api/write/v1/volumes", func(ctx echo.Context) error {
 		return uploadHandler.PostVolume(ctx)
 	})
 }
 
 func main() {
-	db := initDbConnection()
-	defer db.Close()
+	es := initEsConnection()
 
-	volumeRepo := database.NewVolumeRepo(db)
-	workRepo := database.NewWorkRepo(db)
-	paragraphRepo := database.NewParagraphRepo(db)
-	sentenceRepo := database.NewSentenceRepo(db)
+	volumeRepo := db.NewVolumeRepo(es)
+	workRepo := db.NewWorkRepo(es)
+	contentRepo := db.NewContentRepo(es)
 
-	volumeProcessor := upload.NewUploadProcessor(paragraphRepo, sentenceRepo)
-	searchProcessor := search.NewSearchProcessor(paragraphRepo, sentenceRepo)
+	uploadProcessor := coreupload.NewUploadProcessor(volumeRepo, workRepo, contentRepo)
+	readProcessor := coreread.NewReadProcessor(volumeRepo, workRepo, contentRepo)
+	searchProcessor := coresearch.NewSearchProcessor(contentRepo)
 
-	workHandler := read.NewWorkHandler(volumeRepo, workRepo)
-	paragraphHandler := read.NewParagraphHandler(paragraphRepo)
+	uploadHandler := apiupload.NewUploadHandler(uploadProcessor)
+	readHandler := apiread.NewReadHandler(readProcessor)
 	searchHandler := apisearch.NewSearchHandler(searchProcessor)
-	uploadHandler := apiupload.NewUploadHandler(volumeProcessor)
 
 	e := initEchoServer()
-	registerHandlers(e, workHandler, paragraphHandler, searchHandler, uploadHandler)
+	registerHandlers(e, uploadHandler, readHandler, searchHandler)
 	if os.Getenv("KSGO_DISABLE_SSL") == "true" {
 		e.Logger.Fatal(e.Start(":3000"))
 	} else {
