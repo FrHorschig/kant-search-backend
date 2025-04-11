@@ -14,19 +14,17 @@ type SearchProcessor interface {
 }
 
 type searchProcessorImpl struct {
-	paragraphRepo dataaccess.ParagraphRepo
-	sentenceRepo  dataaccess.SentenceRepo
+	contentRepo dataaccess.ContentRepo
 }
 
-func NewSearchProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dataaccess.SentenceRepo) SearchProcessor {
-	impl := searchProcessorImpl{paragraphRepo: paragraphRepo, sentenceRepo: sentenceRepo}
+func NewSearchProcessor(contentRepo dataaccess.ContentRepo) SearchProcessor {
+	impl := searchProcessorImpl{
+		contentRepo: contentRepo,
+	}
 	return &impl
 }
 
 func (rec *searchProcessorImpl) Search(ctx context.Context, criteria model.SearchCriteria) ([]model.SearchResult, error) {
-	if criteria.Options.Scope == model.SentenceScope {
-		return rec.sentenceRepo.Search(ctx, criteria)
-	} else {
-		return rec.paragraphRepo.Search(ctx, criteria)
-	}
+	// TODO implement me
+	return nil, nil
 }

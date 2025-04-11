@@ -15,16 +15,18 @@ type UploadProcessor interface {
 }
 
 type uploadProcessorImpl struct {
-	paragraphRepo dataaccess.ParagraphRepo
-	sentenceRepo  dataaccess.SentenceRepo
-	xmlMapper     internal.XmlMapper
+	volumeRepo  dataaccess.VolumeRepo
+	workRepo    dataaccess.WorkRepo
+	contentRepo dataaccess.ContentRepo
+	xmlMapper   internal.XmlMapper
 }
 
-func NewUploadProcessor(paragraphRepo dataaccess.ParagraphRepo, sentenceRepo dataaccess.SentenceRepo) UploadProcessor {
+func NewUploadProcessor(volumeRepo dataaccess.VolumeRepo, workRepo dataaccess.WorkRepo, contentRepo dataaccess.ContentRepo) UploadProcessor {
 	processor := uploadProcessorImpl{
-		paragraphRepo: paragraphRepo,
-		sentenceRepo:  sentenceRepo,
-		xmlMapper:     internal.NewXmlMapper(),
+		volumeRepo:  volumeRepo,
+		workRepo:    workRepo,
+		contentRepo: contentRepo,
+		xmlMapper:   internal.NewXmlMapper(),
 	}
 	return &processor
 }
