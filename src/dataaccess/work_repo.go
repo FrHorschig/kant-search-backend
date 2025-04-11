@@ -5,6 +5,7 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=mocks/work_repo_mock.go -package=mocks
@@ -16,13 +17,20 @@ type WorkRepo interface {
 }
 
 type workRepoImpl struct {
-	dbClient *elasticsearch.TypedClient
+	dbClient  *elasticsearch.TypedClient
+	indexName string
 }
 
 func NewWorkRepo(dbClient *elasticsearch.TypedClient) WorkRepo {
-	return &workRepoImpl{
-		dbClient: dbClient,
+	repo := &workRepoImpl{
+		dbClient:  dbClient,
+		indexName: "works",
 	}
+	err := util.CreateIndex(repo.dbClient, repo.indexName, esmodel.WorkMapping)
+	if err != nil {
+		panic(err)
+	}
+	return repo
 }
 
 func (rec *workRepoImpl) Insert(ctx context.Context, data esmodel.Work) error {
