@@ -12,7 +12,7 @@ import (
 	estest "github.com/testcontainers/testcontainers-go/modules/elasticsearch"
 )
 
-var dbClient *elasticsearch.Client
+var dbClient *elasticsearch.TypedClient
 
 func TestMain(m *testing.M) {
 	container := createEsContainer()
@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 
 func createEsContainer() *estest.ElasticsearchContainer {
 	ctx := context.Background()
-	cont, err := estest.Run(ctx, "docker.elastic.co/elasticsearch/elasticsearch:8.9.0")
+	cont, err := estest.Run(ctx, "docker.elastic.co/elasticsearch/elasticsearch:8.17.4")
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +37,7 @@ func createEsContainer() *estest.ElasticsearchContainer {
 		CACert:   cont.Settings.CACert,
 	}
 
-	client, err := elasticsearch.NewClient(cfg)
+	client, err := elasticsearch.NewTypedClient(cfg)
 	if err != nil {
 		panic(err)
 	}
