@@ -4,6 +4,7 @@ import "github.com/elastic/go-elasticsearch/v8/typedapi/types"
 
 // structs for volume-works tree data
 type Volume struct {
+	Id           string    `json:"id"`
 	VolumeNumber int32     `json:"volumeNumber"`
 	Section      int32     `json:"section"`
 	Title        string    `json:"title"`
@@ -11,7 +12,7 @@ type Volume struct {
 }
 
 type WorkRef struct {
-	Id    int32  `json:"id"`
+	Id    string `json:"id"`
 	Code  string `json:"code"`
 	Title string `json:"title"`
 }
@@ -20,12 +21,12 @@ var VolumeMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
 		"volumeNumber": types.NewIntegerNumberProperty(),
 		"section":      types.NewIntegerNumberProperty(),
-		"title":        types.NewTextProperty(),
+		"title":        types.NewKeywordProperty(),
 		"works": &types.NestedProperty{
 			Properties: map[string]types.Property{
-				"id":    types.NewIntegerNumberProperty(),
+				"id":    types.NewKeywordProperty(),
 				"code":  types.NewKeywordProperty(),
-				"title": types.NewTextProperty(),
+				"title": types.NewKeywordProperty(),
 			},
 		},
 	},
@@ -33,19 +34,19 @@ var VolumeMapping = &types.TypeMapping{
 
 // structs for works tree data without content
 type Work struct {
-	Id           int32     `json:"id"`
+	Id           string    `json:"id"`
 	Code         string    `json:"code"`
 	Abbreviation *string   `json:"abbreviation"`
 	Title        string    `json:"title"`
 	Year         *string   `json:"year"`
 	Sections     []Section `json:"sections"`
-	Footnotes    []int32   `json:"footnotes"`
-	Summaries    []int32   `json:"summaries"`
+	Footnotes    []string  `json:"footnotes"`
+	Summaries    []string  `json:"summaries"`
 }
 
 type Section struct {
-	Heading    int32     `json:"heading"`
-	Paragraphs []int32   `json:"paragraphs"`
+	Heading    string    `json:"heading"`
+	Paragraphs []string  `json:"paragraphs"`
 	Sections   []Section `json:"sections"`
 }
 
@@ -109,7 +110,7 @@ const (
 
 type Content struct {
 	Type       Type     `json:"type"`
-	Id         int32    `json:"id"`
+	Id         string   `json:"id"`
 	Ref        *string  `json:"ref"`
 	FmtText    string   `json:"fmtText"`
 	TocText    *string  `json:"tocText"`
@@ -117,7 +118,7 @@ type Content struct {
 	Pages      []int32  `json:"pages"`
 	FnRefs     []string `json:"fnRefs"`
 	SummaryRef *string  `json:"summaryRef"`
-	WorkId     int32    `json:"workId"`
+	WorkId     string   `json:"workId"`
 }
 
 var ContentMapping = &types.TypeMapping{
