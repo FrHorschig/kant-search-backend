@@ -4,32 +4,93 @@
 package dataaccess
 
 import (
+	"context"
 	"testing"
+	"time"
 
-	_ "github.com/lib/pq"
+	"github.com/frhorschig/kant-search-backend/common/util"
+	"github.com/frhorschig/kant-search-backend/dataaccess/internal/esmodel"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestSelectAllWorks(t *testing.T) {
-	// repo := NewWorkRepo(dbClient)
+func TestWorkRepo(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	// WHEN
-	// works, err := repo.SelectAll(context.Background())
+	repo := NewWorkRepo(dbClient)
+	work := esmodel.Work{
+		Code:         "GMS",
+		Abbreviation: util.ToStrPtr("GMS"),
+		Title:        "Grundlegung zur Metaphysik der Sitten",
+		Year:         util.ToStrPtr("1785"),
+	}
 
+	// WHEN Insert
+	err := repo.Insert(ctx, &work)
 	// THEN
-	// assert.Nil(t, err)
-	// assert.Greater(t, len(works), 0)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, work.Id)
+	refreshWorks(t)
 
-	// krvB := works[30]
-	// assert.Equal(t, "KRV_B", krvB.Code)
-	// assert.Equal(t, "KrV B", *krvB.Abbreviation)
-	// assert.Equal(t, int32(3), krvB.Volume)
-	// assert.Equal(t, int32(0), krvB.Ordinal)
-	// assert.Equal(t, "1787", *krvB.Year)
+	// WHEN Get
+	res, err := repo.Get(ctx, work.Id)
+	// THEN
+	assert.Nil(t, err)
+	assert.NotNil(t, res)
+	assert.Equal(t, work.Code, res.Code)
+	assert.Equal(t, work.Abbreviation, res.Abbreviation)
+	assert.Equal(t, work.Title, res.Title)
+	assert.Equal(t, work.Year, res.Year)
 
-	// work7_1 := works[40]
-	// assert.Equal(t, "ANTH", work7_1.Code)
-	// assert.Equal(t, "Anth", *work7_1.Abbreviation)
-	// assert.Equal(t, int32(7), work7_1.Volume)
-	// assert.Equal(t, int32(1), work7_1.Ordinal)
-	// assert.Equal(t, "1798", *work7_1.Year)
+	// WHEN Update
+	work.Sections = []esmodel.Section{{
+		Heading:    "heading1Id",
+		Paragraphs: []string{"par11Id", "par12Id", "par13Id"},
+		Sections: []esmodel.Section{{
+			Heading:    "heading2Id",
+			Paragraphs: []string{"par21Id", "par22Id", "par23Id"},
+		}},
+	}}
+	work.Footnotes = []string{"fn1Id", "fn2Id", "fn3Id", "fn4Id"}
+	work.Summaries = []string{"summ1Id", "summ2Id"}
+	err = repo.Update(ctx, &work)
+	// THEN
+	assert.Nil(t, err)
+	refreshWorks(t)
+
+	// WHEN Get
+	res, err = repo.Get(ctx, work.Id)
+	// THEN
+	assert.Nil(t, err)
+	assert.NotNil(t, res)
+	assert.Equal(t, work.Sections, res.Sections)
+	assert.Equal(t, work.Footnotes, res.Footnotes)
+	assert.Equal(t, work.Summaries, res.Summaries)
+
+	// WHEN: Delete
+	err = repo.Delete(ctx, work.Id)
+	// THEN
+	assert.Nil(t, err)
+	refreshWorks(t)
+
+	// WHEN: Get
+	res, err = repo.Get(ctx, work.Id)
+	// THEN
+	assert.NotNil(t, err)
+	assert.Nil(t, res)
+	assert.Contains(t, err.Error(), "not found")
+
+	// WHEN: Delete nonexisting
+	err = repo.Delete(ctx, work.Id)
+	// THEN
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "unable to delete")
+
+}
+
+func refreshWorks(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	_, err := dbClient.Indices.Refresh().Index("works").Do(ctx)
+	assert.Nil(t, err)
 }
