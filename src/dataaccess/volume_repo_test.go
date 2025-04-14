@@ -31,7 +31,6 @@ func TestVolumeRepo(t *testing.T) {
 	err := repo.Insert(ctx, &vol)
 	// THEN
 	assert.Nil(t, err)
-	assert.NotEmpty(t, vol.Id)
 	refreshVolumes(t)
 
 	// WHEN Insert duplicate
@@ -39,7 +38,6 @@ func TestVolumeRepo(t *testing.T) {
 	// THEN
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "already exists")
-	assert.NotEmpty(t, vol.Id)
 
 	// WHEN Get
 	res, err := repo.Get(ctx, vol.VolumeNumber)

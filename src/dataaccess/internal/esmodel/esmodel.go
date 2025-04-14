@@ -4,7 +4,6 @@ import "github.com/elastic/go-elasticsearch/v8/typedapi/types"
 
 // structs for volume-works tree data
 type Volume struct {
-	Id           string    `json:"id"`
 	VolumeNumber int32     `json:"volumeNumber"`
 	Section      int32     `json:"section"`
 	Title        string    `json:"title"`
@@ -40,8 +39,6 @@ type Work struct {
 	Title        string    `json:"title"`
 	Year         *string   `json:"year"`
 	Sections     []Section `json:"sections"`
-	Footnotes    []string  `json:"footnotes"`
-	Summaries    []string  `json:"summaries"`
 }
 
 type Section struct {
@@ -93,8 +90,6 @@ var WorkMapping = &types.TypeMapping{
 				},
 			},
 		},
-		"footnotes": types.NewKeywordProperty(),
-		"summaries": types.NewKeywordProperty(),
 	},
 }
 
@@ -113,7 +108,6 @@ type Content struct {
 	Id         string   `json:"id"`
 	Ref        *string  `json:"ref"`
 	FmtText    string   `json:"fmtText"`
-	TocText    *string  `json:"tocText"`
 	SearchText string   `json:"searchText"`
 	Pages      []int32  `json:"pages"`
 	FnRefs     []string `json:"fnRefs"`
@@ -127,7 +121,6 @@ var ContentMapping = &types.TypeMapping{
 		"id":         types.NewKeywordProperty(),
 		"ref":        types.NewKeywordProperty(),
 		"fmtText":    types.NewKeywordProperty(),
-		"tocText":    types.NewKeywordProperty(),
 		"searchText": types.NewTextProperty(),
 		"pages":      types.NewKeywordProperty(),
 		"fnRefs":     types.NewKeywordProperty(),

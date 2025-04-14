@@ -20,7 +20,7 @@ import (
 func initEsConnection() *elasticsearch.TypedClient {
 	es, err := elasticsearch.NewTypedClient(elasticsearch.Config{
 		Addresses: []string{fmt.Sprintf(
-			"%s:%s", os.Getenv("KSGO_ES_URL"), os.Getenv("KSDB_PORT"),
+			"%s:%s", os.Getenv("KSDB_URL"), os.Getenv("KSDB_PORT"),
 		)},
 		Username:               os.Getenv("KSDB_USER"),
 		Password:               os.Getenv("KSDB_PWD"),
