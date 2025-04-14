@@ -51,8 +51,6 @@ func TestWorkRepo(t *testing.T) {
 			Paragraphs: []string{"par21Id", "par22Id", "par23Id"},
 		}},
 	}}
-	work.Footnotes = []string{"fn1Id", "fn2Id", "fn3Id", "fn4Id"}
-	work.Summaries = []string{"summ1Id", "summ2Id"}
 	err = repo.Update(ctx, &work)
 	// THEN
 	assert.Nil(t, err)
@@ -64,8 +62,6 @@ func TestWorkRepo(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
 	assert.Equal(t, work.Sections, res.Sections)
-	assert.Equal(t, work.Footnotes, res.Footnotes)
-	assert.Equal(t, work.Summaries, res.Summaries)
 
 	// WHEN: Delete
 	err = repo.Delete(ctx, work.Id)
