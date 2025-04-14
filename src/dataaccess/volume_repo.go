@@ -4,14 +4,19 @@ package dataaccess
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/result"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 )
 
 type VolumeRepo interface {
-	Insert(ctx context.Context, volNum int32, data esmodel.Volume) error
+	Insert(ctx context.Context, data *esmodel.Volume) error
+	Get(ctx context.Context, volNum int32) (*esmodel.Volume, error)
 	Delete(ctx context.Context, volNum int32) error
 }
 
@@ -32,12 +37,71 @@ func NewVolumeRepo(dbClient *elasticsearch.TypedClient) VolumeRepo {
 	return repo
 }
 
-func (rec *volumeRepoImpl) Insert(ctx context.Context, volNum int32, data esmodel.Volume) error {
-	// TODO implement me
-	return nil
+// TODO disallow partial results everywhere
+
+func (rec *volumeRepoImpl) Insert(ctx context.Context, data *esmodel.Volume) error {
+	existing, err := rec.Get(ctx, data.VolumeNumber)
+	if err != nil {
+		return err
+	}
+	if existing != nil {
+		return fmt.Errorf("volume with volume number %d already exists", data.VolumeNumber)
+	}
+
+	createRes, err := rec.dbClient.Index(rec.indexName).Document(&data).Do(ctx)
+	if err != nil {
+		return err
+	}
+	if createRes.Result != result.Created {
+		return fmt.Errorf("unable to create volume with title \"%s\"", data.Title)
+	}
+	data.Id = createRes.Id_
+	updateRes, err := rec.dbClient.Update(rec.indexName, data.Id).Doc(&data).Do(ctx)
+	if err != nil {
+		return err
+	}
+	if updateRes.Result != result.Updated {
+		return fmt.Errorf("unable to create volume with id %s", data.Id)
+	}
+	return err
+}
+
+func (rec *volumeRepoImpl) Get(ctx context.Context, volNum int32) (*esmodel.Volume, error) {
+	res, err := rec.dbClient.Search().Index(rec.indexName).
+		Request(&search.Request{
+			Query: createTermQuery("volumeNumber", volNum),
+		}).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+	numOfHits := len(res.Hits.Hits)
+	if numOfHits == 0 {
+		return nil, nil
+	}
+	if numOfHits > 1 {
+		return nil, fmt.Errorf("more than one volume with volume number %d found", volNum)
+	}
+
+	var vol esmodel.Volume
+	err = json.Unmarshal(res.Hits.Hits[0].Source_, &vol)
+	if err != nil {
+		return nil, err
+	}
+	return &vol, nil
 }
 
 func (rec *volumeRepoImpl) Delete(ctx context.Context, volNum int32) error {
-	// TODO implement me
-	return nil
+	vol, err := rec.Get(ctx, volNum)
+	if err != nil {
+		return fmt.Errorf("error while searching for volume for deletion: %v", err)
+	}
+
+	res, err := rec.dbClient.Delete(rec.indexName, vol.Id).Do(ctx)
+	if err != nil {
+		return err
+	}
+	if res.Result != result.Deleted {
+		return fmt.Errorf("unable to delete volume with id %s", vol.Id)
+	}
+	return err
 }
