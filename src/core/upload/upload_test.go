@@ -9,8 +9,8 @@ import (
 
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	dbMocks "github.com/frhorschig/kant-search-backend/dataaccess/mocks"
-	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/golang/mock/gomock"
 	"gotest.tools/v3/assert"
 )

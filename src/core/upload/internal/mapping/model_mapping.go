@@ -9,12 +9,12 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
-	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
-func MapToModel(vol int32, sections []model.Section, summaries []model.Summary, footnotes []model.Footnote) ([]dbmodel.Work, errors.ErrorNew) {
-	works := []dbmodel.Work{}
+func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.Summary, footnotes []treemodel.Footnote) ([]model.Work, errors.ErrorNew) {
+	works := []model.Work{}
 	for i, w := range sections {
 		work, err := mapWork(w, vol, i)
 		if err.HasError {
@@ -25,7 +25,7 @@ func MapToModel(vol int32, sections []model.Section, summaries []model.Summary, 
 	}
 	// TODO (later) handle images and tables
 
-	fns := []dbmodel.Footnote{}
+	fns := []model.Footnote{}
 	for _, f := range footnotes {
 		fn, err := mapFootnote(f)
 		if err.HasError {
@@ -35,7 +35,7 @@ func MapToModel(vol int32, sections []model.Section, summaries []model.Summary, 
 	}
 	matchFnsToWorks(works, fns)
 
-	sms := []dbmodel.Summary{}
+	sms := []model.Summary{}
 	for _, s := range summaries {
 		summary, err := mapSummary(s)
 		if err.HasError {
@@ -52,10 +52,10 @@ func MapToModel(vol int32, sections []model.Section, summaries []model.Summary, 
 	return works, errors.NilError()
 }
 
-func mapWork(h0 model.Section, vol int32, index int) (dbmodel.Work, errors.ErrorNew) {
-	work := dbmodel.Work{}
-	work.Code = model.Metadata[vol-1][index].Code
-	work.Abbreviation = &model.Metadata[vol-1][index].Abbreviation
+func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.ErrorNew) {
+	work := model.Work{}
+	work.Code = Metadata[vol-1][index].Code
+	work.Abbreviation = &Metadata[vol-1][index].Abbreviation
 	work.Title = h0.Heading.TextTitle
 	work.Year = &h0.Heading.Year
 	if len(h0.Paragraphs) > 0 {
@@ -71,8 +71,8 @@ func mapWork(h0 model.Section, vol int32, index int) (dbmodel.Work, errors.Error
 	return work, errors.NilError()
 }
 
-func mapSection(s model.Section) (dbmodel.Section, errors.ErrorNew) {
-	section := dbmodel.Section{}
+func mapSection(s treemodel.Section) (model.Section, errors.ErrorNew) {
+	section := model.Section{}
 	heading, err := mapHeading(s.Heading)
 	if err.HasError {
 		return section, err
@@ -95,12 +95,12 @@ func mapSection(s model.Section) (dbmodel.Section, errors.ErrorNew) {
 	return section, errors.NilError()
 }
 
-func mapHeading(h model.Heading) (dbmodel.Heading, errors.ErrorNew) {
+func mapHeading(h treemodel.Heading) (model.Heading, errors.ErrorNew) {
 	pages, err := extract.ExtractPages(h.TextTitle)
 	if err.HasError {
-		return dbmodel.Heading{}, err
+		return model.Heading{}, err
 	}
-	heading := dbmodel.Heading{
+	heading := model.Heading{
 		Text:    util.FmtHeading(int32(h.Level), h.TextTitle),
 		TocText: h.TocTitle,
 		Pages:   pages,
@@ -109,12 +109,12 @@ func mapHeading(h model.Heading) (dbmodel.Heading, errors.ErrorNew) {
 	return heading, errors.NilError()
 }
 
-func mapParagraph(p string) (dbmodel.Paragraph, errors.ErrorNew) {
+func mapParagraph(p string) (model.Paragraph, errors.ErrorNew) {
 	pages, err := extract.ExtractPages(p)
 	if err.HasError {
-		return dbmodel.Paragraph{}, err
+		return model.Paragraph{}, err
 	}
-	paragraph := dbmodel.Paragraph{
+	paragraph := model.Paragraph{
 		Text:   p,
 		Pages:  pages,
 		FnRefs: extract.ExtractFnRefs(p),
@@ -122,10 +122,10 @@ func mapParagraph(p string) (dbmodel.Paragraph, errors.ErrorNew) {
 	return paragraph, errors.NilError()
 }
 
-func mapFootnote(f model.Footnote) (dbmodel.Footnote, errors.ErrorNew) {
+func mapFootnote(f treemodel.Footnote) (model.Footnote, errors.ErrorNew) {
 	pages, err := extract.ExtractPages(f.Text)
 	if err.HasError {
-		return dbmodel.Footnote{}, err
+		return model.Footnote{}, err
 	}
 	if len(pages) == 0 {
 		pages = []int32{f.Page}
@@ -133,19 +133,19 @@ func mapFootnote(f model.Footnote) (dbmodel.Footnote, errors.ErrorNew) {
 		pages = append([]int32{pages[0] - 1}, pages...)
 	}
 	if pages[0] != f.Page {
-		return dbmodel.Footnote{}, errors.NewError(fmt.Errorf("footnote page %d does not match the first page of the footnote %d", f.Page, pages[0]), nil)
+		return model.Footnote{}, errors.NewError(fmt.Errorf("footnote page %d does not match the first page of the footnote %d", f.Page, pages[0]), nil)
 	}
-	return dbmodel.Footnote{
+	return model.Footnote{
 		Ref:   fmt.Sprintf("%d.%d", f.Page, f.Nr),
 		Pages: pages,
 		Text:  f.Text,
 	}, errors.NilError()
 }
 
-func mapSummary(s model.Summary) (dbmodel.Summary, errors.ErrorNew) {
+func mapSummary(s treemodel.Summary) (model.Summary, errors.ErrorNew) {
 	pages, err := extract.ExtractPages(s.Text)
 	if err.HasError {
-		return dbmodel.Summary{}, err
+		return model.Summary{}, err
 	}
 	if len(pages) == 0 {
 		pages = []int32{s.Page}
@@ -153,9 +153,9 @@ func mapSummary(s model.Summary) (dbmodel.Summary, errors.ErrorNew) {
 		pages = append([]int32{pages[0] - 1}, pages...)
 	}
 	if pages[0] != s.Page {
-		return dbmodel.Summary{}, errors.NewError(fmt.Errorf("summary page %d does not match the first page of the summary %d", s.Page, pages[0]), nil)
+		return model.Summary{}, errors.NewError(fmt.Errorf("summary page %d does not match the first page of the summary %d", s.Page, pages[0]), nil)
 	}
-	return dbmodel.Summary{
+	return model.Summary{
 		Ref:    fmt.Sprintf("%d.%d", s.Page, s.Line),
 		Text:   s.Text,
 		Pages:  pages,
@@ -163,14 +163,14 @@ func mapSummary(s model.Summary) (dbmodel.Summary, errors.ErrorNew) {
 	}, errors.NilError()
 }
 
-func postprocessSections(work *dbmodel.Work) {
+func postprocessSections(work *model.Work) {
 	var maxPage int32 = 1
 	for _, sec := range work.Sections {
 		postprocess(&sec, &maxPage)
 	}
 }
 
-func postprocess(section *dbmodel.Section, latestPage *int32) {
+func postprocess(section *model.Section, latestPage *int32) {
 	head := &section.Heading
 	if len(head.Pages) > 0 {
 		firstPage := head.Pages[0]
@@ -211,7 +211,7 @@ func postprocess(section *dbmodel.Section, latestPage *int32) {
 	}
 }
 
-func matchFnsToWorks(works []dbmodel.Work, fns []dbmodel.Footnote) {
+func matchFnsToWorks(works []model.Work, fns []model.Footnote) {
 	for i := range works {
 		var min int32 = 0
 		var max int32 = 0
@@ -225,7 +225,7 @@ func matchFnsToWorks(works []dbmodel.Work, fns []dbmodel.Footnote) {
 	}
 }
 
-func insertSummaryRefs(works []dbmodel.Work) errors.ErrorNew {
+func insertSummaryRefs(works []model.Work) errors.ErrorNew {
 	for i := range works {
 		w := &works[i]
 		for j := range w.Summaries {
@@ -239,7 +239,7 @@ func insertSummaryRefs(works []dbmodel.Work) errors.ErrorNew {
 	return errors.NilError()
 }
 
-func mapSummariesToWorks(works []dbmodel.Work, summaries []dbmodel.Summary) {
+func mapSummariesToWorks(works []model.Work, summaries []model.Summary) {
 	for i := range works {
 		var min int32 = 0
 		var max int32 = 0
@@ -259,7 +259,7 @@ func startsWithPageRef(text, pageRef string) bool {
 	return cleaned == "" // text before page ref is only formatting code, so the "real text" starts with the page ref
 }
 
-func findMinMaxPages(sections []dbmodel.Section, min, max *int32) {
+func findMinMaxPages(sections []model.Section, min, max *int32) {
 	for _, s := range sections {
 		if len(s.Heading.Pages) > 0 {
 			if *min == 0 || s.Heading.Pages[0] < *min {
@@ -291,7 +291,7 @@ func findPageLine(name string) (int32, int32) {
 	return int32(page), int32(line)
 }
 
-func insertSummaryRef(summary *dbmodel.Summary, sections []dbmodel.Section) errors.ErrorNew {
+func insertSummaryRef(summary *model.Summary, sections []model.Section) errors.ErrorNew {
 	p, err := findSummaryParagraph(summary, sections)
 	if err.HasError {
 		return err
@@ -312,7 +312,7 @@ func insertSummaryRef(summary *dbmodel.Summary, sections []dbmodel.Section) erro
 	return errors.NilError()
 }
 
-func findSummaryParagraph(summary *dbmodel.Summary, sections []dbmodel.Section) (*dbmodel.Paragraph, errors.ErrorNew) {
+func findSummaryParagraph(summary *model.Summary, sections []model.Section) (*model.Paragraph, errors.ErrorNew) {
 	page, line := findPageLine(summary.Ref)
 	for i := range sections {
 		s := &sections[i]
@@ -339,7 +339,7 @@ func findSummaryParagraph(summary *dbmodel.Summary, sections []dbmodel.Section) 
 	return nil, errors.NilError()
 }
 
-func isSummaryParagraph(p *dbmodel.Paragraph, page, line int32) (bool, errors.ErrorNew) {
+func isSummaryParagraph(p *model.Paragraph, page, line int32) (bool, errors.ErrorNew) {
 	if !slices.Contains(p.Pages, page) {
 		return false, errors.NilError()
 	}

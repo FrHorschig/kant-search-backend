@@ -6,8 +6,8 @@ import (
 
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
-	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,34 +15,34 @@ func TestModelMapping(t *testing.T) {
 	testCases := []struct {
 		name        string
 		volume      int32
-		sections    []model.Section
-		summaries   []model.Summary
-		footnotes   []model.Footnote
-		model       []dbmodel.Work
+		sections    []treemodel.Section
+		summaries   []treemodel.Summary
+		footnotes   []treemodel.Footnote
+		model       []model.Work
 		expectError bool
 	}{
 		{
 			name:   "Multiple sections with simple content are mapped",
 			volume: 1,
-			sections: []model.Section{{
-				Heading: model.Heading{
-					Level:     model.HWork,
+			sections: []treemodel.Section{{
+				Heading: treemodel.Heading{
+					Level:     treemodel.HWork,
 					TocTitle:  "work title TOC text",
 					TextTitle: "work title",
 					Year:      "1724",
 				},
-				Sections: []model.Section{
+				Sections: []treemodel.Section{
 					{
-						Heading: model.Heading{
-							Level:     model.H1,
+						Heading: treemodel.Heading{
+							Level:     treemodel.H1,
 							TocTitle:  "subsection 1 title TOC text",
 							TextTitle: "subsection 1 title",
 						},
 						Paragraphs: []string{"subsection 1 par text", "second text"},
 					},
 					{
-						Heading: model.Heading{
-							Level:     model.H1,
+						Heading: treemodel.Heading{
+							Level:     treemodel.H1,
 							TocTitle:  "subsection 2 title TOC text",
 							TextTitle: "subsection 2 title",
 						},
@@ -50,28 +50,28 @@ func TestModelMapping(t *testing.T) {
 					},
 				},
 			}},
-			model: []dbmodel.Work{{
+			model: []model.Work{{
 				Title: "work title",
 				Year:  commonutil.ToStrPtr("1724"),
-				Sections: []dbmodel.Section{
+				Sections: []model.Section{
 					{
-						Heading: dbmodel.Heading{
+						Heading: model.Heading{
 							Text:    util.FmtHeading(1, "subsection 1 title"),
 							TocText: "subsection 1 title TOC text",
 							Pages:   []int32{1},
 						},
-						Paragraphs: []dbmodel.Paragraph{
+						Paragraphs: []model.Paragraph{
 							{Text: "subsection 1 par text", Pages: []int32{1}},
 							{Text: "second text", Pages: []int32{1}},
 						},
 					},
 					{
-						Heading: dbmodel.Heading{
+						Heading: model.Heading{
 							Text:    util.FmtHeading(1, "subsection 2 title"),
 							TocText: "subsection 2 title TOC text",
 							Pages:   []int32{1},
 						},
-						Paragraphs: []dbmodel.Paragraph{
+						Paragraphs: []model.Paragraph{
 							{Text: "subsection 2 par text", Pages: []int32{1}},
 							{Text: "another second text", Pages: []int32{1}},
 						},
@@ -82,42 +82,42 @@ func TestModelMapping(t *testing.T) {
 		{
 			name:   "Paragraphs before the first non-work heading",
 			volume: 1,
-			sections: []model.Section{{
-				Heading: model.Heading{
-					Level:     model.HWork,
+			sections: []treemodel.Section{{
+				Heading: treemodel.Heading{
+					Level:     treemodel.HWork,
 					TocTitle:  "work title TOC text",
 					TextTitle: "work title",
 					Year:      "1724",
 				},
 				Paragraphs: []string{"paragraph 1 text", "some other paragraph text"},
-				Sections:   []model.Section{},
+				Sections:   []treemodel.Section{},
 			}},
 			expectError: true,
 		},
 		{
 			name:   "Multiple nested works and sections are mapped",
 			volume: 2,
-			sections: []model.Section{
+			sections: []treemodel.Section{
 				{
-					Heading: model.Heading{Level: model.HWork},
-					Sections: []model.Section{
+					Heading: treemodel.Heading{Level: treemodel.HWork},
+					Sections: []treemodel.Section{
 						{
-							Heading: model.Heading{Level: model.H1},
-							Sections: []model.Section{
+							Heading: treemodel.Heading{Level: treemodel.H1},
+							Sections: []treemodel.Section{
 								{
-									Heading: model.Heading{Level: model.H2},
-									Sections: []model.Section{
+									Heading: treemodel.Heading{Level: treemodel.H2},
+									Sections: []treemodel.Section{
 										{
-											Heading: model.Heading{Level: model.H3},
-											Sections: []model.Section{
+											Heading: treemodel.Heading{Level: treemodel.H3},
+											Sections: []treemodel.Section{
 												{
-													Heading: model.Heading{Level: model.H4},
-													Sections: []model.Section{
+													Heading: treemodel.Heading{Level: treemodel.H4},
+													Sections: []treemodel.Section{
 														{
-															Heading: model.Heading{Level: model.H5},
-															Sections: []model.Section{
+															Heading: treemodel.Heading{Level: treemodel.H5},
+															Sections: []treemodel.Section{
 																{
-																	Heading: model.Heading{Level: model.H6},
+																	Heading: treemodel.Heading{Level: treemodel.H6},
 																},
 															},
 														},
@@ -125,43 +125,43 @@ func TestModelMapping(t *testing.T) {
 												},
 											},
 										},
-										{Heading: model.Heading{Level: model.H3}},
+										{Heading: treemodel.Heading{Level: treemodel.H3}},
 									},
 								},
-								{Heading: model.Heading{Level: model.H2}},
-								{Heading: model.Heading{Level: model.H2}},
+								{Heading: treemodel.Heading{Level: treemodel.H2}},
+								{Heading: treemodel.Heading{Level: treemodel.H2}},
 							},
 						},
 					},
 				},
 				{
-					Heading:  model.Heading{Level: model.HWork},
-					Sections: []model.Section{{Heading: model.Heading{Level: model.H1}}},
+					Heading:  treemodel.Heading{Level: treemodel.HWork},
+					Sections: []treemodel.Section{{Heading: treemodel.Heading{Level: treemodel.H1}}},
 				},
 				{
-					Heading:  model.Heading{Level: model.HWork},
-					Sections: []model.Section{{Heading: model.Heading{Level: model.H1}}},
+					Heading:  treemodel.Heading{Level: treemodel.HWork},
+					Sections: []treemodel.Section{{Heading: treemodel.Heading{Level: treemodel.H1}}},
 				},
 			},
-			model: []dbmodel.Work{
+			model: []model.Work{
 				{
-					Sections: []dbmodel.Section{{
-						Heading: dbmodel.Heading{Text: util.FmtHeading(1, ""), Pages: []int32{1}},
-						Sections: []dbmodel.Section{
+					Sections: []model.Section{{
+						Heading: model.Heading{Text: util.FmtHeading(1, ""), Pages: []int32{1}},
+						Sections: []model.Section{
 							{
-								Heading: dbmodel.Heading{Text: util.FmtHeading(2, ""), Pages: []int32{1}},
-								Sections: []dbmodel.Section{
+								Heading: model.Heading{Text: util.FmtHeading(2, ""), Pages: []int32{1}},
+								Sections: []model.Section{
 									{
-										Heading: dbmodel.Heading{Text: util.FmtHeading(3, ""), Pages: []int32{1}},
-										Sections: []dbmodel.Section{
+										Heading: model.Heading{Text: util.FmtHeading(3, ""), Pages: []int32{1}},
+										Sections: []model.Section{
 											{
-												Heading: dbmodel.Heading{Text: util.FmtHeading(4, ""), Pages: []int32{1}},
-												Sections: []dbmodel.Section{
+												Heading: model.Heading{Text: util.FmtHeading(4, ""), Pages: []int32{1}},
+												Sections: []model.Section{
 													{
-														Heading: dbmodel.Heading{Text: util.FmtHeading(5, ""), Pages: []int32{1}},
-														Sections: []dbmodel.Section{
+														Heading: model.Heading{Text: util.FmtHeading(5, ""), Pages: []int32{1}},
+														Sections: []model.Section{
 															{
-																Heading: dbmodel.Heading{Text: util.FmtHeading(6, ""), Pages: []int32{1}},
+																Heading: model.Heading{Text: util.FmtHeading(6, ""), Pages: []int32{1}},
 															},
 														},
 													},
@@ -169,32 +169,32 @@ func TestModelMapping(t *testing.T) {
 											},
 										},
 									},
-									{Heading: dbmodel.Heading{Text: util.FmtHeading(3, ""), Pages: []int32{1}}},
+									{Heading: model.Heading{Text: util.FmtHeading(3, ""), Pages: []int32{1}}},
 								},
 							},
-							{Heading: dbmodel.Heading{Text: util.FmtHeading(2, ""), Pages: []int32{1}}},
-							{Heading: dbmodel.Heading{Text: util.FmtHeading(2, ""), Pages: []int32{1}}},
+							{Heading: model.Heading{Text: util.FmtHeading(2, ""), Pages: []int32{1}}},
+							{Heading: model.Heading{Text: util.FmtHeading(2, ""), Pages: []int32{1}}},
 						},
 					}},
 				},
-				{Sections: []dbmodel.Section{{Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")}}}},
-				{Sections: []dbmodel.Section{{Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")}}}},
+				{Sections: []model.Section{{Heading: model.Heading{Text: util.FmtHeading(1, "")}}}},
+				{Sections: []model.Section{{Heading: model.Heading{Text: util.FmtHeading(1, "")}}}},
 			},
 		},
 		{
 			name:   "Extract pages and footnote references from paragraphs",
 			volume: 3,
-			sections: []model.Section{{
-				Heading: model.Heading{Level: model.HWork},
-				Sections: []model.Section{
+			sections: []treemodel.Section{{
+				Heading: treemodel.Heading{Level: treemodel.HWork},
+				Sections: []treemodel.Section{
 					{
-						Heading: model.Heading{Level: model.H1},
+						Heading: treemodel.Heading{Level: treemodel.H1},
 						Paragraphs: []string{
 							"This paragraph ends with a page." + fnRef(482, 148) + page(3),
 							page(82) + "This paragraph" + fnRef(4, 2) + "starts with a page.",
 						},
-						Sections: []model.Section{{
-							Heading: model.Heading{Level: model.H2},
+						Sections: []treemodel.Section{{
+							Heading: treemodel.Heading{Level: treemodel.H2},
 							Paragraphs: []string{
 								fnRef(2, 64) + page(120),
 								"This " + fnRef(83, 3) + "is a" + page(254) + " test text.",
@@ -204,10 +204,10 @@ func TestModelMapping(t *testing.T) {
 					},
 				},
 			}},
-			model: []dbmodel.Work{{
-				Sections: []dbmodel.Section{{
-					Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")},
-					Paragraphs: []dbmodel.Paragraph{
+			model: []model.Work{{
+				Sections: []model.Section{{
+					Heading: model.Heading{Text: util.FmtHeading(1, "")},
+					Paragraphs: []model.Paragraph{
 						{
 							Text:   "This paragraph ends with a page." + fnRef(482, 148) + page(3),
 							Pages:  []int32{2, 3},
@@ -219,10 +219,10 @@ func TestModelMapping(t *testing.T) {
 							FnRefs: []string{"4.2"},
 						},
 					},
-					Sections: []dbmodel.Section{
+					Sections: []model.Section{
 						{
-							Heading: dbmodel.Heading{Text: util.FmtHeading(2, "")},
-							Paragraphs: []dbmodel.Paragraph{
+							Heading: model.Heading{Text: util.FmtHeading(2, "")},
+							Paragraphs: []model.Paragraph{
 								{
 									Text:   fnRef(2, 64) + page(120),
 									Pages:  []int32{120},
@@ -252,16 +252,16 @@ func TestModelMapping(t *testing.T) {
 		{
 			name:   "Map footnote",
 			volume: 1,
-			sections: []model.Section{{
-				Heading: model.Heading{Level: model.HWork},
-				Sections: []model.Section{
+			sections: []treemodel.Section{{
+				Heading: treemodel.Heading{Level: treemodel.HWork},
+				Sections: []treemodel.Section{
 					{
-						Heading:    model.Heading{Level: model.H1, TextTitle: util.FmtPage(1)},
+						Heading:    treemodel.Heading{Level: treemodel.H1, TextTitle: util.FmtPage(1)},
 						Paragraphs: []string{util.FmtPage(5)},
 					},
 				},
 			}},
-			footnotes: []model.Footnote{
+			footnotes: []treemodel.Footnote{
 				{
 					Page: 2,
 					Nr:   5,
@@ -273,18 +273,18 @@ func TestModelMapping(t *testing.T) {
 					Text: "This is a " + page(5) + " footnote with a page.",
 				},
 			},
-			model: []dbmodel.Work{{
-				Sections: []dbmodel.Section{{
-					Heading: dbmodel.Heading{
+			model: []model.Work{{
+				Sections: []model.Section{{
+					Heading: model.Heading{
 						Text:  util.FmtHeading(1, util.FmtPage(1)),
 						Pages: []int32{1},
 					},
-					Paragraphs: []dbmodel.Paragraph{{
+					Paragraphs: []model.Paragraph{{
 						Text:  util.FmtPage(5),
 						Pages: []int32{5},
 					}},
 				}},
-				Footnotes: []dbmodel.Footnote{
+				Footnotes: []model.Footnote{
 					{
 						Ref:   "2.5",
 						Text:  "This is a simple footnote.",
@@ -301,16 +301,16 @@ func TestModelMapping(t *testing.T) {
 		{
 			name:   "Map footnote with non matching page numbers",
 			volume: 1,
-			sections: []model.Section{{
-				Heading: model.Heading{Level: model.HWork},
-				Sections: []model.Section{
+			sections: []treemodel.Section{{
+				Heading: treemodel.Heading{Level: treemodel.HWork},
+				Sections: []treemodel.Section{
 					{
-						Heading:    model.Heading{Level: model.H1, TextTitle: util.FmtPage(1)},
+						Heading:    treemodel.Heading{Level: treemodel.H1, TextTitle: util.FmtPage(1)},
 						Paragraphs: []string{util.FmtPage(5)},
 					},
 				},
 			}},
-			footnotes: []model.Footnote{{
+			footnotes: []treemodel.Footnote{{
 				Page: 43,
 				Nr:   348,
 				Text: "Summary with non " + page(56) + " matching page numbers",
@@ -320,16 +320,16 @@ func TestModelMapping(t *testing.T) {
 		{
 			name:   "Map summary with non matching page numbers",
 			volume: 1,
-			sections: []model.Section{{
-				Heading: model.Heading{Level: model.HWork},
-				Sections: []model.Section{
+			sections: []treemodel.Section{{
+				Heading: treemodel.Heading{Level: treemodel.HWork},
+				Sections: []treemodel.Section{
 					{
-						Heading:    model.Heading{Level: model.H1, TextTitle: util.FmtPage(1)},
+						Heading:    treemodel.Heading{Level: treemodel.H1, TextTitle: util.FmtPage(1)},
 						Paragraphs: []string{util.FmtPage(5)},
 					},
 				},
 			}},
-			summaries: []model.Summary{{
+			summaries: []treemodel.Summary{{
 				Page: 43,
 				Line: 348,
 				Text: "Summary with non " + page(56) + " matching page numbers",
@@ -339,11 +339,11 @@ func TestModelMapping(t *testing.T) {
 		{
 			name:   "Merge summaries into paragraphs",
 			volume: 1,
-			sections: []model.Section{
+			sections: []treemodel.Section{
 				{
-					Heading: model.Heading{Level: model.HWork},
-					Sections: []model.Section{{
-						Heading: model.Heading{Level: model.H1},
+					Heading: treemodel.Heading{Level: treemodel.HWork},
+					Sections: []treemodel.Section{{
+						Heading: treemodel.Heading{Level: treemodel.H1},
 						Paragraphs: []string{
 							page(43) + line(348) + "I'm a paragraph.",
 							line(58685) + "I'm a paragraph without a page number.",
@@ -351,25 +351,25 @@ func TestModelMapping(t *testing.T) {
 					}},
 				},
 				{
-					Heading: model.Heading{Level: model.HWork},
-					Sections: []model.Section{{
-						Heading: model.Heading{Level: model.H1},
+					Heading: treemodel.Heading{Level: treemodel.HWork},
+					Sections: []treemodel.Section{{
+						Heading: treemodel.Heading{Level: treemodel.H1},
 						Paragraphs: []string{
 							line(5) + "I'm a paragraph with " + page(483) + " a page break inside.",
 						},
 					}},
 				},
 			},
-			summaries: []model.Summary{
+			summaries: []treemodel.Summary{
 				{Page: 43, Line: 348, Text: "Summary 1"},
 				{Page: 43, Line: 58685, Text: "Summary 2"},
 				{Page: 482, Line: 5, Text: "Summary 3"},
 			},
-			model: []dbmodel.Work{
+			model: []model.Work{
 				{
-					Sections: []dbmodel.Section{{
-						Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")},
-						Paragraphs: []dbmodel.Paragraph{
+					Sections: []model.Section{{
+						Heading: model.Heading{Text: util.FmtHeading(1, "")},
+						Paragraphs: []model.Paragraph{
 							{
 								Text:  sumRef(43, 348) + page(43) + line(348) + "I'm a paragraph.",
 								Pages: []int32{43},
@@ -380,22 +380,22 @@ func TestModelMapping(t *testing.T) {
 							},
 						},
 					}},
-					Summaries: []dbmodel.Summary{
+					Summaries: []model.Summary{
 						{Ref: "43.348", Text: "Summary 1", Pages: []int32{43}},
 						{Ref: "43.58685", Text: "Summary 2", Pages: []int32{43}},
 					},
 				},
 				{
-					Sections: []dbmodel.Section{{
-						Heading: dbmodel.Heading{Text: util.FmtHeading(1, "")},
-						Paragraphs: []dbmodel.Paragraph{
+					Sections: []model.Section{{
+						Heading: model.Heading{Text: util.FmtHeading(1, "")},
+						Paragraphs: []model.Paragraph{
 							{
 								Text:  sumRef(482, 5) + line(5) + "I'm a paragraph with " + page(483) + " a page break inside.",
 								Pages: []int32{482, 483},
 							},
 						},
 					}},
-					Summaries: []dbmodel.Summary{
+					Summaries: []model.Summary{
 						{Ref: "482.5", Text: "Summary 3", Pages: []int32{482}},
 					},
 				},
@@ -404,18 +404,18 @@ func TestModelMapping(t *testing.T) {
 		{
 			name:   "Merge summary that starts in the middle of a paragraph",
 			volume: 1,
-			sections: []model.Section{{
-				Heading: model.Heading{Level: model.HWork},
-				Sections: []model.Section{
+			sections: []treemodel.Section{{
+				Heading: treemodel.Heading{Level: treemodel.HWork},
+				Sections: []treemodel.Section{
 					{
-						Heading: model.Heading{Level: model.H1, TextTitle: util.FmtPage(1)},
+						Heading: treemodel.Heading{Level: treemodel.H1, TextTitle: util.FmtPage(1)},
 						Paragraphs: []string{
 							page(95) + line(123) + "I'm a sentence." + page(96) + line(31) + "I'm another sentence.",
 						},
 					},
 				},
 			}},
-			summaries: []model.Summary{{
+			summaries: []treemodel.Summary{{
 				Page: 96,
 				Line: 31,
 				Text: "Summary.",
@@ -440,7 +440,7 @@ func TestModelMapping(t *testing.T) {
 	}
 }
 
-func assertWork(t *testing.T, exp dbmodel.Work, act dbmodel.Work) {
+func assertWork(t *testing.T, exp model.Work, act model.Work) {
 	assert.NotNil(t, exp)
 	assert.NotNil(t, act)
 	assert.Equal(t, commonutil.ToStrVal(exp.Year), commonutil.ToStrVal(act.Year))
@@ -459,7 +459,7 @@ func assertWork(t *testing.T, exp dbmodel.Work, act dbmodel.Work) {
 	}
 }
 
-func assertSections(t *testing.T, exp dbmodel.Section, act dbmodel.Section) {
+func assertSections(t *testing.T, exp model.Section, act model.Section) {
 	assert.Equal(t, exp.Heading.Text, act.Heading.Text)
 	assert.Equal(t, exp.Heading.TocText, act.Heading.TocText)
 	assert.Equal(t, len(exp.Paragraphs), len(act.Paragraphs))
@@ -472,19 +472,19 @@ func assertSections(t *testing.T, exp dbmodel.Section, act dbmodel.Section) {
 	}
 }
 
-func assertParagraph(t *testing.T, exp dbmodel.Paragraph, act dbmodel.Paragraph) {
+func assertParagraph(t *testing.T, exp model.Paragraph, act model.Paragraph) {
 	assert.Equal(t, exp.Text, act.Text)
 	assert.ElementsMatch(t, exp.Pages, act.Pages)
 	assert.ElementsMatch(t, exp.FnRefs, act.FnRefs)
 }
 
-func assertFootnote(t *testing.T, exp dbmodel.Footnote, act dbmodel.Footnote) {
+func assertFootnote(t *testing.T, exp model.Footnote, act model.Footnote) {
 	assert.Equal(t, exp.Ref, act.Ref)
 	assert.Equal(t, exp.Text, act.Text)
 	assert.ElementsMatch(t, exp.Pages, act.Pages)
 }
 
-func assertSummary(t *testing.T, exp dbmodel.Summary, act dbmodel.Summary) {
+func assertSummary(t *testing.T, exp model.Summary, act model.Summary) {
 	assert.Equal(t, exp.Ref, act.Ref)
 	assert.Equal(t, exp.Text, act.Text)
 	assert.ElementsMatch(t, exp.Pages, act.Pages)
