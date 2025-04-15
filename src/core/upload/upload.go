@@ -14,7 +14,7 @@ import (
 )
 
 type UploadProcessor interface {
-	Process(ctx context.Context, volNum int32, xml string) errors.ErrorNew
+	Process(ctx context.Context, volNum int32, xml string) errors.UploadError
 }
 
 type uploadProcessorImpl struct {
@@ -34,7 +34,7 @@ func NewUploadProcessor(volumeRepo dataaccess.VolumeRepo, workRepo dataaccess.Wo
 	return &processor
 }
 
-func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml string) errors.ErrorNew {
+func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml string) errors.UploadError {
 	vol, err := rec.xmlMapper.MapVolume(volNr, xml)
 	if err.HasError {
 		return err

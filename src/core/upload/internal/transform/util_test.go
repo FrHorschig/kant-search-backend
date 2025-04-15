@@ -15,7 +15,7 @@ func TestExtractText(t *testing.T) {
 		before         string
 		child          *etree.Element
 		switchFnString string
-		switchFnErr    errors.ErrorNew
+		switchFnErr    errors.UploadError
 		after          string
 		expected       string
 		expectError    bool
@@ -66,7 +66,7 @@ func TestExtractText(t *testing.T) {
 			if tc.after != "" {
 				el.CreateText(tc.after)
 			}
-			switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+			switchFn := func(el *etree.Element) (string, errors.UploadError) {
 				return tc.switchFnString, tc.switchFnErr
 			}
 

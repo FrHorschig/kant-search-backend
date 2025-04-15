@@ -27,7 +27,6 @@ type Heading struct {
 	TocText string
 	Pages   []int32
 	FnRefs  []string
-	WorkId  int32
 }
 
 type Paragraph struct {
@@ -35,14 +34,12 @@ type Paragraph struct {
 	Pages      []int32
 	FnRefs     []string
 	SummaryRef *string
-	WorkId     int32
 }
 
 type Footnote struct {
-	Ref    string
-	Text   string
-	Pages  []int32
-	WorkId int32
+	Ref   string
+	Text  string
+	Pages []int32
 }
 
 type Summary struct {
@@ -50,5 +47,4 @@ type Summary struct {
 	Text   string
 	Pages  []int32
 	FnRefs []string
-	WorkId int32
 }

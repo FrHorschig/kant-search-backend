@@ -11,7 +11,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-func MapToTree(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.ErrorNew) {
+func MapToTree(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.UploadError) {
 	works, err := findSections(doc.FindElement("//hauptteil"))
 	if err.HasError {
 		return nil, nil, nil, err
@@ -27,7 +27,7 @@ func MapToTree(doc *etree.Document) ([]model.Section, []model.Summary, []model.F
 	return works, summaries, footnotes, errors.NilError()
 }
 
-func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
+func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError) {
 	secs := make([]model.Section, 0)
 	var currentSec *model.Section
 	currentYear := ""
@@ -122,7 +122,7 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.ErrorNew) {
 	return secs, errors.NilError()
 }
 
-func findSummaries(randtexte *etree.Element) ([]model.Summary, errors.ErrorNew) {
+func findSummaries(randtexte *etree.Element) ([]model.Summary, errors.UploadError) {
 	if randtexte == nil {
 		return []model.Summary{}, errors.NilError()
 	}
@@ -137,7 +137,7 @@ func findSummaries(randtexte *etree.Element) ([]model.Summary, errors.ErrorNew) 
 	return result, errors.NilError()
 }
 
-func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.ErrorNew) {
+func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.UploadError) {
 	if fussnoten == nil {
 		return []model.Footnote{}, errors.NilError()
 	}

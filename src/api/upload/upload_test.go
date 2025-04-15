@@ -38,7 +38,7 @@ func TestUploadHandler(t *testing.T) {
 		name        string
 		xml         string
 		mockSuccess bool
-		mockError   errors.ErrorNew
+		mockError   errors.UploadError
 		wantCode    int
 		wantMsg     string
 	}{

@@ -11,8 +11,8 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-func antiqua(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func antiqua(elem *etree.Element) (string, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "fett":
 			return fett(el)
@@ -45,8 +45,8 @@ func em1(elem *etree.Element) string {
 	return util.FmtEmph(strings.TrimSpace(elem.Text()))
 }
 
-func em2(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func em2(elem *etree.Element) (string, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "bild":
 			return bildBildverweis(el), errors.NilError()
@@ -87,8 +87,8 @@ func em2(elem *etree.Element) (string, errors.ErrorNew) {
 	return util.FmtEmph2(extracted), errors.NilError()
 }
 
-func fett(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func fett(elem *etree.Element) (string, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "seite":
 			return seite(el)
@@ -107,8 +107,8 @@ func fett(elem *etree.Element) (string, errors.ErrorNew) {
 	return util.FmtBold(extracted), errors.NilError()
 }
 
-func formel(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func formel(elem *etree.Element) (string, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "em1":
 			return em1(el), errors.NilError()
@@ -123,7 +123,7 @@ func formel(elem *etree.Element) (string, errors.ErrorNew) {
 	return util.FmtFormula(extracted), errors.NilError()
 }
 
-func fr(elem *etree.Element) (string, errors.ErrorNew) {
+func fr(elem *etree.Element) (string, errors.UploadError) {
 	page, err := util.ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return "", err
@@ -135,8 +135,8 @@ func fr(elem *etree.Element) (string, errors.ErrorNew) {
 	return util.FmtFnRef(page, nr), errors.NilError()
 }
 
-func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func fremdsprache(elem *etree.Element) (string, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "bild":
 			return bildBildverweis(el), errors.NilError()
@@ -177,8 +177,8 @@ func fremdsprache(elem *etree.Element) (string, errors.ErrorNew) {
 	return util.FmtLang(extracted), errors.NilError()
 }
 
-func gesperrt(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func gesperrt(elem *etree.Element) (string, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "fett":
 			return fett(el)
@@ -201,8 +201,8 @@ func gesperrt(elem *etree.Element) (string, errors.ErrorNew) {
 	return util.FmtTracked(extracted), errors.NilError()
 }
 
-func name(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func name(elem *etree.Element) (string, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "seite":
 			return seite(el)
@@ -217,7 +217,7 @@ func name(elem *etree.Element) (string, errors.ErrorNew) {
 	return extractText(elem, switchFn)
 }
 
-func romzahl(elem *etree.Element) (string, errors.ErrorNew) {
+func romzahl(elem *etree.Element) (string, errors.UploadError) {
 	content := strings.TrimSpace(elem.Text())
 	re := regexp.MustCompile(`^(\d+)(\.)?$`)
 	matches := re.FindStringSubmatch(content)
@@ -231,7 +231,7 @@ func romzahl(elem *etree.Element) (string, errors.ErrorNew) {
 	return arabicToRoman(num) + matches[2], errors.NilError()
 }
 
-func zeile(elem *etree.Element) (string, errors.ErrorNew) {
+func zeile(elem *etree.Element) (string, errors.UploadError) {
 	line, err := util.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
