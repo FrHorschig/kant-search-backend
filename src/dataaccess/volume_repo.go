@@ -10,15 +10,16 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/deletebyquery"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/result"
-	"github.com/frhorschig/kant-search-backend/dataaccess/internal/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
 type VolumeRepo interface {
 	Insert(ctx context.Context, data *esmodel.Volume) error
-	Get(ctx context.Context, volNum int32) (*esmodel.Volume, error)
+	GetAll(ctx context.Context) ([]esmodel.Volume, error)
 	Delete(ctx context.Context, volNum int32) error
 }
 
@@ -42,7 +43,7 @@ func NewVolumeRepo(dbClient *elasticsearch.TypedClient) VolumeRepo {
 // TODO disallow partial results everywhere
 
 func (rec *volumeRepoImpl) Insert(ctx context.Context, data *esmodel.Volume) error {
-	existing, err := rec.Get(ctx, data.VolumeNumber)
+	existing, err := getByVolumeNumber(ctx, rec.dbClient, rec.indexName, data.VolumeNumber)
 	if err != nil {
 		return err
 	}
@@ -60,8 +61,47 @@ func (rec *volumeRepoImpl) Insert(ctx context.Context, data *esmodel.Volume) err
 	return err
 }
 
-func (rec *volumeRepoImpl) Get(ctx context.Context, volNum int32) (*esmodel.Volume, error) {
+func (rec *volumeRepoImpl) GetAll(ctx context.Context) ([]esmodel.Volume, error) {
 	res, err := rec.dbClient.Search().Index(rec.indexName).
+		Request(&search.Request{
+			Query: &types.Query{MatchAll: &types.MatchAllQuery{}},
+		}).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	volumes := []esmodel.Volume{}
+	for _, hit := range res.Hits.Hits {
+		var vol esmodel.Volume
+		err = json.Unmarshal(hit.Source_, &vol)
+		if err != nil {
+			return nil, err
+		}
+		volumes = append(volumes, vol)
+	}
+	return volumes, nil
+}
+
+func (rec *volumeRepoImpl) Delete(ctx context.Context, volNum int32) error {
+	res, err := rec.dbClient.DeleteByQuery(rec.indexName).Request(&deletebyquery.Request{
+		Query: createTermQuery("volumeNumber", volNum),
+	}).Do(ctx)
+	if err != nil {
+		return err
+	}
+
+	if len(res.Failures) > 0 {
+		e := res.Failures[0].Cause.Reason
+		if e != nil {
+			log.Error().Msgf("Failed to delete content: %s", *e)
+		}
+		return fmt.Errorf("unable to delete volume %d", volNum)
+	}
+	return nil
+}
+
+func getByVolumeNumber(ctx context.Context, dbClient *elasticsearch.TypedClient, indexName string, volNum int32) (*esmodel.Volume, error) {
+	res, err := dbClient.Search().Index(indexName).
 		Request(&search.Request{
 			Query: createTermQuery("volumeNumber", volNum),
 		}).Do(ctx)
@@ -82,22 +122,4 @@ func (rec *volumeRepoImpl) Get(ctx context.Context, volNum int32) (*esmodel.Volu
 		return nil, err
 	}
 	return &vol, nil
-}
-
-func (rec *volumeRepoImpl) Delete(ctx context.Context, volNum int32) error {
-	res, err := rec.dbClient.DeleteByQuery(rec.indexName).Request(&deletebyquery.Request{
-		Query: createTermQuery("volumeNumber", volNum),
-	}).Do(ctx)
-	if err != nil {
-		return err
-	}
-
-	if len(res.Failures) > 0 {
-		e := res.Failures[0].Cause.Reason
-		if e != nil {
-			log.Error().Msgf("Failed to delete content: %s", *e)
-		}
-		return fmt.Errorf("unable to delete volume %d", volNum)
-	}
-	return nil
 }

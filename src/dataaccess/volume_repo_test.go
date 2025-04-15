@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/frhorschig/kant-search-backend/dataaccess/internal/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,9 +21,19 @@ func TestVolumeRepo(t *testing.T) {
 		Section:      2,
 		Title:        "volume title",
 		Works: []esmodel.WorkRef{{
-			Id:    "work id",
+			Id:    "workId",
 			Code:  "code",
 			Title: "work title",
+		}},
+	}
+	vol2 := esmodel.Volume{
+		VolumeNumber: 2,
+		Section:      3,
+		Title:        "volume title 2",
+		Works: []esmodel.WorkRef{{
+			Id:    "workId2",
+			Code:  "code2",
+			Title: "work title 2",
 		}},
 	}
 
@@ -39,22 +49,43 @@ func TestVolumeRepo(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "already exists")
 
-	// WHEN Get
-	res, err := repo.Get(ctx, vol.VolumeNumber)
+	// WHEN Insert 2nd
+	err = repo.Insert(ctx, &vol2)
 	// THEN
 	assert.Nil(t, err)
-	assert.NotNil(t, res)
-	assert.Equal(t, vol, *res)
+	refreshVolumes(t)
+
+	// WHEN Get
+	res, err := repo.GetAll(ctx)
+	// THEN
+	assert.Nil(t, err)
+	assert.Len(t, res, 2)
+	assert.ElementsMatch(t,
+		[]string{vol.Title, vol2.Title},
+		[]string{res[0].Title, res[1].Title},
+	)
 
 	// WHEN Delete
 	err = repo.Delete(ctx, vol.VolumeNumber)
 	// THEN
 	assert.Nil(t, err)
 	refreshVolumes(t)
-	res, err = repo.Get(ctx, vol.VolumeNumber)
+	res, err = repo.GetAll(ctx)
 	assert.Nil(t, err)
-	assert.Nil(t, res)
+	assert.Len(t, res, 1)
+	assert.Equal(t, vol2.Title, res[0].Title)
+
+	// WHEN Delete 2ns
+	err = repo.Delete(ctx, vol2.VolumeNumber)
+	// THEN
+	assert.Nil(t, err)
+	refreshVolumes(t)
+	res, err = repo.GetAll(ctx)
+	assert.Nil(t, err)
+	assert.Len(t, res, 0)
 }
+
+// TODO test GetAll
 
 func refreshVolumes(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)

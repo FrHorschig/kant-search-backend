@@ -7,7 +7,7 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/result"
-	"github.com/frhorschig/kant-search-backend/dataaccess/internal/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 )
 
