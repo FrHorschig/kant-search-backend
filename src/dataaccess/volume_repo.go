@@ -20,7 +20,8 @@ import (
 type VolumeRepo interface {
 	Insert(ctx context.Context, data *esmodel.Volume) error
 	GetAll(ctx context.Context) ([]esmodel.Volume, error)
-	Delete(ctx context.Context, volNum int32) error
+	GetByVolumeNumber(ctx context.Context, volNum int32) (*esmodel.Volume, error)
+	Delete(ctx context.Context, volNr int32) error
 }
 
 type volumeRepoImpl struct {
@@ -43,7 +44,7 @@ func NewVolumeRepo(dbClient *elasticsearch.TypedClient) VolumeRepo {
 // TODO disallow partial results everywhere
 
 func (rec *volumeRepoImpl) Insert(ctx context.Context, data *esmodel.Volume) error {
-	existing, err := getByVolumeNumber(ctx, rec.dbClient, rec.indexName, data.VolumeNumber)
+	existing, err := rec.GetByVolumeNumber(ctx, data.VolumeNumber)
 	if err != nil {
 		return err
 	}
@@ -82,26 +83,8 @@ func (rec *volumeRepoImpl) GetAll(ctx context.Context) ([]esmodel.Volume, error)
 	return volumes, nil
 }
 
-func (rec *volumeRepoImpl) Delete(ctx context.Context, volNum int32) error {
-	res, err := rec.dbClient.DeleteByQuery(rec.indexName).Request(&deletebyquery.Request{
-		Query: createTermQuery("volumeNumber", volNum),
-	}).Do(ctx)
-	if err != nil {
-		return err
-	}
-
-	if len(res.Failures) > 0 {
-		e := res.Failures[0].Cause.Reason
-		if e != nil {
-			log.Error().Msgf("Failed to delete content: %s", *e)
-		}
-		return fmt.Errorf("unable to delete volume %d", volNum)
-	}
-	return nil
-}
-
-func getByVolumeNumber(ctx context.Context, dbClient *elasticsearch.TypedClient, indexName string, volNum int32) (*esmodel.Volume, error) {
-	res, err := dbClient.Search().Index(indexName).
+func (rec *volumeRepoImpl) GetByVolumeNumber(ctx context.Context, volNum int32) (*esmodel.Volume, error) {
+	res, err := rec.dbClient.Search().Index(rec.indexName).
 		Request(&search.Request{
 			Query: createTermQuery("volumeNumber", volNum),
 		}).Do(ctx)
@@ -122,4 +105,22 @@ func getByVolumeNumber(ctx context.Context, dbClient *elasticsearch.TypedClient,
 		return nil, err
 	}
 	return &vol, nil
+}
+
+func (rec *volumeRepoImpl) Delete(ctx context.Context, volNr int32) error {
+	res, err := rec.dbClient.DeleteByQuery(rec.indexName).Request(&deletebyquery.Request{
+		Query: createTermQuery("volumeNumber", volNr),
+	}).Do(ctx)
+	if err != nil {
+		return err
+	}
+
+	if len(res.Failures) > 0 {
+		e := res.Failures[0].Cause.Reason
+		if e != nil {
+			log.Error().Msgf("Failed to delete content: %s", *e)
+		}
+		return fmt.Errorf("unable to delete volume %d", volNr)
+	}
+	return nil
 }

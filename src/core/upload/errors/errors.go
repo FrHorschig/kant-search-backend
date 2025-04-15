@@ -1,6 +1,6 @@
 package errors
 
-// TODO frhorschig: rename
+// TODO rename
 type ErrorNew struct {
 	HasError       bool
 	DomainError    error
