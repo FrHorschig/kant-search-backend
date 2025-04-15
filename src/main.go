@@ -48,9 +48,27 @@ func initEchoServer() *echo.Echo {
 }
 
 func registerHandlers(e *echo.Echo, uploadHandler apiupload.UploadHandler, readHandler apiread.ReadHandler, searchHandler apisearch.SearchHandler) {
-	// TODO implement me
-	e.POST("/api/write/v1/volumes", func(ctx echo.Context) error {
+	e.POST("/api/v1/upload", func(ctx echo.Context) error {
 		return uploadHandler.PostVolume(ctx)
+	})
+
+	e.GET(("/api/v1/volumes"), func(ctx echo.Context) error {
+		return readHandler.ReadVolumes(ctx)
+	})
+	e.GET(("/api/v1/works/"), func(ctx echo.Context) error {
+		return readHandler.ReadWork(ctx)
+	})
+	e.GET(("/api/v1/works/:workId/footnotes"), func(ctx echo.Context) error {
+		return readHandler.ReadFootnotes(ctx)
+	})
+	e.GET(("/api/v1/works/:workId/headings"), func(ctx echo.Context) error {
+		return readHandler.ReadHeadings(ctx)
+	})
+	e.GET(("/api/v1/works/:workId/paragraphs"), func(ctx echo.Context) error {
+		return readHandler.ReadParagraphs(ctx)
+	})
+	e.GET(("/api/v1/works/:workId/summaries"), func(ctx echo.Context) error {
+		return readHandler.ReadSummaries(ctx)
 	})
 }
 
