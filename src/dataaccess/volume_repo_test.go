@@ -75,6 +75,13 @@ func TestVolumeRepo(t *testing.T) {
 	assert.Len(t, res, 1)
 	assert.Equal(t, vol2.Title, res[0].Title)
 
+	// WHEN Get
+	singleRes, err := repo.GetByVolumeNumber(ctx, vol2.VolumeNumber)
+	// THEN
+	assert.Nil(t, err)
+	assert.NotNil(t, singleRes)
+	assert.Equal(t, vol2.Title, singleRes.Title)
+
 	// WHEN Delete 2ns
 	err = repo.Delete(ctx, vol2.VolumeNumber)
 	// THEN
@@ -83,6 +90,12 @@ func TestVolumeRepo(t *testing.T) {
 	res, err = repo.GetAll(ctx)
 	assert.Nil(t, err)
 	assert.Len(t, res, 0)
+
+	// WHEN Get 2nd
+	singleRes, err = repo.GetByVolumeNumber(ctx, vol2.VolumeNumber)
+	// THEN
+	assert.Nil(t, err)
+	assert.Nil(t, singleRes)
 }
 
 // TODO test GetAll

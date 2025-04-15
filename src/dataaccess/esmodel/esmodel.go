@@ -108,6 +108,7 @@ type Content struct {
 	Id         string   `json:"id"`
 	Ref        *string  `json:"ref"`
 	FmtText    string   `json:"fmtText"`
+	TocText    *string  `json:"tocText"`
 	SearchText string   `json:"searchText"`
 	Pages      []int32  `json:"pages"`
 	FnRefs     []string `json:"fnRefs"`
@@ -121,6 +122,7 @@ var ContentMapping = &types.TypeMapping{
 		"id":         types.NewKeywordProperty(),
 		"ref":        types.NewKeywordProperty(),
 		"fmtText":    types.NewKeywordProperty(),
+		"tocText":    types.NewKeywordProperty(),
 		"searchText": types.NewTextProperty(),
 		"pages":      types.NewKeywordProperty(),
 		"fnRefs":     types.NewKeywordProperty(),
