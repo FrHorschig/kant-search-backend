@@ -20,7 +20,7 @@ func ExtractFnRefs(text string) []string {
 	return result
 }
 
-func ExtractPages(text string) ([]int32, errors.ErrorNew) {
+func ExtractPages(text string) ([]int32, errors.UploadError) {
 	re := regexp.MustCompile(util.PageMatch)
 	matches := re.FindAllStringSubmatch(text, -1)
 

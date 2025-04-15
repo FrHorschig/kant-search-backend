@@ -10,19 +10,19 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-func Hx(el *etree.Element) (model.Heading, errors.ErrorNew) {
+func Hx(el *etree.Element) (model.Heading, errors.UploadError) {
 	return hx(el)
 }
 
-func Hu(el *etree.Element) (string, errors.ErrorNew) {
+func Hu(el *etree.Element) (string, errors.UploadError) {
 	return hu(el)
 }
 
-func P(el *etree.Element) (string, errors.ErrorNew) {
+func P(el *etree.Element) (string, errors.UploadError) {
 	return p(el)
 }
 
-func Seite(el *etree.Element) (string, errors.ErrorNew) {
+func Seite(el *etree.Element) (string, errors.UploadError) {
 	return seite(el)
 }
 
@@ -30,15 +30,15 @@ func Table() string {
 	return table()
 }
 
-func Summary(el *etree.Element) (model.Summary, errors.ErrorNew) {
+func Summary(el *etree.Element) (model.Summary, errors.UploadError) {
 	return summary(el)
 }
 
-func Footnote(el *etree.Element) (model.Footnote, errors.ErrorNew) {
+func Footnote(el *etree.Element) (model.Footnote, errors.UploadError) {
 	return footnote(el)
 }
 
-func hx(elem *etree.Element) (model.Heading, errors.ErrorNew) {
+func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 	textTitle := ""
 	tocTitle := ""
 	for _, ch := range elem.Child {
@@ -126,8 +126,8 @@ func hx(elem *etree.Element) (model.Heading, errors.ErrorNew) {
 	}, errors.NilError()
 }
 
-func hu(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func hu(elem *etree.Element) (string, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "em1":
 			return em1(el), errors.NilError()
@@ -158,8 +158,8 @@ func hu(elem *etree.Element) (string, errors.ErrorNew) {
 	return extractText(elem, switchFn)
 }
 
-func p(elem *etree.Element) (string, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func p(elem *etree.Element) (string, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "antiqua":
 			return antiqua(el)
@@ -202,7 +202,7 @@ func p(elem *etree.Element) (string, errors.ErrorNew) {
 	return extractText(elem, switchFn)
 }
 
-func seite(elem *etree.Element) (string, errors.ErrorNew) {
+func seite(elem *etree.Element) (string, errors.UploadError) {
 	page, err := util.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
@@ -214,8 +214,8 @@ func table() string {
 	return util.TableMatch
 }
 
-func footnote(elem *etree.Element) (model.Footnote, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func footnote(elem *etree.Element) (model.Footnote, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "p":
 			return p(el)
@@ -242,8 +242,8 @@ func footnote(elem *etree.Element) (model.Footnote, errors.ErrorNew) {
 	}, errors.NilError()
 }
 
-func summary(elem *etree.Element) (model.Summary, errors.ErrorNew) {
-	switchFn := func(el *etree.Element) (string, errors.ErrorNew) {
+func summary(elem *etree.Element) (model.Summary, errors.UploadError) {
+	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "p":
 			return p(el)

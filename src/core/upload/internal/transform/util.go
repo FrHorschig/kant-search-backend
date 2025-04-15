@@ -60,7 +60,7 @@ func arabicToRoman(number int64) string {
 	return roman.String()
 }
 
-func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, errors.ErrorNew)) (string, errors.ErrorNew) {
+func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, errors.UploadError)) (string, errors.UploadError) {
 	text := ""
 	for _, ch := range elem.Child {
 		if str, ok := ch.(*etree.CharData); ok {

@@ -9,7 +9,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 )
 
-func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errors.ErrorNew) {
+func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errors.UploadError) {
 	defaultStr := "DEFAULT_STRING"
 	nStr := strings.TrimSpace(el.SelectAttrValue(attr, defaultStr))
 	if nStr == defaultStr {

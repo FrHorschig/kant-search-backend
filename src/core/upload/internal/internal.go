@@ -13,8 +13,8 @@ import (
 )
 
 type XmlMapper interface {
-	MapVolume(volNr int32, xml string) (*model.Volume, errors.ErrorNew)
-	MapWorks(volNr int32, xml string) ([]model.Work, errors.ErrorNew)
+	MapVolume(volNr int32, xml string) (*model.Volume, errors.UploadError)
+	MapWorks(volNr int32, xml string) ([]model.Work, errors.UploadError)
 }
 
 type xmlMapperImpl struct {
@@ -25,7 +25,7 @@ func NewXmlMapper() XmlMapper {
 	return &impl
 }
 
-func (rec *xmlMapperImpl) MapWorks(volNr int32, xml string) ([]model.Work, errors.ErrorNew) {
+func (rec *xmlMapperImpl) MapWorks(volNr int32, xml string) ([]model.Work, errors.UploadError) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
 	sections, summaries, footnotes, err := mapping.MapToTree(doc)
@@ -39,7 +39,7 @@ func (rec *xmlMapperImpl) MapWorks(volNr int32, xml string) ([]model.Work, error
 	return works, errors.NilError()
 }
 
-func (rec *xmlMapperImpl) MapVolume(volNr int32, xml string) (*model.Volume, errors.ErrorNew) {
+func (rec *xmlMapperImpl) MapVolume(volNr int32, xml string) (*model.Volume, errors.UploadError) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
 	volXml := doc.FindElement("//band")

@@ -13,7 +13,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.Summary, footnotes []treemodel.Footnote) ([]model.Work, errors.ErrorNew) {
+func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.Summary, footnotes []treemodel.Footnote) ([]model.Work, errors.UploadError) {
 	works := []model.Work{}
 	for i, w := range sections {
 		work, err := mapWork(w, vol, i)
@@ -52,7 +52,7 @@ func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.S
 	return works, errors.NilError()
 }
 
-func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.ErrorNew) {
+func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.UploadError) {
 	work := model.Work{}
 	work.Code = Metadata[vol-1][index].Code
 	work.Abbreviation = &Metadata[vol-1][index].Abbreviation
@@ -71,7 +71,7 @@ func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.Err
 	return work, errors.NilError()
 }
 
-func mapSection(s treemodel.Section) (model.Section, errors.ErrorNew) {
+func mapSection(s treemodel.Section) (model.Section, errors.UploadError) {
 	section := model.Section{}
 	heading, err := mapHeading(s.Heading)
 	if err.HasError {
@@ -95,7 +95,7 @@ func mapSection(s treemodel.Section) (model.Section, errors.ErrorNew) {
 	return section, errors.NilError()
 }
 
-func mapHeading(h treemodel.Heading) (model.Heading, errors.ErrorNew) {
+func mapHeading(h treemodel.Heading) (model.Heading, errors.UploadError) {
 	pages, err := extract.ExtractPages(h.TextTitle)
 	if err.HasError {
 		return model.Heading{}, err
@@ -109,7 +109,7 @@ func mapHeading(h treemodel.Heading) (model.Heading, errors.ErrorNew) {
 	return heading, errors.NilError()
 }
 
-func mapParagraph(p string) (model.Paragraph, errors.ErrorNew) {
+func mapParagraph(p string) (model.Paragraph, errors.UploadError) {
 	pages, err := extract.ExtractPages(p)
 	if err.HasError {
 		return model.Paragraph{}, err
@@ -122,7 +122,7 @@ func mapParagraph(p string) (model.Paragraph, errors.ErrorNew) {
 	return paragraph, errors.NilError()
 }
 
-func mapFootnote(f treemodel.Footnote) (model.Footnote, errors.ErrorNew) {
+func mapFootnote(f treemodel.Footnote) (model.Footnote, errors.UploadError) {
 	pages, err := extract.ExtractPages(f.Text)
 	if err.HasError {
 		return model.Footnote{}, err
@@ -142,7 +142,7 @@ func mapFootnote(f treemodel.Footnote) (model.Footnote, errors.ErrorNew) {
 	}, errors.NilError()
 }
 
-func mapSummary(s treemodel.Summary) (model.Summary, errors.ErrorNew) {
+func mapSummary(s treemodel.Summary) (model.Summary, errors.UploadError) {
 	pages, err := extract.ExtractPages(s.Text)
 	if err.HasError {
 		return model.Summary{}, err
@@ -225,7 +225,7 @@ func matchFnsToWorks(works []model.Work, fns []model.Footnote) {
 	}
 }
 
-func insertSummaryRefs(works []model.Work) errors.ErrorNew {
+func insertSummaryRefs(works []model.Work) errors.UploadError {
 	for i := range works {
 		w := &works[i]
 		for j := range w.Summaries {
@@ -291,7 +291,7 @@ func findPageLine(name string) (int32, int32) {
 	return int32(page), int32(line)
 }
 
-func insertSummaryRef(summary *model.Summary, sections []model.Section) errors.ErrorNew {
+func insertSummaryRef(summary *model.Summary, sections []model.Section) errors.UploadError {
 	p, err := findSummaryParagraph(summary, sections)
 	if err.HasError {
 		return err
@@ -312,7 +312,7 @@ func insertSummaryRef(summary *model.Summary, sections []model.Section) errors.E
 	return errors.NilError()
 }
 
-func findSummaryParagraph(summary *model.Summary, sections []model.Section) (*model.Paragraph, errors.ErrorNew) {
+func findSummaryParagraph(summary *model.Summary, sections []model.Section) (*model.Paragraph, errors.UploadError) {
 	page, line := findPageLine(summary.Ref)
 	for i := range sections {
 		s := &sections[i]
@@ -339,7 +339,7 @@ func findSummaryParagraph(summary *model.Summary, sections []model.Section) (*mo
 	return nil, errors.NilError()
 }
 
-func isSummaryParagraph(p *model.Paragraph, page, line int32) (bool, errors.ErrorNew) {
+func isSummaryParagraph(p *model.Paragraph, page, line int32) (bool, errors.UploadError) {
 	if !slices.Contains(p.Pages, page) {
 		return false, errors.NilError()
 	}
