@@ -6,7 +6,7 @@ package internal
 import (
 	"testing"
 
-	"github.com/frhorschig/kant-search-backend/common/errors"
+	"github.com/frhorschig/kant-search-backend/api/search/internal/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +14,7 @@ func TestCheckSyntax(t *testing.T) {
 	testCases := []struct {
 		name  string
 		input []Token
-		err   *errors.Error
+		err   *errors.ValidationError
 	}{
 		{
 			name: "success",
@@ -28,14 +28,14 @@ func TestCheckSyntax(t *testing.T) {
 		{
 			name:  "empty input",
 			input: []Token{},
-			err:   &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT},
+			err:   &errors.ValidationError{Msg: errors.UnexpectedEndOfInput},
 		},
 		{
 			name: "NOT without following word",
 			input: []Token{
 				{Text: "!", IsNot: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT},
+			err: &errors.ValidationError{Msg: errors.UnexpectedEndOfInput},
 		},
 		{
 			name: "remaining tokens error",
@@ -45,7 +45,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "world", IsWord: true},
 				{Text: "extra", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"extra"}},
+			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"extra"}},
 		},
 		{
 			name: "phrase OR word",
@@ -107,7 +107,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "(", IsOpen: true},
 				{Text: ")", IsClose: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{")"}},
+			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{")"}},
 		},
 		{
 			name: "missing closing parenthesis",
@@ -117,7 +117,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.MISSING_CLOSING_PARENTHESIS},
+			err: &errors.ValidationError{Msg: errors.MissingCloseParenthesis},
 		},
 		{
 			name: "OR following AND",
@@ -127,7 +127,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"|"}},
+			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"|"}},
 		},
 		{
 			name: "AND following OR",
@@ -137,7 +137,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "&", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"&"}},
+			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"&"}},
 		},
 		{
 			name: "starts with OR",
@@ -145,7 +145,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"|"}},
+			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"|"}},
 		},
 		{
 			name: "starts with AND",
@@ -153,7 +153,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "&", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_TOKEN, Params: []string{"&"}},
+			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"&"}},
 		},
 		{
 			name: "ends with OR",
@@ -161,7 +161,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "world", IsWord: true},
 				{Text: "|", IsOr: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT},
+			err: &errors.ValidationError{Msg: errors.UnexpectedEndOfInput},
 		},
 		{
 			name: "ends with AND",
@@ -169,7 +169,7 @@ func TestCheckSyntax(t *testing.T) {
 				{Text: "world", IsWord: true},
 				{Text: "&", IsOr: true},
 			},
-			err: &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT},
+			err: &errors.ValidationError{Msg: errors.UnexpectedEndOfInput},
 		},
 	}
 

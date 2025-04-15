@@ -3,8 +3,9 @@ package read
 import (
 	"net/http"
 
-	"github.com/frhorschig/kant-search-backend/api/internal/errors"
-	"github.com/frhorschig/kant-search-backend/api/internal/mapping"
+	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-backend/api/read/internal/errors"
+	"github.com/frhorschig/kant-search-backend/api/read/internal/mapping"
 	"github.com/frhorschig/kant-search-backend/core/read"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
@@ -42,8 +43,8 @@ func (rec *readHandlerImpl) ReadWork(ctx echo.Context) error {
 	workId := ctx.Param("workId")
 	if workId == "" {
 		msg := "empty work ID"
-		log.Error().Msgf(msg)
-		return errors.BadRequest(ctx, msg)
+		log.Error().Msg(msg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
 	work, err := rec.readProcessor.ProcessWork(ctx.Request().Context(), workId)
@@ -63,8 +64,8 @@ func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
 	workId := ctx.Param("workId")
 	if workId == "" {
 		msg := "empty work ID"
-		log.Error().Msgf(msg)
-		return errors.BadRequest(ctx, msg)
+		log.Error().Msg(msg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
 	footnotes, err := rec.readProcessor.ProcessFootnotes(ctx.Request().Context(), workId)
@@ -73,6 +74,7 @@ func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
 		return errors.InternalServerError(ctx)
 	}
 
+	// TODO here and below: return 404 if nothing is found, because that means that there is no work with this ID
 	apiFootnotes := mapping.FootnotesToApiModels(footnotes)
 	return ctx.JSON(http.StatusOK, apiFootnotes)
 }
@@ -81,8 +83,8 @@ func (rec *readHandlerImpl) ReadHeadings(ctx echo.Context) error {
 	workId := ctx.Param("workId")
 	if workId == "" {
 		msg := "empty work ID"
-		log.Error().Msgf(msg)
-		return errors.BadRequest(ctx, msg)
+		log.Error().Msg(msg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
 	headings, err := rec.readProcessor.ProcessHeadings(ctx.Request().Context(), workId)
@@ -99,8 +101,8 @@ func (rec *readHandlerImpl) ReadParagraphs(ctx echo.Context) error {
 	workId := ctx.Param("workId")
 	if workId == "" {
 		msg := "empty work ID"
-		log.Error().Msgf(msg)
-		return errors.BadRequest(ctx, msg)
+		log.Error().Msg(msg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
 	paragraphs, err := rec.readProcessor.ProcessParagraphs(ctx.Request().Context(), workId)
@@ -117,8 +119,8 @@ func (rec *readHandlerImpl) ReadSummaries(ctx echo.Context) error {
 	workId := ctx.Param("workId")
 	if workId == "" {
 		msg := "empty work ID"
-		log.Error().Msgf(msg)
-		return errors.BadRequest(ctx, msg)
+		log.Error().Msg(msg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
 	summaries, err := rec.readProcessor.ProcessSummaries(ctx.Request().Context(), workId)

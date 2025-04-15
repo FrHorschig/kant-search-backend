@@ -4,14 +4,22 @@ type SearchScope string
 
 const (
 	ParagraphScope SearchScope = "PARAGRAPH"
-	SentenceScope  SearchScope = "SENTENCE"
 )
 
 type SearchOptions struct {
-	Scope SearchScope
+	IncludeHeadings bool
+	Scope           SearchScope
 }
 type SearchCriteria struct {
-	WorkIds      []int32
+	WorkIds      []string
 	SearchString string
 	Options      SearchOptions
+}
+
+type SearchResult struct {
+	Snippet   string
+	Text      string
+	Pages     []int32
+	ContentId string
+	WorkId    string
 }

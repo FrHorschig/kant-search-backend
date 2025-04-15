@@ -1,11 +1,11 @@
 package validation
 
 import (
-	"github.com/frhorschig/kant-search-backend/api/search/validation/internal"
-	"github.com/frhorschig/kant-search-backend/common/errors"
+	"github.com/frhorschig/kant-search-backend/api/search/internal/errors"
+	"github.com/frhorschig/kant-search-backend/api/search/internal/validation/internal"
 )
 
-func CheckSyntax(searchTerms string) (string, *errors.Error) {
+func CheckSyntax(searchTerms string) (string, *errors.ValidationError) {
 	tokens, err := internal.Tokenize(searchTerms)
 	if err != nil {
 		return "", err

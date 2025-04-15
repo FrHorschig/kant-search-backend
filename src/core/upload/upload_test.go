@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/frhorschig/kant-search-backend/common/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	dbMocks "github.com/frhorschig/kant-search-backend/dataaccess/mocks"

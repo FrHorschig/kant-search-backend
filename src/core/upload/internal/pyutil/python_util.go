@@ -9,7 +9,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/frhorschig/kant-search-backend/common/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 )
 
 // Returns a map of paragraph ids to sentences and error

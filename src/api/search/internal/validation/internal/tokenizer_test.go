@@ -6,7 +6,7 @@ package internal
 import (
 	"testing"
 
-	"github.com/frhorschig/kant-search-backend/common/errors"
+	"github.com/frhorschig/kant-search-backend/api/search/internal/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func TestTokenize(t *testing.T) {
 		name     string
 		input    string
 		expected []Token
-		err      *errors.Error
+		err      *errors.ValidationError
 	}{
 		{
 			name:     "only words success",
@@ -93,49 +93,49 @@ func TestTokenize(t *testing.T) {
 			name:     "starts with AND error",
 			input:    "& hello",
 			expected: nil,
-			err:      &errors.Error{Msg: errors.WRONG_STARTING_CHAR, Params: []string{"&"}},
+			err:      &errors.ValidationError{Msg: errors.WrongStartingChar, Params: []string{"&"}},
 		},
 		{
 			name:     "starts with OR error",
 			input:    "| hello",
 			expected: nil,
-			err:      &errors.Error{Msg: errors.WRONG_STARTING_CHAR, Params: []string{"|"}},
+			err:      &errors.ValidationError{Msg: errors.WrongStartingChar, Params: []string{"|"}},
 		},
 		{
 			name:     "starts with CloseParen error",
 			input:    ") hello",
 			expected: nil,
-			err:      &errors.Error{Msg: errors.WRONG_STARTING_CHAR, Params: []string{")"}},
+			err:      &errors.ValidationError{Msg: errors.WrongStartingChar, Params: []string{")"}},
 		},
 		{
 			name:     "ends with AND error",
 			input:    "hello &",
 			expected: nil,
-			err:      &errors.Error{Msg: errors.WRONG_ENDING_CHAR, Params: []string{"&"}},
+			err:      &errors.ValidationError{Msg: errors.WrongEndingChar, Params: []string{"&"}},
 		},
 		{
 			name:     "ends with OR error",
 			input:    "hello |",
 			expected: nil,
-			err:      &errors.Error{Msg: errors.WRONG_ENDING_CHAR, Params: []string{"|"}},
+			err:      &errors.ValidationError{Msg: errors.WrongEndingChar, Params: []string{"|"}},
 		},
 		{
 			name:     "ends with NOT error",
 			input:    "hello !",
 			expected: nil,
-			err:      &errors.Error{Msg: errors.WRONG_ENDING_CHAR, Params: []string{"!"}},
+			err:      &errors.ValidationError{Msg: errors.WrongEndingChar, Params: []string{"!"}},
 		},
 		{
 			name:     "ends with OpenParen error",
 			input:    "hello (",
 			expected: nil,
-			err:      &errors.Error{Msg: errors.WRONG_ENDING_CHAR, Params: []string{"("}},
+			err:      &errors.ValidationError{Msg: errors.WrongEndingChar, Params: []string{"("}},
 		},
 		{
 			name:     "unterminated double quote error",
 			input:    "hello \"world",
 			expected: nil,
-			err:      &errors.Error{Msg: errors.UNTERMINATED_DOUBLE_QUOTE},
+			err:      &errors.ValidationError{Msg: errors.UnterminatedDoubleQuote},
 		},
 	}
 

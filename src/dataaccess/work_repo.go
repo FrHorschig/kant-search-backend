@@ -1,5 +1,7 @@
 package dataaccess
 
+//go:generate mockgen -source=$GOFILE -destination=mocks/work_repo_mock.go -package=mocks
+
 import (
 	"context"
 	"encoding/json"
@@ -10,8 +12,6 @@ import (
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 )
-
-//go:generate mockgen -source=$GOFILE -destination=mocks/work_repo_mock.go -package=mocks
 
 type WorkRepo interface {
 	Insert(ctx context.Context, data *esmodel.Work) error

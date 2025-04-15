@@ -3,20 +3,20 @@ package internal
 import (
 	"strings"
 
-	"github.com/frhorschig/kant-search-backend/common/errors"
+	"github.com/frhorschig/kant-search-backend/api/search/internal/errors"
 )
 
-func Tokenize(input string) ([]Token, *errors.Error) {
+func Tokenize(input string) ([]Token, *errors.ValidationError) {
 	input = strings.TrimSpace(input)
 	if wrongBeginChar(input[0]) {
-		return nil, &errors.Error{
-			Msg:    errors.WRONG_STARTING_CHAR,
+		return nil, &errors.ValidationError{
+			Msg:    errors.WrongStartingChar,
 			Params: []string{string(input[0])},
 		}
 	}
 	if wrongEndChar(input[len(input)-1]) {
-		return nil, &errors.Error{
-			Msg:    errors.WRONG_ENDING_CHAR,
+		return nil, &errors.ValidationError{
+			Msg:    errors.WrongEndingChar,
 			Params: []string{string(input[len(input)-1])},
 		}
 	}
@@ -36,7 +36,7 @@ func wrongEndChar(c byte) bool {
 	return c == '&' || c == '|' || c == '!' || c == '('
 }
 
-func createTokens(input string) ([]Token, *errors.Error) {
+func createTokens(input string) ([]Token, *errors.ValidationError) {
 	var tokens []Token
 	for len(input) > 0 {
 		switch {
@@ -74,11 +74,11 @@ func createTokens(input string) ([]Token, *errors.Error) {
 	return tokens, nil
 }
 
-func findPhrase(input string) (*Token, string, *errors.Error) {
+func findPhrase(input string) (*Token, string, *errors.ValidationError) {
 	var token Token
 	end := strings.Index(input[1:], "\"")
 	if end == -1 {
-		return nil, "", &errors.Error{Msg: errors.UNTERMINATED_DOUBLE_QUOTE}
+		return nil, "", &errors.ValidationError{Msg: errors.UnterminatedDoubleQuote}
 	}
 	end += 1
 	token = newPhrase(strings.TrimSpace(input[1:end]))
