@@ -5,8 +5,8 @@ package search
 import (
 	"context"
 
-	"github.com/frhorschig/kant-search-backend/common/model"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
 type SearchProcessor interface {

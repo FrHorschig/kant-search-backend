@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/frhorschig/kant-search-backend/common/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 

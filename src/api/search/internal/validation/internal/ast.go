@@ -1,23 +1,23 @@
 package internal
 
-import "github.com/frhorschig/kant-search-backend/common/errors"
+import "github.com/frhorschig/kant-search-backend/api/search/internal/errors"
 
-func Parse(tokens []Token) *errors.Error {
+func Parse(tokens []Token) *errors.ValidationError {
 	_, err := parseExpression(&tokens)
 	if err != nil {
 		return err
 	}
 
 	if len(tokens) > 0 {
-		return &errors.Error{
-			Msg:    errors.UNEXPECTED_TOKEN,
+		return &errors.ValidationError{
+			Msg:    errors.UnexpectedToken,
 			Params: []string{tokens[0].Text},
 		}
 	}
 	return nil
 }
 
-func parseExpression(tokens *[]Token) (*astNote, *errors.Error) {
+func parseExpression(tokens *[]Token) (*astNote, *errors.ValidationError) {
 	node, err := parseTerm(tokens)
 	if err != nil {
 		return nil, err
@@ -40,9 +40,9 @@ func parseExpression(tokens *[]Token) (*astNote, *errors.Error) {
 	return node, nil
 }
 
-func parseTerm(tokens *[]Token) (*astNote, *errors.Error) {
+func parseTerm(tokens *[]Token) (*astNote, *errors.ValidationError) {
 	if len(*tokens) == 0 {
-		return nil, &errors.Error{Msg: errors.UNEXPECTED_END_OF_INPUT}
+		return nil, &errors.ValidationError{Msg: errors.UnexpectedEndOfInput}
 	}
 
 	if (*tokens)[0].IsNot {
@@ -58,7 +58,7 @@ func parseTerm(tokens *[]Token) (*astNote, *errors.Error) {
 	return parseFactor(tokens)
 }
 
-func parseFactor(tokens *[]Token) (*astNote, *errors.Error) {
+func parseFactor(tokens *[]Token) (*astNote, *errors.ValidationError) {
 	token := &(*tokens)[0]
 	switch {
 	case token.IsWord || token.IsPhrase:
@@ -71,13 +71,13 @@ func parseFactor(tokens *[]Token) (*astNote, *errors.Error) {
 			return nil, err
 		}
 		if len(*tokens) == 0 || !(*tokens)[0].IsClose {
-			return nil, &errors.Error{Msg: errors.MISSING_CLOSING_PARENTHESIS}
+			return nil, &errors.ValidationError{Msg: errors.MissingCloseParenthesis}
 		}
 		*tokens = (*tokens)[1:]
 		return node, nil
 	default:
-		return nil, &errors.Error{
-			Msg:    errors.UNEXPECTED_TOKEN,
+		return nil, &errors.ValidationError{
+			Msg:    errors.UnexpectedToken,
 			Params: []string{token.Text},
 		}
 	}

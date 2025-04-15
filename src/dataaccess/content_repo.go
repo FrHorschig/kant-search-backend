@@ -1,5 +1,7 @@
 package dataaccess
 
+//go:generate mockgen -source=$GOFILE -destination=mocks/content_repo_mock.go -package=mocks
+
 import (
 	"context"
 	"encoding/json"
@@ -15,8 +17,6 @@ import (
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 	"github.com/rs/zerolog/log"
 )
-
-//go:generate mockgen -source=$GOFILE -destination=mocks/content_repo_mock.go -package=mocks
 
 type ContentRepo interface {
 	Insert(ctx context.Context, data []esmodel.Content) error
