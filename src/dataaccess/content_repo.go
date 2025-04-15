@@ -11,7 +11,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/operationtype"
-	"github.com/frhorschig/kant-search-backend/dataaccess/internal/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 	"github.com/rs/zerolog/log"
 )
@@ -20,7 +20,10 @@ import (
 
 type ContentRepo interface {
 	Insert(ctx context.Context, data []esmodel.Content) error
-	GetByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
+	GetFootnotesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
+	GetHeadingsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
+	GetParagraphsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
+	GetSummariesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
 	DeleteByWorkId(ctx context.Context, workId string) error
 }
 
@@ -64,9 +67,69 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 	return nil
 }
 
-func (rec *contentRepoImpl) GetByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetFootnotesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: createTermQuery("workId", workId),
+		Query: createContentQuery(workId, string(esmodel.Footnote)),
+	}).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	contents := []esmodel.Content{}
+	for _, hit := range res.Hits.Hits {
+		var c esmodel.Content
+		err = json.Unmarshal(hit.Source_, &c)
+		if err != nil {
+			return nil, err
+		}
+		contents = append(contents, c)
+	}
+	return contents, nil
+}
+
+func (rec *contentRepoImpl) GetHeadingsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
+	res, err := rec.dbClient.Search().Request(&search.Request{
+		Query: createContentQuery(workId, string(esmodel.Heading)),
+	}).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	contents := []esmodel.Content{}
+	for _, hit := range res.Hits.Hits {
+		var c esmodel.Content
+		err = json.Unmarshal(hit.Source_, &c)
+		if err != nil {
+			return nil, err
+		}
+		contents = append(contents, c)
+	}
+	return contents, nil
+}
+
+func (rec *contentRepoImpl) GetParagraphsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
+	res, err := rec.dbClient.Search().Request(&search.Request{
+		Query: createContentQuery(workId, string(esmodel.Paragraph)),
+	}).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	contents := []esmodel.Content{}
+	for _, hit := range res.Hits.Hits {
+		var c esmodel.Content
+		err = json.Unmarshal(hit.Source_, &c)
+		if err != nil {
+			return nil, err
+		}
+		contents = append(contents, c)
+	}
+	return contents, nil
+}
+
+func (rec *contentRepoImpl) GetSummariesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
+	res, err := rec.dbClient.Search().Request(&search.Request{
+		Query: createContentQuery(workId, string(esmodel.Summary)),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -102,4 +165,23 @@ func (rec *contentRepoImpl) DeleteByWorkId(ctx context.Context, workId string) e
 		return fmt.Errorf("unable to delete work with id %s", workId)
 	}
 	return nil
+}
+
+func createContentQuery(workId string, cType string) *types.Query {
+	return &types.Query{
+		Bool: &types.BoolQuery{
+			Must: []types.Query{
+				{
+					Term: map[string]types.TermQuery{
+						"workId": {Value: workId},
+					},
+				},
+				{
+					Term: map[string]types.TermQuery{
+						"type": {Value: cType},
+					},
+				},
+			},
+		},
+	}
 }

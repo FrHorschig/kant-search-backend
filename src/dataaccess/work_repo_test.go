@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/dataaccess/internal/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/stretchr/testify/assert"
 )
 
