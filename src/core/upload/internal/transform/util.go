@@ -6,7 +6,7 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	model "github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
 )
 
 func level(el *etree.Element) model.Level {

@@ -6,12 +6,12 @@ import (
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mapping"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
-	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
 type XmlMapper interface {
-	Map(xml string) (works []dbmodel.Work, err errors.ErrorNew)
+	Map(xml string) (works []model.Work, err errors.ErrorNew)
 }
 
 type xmlMapperImpl struct {
@@ -22,7 +22,7 @@ func NewXmlMapper() XmlMapper {
 	return &impl
 }
 
-func (rec *xmlMapperImpl) Map(xml string) ([]dbmodel.Work, errors.ErrorNew) {
+func (rec *xmlMapperImpl) Map(xml string) ([]model.Work, errors.ErrorNew) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
 	sections, summaries, footnotes, err := mapping.MapToTree(doc)

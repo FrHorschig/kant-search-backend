@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	model "github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/stretchr/testify/assert"
 )

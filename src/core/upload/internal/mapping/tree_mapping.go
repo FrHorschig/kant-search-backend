@@ -6,8 +6,8 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errors"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
+	model "github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
