@@ -229,7 +229,7 @@ func inHeadC(n int32, workId string) esmodel.Content {
 		Type:       esmodel.Heading,
 		FmtText:    "<fmt-tag>heading</fmt-tag> text " + nr,
 		TocText:    util.ToStrPtr("toc text " + nr),
-		SearchText: "", // TODO
+		SearchText: "heading text " + nr,
 		Pages:      []int32{n, n + 100},
 		FnRefs:     []string{"fnRef " + nr},
 		WorkId:     workId,
@@ -243,7 +243,7 @@ func outHeadC(n int32, workId string) esmodel.Content {
 		Type:       esmodel.Heading,
 		FmtText:    "<fmt-tag>heading</fmt-tag> text " + nr,
 		TocText:    util.ToStrPtr("toc text " + nr),
-		SearchText: "", // TODO
+		SearchText: "heading text " + nr,
 		Pages:      []int32{n, n + 100},
 		FnRefs:     []string{"fnRef " + nr},
 		WorkId:     workId,
@@ -265,7 +265,7 @@ func inParC(n int32, workId string) esmodel.Content {
 	return esmodel.Content{
 		Type:       esmodel.Paragraph,
 		FmtText:    "<fmt-tag>paragraph</fmt-tag> text " + nr,
-		SearchText: "", // TODO
+		SearchText: "paragraph text " + nr,
 		Pages:      []int32{n, n + 100},
 		FnRefs:     []string{"fnRef " + nr},
 		SummaryRef: util.ToStrPtr("summRef " + nr),
@@ -279,7 +279,7 @@ func outParC(n int32, workId string) esmodel.Content {
 		Id:         cId(n),
 		Type:       esmodel.Paragraph,
 		FmtText:    "<fmt-tag>paragraph</fmt-tag> text " + nr,
-		SearchText: "", // TODO
+		SearchText: "paragraph text " + nr,
 		Pages:      []int32{n, n + 100},
 		FnRefs:     []string{"fnRef " + nr},
 		SummaryRef: util.ToStrPtr("summRef " + nr),
@@ -302,7 +302,7 @@ func inFnC(n int32, workId string) esmodel.Content {
 		Type:       esmodel.Footnote,
 		Ref:        util.ToStrPtr("footnote ref " + nr),
 		FmtText:    "<fmt-tag>footnote</fmt-tag> text " + nr,
-		SearchText: "", // TODO
+		SearchText: "footnote text " + nr,
 		Pages:      []int32{n, n + 100},
 		WorkId:     workId,
 	}
@@ -315,7 +315,7 @@ func outFnC(n int32, workId string) esmodel.Content {
 		Type:       esmodel.Footnote,
 		Ref:        util.ToStrPtr("footnote ref " + nr),
 		FmtText:    "<fmt-tag>footnote</fmt-tag> text " + nr,
-		SearchText: "", // TODO
+		SearchText: "footnote text " + nr,
 		Pages:      []int32{n, n + 100},
 		WorkId:     workId,
 	}
@@ -337,7 +337,7 @@ func inSummC(n int32, workId string) esmodel.Content {
 		Type:       esmodel.Summary,
 		Ref:        util.ToStrPtr("summary ref " + nr),
 		FmtText:    "<fmt-tag>summary</fmt-tag> text " + nr,
-		SearchText: "", // TODO
+		SearchText: "summary text " + nr,
 		Pages:      []int32{n, n + 100},
 		FnRefs:     []string{"fnRef " + nr},
 		WorkId:     workId,
@@ -350,7 +350,7 @@ func outSummC(n int32, workId string) esmodel.Content {
 		Type:       esmodel.Summary,
 		Ref:        util.ToStrPtr("summary ref " + nr),
 		FmtText:    "<fmt-tag>summary</fmt-tag> text " + nr,
-		SearchText: "", // TODO
+		SearchText: "summary text " + nr,
 		Pages:      []int32{n, n + 100},
 		FnRefs:     []string{"fnRef " + nr},
 		WorkId:     workId,

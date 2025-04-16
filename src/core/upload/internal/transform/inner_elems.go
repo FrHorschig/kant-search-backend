@@ -8,6 +8,7 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
@@ -124,11 +125,11 @@ func formel(elem *etree.Element) (string, errors.UploadError) {
 }
 
 func fr(elem *etree.Element) (string, errors.UploadError) {
-	page, err := util.ExtractNumericAttribute(elem, "seite")
+	page, err := extract.ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return "", err
 	}
-	nr, err := util.ExtractNumericAttribute(elem, "nr")
+	nr, err := extract.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}
@@ -232,7 +233,7 @@ func romzahl(elem *etree.Element) (string, errors.UploadError) {
 }
 
 func zeile(elem *etree.Element) (string, errors.UploadError) {
-	line, err := util.ExtractNumericAttribute(elem, "nr")
+	line, err := extract.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}

@@ -1,11 +1,68 @@
 package extract
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestExtractNumericAttribute(t *testing.T) {
+	tests := []struct {
+		name          string
+		element       *etree.Element
+		attribute     string
+		expectedValue int32
+		expectErr     bool
+	}{
+		{
+			name: "Valid numeric attribute",
+			element: func() *etree.Element {
+				el := etree.NewElement("test")
+				el.CreateAttr("number", "42")
+				return el
+			}(),
+			attribute:     "number",
+			expectedValue: 42,
+			expectErr:     false,
+		},
+		{
+			name: "Missing attribute",
+			element: func() *etree.Element {
+				el := etree.NewElement("test")
+				return el
+			}(),
+			attribute:     "number",
+			expectedValue: 0,
+			expectErr:     true,
+		},
+		{
+			name: "Invalid numeric value",
+			element: func() *etree.Element {
+				el := etree.NewElement("test")
+				el.CreateAttr("number", "not-a-number")
+				return el
+			}(),
+			attribute:     "number",
+			expectedValue: 0,
+			expectErr:     true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			value, err := ExtractNumericAttribute(tt.element, tt.attribute)
+			if tt.expectErr {
+				assert.True(t, err.HasError)
+			} else {
+				assert.False(t, err.HasError)
+				assert.Equal(t, tt.expectedValue, value)
+			}
+		})
+	}
+}
 
 func TestExtractFnRefs(t *testing.T) {
 	tests := []struct {
@@ -102,6 +159,11 @@ func TestRemoveTags(t *testing.T) {
 			expected: "This is a text with and .",
 		},
 		{
+			name:     "Text with summary matches",
+			text:     "This is a text with " + summ(5, 7) + " and " + summ(10, 22) + ".",
+			expected: "This is a text with and .",
+		},
+		{
 			name:     "Text with HTML tags",
 			text:     "<div>This is <b>bold</b> and <i>italic</i>.</div>",
 			expected: "This is bold and italic.",
@@ -149,6 +211,10 @@ func page(page int32) string {
 	return util.FmtPage(page)
 }
 
-func fnRef(a int32, b int32) string {
-	return util.FmtFnRef(a, b)
+func fnRef(page, nr int32) string {
+	return util.FmtFnRef(page, nr)
+}
+
+func summ(page, line int32) string {
+	return util.FmtSummaryRef(fmt.Sprintf("%d.%d", page, line))
 }

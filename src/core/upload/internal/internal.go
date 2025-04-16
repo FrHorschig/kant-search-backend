@@ -7,9 +7,9 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mapping"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
 type XmlMapper interface {
@@ -43,7 +43,7 @@ func (rec *xmlMapperImpl) MapVolume(volNr int32, xml string) (*model.Volume, err
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
 	volXml := doc.FindElement("//band")
-	xmlVolNr, err := util.ExtractNumericAttribute(volXml, "nr")
+	xmlVolNr, err := extract.ExtractNumericAttribute(volXml, "nr")
 	if err.HasError {
 		return nil, err
 	}

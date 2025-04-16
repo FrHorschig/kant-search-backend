@@ -6,9 +6,23 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
+
+func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errors.UploadError) {
+	defaultStr := "DEFAULT_STRING"
+	nStr := strings.TrimSpace(el.SelectAttrValue(attr, defaultStr))
+	if nStr == defaultStr {
+		return 0, errors.NewError(fmt.Errorf("missing '%s' attribute in '%s' element", attr, el.Tag), nil)
+	}
+	n, err := strconv.ParseInt(nStr, 10, 32)
+	if err != nil {
+		return 0, errors.NewError(nil, fmt.Errorf("error converting string '%s' to number: %v", nStr, err.Error()))
+	}
+	return int32(n), errors.NilError()
+}
 
 func ExtractFnRefs(text string) []string {
 	re := regexp.MustCompile(util.FnRefMatch)
@@ -43,6 +57,8 @@ func RemoveTags(text string) string {
 	re = regexp.MustCompile(util.LineMatch)
 	text = re.ReplaceAllString(text, "")
 	re = regexp.MustCompile(util.PageMatch)
+	text = re.ReplaceAllString(text, "")
+	re = regexp.MustCompile(util.SummaryRefMatch)
 	text = re.ReplaceAllString(text, "")
 	re = regexp.MustCompile(`<[^>]*>`)
 	text = re.ReplaceAllString(text, "")

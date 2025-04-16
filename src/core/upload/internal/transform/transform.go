@@ -6,6 +6,7 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
 	model "github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
@@ -203,7 +204,7 @@ func p(elem *etree.Element) (string, errors.UploadError) {
 }
 
 func seite(elem *etree.Element) (string, errors.UploadError) {
-	page, err := util.ExtractNumericAttribute(elem, "nr")
+	page, err := extract.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}
@@ -227,11 +228,11 @@ func footnote(elem *etree.Element) (model.Footnote, errors.UploadError) {
 	if err.HasError {
 		return model.Footnote{}, err
 	}
-	page, err := util.ExtractNumericAttribute(elem, "seite")
+	page, err := extract.ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return model.Footnote{}, err
 	}
-	nr, err := util.ExtractNumericAttribute(elem, "nr")
+	nr, err := extract.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return model.Footnote{}, err
 	}
@@ -255,11 +256,11 @@ func summary(elem *etree.Element) (model.Summary, errors.UploadError) {
 	if err.HasError {
 		return model.Summary{}, err
 	}
-	page, err := util.ExtractNumericAttribute(elem, "seite")
+	page, err := extract.ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
 		return model.Summary{}, err
 	}
-	line, err := util.ExtractNumericAttribute(elem, "anfang")
+	line, err := extract.ExtractNumericAttribute(elem, "anfang")
 	if err.HasError {
 		return model.Summary{}, err
 	}
