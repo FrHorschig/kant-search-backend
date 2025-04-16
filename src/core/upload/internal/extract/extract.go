@@ -15,13 +15,13 @@ func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errors.Uplo
 	defaultStr := "DEFAULT_STRING"
 	nStr := strings.TrimSpace(el.SelectAttrValue(attr, defaultStr))
 	if nStr == defaultStr {
-		return 0, errors.NewError(fmt.Errorf("missing '%s' attribute in '%s' element", attr, el.Tag), nil)
+		return 0, errors.New(fmt.Errorf("missing '%s' attribute in '%s' element", attr, el.Tag), nil)
 	}
 	n, err := strconv.ParseInt(nStr, 10, 32)
 	if err != nil {
-		return 0, errors.NewError(nil, fmt.Errorf("error converting string '%s' to number: %v", nStr, err.Error()))
+		return 0, errors.New(nil, fmt.Errorf("error converting string '%s' to number: %v", nStr, err.Error()))
 	}
-	return int32(n), errors.NilError()
+	return int32(n), errors.Nil()
 }
 
 func ExtractFnRefs(text string) []string {
@@ -43,12 +43,12 @@ func ExtractPages(text string) ([]int32, errors.UploadError) {
 		nStr := match[1]
 		n, err := strconv.ParseInt(nStr, 10, 32)
 		if err != nil {
-			return nil, errors.NewError(nil, fmt.Errorf("error converting string '%s' to number: %v", nStr, err.Error()))
+			return nil, errors.New(nil, fmt.Errorf("error converting string '%s' to number: %v", nStr, err.Error()))
 		}
 		result = append(result, int32(n))
 	}
 
-	return result, errors.NilError()
+	return result, errors.Nil()
 }
 
 func RemoveTags(text string) string {

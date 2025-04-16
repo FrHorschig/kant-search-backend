@@ -24,7 +24,7 @@ func MapToTree(doc *etree.Document) ([]model.Section, []model.Summary, []model.F
 	if err.HasError {
 		return nil, nil, nil, err
 	}
-	return works, summaries, footnotes, errors.NilError()
+	return works, summaries, footnotes, errors.Nil()
 }
 
 func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError) {
@@ -66,7 +66,7 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError
 
 			sec := model.Section{Heading: hx, Paragraphs: []string{}, Sections: []model.Section{}}
 			if len(secs) == 0 {
-				return nil, errors.NewError(fmt.Errorf("the first heading is '%s', but must be h1", el.Tag), nil)
+				return nil, errors.New(fmt.Errorf("the first heading is '%s', but must be h1", el.Tag), nil)
 			}
 
 			parent := findParent(hx, currentSec)
@@ -116,15 +116,15 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError
 			currentSec.Paragraphs = append(currentSec.Paragraphs, transform.Table())
 
 		default:
-			return nil, errors.NewError(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
+			return nil, errors.New(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
 		}
 	}
-	return secs, errors.NilError()
+	return secs, errors.Nil()
 }
 
 func findSummaries(randtexte *etree.Element) ([]model.Summary, errors.UploadError) {
 	if randtexte == nil {
-		return []model.Summary{}, errors.NilError()
+		return []model.Summary{}, errors.Nil()
 	}
 	result := make([]model.Summary, 0)
 	for _, el := range randtexte.ChildElements() {
@@ -134,12 +134,12 @@ func findSummaries(randtexte *etree.Element) ([]model.Summary, errors.UploadErro
 		}
 		result = append(result, rt)
 	}
-	return result, errors.NilError()
+	return result, errors.Nil()
 }
 
 func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.UploadError) {
 	if fussnoten == nil {
-		return []model.Footnote{}, errors.NilError()
+		return []model.Footnote{}, errors.Nil()
 	}
 	result := make([]model.Footnote, 0)
 	for _, el := range fussnoten.ChildElements() {
@@ -149,7 +149,7 @@ func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.UploadErr
 		}
 		result = append(result, rt)
 	}
-	return result, errors.NilError()
+	return result, errors.Nil()
 }
 
 func findParent(hx model.Heading, current *model.Section) *model.Section {

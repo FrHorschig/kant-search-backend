@@ -94,10 +94,10 @@ func TestUploadProcessSuccess(t *testing.T) {
 	// mapping
 	xmlMapper.EXPECT().
 		MapVolume(gomock.Eq(volNr), gomock.Any()).
-		Return(vol, errors.NilError())
+		Return(vol, errors.Nil())
 	xmlMapper.EXPECT().
 		MapWorks(gomock.Eq(volNr), gomock.Any()).
-		Return([]model.Work{work}, errors.NilError())
+		Return([]model.Work{work}, errors.Nil())
 
 	// data deletion
 	volumeRepo.EXPECT().
@@ -387,7 +387,7 @@ func TestUploadProcessErrors(t *testing.T) {
 			name: "MapVolume fails",
 			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
 				xm.EXPECT().MapVolume(gomock.Any(), gomock.Any()).
-					Return(nil, errors.NewError(nil, testErr))
+					Return(nil, errors.New(nil, testErr))
 			},
 		},
 		{
@@ -395,9 +395,9 @@ func TestUploadProcessErrors(t *testing.T) {
 			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
 				gomock.InOrder(
 					xm.EXPECT().MapVolume(gomock.Any(), gomock.Any()).
-						Return(&model.Volume{}, errors.NilError()),
+						Return(&model.Volume{}, errors.Nil()),
 					xm.EXPECT().MapWorks(gomock.Any(), gomock.Any()).
-						Return(nil, errors.NewError(nil, testErr)),
+						Return(nil, errors.New(nil, testErr)),
 				)
 			},
 		},
@@ -584,7 +584,7 @@ func TestUploadProcessErrors(t *testing.T) {
 }
 
 func mockXmlMapper(mapper *mocks.MockXmlMapper) {
-	mapper.EXPECT().MapVolume(gomock.Any(), gomock.Any()).Return(&model.Volume{}, errors.NilError())
+	mapper.EXPECT().MapVolume(gomock.Any(), gomock.Any()).Return(&model.Volume{}, errors.Nil())
 	mapper.EXPECT().MapWorks(gomock.Any(), gomock.Any()).Return([]model.Work{
 		{
 			Code:         "c",
@@ -600,7 +600,7 @@ func mockXmlMapper(mapper *mocks.MockXmlMapper) {
 			Footnotes: []model.Footnote{inFn(3)},
 			Summaries: []model.Summary{inSumm(4)},
 		},
-	}, errors.NilError())
+	}, errors.Nil())
 }
 
 func mockDeletion(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, wId string) {

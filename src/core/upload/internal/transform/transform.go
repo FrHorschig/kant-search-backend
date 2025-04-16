@@ -114,7 +114,7 @@ func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 				}
 				textTitle += line
 			default:
-				return model.Heading{}, errors.NewError(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
+				return model.Heading{}, errors.New(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
 			}
 		}
 		tocTitle += " "
@@ -124,14 +124,14 @@ func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 		Level:     level(elem),
 		TocTitle:  strings.TrimSpace(tocTitle),
 		TextTitle: strings.TrimSpace(textTitle),
-	}, errors.NilError()
+	}, errors.Nil()
 }
 
 func hu(elem *etree.Element) (string, errors.UploadError) {
 	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "em1":
-			return em1(el), errors.NilError()
+			return em1(el), errors.Nil()
 		case "fett":
 			return fett(el)
 		case "fr":
@@ -143,17 +143,17 @@ func hu(elem *etree.Element) (string, errors.UploadError) {
 		case "name":
 			return name(el)
 		case "op":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		case "romzahl":
 			return romzahl(el)
 		case "seite":
 			return seite(el)
 		case "trenn":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
@@ -165,11 +165,11 @@ func p(elem *etree.Element) (string, errors.UploadError) {
 		case "antiqua":
 			return antiqua(el)
 		case "bild":
-			return bildBildverweis(el), errors.NilError()
+			return bildBildverweis(el), errors.Nil()
 		case "bildverweis":
-			return bildBildverweis(el), errors.NilError()
+			return bildBildverweis(el), errors.Nil()
 		case "em1":
-			return em1(el), errors.NilError()
+			return em1(el), errors.Nil()
 		case "em2":
 			return em2(el)
 		case "fett":
@@ -185,19 +185,19 @@ func p(elem *etree.Element) (string, errors.UploadError) {
 		case "name":
 			return name(el)
 		case "op":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		case "romzahl":
 			return romzahl(el)
 		case "table":
-			return table(), errors.NilError()
+			return table(), errors.Nil()
 		case "seite":
 			return seite(el)
 		case "trenn":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
@@ -208,7 +208,7 @@ func seite(elem *etree.Element) (string, errors.UploadError) {
 	if err.HasError {
 		return "", err
 	}
-	return util.FmtPage(page), errors.NilError()
+	return util.FmtPage(page), errors.Nil()
 }
 
 func table() string {
@@ -221,7 +221,7 @@ func footnote(elem *etree.Element) (model.Footnote, errors.UploadError) {
 		case "p":
 			return p(el)
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	text, err := extractText(elem, switchFn)
@@ -240,7 +240,7 @@ func footnote(elem *etree.Element) (model.Footnote, errors.UploadError) {
 		Page: page,
 		Nr:   nr,
 		Text: text,
-	}, errors.NilError()
+	}, errors.Nil()
 }
 
 func summary(elem *etree.Element) (model.Summary, errors.UploadError) {
@@ -249,7 +249,7 @@ func summary(elem *etree.Element) (model.Summary, errors.UploadError) {
 		case "p":
 			return p(el)
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	text, err := extractText(elem, switchFn)
@@ -268,5 +268,5 @@ func summary(elem *etree.Element) (model.Summary, errors.UploadError) {
 		Page: page,
 		Line: line,
 		Text: text,
-	}, errors.NilError()
+	}, errors.Nil()
 }

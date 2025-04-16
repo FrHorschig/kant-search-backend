@@ -47,15 +47,15 @@ func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml st
 
 	errDelete := deleteExistingData(ctx, rec.volumeRepo, rec.workRepo, rec.contentRepo, volNr)
 	if errDelete != nil {
-		return errors.NewError(nil, errDelete)
+		return errors.New(nil, errDelete)
 	}
 
 	errInsert := insertNewData(ctx, rec.volumeRepo, rec.workRepo, rec.contentRepo, vol, works)
 	if errInsert != nil {
 		deleteExistingData(ctx, rec.volumeRepo, rec.workRepo, rec.contentRepo, volNr) // ignore the error, because here insertion error is more interesting
-		return errors.NewError(nil, errInsert)
+		return errors.New(nil, errInsert)
 	}
-	return errors.NilError()
+	return errors.Nil()
 }
 
 func deleteExistingData(ctx context.Context, volRepo dataaccess.VolumeRepo, workRepo dataaccess.WorkRepo, contentRepo dataaccess.ContentRepo, volNr int32) error {

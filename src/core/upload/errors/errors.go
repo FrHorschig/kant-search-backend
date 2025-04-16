@@ -6,7 +6,7 @@ type UploadError struct {
 	TechnicalError error
 }
 
-func NewError(domainErr error, technicalError error) UploadError {
+func New(domainErr error, technicalError error) UploadError {
 	hasError := false
 	if domainErr != nil || technicalError != nil {
 		hasError = true
@@ -18,6 +18,6 @@ func NewError(domainErr error, technicalError error) UploadError {
 	}
 }
 
-func NilError() UploadError {
+func Nil() UploadError {
 	return UploadError{false, nil, nil}
 }

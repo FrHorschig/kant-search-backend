@@ -75,9 +75,9 @@ func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, 
 			}
 			text += extracted
 		} else {
-			return "", errors.NewError(nil, fmt.Errorf("unknown child type in tag '%v', it is neither CharData nor Element", elem.Tag))
+			return "", errors.New(nil, fmt.Errorf("unknown child type in tag '%v', it is neither CharData nor Element", elem.Tag))
 		}
 		text += " "
 	}
-	return strings.TrimSpace(text), errors.NilError()
+	return strings.TrimSpace(text), errors.Nil()
 }

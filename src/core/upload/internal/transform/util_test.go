@@ -54,7 +54,7 @@ func TestExtractText(t *testing.T) {
 			name:        "switchFn returns error",
 			before:      "text one",
 			child:       createElement("my-tag", nil, "", nil),
-			switchFnErr: errors.NewError(stderr.New("some error"), nil),
+			switchFnErr: errors.New(stderr.New("some error"), nil),
 			after:       "text two",
 			expectError: true,
 		},
