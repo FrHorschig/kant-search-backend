@@ -35,9 +35,9 @@ func newPhrase(text string) Token {
 	return Token{IsPhrase: true, Text: text}
 }
 
-type astNote struct {
-	Left  *astNote
-	Right *astNote
+type astNode struct {
+	Left  *astNode
+	Right *astNode
 	Token *Token
 }
 
