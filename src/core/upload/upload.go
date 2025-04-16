@@ -9,6 +9,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 )
@@ -148,7 +149,7 @@ func insertHeading(ctx context.Context, contentRepo dataaccess.ContentRepo, h *m
 		Type:       esmodel.Heading,
 		FmtText:    h.Text,
 		TocText:    util.ToStrPtr(h.TocText),
-		SearchText: sanitizeText(h.Text),
+		SearchText: transform.SanitizeText(h.Text),
 		Pages:      h.Pages,
 		FnRefs:     h.FnRefs,
 		WorkId:     workId,
@@ -166,12 +167,15 @@ func insertParagraphs(ctx context.Context, contentRepo dataaccess.ContentRepo, p
 		pars = append(pars, esmodel.Content{
 			Type:       esmodel.Paragraph,
 			FmtText:    p.Text,
-			SearchText: sanitizeText(p.Text),
+			SearchText: transform.SanitizeText(p.Text),
 			Pages:      p.Pages,
 			FnRefs:     p.FnRefs,
 			SummaryRef: p.SummaryRef,
 			WorkId:     workId,
 		})
+	}
+	if len(pars) == 0 {
+		return []string{}, nil
 	}
 	err := contentRepo.Insert(ctx, pars)
 	if err != nil {
@@ -188,13 +192,16 @@ func insertFootnotes(ctx context.Context, contentRepo dataaccess.ContentRepo, fo
 	fns := []esmodel.Content{}
 	for _, f := range footnotes {
 		fns = append(fns, esmodel.Content{
-			Type:       esmodel.Paragraph,
+			Type:       esmodel.Footnote,
 			Ref:        &f.Ref,
 			FmtText:    f.Text,
-			SearchText: sanitizeText(f.Text),
+			SearchText: transform.SanitizeText(f.Text),
 			Pages:      f.Pages,
 			WorkId:     workId,
 		})
+	}
+	if len(fns) == 0 {
+		return nil
 	}
 	return contentRepo.Insert(ctx, fns)
 }
@@ -206,11 +213,14 @@ func insertSummaries(ctx context.Context, contentRepo dataaccess.ContentRepo, su
 			Type:       esmodel.Paragraph,
 			Ref:        &s.Ref,
 			FmtText:    s.Text,
-			SearchText: sanitizeText(s.Text),
+			SearchText: transform.SanitizeText(s.Text),
 			Pages:      s.Pages,
 			FnRefs:     s.FnRefs,
 			WorkId:     workId,
 		})
+	}
+	if len(summs) == 0 {
+		return nil
 	}
 	return contentRepo.Insert(ctx, summs)
 }
@@ -221,9 +231,4 @@ func createWorkRef(work esmodel.Work) esmodel.WorkRef {
 		Code:  work.Code,
 		Title: work.Title,
 	}
-}
-
-func sanitizeText(text string) string {
-	// TODO implement me
-	return ""
 }
