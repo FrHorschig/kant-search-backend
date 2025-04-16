@@ -86,14 +86,20 @@ func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, workRepo 
 		Title:        v.Title,
 	}
 	for _, w := range works {
-		work := insertWork(ctx, workRepo, w)
+		work, err := insertWork(ctx, workRepo, w)
+		if err != nil {
+			return err
+		}
 		workId := work.Id
 		sections, err := insertSections(ctx, contentRepo, w.Sections, workId)
 		if err != nil {
 			return err
 		}
 		work.Sections = append(work.Sections, sections...)
-		workRepo.Update(ctx, &work)
+		err = workRepo.Update(ctx, &work)
+		if err != nil {
+			return err
+		}
 
 		err = insertFootnotes(ctx, contentRepo, w.Footnotes, workId)
 		if err != nil {
@@ -108,7 +114,7 @@ func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, workRepo 
 	return volRepo.Insert(ctx, &vol)
 }
 
-func insertWork(ctx context.Context, workRepo dataaccess.WorkRepo, w model.Work) esmodel.Work {
+func insertWork(ctx context.Context, workRepo dataaccess.WorkRepo, w model.Work) (esmodel.Work, error) {
 	work := esmodel.Work{
 		Code:         w.Code,
 		Abbreviation: w.Abbreviation,
@@ -116,8 +122,8 @@ func insertWork(ctx context.Context, workRepo dataaccess.WorkRepo, w model.Work)
 		Year:         w.Year,
 		Sections:     []esmodel.Section{},
 	}
-	workRepo.Insert(ctx, &work)
-	return work
+	err := workRepo.Insert(ctx, &work)
+	return work, err
 }
 
 func insertSections(ctx context.Context, contentRepo dataaccess.ContentRepo, sections []model.Section, workId string) ([]esmodel.Section, error) {
@@ -145,7 +151,7 @@ func insertSections(ctx context.Context, contentRepo dataaccess.ContentRepo, sec
 }
 
 func insertHeading(ctx context.Context, contentRepo dataaccess.ContentRepo, h *model.Heading, workId string) (string, error) {
-	heading := esmodel.Content{
+	headings := []esmodel.Content{{
 		Type:       esmodel.Heading,
 		FmtText:    h.Text,
 		TocText:    util.ToStrPtr(h.TocText),
@@ -153,12 +159,12 @@ func insertHeading(ctx context.Context, contentRepo dataaccess.ContentRepo, h *m
 		Pages:      h.Pages,
 		FnRefs:     h.FnRefs,
 		WorkId:     workId,
-	}
-	err := contentRepo.Insert(ctx, []esmodel.Content{heading})
+	}}
+	err := contentRepo.Insert(ctx, headings)
 	if err != nil {
 		return "", err
 	}
-	return heading.Id, nil
+	return headings[0].Id, nil
 }
 
 func insertParagraphs(ctx context.Context, contentRepo dataaccess.ContentRepo, paragraphs []model.Paragraph, workId string) ([]string, error) {
@@ -210,7 +216,7 @@ func insertSummaries(ctx context.Context, contentRepo dataaccess.ContentRepo, su
 	summs := []esmodel.Content{}
 	for _, s := range summaries {
 		summs = append(summs, esmodel.Content{
-			Type:       esmodel.Paragraph,
+			Type:       esmodel.Summary,
 			Ref:        &s.Ref,
 			FmtText:    s.Text,
 			SearchText: transform.SanitizeText(s.Text),
