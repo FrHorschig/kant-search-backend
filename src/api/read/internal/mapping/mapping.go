@@ -67,9 +67,10 @@ func HeadingsToApiModels(in []esmodel.Content) []models.Heading {
 	out := []models.Heading{}
 	for _, c := range in {
 		out = append(out, models.Heading{
-			Id:     c.Id,
-			Text:   c.FmtText,
-			FnRefs: c.FnRefs,
+			Id:      c.Id,
+			Text:    c.FmtText,
+			TocText: util.ToStrVal(c.TocText),
+			FnRefs:  c.FnRefs,
 		})
 	}
 	return out
