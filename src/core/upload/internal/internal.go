@@ -36,7 +36,7 @@ func (rec *xmlMapperImpl) MapWorks(volNr int32, xml string) ([]model.Work, error
 	if err.HasError {
 		return nil, err
 	}
-	return works, errors.NilError()
+	return works, errors.Nil()
 }
 
 func (rec *xmlMapperImpl) MapVolume(volNr int32, xml string) (*model.Volume, errors.UploadError) {
@@ -48,12 +48,12 @@ func (rec *xmlMapperImpl) MapVolume(volNr int32, xml string) (*model.Volume, err
 		return nil, err
 	}
 	if volNr != xmlVolNr {
-		return nil, errors.NewError(fmt.Errorf("non matching volume numbers: is %d in URL, but %d in XML", volNr, xmlVolNr), nil)
+		return nil, errors.New(fmt.Errorf("non matching volume numbers: is %d in URL, but %d in XML", volNr, xmlVolNr), nil)
 	}
 
 	section, e := getSection(volNr)
 	if e != nil {
-		return nil, errors.NewError(e, nil)
+		return nil, errors.New(e, nil)
 	}
 
 	vol := model.Volume{
@@ -61,7 +61,7 @@ func (rec *xmlMapperImpl) MapVolume(volNr int32, xml string) (*model.Volume, err
 		Section:      section,
 		Title:        volXml.FindElement("//titel").Text(),
 	}
-	return &vol, errors.NilError()
+	return &vol, errors.Nil()
 }
 
 func getSection(volNr int32) (int32, error) {

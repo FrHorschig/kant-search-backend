@@ -49,7 +49,7 @@ func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.S
 		return nil, err
 	}
 
-	return works, errors.NilError()
+	return works, errors.Nil()
 }
 
 func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.UploadError) {
@@ -59,7 +59,7 @@ func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.Upl
 	work.Title = h0.Heading.TextTitle
 	work.Year = &h0.Heading.Year
 	if len(h0.Paragraphs) > 0 {
-		return work, errors.NewError(fmt.Errorf("work has paragraphs before the first non-worktitle heading"), nil)
+		return work, errors.New(fmt.Errorf("work has paragraphs before the first non-worktitle heading"), nil)
 	}
 	for _, s := range h0.Sections {
 		sec, err := mapSection(s)
@@ -68,7 +68,7 @@ func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.Upl
 		}
 		work.Sections = append(work.Sections, sec)
 	}
-	return work, errors.NilError()
+	return work, errors.Nil()
 }
 
 func mapSection(s treemodel.Section) (model.Section, errors.UploadError) {
@@ -92,7 +92,7 @@ func mapSection(s treemodel.Section) (model.Section, errors.UploadError) {
 		}
 		section.Sections = append(section.Sections, dbSec)
 	}
-	return section, errors.NilError()
+	return section, errors.Nil()
 }
 
 func mapHeading(h treemodel.Heading) (model.Heading, errors.UploadError) {
@@ -106,7 +106,7 @@ func mapHeading(h treemodel.Heading) (model.Heading, errors.UploadError) {
 		Pages:   pages,
 		FnRefs:  extract.ExtractFnRefs(h.TextTitle),
 	}
-	return heading, errors.NilError()
+	return heading, errors.Nil()
 }
 
 func mapParagraph(p string) (model.Paragraph, errors.UploadError) {
@@ -119,7 +119,7 @@ func mapParagraph(p string) (model.Paragraph, errors.UploadError) {
 		Pages:  pages,
 		FnRefs: extract.ExtractFnRefs(p),
 	}
-	return paragraph, errors.NilError()
+	return paragraph, errors.Nil()
 }
 
 func mapFootnote(f treemodel.Footnote) (model.Footnote, errors.UploadError) {
@@ -133,13 +133,13 @@ func mapFootnote(f treemodel.Footnote) (model.Footnote, errors.UploadError) {
 		pages = append([]int32{pages[0] - 1}, pages...)
 	}
 	if pages[0] != f.Page {
-		return model.Footnote{}, errors.NewError(fmt.Errorf("footnote page %d does not match the first page of the footnote %d", f.Page, pages[0]), nil)
+		return model.Footnote{}, errors.New(fmt.Errorf("footnote page %d does not match the first page of the footnote %d", f.Page, pages[0]), nil)
 	}
 	return model.Footnote{
 		Ref:   fmt.Sprintf("%d.%d", f.Page, f.Nr),
 		Pages: pages,
 		Text:  f.Text,
-	}, errors.NilError()
+	}, errors.Nil()
 }
 
 func mapSummary(s treemodel.Summary) (model.Summary, errors.UploadError) {
@@ -153,14 +153,14 @@ func mapSummary(s treemodel.Summary) (model.Summary, errors.UploadError) {
 		pages = append([]int32{pages[0] - 1}, pages...)
 	}
 	if pages[0] != s.Page {
-		return model.Summary{}, errors.NewError(fmt.Errorf("summary page %d does not match the first page of the summary %d", s.Page, pages[0]), nil)
+		return model.Summary{}, errors.New(fmt.Errorf("summary page %d does not match the first page of the summary %d", s.Page, pages[0]), nil)
 	}
 	return model.Summary{
 		Ref:    fmt.Sprintf("%d.%d", s.Page, s.Line),
 		Text:   s.Text,
 		Pages:  pages,
 		FnRefs: extract.ExtractFnRefs(s.Text),
-	}, errors.NilError()
+	}, errors.Nil()
 }
 
 func postprocessSections(work *model.Work) {
@@ -236,7 +236,7 @@ func insertSummaryRefs(works []model.Work) errors.UploadError {
 			}
 		}
 	}
-	return errors.NilError()
+	return errors.Nil()
 }
 
 func mapSummariesToWorks(works []model.Work, summaries []model.Summary) {
@@ -298,7 +298,7 @@ func insertSummaryRef(summary *model.Summary, sections []model.Section) errors.U
 	}
 	page, line := findPageLine(summary.Ref)
 	if p == nil {
-		return errors.NewError(fmt.Errorf("could not find a paragraph for summary on page %d line %d", page, line), nil)
+		return errors.New(fmt.Errorf("could not find a paragraph for summary on page %d line %d", page, line), nil)
 	}
 
 	// duplicate page ref in the summary, so that summary and paragraph can be displayed independently from each other without loosing the page ref
@@ -309,7 +309,7 @@ func insertSummaryRef(summary *model.Summary, sections []model.Section) errors.U
 
 	p.Text = util.FmtSummaryRef(summary.Ref) + p.Text
 	p.SummaryRef = &summary.Ref
-	return errors.NilError()
+	return errors.Nil()
 }
 
 func findSummaryParagraph(summary *model.Summary, sections []model.Section) (*model.Paragraph, errors.UploadError) {
@@ -323,7 +323,7 @@ func findSummaryParagraph(summary *model.Summary, sections []model.Section) (*mo
 				return nil, err
 			}
 			if ok {
-				return p, errors.NilError()
+				return p, errors.Nil()
 			}
 		}
 		for iS := range s.Sections {
@@ -332,16 +332,16 @@ func findSummaryParagraph(summary *model.Summary, sections []model.Section) (*mo
 				return nil, err
 			}
 			if p != nil {
-				return p, errors.NilError()
+				return p, errors.Nil()
 			}
 		}
 	}
-	return nil, errors.NilError()
+	return nil, errors.Nil()
 }
 
 func isSummaryParagraph(p *model.Paragraph, page, line int32) (bool, errors.UploadError) {
 	if !slices.Contains(p.Pages, page) {
-		return false, errors.NilError()
+		return false, errors.Nil()
 	}
 	pageIndex := strings.Index(p.Text, util.FmtPage(page))
 	if pageIndex == -1 { // paragraph starts in the middle of the page
@@ -349,13 +349,13 @@ func isSummaryParagraph(p *model.Paragraph, page, line int32) (bool, errors.Uplo
 	}
 	lineIndex := strings.Index(p.Text[pageIndex:], util.FmtLine(line))
 	if lineIndex == -1 {
-		return false, errors.NilError()
+		return false, errors.Nil()
 	}
 	index := pageIndex + lineIndex + len(util.FmtLine(line))
 	if !isSummaryAtStart(p.Text, index) {
-		return false, errors.NewError(fmt.Errorf("summary on page %d line %d is not at the start of paragraph", page, line), nil)
+		return false, errors.New(fmt.Errorf("summary on page %d line %d is not at the start of paragraph", page, line), nil)
 	}
-	return true, errors.NilError()
+	return true, errors.Nil()
 }
 
 func isSummaryAtStart(text string, startIndex int) bool {

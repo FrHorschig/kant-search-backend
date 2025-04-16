@@ -93,14 +93,14 @@ func TestUploadHandler(t *testing.T) {
 		{
 			name:      "Domain error processing XML",
 			xml:       xmlBase + `<root><band nr="5"></band></root>`,
-			mockError: errors.NewError(stderr.New("processing error"), nil),
+			mockError: errors.New(stderr.New("processing error"), nil),
 			wantCode:  http.StatusBadRequest,
 			wantMsg:   "error processing XML data",
 		},
 		{
 			name:      "Technical error processing XML",
 			xml:       xmlBase + `<root><band nr="5"></band></root>`,
-			mockError: errors.NewError(nil, stderr.New("processing error")),
+			mockError: errors.New(nil, stderr.New("processing error")),
 			wantCode:  http.StatusInternalServerError,
 			wantMsg:   "error processing XML data",
 		},
@@ -115,7 +115,7 @@ func TestUploadHandler(t *testing.T) {
 			rec := httptest.NewRecorder()
 			ctx := echo.New().NewContext(req, rec)
 			if tc.mockSuccess {
-				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.NilError())
+				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.Nil())
 			}
 			if tc.mockError.HasError {
 				volumeProcessor.EXPECT().Process(gomock.Any(), gomock.Any(), gomock.Any()).Return(tc.mockError)

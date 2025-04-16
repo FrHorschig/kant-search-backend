@@ -24,11 +24,11 @@ func antiqua(elem *etree.Element) (string, errors.UploadError) {
 		case "seite":
 			return seite(el)
 		case "trenn":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
@@ -50,11 +50,11 @@ func em2(elem *etree.Element) (string, errors.UploadError) {
 	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "bild":
-			return bildBildverweis(el), errors.NilError()
+			return bildBildverweis(el), errors.Nil()
 		case "bildverweis":
-			return bildBildverweis(el), errors.NilError()
+			return bildBildverweis(el), errors.Nil()
 		case "em1":
-			return em1(el), errors.NilError()
+			return em1(el), errors.Nil()
 		case "em2":
 			return em2(el)
 		case "fett":
@@ -74,18 +74,18 @@ func em2(elem *etree.Element) (string, errors.UploadError) {
 		case "seite":
 			return seite(el)
 		case "trenn":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
 	if err.HasError {
 		return "", err
 	}
-	return util.FmtEmph2(extracted), errors.NilError()
+	return util.FmtEmph2(extracted), errors.Nil()
 }
 
 func fett(elem *etree.Element) (string, errors.UploadError) {
@@ -96,32 +96,32 @@ func fett(elem *etree.Element) (string, errors.UploadError) {
 		case "zeile":
 			return zeile(el)
 		case "trenn":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
 	if err.HasError {
 		return "", err
 	}
-	return util.FmtBold(extracted), errors.NilError()
+	return util.FmtBold(extracted), errors.Nil()
 }
 
 func formel(elem *etree.Element) (string, errors.UploadError) {
 	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "em1":
-			return em1(el), errors.NilError()
+			return em1(el), errors.Nil()
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
 	if err.HasError {
 		return "", err
 	}
-	return util.FmtFormula(extracted), errors.NilError()
+	return util.FmtFormula(extracted), errors.Nil()
 }
 
 func fr(elem *etree.Element) (string, errors.UploadError) {
@@ -133,18 +133,18 @@ func fr(elem *etree.Element) (string, errors.UploadError) {
 	if err.HasError {
 		return "", err
 	}
-	return util.FmtFnRef(page, nr), errors.NilError()
+	return util.FmtFnRef(page, nr), errors.Nil()
 }
 
 func fremdsprache(elem *etree.Element) (string, errors.UploadError) {
 	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "bild":
-			return bildBildverweis(el), errors.NilError()
+			return bildBildverweis(el), errors.Nil()
 		case "bildverweis":
-			return bildBildverweis(el), errors.NilError()
+			return bildBildverweis(el), errors.Nil()
 		case "em1":
-			return em1(el), errors.NilError()
+			return em1(el), errors.Nil()
 		case "em2":
 			return em2(el)
 		case "fett":
@@ -164,18 +164,18 @@ func fremdsprache(elem *etree.Element) (string, errors.UploadError) {
 		case "seite":
 			return seite(el)
 		case "trenn":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
 	if err.HasError {
 		return "", err
 	}
-	return util.FmtLang(extracted), errors.NilError()
+	return util.FmtLang(extracted), errors.Nil()
 }
 
 func gesperrt(elem *etree.Element) (string, errors.UploadError) {
@@ -188,18 +188,18 @@ func gesperrt(elem *etree.Element) (string, errors.UploadError) {
 		case "seite":
 			return seite(el)
 		case "trenn":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
 	if err.HasError {
 		return "", err
 	}
-	return util.FmtTracked(extracted), errors.NilError()
+	return util.FmtTracked(extracted), errors.Nil()
 }
 
 func name(elem *etree.Element) (string, errors.UploadError) {
@@ -210,9 +210,9 @@ func name(elem *etree.Element) (string, errors.UploadError) {
 		case "zeile":
 			return zeile(el)
 		case "trenn":
-			return "", errors.NilError()
+			return "", errors.Nil()
 		default:
-			return "", errors.NewError(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
@@ -223,13 +223,13 @@ func romzahl(elem *etree.Element) (string, errors.UploadError) {
 	re := regexp.MustCompile(`^(\d+)(\.)?$`)
 	matches := re.FindStringSubmatch(content)
 	if len(matches) == 0 {
-		return "", errors.NilError()
+		return "", errors.Nil()
 	}
 	num, err := strconv.ParseInt(matches[1], 10, 64)
 	if err != nil {
-		return "", errors.NewError(nil, fmt.Errorf("error converting string '%s' to number: %v", matches[1], err.Error()))
+		return "", errors.New(nil, fmt.Errorf("error converting string '%s' to number: %v", matches[1], err.Error()))
 	}
-	return arabicToRoman(num) + matches[2], errors.NilError()
+	return arabicToRoman(num) + matches[2], errors.Nil()
 }
 
 func zeile(elem *etree.Element) (string, errors.UploadError) {
@@ -237,7 +237,7 @@ func zeile(elem *etree.Element) (string, errors.UploadError) {
 	if err.HasError {
 		return "", err
 	}
-	return util.FmtLine(line), errors.NilError()
+	return util.FmtLine(line), errors.Nil()
 }
 
 func extractForeignLangAttrs(el *etree.Element) string {
