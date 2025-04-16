@@ -17,7 +17,7 @@ func Parse(tokens []Token) *errors.ValidationError {
 	return nil
 }
 
-func parseExpression(tokens *[]Token) (*astNote, *errors.ValidationError) {
+func parseExpression(tokens *[]Token) (*astNode, *errors.ValidationError) {
 	node, err := parseTerm(tokens)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func parseExpression(tokens *[]Token) (*astNote, *errors.ValidationError) {
 		if err != nil {
 			return nil, err
 		}
-		node = &astNote{
+		node = &astNode{
 			Left:  node,
 			Right: nextNode,
 			Token: opToken,
@@ -40,7 +40,7 @@ func parseExpression(tokens *[]Token) (*astNote, *errors.ValidationError) {
 	return node, nil
 }
 
-func parseTerm(tokens *[]Token) (*astNote, *errors.ValidationError) {
+func parseTerm(tokens *[]Token) (*astNode, *errors.ValidationError) {
 	if len(*tokens) == 0 {
 		return nil, &errors.ValidationError{Msg: errors.UnexpectedEndOfInput}
 	}
@@ -52,18 +52,18 @@ func parseTerm(tokens *[]Token) (*astNote, *errors.ValidationError) {
 		if err != nil {
 			return nil, err
 		}
-		return &astNote{Left: node, Token: token}, nil
+		return &astNode{Left: node, Token: token}, nil
 	}
 
 	return parseFactor(tokens)
 }
 
-func parseFactor(tokens *[]Token) (*astNote, *errors.ValidationError) {
+func parseFactor(tokens *[]Token) (*astNode, *errors.ValidationError) {
 	token := &(*tokens)[0]
 	switch {
 	case token.IsWord || token.IsPhrase:
 		*tokens = (*tokens)[1:]
-		return &astNote{Token: token}, nil
+		return &astNode{Token: token}, nil
 	case token.IsOpen:
 		*tokens = (*tokens)[1:]
 		node, err := parseExpression(tokens)
