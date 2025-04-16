@@ -8,8 +8,8 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 )
@@ -155,7 +155,7 @@ func insertHeading(ctx context.Context, contentRepo dataaccess.ContentRepo, h *m
 		Type:       esmodel.Heading,
 		FmtText:    h.Text,
 		TocText:    util.ToStrPtr(h.TocText),
-		SearchText: transform.SanitizeText(h.Text),
+		SearchText: extract.RemoveTags(h.Text),
 		Pages:      h.Pages,
 		FnRefs:     h.FnRefs,
 		WorkId:     workId,
@@ -173,7 +173,7 @@ func insertParagraphs(ctx context.Context, contentRepo dataaccess.ContentRepo, p
 		pars = append(pars, esmodel.Content{
 			Type:       esmodel.Paragraph,
 			FmtText:    p.Text,
-			SearchText: transform.SanitizeText(p.Text),
+			SearchText: extract.RemoveTags(p.Text),
 			Pages:      p.Pages,
 			FnRefs:     p.FnRefs,
 			SummaryRef: p.SummaryRef,
@@ -201,7 +201,7 @@ func insertFootnotes(ctx context.Context, contentRepo dataaccess.ContentRepo, fo
 			Type:       esmodel.Footnote,
 			Ref:        &f.Ref,
 			FmtText:    f.Text,
-			SearchText: transform.SanitizeText(f.Text),
+			SearchText: extract.RemoveTags(f.Text),
 			Pages:      f.Pages,
 			WorkId:     workId,
 		})
@@ -219,7 +219,7 @@ func insertSummaries(ctx context.Context, contentRepo dataaccess.ContentRepo, su
 			Type:       esmodel.Summary,
 			Ref:        &s.Ref,
 			FmtText:    s.Text,
-			SearchText: transform.SanitizeText(s.Text),
+			SearchText: extract.RemoveTags(s.Text),
 			Pages:      s.Pages,
 			FnRefs:     s.FnRefs,
 			WorkId:     workId,
