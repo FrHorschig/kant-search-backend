@@ -1,23 +1,26 @@
-package internal
+package parse
 
-import "github.com/frhorschig/kant-search-backend/api/search/internal/errors"
+import (
+	"github.com/frhorschig/kant-search-backend/core/search/errors"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
+)
 
-func Parse(tokens []Token) *errors.ValidationError {
-	_, err := parseExpression(&tokens)
+func Parse(tokens []model.Token) (*model.AstNode, *errors.SyntaxError) {
+	node, err := parseExpression(&tokens)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if len(tokens) > 0 {
-		return &errors.ValidationError{
+		return nil, &errors.SyntaxError{
 			Msg:    errors.UnexpectedToken,
 			Params: []string{tokens[0].Text},
 		}
 	}
-	return nil
+	return node, nil
 }
 
-func parseExpression(tokens *[]Token) (*AstNode, *errors.ValidationError) {
+func parseExpression(tokens *[]model.Token) (*model.AstNode, *errors.SyntaxError) {
 	node, err := parseTerm(tokens)
 	if err != nil {
 		return nil, err
@@ -30,7 +33,7 @@ func parseExpression(tokens *[]Token) (*AstNode, *errors.ValidationError) {
 		if err != nil {
 			return nil, err
 		}
-		node = &AstNode{
+		node = &model.AstNode{
 			Left:  node,
 			Right: nextNode,
 			Token: opToken,
@@ -40,9 +43,9 @@ func parseExpression(tokens *[]Token) (*AstNode, *errors.ValidationError) {
 	return node, nil
 }
 
-func parseTerm(tokens *[]Token) (*AstNode, *errors.ValidationError) {
+func parseTerm(tokens *[]model.Token) (*model.AstNode, *errors.SyntaxError) {
 	if len(*tokens) == 0 {
-		return nil, &errors.ValidationError{Msg: errors.UnexpectedEndOfInput}
+		return nil, &errors.SyntaxError{Msg: errors.UnexpectedEndOfInput}
 	}
 
 	if (*tokens)[0].IsNot {
@@ -52,18 +55,18 @@ func parseTerm(tokens *[]Token) (*AstNode, *errors.ValidationError) {
 		if err != nil {
 			return nil, err
 		}
-		return &AstNode{Left: node, Token: token}, nil
+		return &model.AstNode{Left: node, Token: token}, nil
 	}
 
 	return parseFactor(tokens)
 }
 
-func parseFactor(tokens *[]Token) (*AstNode, *errors.ValidationError) {
+func parseFactor(tokens *[]model.Token) (*model.AstNode, *errors.SyntaxError) {
 	token := &(*tokens)[0]
 	switch {
 	case token.IsWord || token.IsPhrase:
 		*tokens = (*tokens)[1:]
-		return &AstNode{Token: token}, nil
+		return &model.AstNode{Token: token}, nil
 	case token.IsOpen:
 		*tokens = (*tokens)[1:]
 		node, err := parseExpression(tokens)
@@ -71,12 +74,12 @@ func parseFactor(tokens *[]Token) (*AstNode, *errors.ValidationError) {
 			return nil, err
 		}
 		if len(*tokens) == 0 || !(*tokens)[0].IsClose {
-			return nil, &errors.ValidationError{Msg: errors.MissingCloseParenthesis}
+			return nil, &errors.SyntaxError{Msg: errors.MissingCloseParenthesis}
 		}
 		*tokens = (*tokens)[1:]
 		return node, nil
 	default:
-		return nil, &errors.ValidationError{
+		return nil, &errors.SyntaxError{
 			Msg:    errors.UnexpectedToken,
 			Params: []string{token.Text},
 		}

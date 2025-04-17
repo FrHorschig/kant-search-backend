@@ -5,14 +5,11 @@ import (
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
-func CriteriaToCoreModel(in *models.SearchCriteria) model.SearchCriteria {
-	return model.SearchCriteria{
-		WorkIds:      in.WorkIds,
-		SearchString: in.SearchString,
-		Options: model.SearchOptions{
-			IncludeHeadings: in.Options.IncludeHeadings,
-			Scope:           model.SearchScope(in.Options.Scope),
-		},
+func CriteriaToCoreModel(in *models.SearchCriteria) (string, model.SearchOptions) {
+	return in.SearchString, model.SearchOptions{
+		WorkIds:         in.Options.WorkIds,
+		Scope:           model.SearchScope(in.Options.Scope),
+		IncludeHeadings: in.Options.IncludeHeadings,
 	}
 }
 

@@ -13,20 +13,20 @@ import (
 
 func TestCriteriaToCoreModel(t *testing.T) {
 	criteria := models.SearchCriteria{
-		WorkIds:      []string{"id1", "id2"},
 		SearchString: "search terms",
 		Options: models.SearchOptions{
 			IncludeHeadings: false,
 			Scope:           models.SearchScope("PARAGRAPH"),
+			WorkIds:         []string{"id1", "id2"},
 		},
 	}
 
-	result := CriteriaToCoreModel(&criteria)
+	ss, opts := CriteriaToCoreModel(&criteria)
 
-	assert.Equal(t, result.WorkIds, criteria.WorkIds)
-	assert.Equal(t, result.SearchString, criteria.SearchString)
-	assert.Equal(t, string(result.Options.Scope), string(criteria.Options.Scope))
-	assert.Equal(t, result.Options.IncludeHeadings, criteria.Options.IncludeHeadings)
+	assert.Equal(t, ss, criteria.SearchString)
+	assert.Equal(t, opts.IncludeHeadings, criteria.Options.IncludeHeadings)
+	assert.Equal(t, string(opts.Scope), string(criteria.Options.Scope))
+	assert.Equal(t, opts.WorkIds, criteria.Options.WorkIds)
 }
 
 func TestMatchesToApiModels(t *testing.T) {
