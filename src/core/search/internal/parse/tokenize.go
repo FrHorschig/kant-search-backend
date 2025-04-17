@@ -1,21 +1,22 @@
-package internal
+package parse
 
 import (
 	"strings"
 
-	"github.com/frhorschig/kant-search-backend/api/search/internal/errors"
+	"github.com/frhorschig/kant-search-backend/core/search/errors"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
-func Tokenize(input string) ([]Token, *errors.ValidationError) {
+func Tokenize(input string) ([]model.Token, *errors.SyntaxError) {
 	input = strings.TrimSpace(input)
 	if wrongBeginChar(input[0]) {
-		return nil, &errors.ValidationError{
+		return nil, &errors.SyntaxError{
 			Msg:    errors.WrongStartingChar,
 			Params: []string{string(input[0])},
 		}
 	}
 	if wrongEndChar(input[len(input)-1]) {
-		return nil, &errors.ValidationError{
+		return nil, &errors.SyntaxError{
 			Msg:    errors.WrongEndingChar,
 			Params: []string{string(input[len(input)-1])},
 		}
@@ -36,8 +37,8 @@ func wrongEndChar(c byte) bool {
 	return c == '&' || c == '|' || c == '!' || c == '('
 }
 
-func createTokens(input string) ([]Token, *errors.ValidationError) {
-	var tokens []Token
+func createTokens(input string) ([]model.Token, *errors.SyntaxError) {
+	var tokens []model.Token
 	for len(input) > 0 {
 		switch {
 		case strings.HasPrefix(input, "&"):
@@ -74,11 +75,11 @@ func createTokens(input string) ([]Token, *errors.ValidationError) {
 	return tokens, nil
 }
 
-func findPhrase(input string) (*Token, string, *errors.ValidationError) {
-	var token Token
+func findPhrase(input string) (*model.Token, string, *errors.SyntaxError) {
+	var token model.Token
 	end := strings.Index(input[1:], "\"")
 	if end == -1 {
-		return nil, "", &errors.ValidationError{Msg: errors.UnterminatedDoubleQuote}
+		return nil, "", &errors.SyntaxError{Msg: errors.UnterminatedDoubleQuote}
 	}
 	end += 1
 	token = newPhrase(strings.TrimSpace(input[1:end]))
@@ -90,8 +91,8 @@ func findPhrase(input string) (*Token, string, *errors.ValidationError) {
 	return &token, input, nil
 }
 
-func findWord(input string) (*Token, string) {
-	var token Token
+func findWord(input string) (*model.Token, string) {
+	var token model.Token
 	end := nextNonWordCharIndex(input)
 	if end == -1 {
 		token = newWord(input)
@@ -115,8 +116,8 @@ func nextNonWordCharIndex(s string) int {
 	return -1
 }
 
-func addInBetweenAnds(tokens []Token) []Token {
-	var result []Token
+func addInBetweenAnds(tokens []model.Token) []model.Token {
+	var result []model.Token
 	for i, t := range tokens {
 		if i == len(tokens)-1 {
 			result = append(result, t)
@@ -130,10 +131,10 @@ func addInBetweenAnds(tokens []Token) []Token {
 	return result
 }
 
-func isLhs(t Token) bool {
+func isLhs(t model.Token) bool {
 	return t.IsWord || t.IsPhrase || t.IsClose
 }
 
-func isRhs(t Token) bool {
+func isRhs(t model.Token) bool {
 	return t.IsWord || t.IsPhrase || t.IsNot || t.IsOpen
 }

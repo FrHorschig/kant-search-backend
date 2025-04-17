@@ -1,24 +1,25 @@
 //go:build unit
 // +build unit
 
-package internal
+package parse
 
 import (
 	"testing"
 
-	"github.com/frhorschig/kant-search-backend/api/search/internal/errors"
+	"github.com/frhorschig/kant-search-backend/core/search/errors"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCheckSyntax(t *testing.T) {
 	testCases := []struct {
 		name  string
-		input []Token
-		err   *errors.ValidationError
+		input []model.Token
+		err   *errors.SyntaxError
 	}{
 		{
 			name: "success",
-			input: []Token{
+			input: []model.Token{
 				{Text: "hello", IsWord: true},
 				{Text: "&", IsAnd: true},
 				{Text: "world", IsWord: true},
@@ -27,29 +28,29 @@ func TestCheckSyntax(t *testing.T) {
 		},
 		{
 			name:  "empty input",
-			input: []Token{},
-			err:   &errors.ValidationError{Msg: errors.UnexpectedEndOfInput},
+			input: []model.Token{},
+			err:   &errors.SyntaxError{Msg: errors.UnexpectedEndOfInput},
 		},
 		{
 			name: "NOT without following word",
-			input: []Token{
+			input: []model.Token{
 				{Text: "!", IsNot: true},
 			},
-			err: &errors.ValidationError{Msg: errors.UnexpectedEndOfInput},
+			err: &errors.SyntaxError{Msg: errors.UnexpectedEndOfInput},
 		},
 		{
 			name: "remaining tokens error",
-			input: []Token{
+			input: []model.Token{
 				{Text: "hello", IsWord: true},
 				{Text: "&", IsAnd: true},
 				{Text: "world", IsWord: true},
 				{Text: "extra", IsWord: true},
 			},
-			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"extra"}},
+			err: &errors.SyntaxError{Msg: errors.UnexpectedToken, Params: []string{"extra"}},
 		},
 		{
 			name: "phrase OR word",
-			input: []Token{
+			input: []model.Token{
 				{Text: "\"hello world\"", IsPhrase: true},
 				{Text: "|", IsOr: true},
 				{Text: "friend", IsWord: true},
@@ -58,14 +59,14 @@ func TestCheckSyntax(t *testing.T) {
 		},
 		{
 			name: "escaped special characters in phrase",
-			input: []Token{
+			input: []model.Token{
 				{Text: "\"hello \\\"world\\\"!\"", IsPhrase: true},
 			},
 			err: nil,
 		},
 		{
 			name: "NOT word",
-			input: []Token{
+			input: []model.Token{
 				{Text: "!", IsNot: true},
 				{Text: "enemy", IsWord: true},
 			},
@@ -73,7 +74,7 @@ func TestCheckSyntax(t *testing.T) {
 		},
 		{
 			name: "grouped expression",
-			input: []Token{
+			input: []model.Token{
 				{Text: "(", IsOpen: true},
 				{Text: "hello", IsWord: true},
 				{Text: "|", IsOr: true},
@@ -86,7 +87,7 @@ func TestCheckSyntax(t *testing.T) {
 		},
 		{
 			name: "nested groups",
-			input: []Token{
+			input: []model.Token{
 				{Text: "(", IsOpen: true},
 				{Text: "(", IsOpen: true},
 				{Text: "hello", IsWord: true},
@@ -101,81 +102,81 @@ func TestCheckSyntax(t *testing.T) {
 		},
 		{
 			name: "empty expression in parenthesis",
-			input: []Token{
+			input: []model.Token{
 				{Text: "hello", IsWord: true},
 				{Text: "&", IsAnd: true},
 				{Text: "(", IsOpen: true},
 				{Text: ")", IsClose: true},
 			},
-			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{")"}},
+			err: &errors.SyntaxError{Msg: errors.UnexpectedToken, Params: []string{")"}},
 		},
 		{
 			name: "missing closing parenthesis",
-			input: []Token{
+			input: []model.Token{
 				{Text: "(", IsOpen: true},
 				{Text: "hello", IsWord: true},
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.ValidationError{Msg: errors.MissingCloseParenthesis},
+			err: &errors.SyntaxError{Msg: errors.MissingCloseParenthesis},
 		},
 		{
 			name: "OR following AND",
-			input: []Token{
+			input: []model.Token{
 				{Text: "hello", IsWord: true},
 				{Text: "&", IsAnd: true},
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"|"}},
+			err: &errors.SyntaxError{Msg: errors.UnexpectedToken, Params: []string{"|"}},
 		},
 		{
 			name: "AND following OR",
-			input: []Token{
+			input: []model.Token{
 				{Text: "hello", IsWord: true},
 				{Text: "|", IsAnd: true},
 				{Text: "&", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"&"}},
+			err: &errors.SyntaxError{Msg: errors.UnexpectedToken, Params: []string{"&"}},
 		},
 		{
 			name: "starts with OR",
-			input: []Token{
+			input: []model.Token{
 				{Text: "|", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"|"}},
+			err: &errors.SyntaxError{Msg: errors.UnexpectedToken, Params: []string{"|"}},
 		},
 		{
 			name: "starts with AND",
-			input: []Token{
+			input: []model.Token{
 				{Text: "&", IsOr: true},
 				{Text: "world", IsWord: true},
 			},
-			err: &errors.ValidationError{Msg: errors.UnexpectedToken, Params: []string{"&"}},
+			err: &errors.SyntaxError{Msg: errors.UnexpectedToken, Params: []string{"&"}},
 		},
 		{
 			name: "ends with OR",
-			input: []Token{
+			input: []model.Token{
 				{Text: "world", IsWord: true},
 				{Text: "|", IsOr: true},
 			},
-			err: &errors.ValidationError{Msg: errors.UnexpectedEndOfInput},
+			err: &errors.SyntaxError{Msg: errors.UnexpectedEndOfInput},
 		},
 		{
 			name: "ends with AND",
-			input: []Token{
+			input: []model.Token{
 				{Text: "world", IsWord: true},
 				{Text: "&", IsOr: true},
 			},
-			err: &errors.ValidationError{Msg: errors.UnexpectedEndOfInput},
+			err: &errors.SyntaxError{Msg: errors.UnexpectedEndOfInput},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := Parse(tc.input)
+			_, err := Parse(tc.input)
 			assert.Equal(t, tc.err, err)
 		})
 	}

@@ -1,5 +1,22 @@
 package model
 
+type AstNode struct {
+	Left  *AstNode
+	Right *AstNode
+	Token *Token
+}
+
+type Token struct {
+	IsAnd    bool
+	IsOr     bool
+	IsNot    bool
+	IsOpen   bool
+	IsClose  bool
+	IsWord   bool
+	IsPhrase bool
+	Text     string
+}
+
 type SearchScope string
 
 const (
@@ -9,11 +26,7 @@ const (
 type SearchOptions struct {
 	IncludeHeadings bool
 	Scope           SearchScope
-}
-type SearchCriteria struct {
-	WorkIds      []string
-	SearchString string
-	Options      SearchOptions
+	WorkIds         []string
 }
 
 type SearchResult struct {
