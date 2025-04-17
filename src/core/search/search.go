@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/frhorschig/kant-search-backend/core/search/errors"
+	"github.com/frhorschig/kant-search-backend/core/search/internal"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
@@ -15,11 +16,13 @@ type SearchProcessor interface {
 }
 
 type searchProcessorImpl struct {
+	astParser   internal.AstParser
 	contentRepo dataaccess.ContentRepo
 }
 
 func NewSearchProcessor(contentRepo dataaccess.ContentRepo) SearchProcessor {
 	impl := searchProcessorImpl{
+		astParser:   internal.NewAstParser(),
 		contentRepo: contentRepo,
 	}
 	return &impl
