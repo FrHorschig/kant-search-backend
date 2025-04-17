@@ -51,14 +51,14 @@ func TestExtractNumericAttribute(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			value, err := ExtractNumericAttribute(tt.element, tt.attribute)
-			if tt.expectErr {
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			value, err := ExtractNumericAttribute(tc.element, tc.attribute)
+			if tc.expectErr {
 				assert.True(t, err.HasError)
 			} else {
 				assert.False(t, err.HasError)
-				assert.Equal(t, tt.expectedValue, value)
+				assert.Equal(t, tc.expectedValue, value)
 			}
 		})
 	}
@@ -87,10 +87,10 @@ func TestExtractFnRefs(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual := ExtractFnRefs(tt.text)
-			assert.Equal(t, tt.expected, actual)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := ExtractFnRefs(tc.text)
+			assert.Equal(t, tc.expected, actual)
 		})
 	}
 }
@@ -124,14 +124,14 @@ func TestExtractPages(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual, err := ExtractPages(tt.text)
-			if tt.expectErr {
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			actual, err := ExtractPages(tc.text)
+			if tc.expectErr {
 				assert.True(t, err.HasError)
 			} else {
 				assert.False(t, err.HasError)
-				assert.Equal(t, tt.expected, actual)
+				assert.Equal(t, tc.expected, actual)
 			}
 		})
 	}
@@ -195,10 +195,10 @@ func TestRemoveTags(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual := RemoveTags(tt.text)
-			assert.Equal(t, tt.expected, actual)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := RemoveTags(tc.text)
+			assert.Equal(t, tc.expected, actual)
 		})
 	}
 }

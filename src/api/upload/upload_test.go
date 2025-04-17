@@ -168,11 +168,11 @@ func TestReplaceCustomEntities(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(string(tt.input), func(t *testing.T) {
-			actual := replaceCustomEntities(tt.input)
-			if actual != tt.expected {
-				t.Errorf("expected %v, but got %v", tt.expected, actual)
+	for _, tc := range tests {
+		t.Run(string(tc.input), func(t *testing.T) {
+			actual := replaceCustomEntities(tc.input)
+			if actual != tc.expected {
+				t.Errorf("expected %v, but got %v", tc.expected, actual)
 			}
 		})
 	}

@@ -67,23 +67,23 @@ func TestMapVolume(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			vol, err := sut.MapVolume(tt.inputVolNr, tt.xmlInput)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			vol, err := sut.MapVolume(tc.inputVolNr, tc.xmlInput)
 
-			if tt.expectError {
+			if tc.expectError {
 				assert.True(t, err.HasError)
 				if err.DomainError != nil {
-					assert.Contains(t, err.DomainError.Error(), tt.expectedErrMsg)
+					assert.Contains(t, err.DomainError.Error(), tc.expectedErrMsg)
 				} else {
-					assert.Contains(t, err.TechnicalError.Error(), tt.expectedErrMsg)
+					assert.Contains(t, err.TechnicalError.Error(), tc.expectedErrMsg)
 				}
 			} else {
 				assert.False(t, err.HasError)
 				assert.NotNil(t, vol)
-				assert.Equal(t, tt.expectedVolNr, vol.VolumeNumber)
+				assert.Equal(t, tc.expectedVolNr, vol.VolumeNumber)
 				assert.Equal(t, int32(1), vol.Section)
-				assert.Equal(t, tt.expectedTitle, vol.Title)
+				assert.Equal(t, tc.expectedTitle, vol.Title)
 			}
 		})
 	}
