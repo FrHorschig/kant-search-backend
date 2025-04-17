@@ -20,6 +20,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var ordinal int32 = 0
+
 func TestUploadProcessSuccess(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -81,12 +83,36 @@ func TestUploadProcessSuccess(t *testing.T) {
 			},
 		},
 		Footnotes: []model.Footnote{
-			inFn(13),
-			inFn(14),
+			inFn(1),
+			inFn(2),
+			inFn(3),
+			inFn(4),
+			inFn(5),
+			inFn(6),
+			inFn(7),
+			inFn(8),
+			inFn(9),
+			inFn(10),
+			inFn(11),
+			inFn(12),
+			inFn(102),
+			inFn(103),
+			inFn(105),
+			inFn(106),
+			inFn(108),
+			inFn(109),
+			inFn(111),
+			inFn(112),
 		},
 		Summaries: []model.Summary{
-			inSumm(15),
-			inSumm(16),
+			inSumm(2),
+			inSumm(3),
+			inSumm(5),
+			inSumm(6),
+			inSumm(8),
+			inSumm(9),
+			inSumm(11),
+			inSumm(12),
 		},
 	}
 
@@ -128,6 +154,7 @@ func TestUploadProcessSuccess(t *testing.T) {
 		Do(func(ctx context.Context, w *esmodel.Work) {
 			w.Id = wId
 		}).Return(nil)
+
 	expectHeading(contentRepo, 1, wId)
 	expectParagraphs(contentRepo, 2, 3, wId)
 	expectHeading(contentRepo, 4, wId)
@@ -136,6 +163,7 @@ func TestUploadProcessSuccess(t *testing.T) {
 	expectParagraphs(contentRepo, 8, 9, wId)
 	expectHeading(contentRepo, 10, wId)
 	expectParagraphs(contentRepo, 11, 12, wId)
+
 	workRepo.EXPECT().Update(gomock.Any(), gomock.Eq(&esmodel.Work{
 		Id:           wId,
 		Code:         work.Code,
@@ -144,45 +172,28 @@ func TestUploadProcessSuccess(t *testing.T) {
 		Year:         work.Year,
 		Sections: []esmodel.Section{
 			{
-				Heading:    cId(1),
-				Paragraphs: []string{cId(2), cId(3)},
+				Heading:    "headingId1",
+				Paragraphs: []string{"paragraphId2", "paragraphId3"},
 				Sections: []esmodel.Section{
 					{
-						Heading:    cId(4),
-						Paragraphs: []string{cId(5), cId(6)},
+						Heading:    "headingId4",
+						Paragraphs: []string{"paragraphId5", "paragraphId6"},
 						Sections:   []esmodel.Section{},
 					},
 					{
-						Heading:    cId(7),
-						Paragraphs: []string{cId(8), cId(9)},
+						Heading:    "headingId7",
+						Paragraphs: []string{"paragraphId8", "paragraphId9"},
 						Sections:   []esmodel.Section{},
 					},
 				},
 			},
 			{
-				Heading:    cId(10),
-				Paragraphs: []string{cId(11), cId(12)},
+				Heading:    "headingId10",
+				Paragraphs: []string{"paragraphId11", "paragraphId12"},
 				Sections:   []esmodel.Section{},
 			},
 		},
 	})).Return(nil)
-
-	contentRepo.EXPECT().
-		Insert(gomock.Any(), gomock.Eq(
-			[]esmodel.Content{inFnC(13, wId), inFnC(14, wId)},
-		)).
-		Do(func(ctx any, c []esmodel.Content) {
-			c[0] = outFnC(13, wId)
-			c[1] = outFnC(14, wId)
-		}).Return(nil)
-	contentRepo.EXPECT().
-		Insert(gomock.Any(), gomock.Eq(
-			[]esmodel.Content{inSummC(15, wId), inSummC(16, wId)},
-		)).
-		Do(func(ctx any, c []esmodel.Content) {
-			c[0] = outSummC(15, wId)
-			c[1] = outSummC(16, wId)
-		}).Return(nil)
 	volumeRepo.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil)
 
 	// WHEN
@@ -193,24 +204,53 @@ func TestUploadProcessSuccess(t *testing.T) {
 }
 
 func expectHeading(contentRepo *dbMocks.MockContentRepo, n int32, wId string) {
+	inHead := inHeadC(n, wId)
+	outHead := outHeadC(n, wId)
+	inFn := inFnC(n, wId)
+	outFn := outFnC(n, wId)
 	contentRepo.EXPECT().
-		Insert(gomock.Any(), gomock.Eq(
-			[]esmodel.Content{inHeadC(n, wId)},
-		)).
-		DoAndReturn(func(ctx context.Context, c []esmodel.Content) {
-			c[0] = outHeadC(n, wId)
+		Insert(gomock.Any(), gomock.Eq([]esmodel.Content{inHead, inFn})).
+		Do(func(ctx context.Context, c []esmodel.Content) {
+			c[0] = outHead
+			c[1] = outFn
 		}).Return(nil)
 }
 
 func expectParagraphs(contentRepo *dbMocks.MockContentRepo, n1 int32, n2 int32, wId string) {
+	inSumm1 := inSummC(n1, wId)
+	outSumm1 := outSummC(n1, wId)
+	inFn100 := inFnC(n1+100, wId)
+	outFn100 := outFnC(n1+100, wId)
+	inPar1 := inParC(n1, wId)
+	outPar1 := outParC(n1, wId)
+	inFn1 := inFnC(n1, wId)
+	outFn1 := outFnC(n1, wId)
+	inSumm2 := inSummC(n2, wId)
+	outSumm2 := outSummC(n2, wId)
+	inFn200 := inFnC(n2+100, wId)
+	outFn200 := outFnC(n2+100, wId)
+	inPar2 := inParC(n2, wId)
+	outPar2 := outParC(n2, wId)
+	inFn2 := inFnC(n2, wId)
+	outFn2 := outFnC(n2, wId)
+
 	contentRepo.EXPECT().
-		Insert(gomock.Any(), gomock.Eq(
-			[]esmodel.Content{inParC(n1, wId), inParC(n2, wId)},
-		)).
-		Do(func(ctx any, c []esmodel.Content) {
-			c[0] = outParC(n1, wId)
-			c[1] = outParC(n2, wId)
+		Insert(gomock.Any(), gomock.Eq([]esmodel.Content{inSumm1, inFn100, inFn1, inSumm2, inFn200, inFn2})).
+		Do(func(ctx context.Context, c []esmodel.Content) {
+			c[0] = outSumm1
+			c[1] = outFn100
+			c[2] = outFn1
+			c[3] = outSumm2
+			c[4] = outFn200
+			c[5] = outFn2
 		}).Return(nil)
+	contentRepo.EXPECT().
+		Insert(gomock.Any(), gomock.Eq([]esmodel.Content{inPar1, inPar2})).
+		Do(func(ctx any, c []esmodel.Content) {
+			c[0] = outPar1
+			c[1] = outPar2
+		}).Return(nil)
+
 }
 
 func inHead(n int32) model.Heading {
@@ -218,8 +258,8 @@ func inHead(n int32) model.Heading {
 	return model.Heading{
 		Text:    "<fmt-tag>heading</fmt-tag> text " + nr,
 		TocText: "toc text " + nr,
-		Pages:   []int32{n, n + 100},
-		FnRefs:  []string{"fnRef " + nr},
+		Pages:   []int32{n},
+		FnRefs:  []string{"fnRef" + nr},
 	}
 }
 
@@ -227,36 +267,40 @@ func inHeadC(n int32, workId string) esmodel.Content {
 	nr := strconv.Itoa(int(n))
 	return esmodel.Content{
 		Type:       esmodel.Heading,
+		Ordinal:    ordinal,
 		FmtText:    "<fmt-tag>heading</fmt-tag> text " + nr,
 		TocText:    util.ToStrPtr("toc text " + nr),
 		SearchText: "heading text " + nr,
-		Pages:      []int32{n, n + 100},
-		FnRefs:     []string{"fnRef " + nr},
+		Pages:      []int32{n},
+		FnRefs:     []string{"fnRef" + nr},
 		WorkId:     workId,
 	}
 }
 
 func outHeadC(n int32, workId string) esmodel.Content {
 	nr := strconv.Itoa(int(n))
-	return esmodel.Content{
-		Id:         cId(n),
+	head := esmodel.Content{
+		Id:         "headingId" + nr,
+		Ordinal:    ordinal,
 		Type:       esmodel.Heading,
 		FmtText:    "<fmt-tag>heading</fmt-tag> text " + nr,
 		TocText:    util.ToStrPtr("toc text " + nr),
 		SearchText: "heading text " + nr,
-		Pages:      []int32{n, n + 100},
-		FnRefs:     []string{"fnRef " + nr},
+		Pages:      []int32{n},
+		FnRefs:     []string{"fnRef" + nr},
 		WorkId:     workId,
 	}
+	ordinal += 1
+	return head
 }
 
 func inPar(n int32) model.Paragraph {
 	nr := strconv.Itoa(int(n))
 	return model.Paragraph{
 		Text:       "<fmt-tag>paragraph</fmt-tag> text " + nr,
-		Pages:      []int32{n, n + 100},
-		FnRefs:     []string{"fnRef " + nr},
-		SummaryRef: util.ToStrPtr("summRef " + nr),
+		Pages:      []int32{n},
+		FnRefs:     []string{"fnRef" + nr},
+		SummaryRef: util.ToStrPtr("summRef" + nr),
 	}
 }
 
@@ -264,35 +308,39 @@ func inParC(n int32, workId string) esmodel.Content {
 	nr := strconv.Itoa(int(n))
 	return esmodel.Content{
 		Type:       esmodel.Paragraph,
+		Ordinal:    ordinal,
 		FmtText:    "<fmt-tag>paragraph</fmt-tag> text " + nr,
 		SearchText: "paragraph text " + nr,
-		Pages:      []int32{n, n + 100},
-		FnRefs:     []string{"fnRef " + nr},
-		SummaryRef: util.ToStrPtr("summRef " + nr),
+		Pages:      []int32{n},
+		FnRefs:     []string{"fnRef" + nr},
+		SummaryRef: util.ToStrPtr("summRef" + nr),
 		WorkId:     workId,
 	}
 }
 
 func outParC(n int32, workId string) esmodel.Content {
 	nr := strconv.Itoa(int(n))
-	return esmodel.Content{
-		Id:         cId(n),
+	par := esmodel.Content{
 		Type:       esmodel.Paragraph,
+		Id:         "paragraphId" + nr,
+		Ordinal:    ordinal,
 		FmtText:    "<fmt-tag>paragraph</fmt-tag> text " + nr,
 		SearchText: "paragraph text " + nr,
-		Pages:      []int32{n, n + 100},
-		FnRefs:     []string{"fnRef " + nr},
-		SummaryRef: util.ToStrPtr("summRef " + nr),
+		Pages:      []int32{n},
+		FnRefs:     []string{"fnRef" + nr},
+		SummaryRef: util.ToStrPtr("summRef" + nr),
 		WorkId:     workId,
 	}
+	ordinal += 1
+	return par
 }
 
 func inFn(n int32) model.Footnote {
 	nr := strconv.Itoa(int(n))
 	return model.Footnote{
 		Text:  "<fmt-tag>footnote</fmt-tag> text " + nr,
-		Ref:   "footnote ref " + nr,
-		Pages: []int32{n, n + 100},
+		Ref:   "fnRef" + nr,
+		Pages: []int32{n},
 	}
 }
 
@@ -300,66 +348,72 @@ func inFnC(n int32, workId string) esmodel.Content {
 	nr := strconv.Itoa(int(n))
 	return esmodel.Content{
 		Type:       esmodel.Footnote,
-		Ref:        util.ToStrPtr("footnote ref " + nr),
+		Ordinal:    ordinal,
+		Ref:        util.ToStrPtr("fnRef" + nr),
 		FmtText:    "<fmt-tag>footnote</fmt-tag> text " + nr,
 		SearchText: "footnote text " + nr,
-		Pages:      []int32{n, n + 100},
+		Pages:      []int32{n},
 		WorkId:     workId,
 	}
 }
 
 func outFnC(n int32, workId string) esmodel.Content {
 	nr := strconv.Itoa(int(n))
-	return esmodel.Content{
-		Id:         cId(n),
+	fn := esmodel.Content{
 		Type:       esmodel.Footnote,
-		Ref:        util.ToStrPtr("footnote ref " + nr),
+		Id:         "footnoteId" + nr,
+		Ordinal:    ordinal,
+		Ref:        util.ToStrPtr("fnRef" + nr),
 		FmtText:    "<fmt-tag>footnote</fmt-tag> text " + nr,
 		SearchText: "footnote text " + nr,
-		Pages:      []int32{n, n + 100},
+		Pages:      []int32{n},
 		WorkId:     workId,
 	}
+	ordinal += 1
+	return fn
 }
 
 func inSumm(n int32) model.Summary {
 	nr := strconv.Itoa(int(n))
+	nr100 := strconv.Itoa(int(n) + 100)
 	return model.Summary{
 		Text:   "<fmt-tag>summary</fmt-tag> text " + nr,
-		Ref:    "summary ref " + nr,
+		Ref:    "summRef" + nr,
 		Pages:  []int32{n, n + 100},
-		FnRefs: []string{"fnRef " + nr},
+		FnRefs: []string{"fnRef" + nr100},
 	}
 }
 
 func inSummC(n int32, workId string) esmodel.Content {
 	nr := strconv.Itoa(int(n))
+	nr100 := strconv.Itoa(int(n) + 100)
 	return esmodel.Content{
 		Type:       esmodel.Summary,
-		Ref:        util.ToStrPtr("summary ref " + nr),
+		Ordinal:    ordinal,
+		Ref:        util.ToStrPtr("summRef" + nr),
 		FmtText:    "<fmt-tag>summary</fmt-tag> text " + nr,
 		SearchText: "summary text " + nr,
 		Pages:      []int32{n, n + 100},
-		FnRefs:     []string{"fnRef " + nr},
+		FnRefs:     []string{"fnRef" + nr100},
 		WorkId:     workId,
 	}
 }
 func outSummC(n int32, workId string) esmodel.Content {
 	nr := strconv.Itoa(int(n))
-	return esmodel.Content{
-		Id:         cId(n),
+	nr100 := strconv.Itoa(int(n) + 100)
+	summ := esmodel.Content{
 		Type:       esmodel.Summary,
-		Ref:        util.ToStrPtr("summary ref " + nr),
+		Id:         "summaryId" + nr,
+		Ordinal:    ordinal,
+		Ref:        util.ToStrPtr("summRef" + nr),
 		FmtText:    "<fmt-tag>summary</fmt-tag> text " + nr,
 		SearchText: "summary text " + nr,
 		Pages:      []int32{n, n + 100},
-		FnRefs:     []string{"fnRef " + nr},
+		FnRefs:     []string{"fnRef" + nr100},
 		WorkId:     workId,
 	}
-}
-
-func cId(n int32) string {
-	nr := strconv.Itoa(int(n))
-	return "contentId" + nr
+	ordinal += 1
+	return summ
 }
 
 func TestUploadProcessErrors(t *testing.T) {
@@ -478,7 +532,7 @@ func TestUploadProcessErrors(t *testing.T) {
 			},
 		},
 		{
-			name: "Insert paragraphs fails",
+			name: "Insert summary and footnote fails",
 			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
 				mockXmlMapper(xm)
 				mockDeletion(vr, wr, cr, wId)
@@ -488,6 +542,23 @@ func TestUploadProcessErrors(t *testing.T) {
 							w.Id = wId
 						}).Return(nil),
 					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil),
+					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
+						Return(testErr),
+				)
+				mockDeletion(vr, wr, cr, wId)
+			},
+		},
+		{
+			name: "Insert paragraphs fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				mockXmlMapper(xm)
+				mockDeletion(vr, wr, cr, wId)
+				gomock.InOrder(
+					wr.EXPECT().Insert(gomock.Any(), gomock.Any()).
+						Do(func(ctx context.Context, w *esmodel.Work) {
+							w.Id = wId
+						}).Return(nil),
+					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil).Times(2),
 					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
 						Return(testErr),
 				)
@@ -505,47 +576,8 @@ func TestUploadProcessErrors(t *testing.T) {
 							w.Id = wId
 						}).Return(nil),
 					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-						Times(2).Return(nil),
+						Times(3).Return(nil),
 					wr.EXPECT().Update(gomock.Any(), gomock.Any()).
-						Return(testErr),
-				)
-				mockDeletion(vr, wr, cr, wId)
-			},
-		},
-		{
-			name: "Insert footnotes fails",
-			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-				mockXmlMapper(xm)
-				mockDeletion(vr, wr, cr, wId)
-				gomock.InOrder(
-					wr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-						Do(func(ctx context.Context, w *esmodel.Work) {
-							w.Id = wId
-						}).Return(nil),
-					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-						Times(2).Return(nil),
-					wr.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil),
-					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-						Return(testErr),
-				)
-				mockDeletion(vr, wr, cr, wId)
-			},
-		},
-		{
-			name: "Insert summaries fails",
-			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-				mockXmlMapper(xm)
-				mockDeletion(vr, wr, cr, wId)
-				gomock.InOrder(
-					wr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-						Do(func(ctx context.Context, w *esmodel.Work) {
-							w.Id = wId
-						}).Return(nil),
-					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-						Times(2).Return(nil),
-					wr.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil),
-					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil),
-					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
 						Return(testErr),
 				)
 				mockDeletion(vr, wr, cr, wId)
@@ -562,10 +594,8 @@ func TestUploadProcessErrors(t *testing.T) {
 							w.Id = wId
 						}).Return(nil),
 					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-						Times(2).Return(nil),
+						Times(3).Return(nil),
 					wr.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil),
-					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-						Times(2).Return(nil),
 					vr.EXPECT().Insert(gomock.Any(), gomock.Any()).
 						Return(testErr),
 				)
