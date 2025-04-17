@@ -34,6 +34,7 @@ var VolumeMapping = &types.TypeMapping{
 // structs for works tree data without content
 type Work struct {
 	Id           string    `json:"id"`
+	Ordinal      int32     `json:"ordinal"`
 	Code         string    `json:"code"`
 	Abbreviation *string   `json:"abbreviation"`
 	Title        string    `json:"title"`
@@ -50,6 +51,7 @@ type Section struct {
 var WorkMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
 		"id":           types.NewKeywordProperty(),
+		"ordinal":      types.NewKeywordProperty(),
 		"code":         types.NewKeywordProperty(),
 		"abbreviation": types.NewKeywordProperty(),
 		"title":        types.NewKeywordProperty(),
@@ -106,6 +108,7 @@ const (
 type Content struct {
 	Type       Type     `json:"type"`
 	Id         string   `json:"id"`
+	Ordinal    int32    `json:"ordinal"`
 	Ref        *string  `json:"ref"`
 	FmtText    string   `json:"fmtText"`
 	TocText    *string  `json:"tocText"`
@@ -120,6 +123,7 @@ var ContentMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
 		"type":       types.NewKeywordProperty(),
 		"id":         types.NewKeywordProperty(),
+		"ordinal":    types.NewIntegerNumberProperty(),
 		"ref":        types.NewKeywordProperty(),
 		"fmtText":    types.NewKeywordProperty(),
 		"tocText":    types.NewKeywordProperty(),
