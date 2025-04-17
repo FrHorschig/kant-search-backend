@@ -1,6 +1,9 @@
 package esmodel
 
-import "github.com/elastic/go-elasticsearch/v8/typedapi/types"
+import (
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
+	"github.com/frhorschig/kant-search-backend/common/util"
+)
 
 // structs for volume-works tree data
 type Volume struct {
@@ -19,13 +22,13 @@ type WorkRef struct {
 var VolumeMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
 		"volumeNumber": types.NewIntegerNumberProperty(),
-		"section":      types.NewIntegerNumberProperty(),
-		"title":        types.NewKeywordProperty(),
+		"section":      &types.IntegerNumberProperty{Index: util.FalsePtr()},
+		"title":        &types.TextProperty{Index: util.FalsePtr()},
 		"works": &types.NestedProperty{
 			Properties: map[string]types.Property{
 				"id":    types.NewKeywordProperty(),
-				"code":  types.NewKeywordProperty(),
-				"title": types.NewKeywordProperty(),
+				"code":  &types.TextProperty{Index: util.FalsePtr()},
+				"title": &types.TextProperty{Index: util.FalsePtr()},
 			},
 		},
 	},
@@ -51,35 +54,35 @@ type Section struct {
 var WorkMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
 		"id":           types.NewKeywordProperty(),
-		"ordinal":      types.NewKeywordProperty(),
-		"code":         types.NewKeywordProperty(),
-		"abbreviation": types.NewKeywordProperty(),
-		"title":        types.NewKeywordProperty(),
-		"year":         types.NewKeywordProperty(),
+		"ordinal":      types.NewIntegerNumberProperty(),
+		"code":         &types.TextProperty{Index: util.FalsePtr()},
+		"abbreviation": &types.TextProperty{Index: util.FalsePtr()},
+		"title":        &types.TextProperty{Index: util.FalsePtr()},
+		"year":         &types.TextProperty{Index: util.FalsePtr()},
 		"sections": &types.NestedProperty{
 			Properties: map[string]types.Property{
-				"heading":    types.NewKeywordProperty(),
-				"paragraphs": types.NewKeywordProperty(),
+				"heading":    &types.TextProperty{Index: util.FalsePtr()},
+				"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
 				"sections": &types.NestedProperty{
 					Properties: map[string]types.Property{
-						"heading":    types.NewKeywordProperty(),
-						"paragraphs": types.NewKeywordProperty(),
+						"heading":    &types.TextProperty{Index: util.FalsePtr()},
+						"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
 						"sections": &types.NestedProperty{
 							Properties: map[string]types.Property{
-								"heading":    types.NewKeywordProperty(),
-								"paragraphs": types.NewKeywordProperty(),
+								"heading":    &types.TextProperty{Index: util.FalsePtr()},
+								"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
 								"sections": &types.NestedProperty{
 									Properties: map[string]types.Property{
-										"heading":    types.NewKeywordProperty(),
-										"paragraphs": types.NewKeywordProperty(),
+										"heading":    &types.TextProperty{Index: util.FalsePtr()},
+										"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
 										"sections": &types.NestedProperty{
 											Properties: map[string]types.Property{
-												"heading":    types.NewKeywordProperty(),
-												"paragraphs": types.NewKeywordProperty(),
+												"heading":    &types.TextProperty{Index: util.FalsePtr()},
+												"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
 												"sections": &types.NestedProperty{
 													Properties: map[string]types.Property{
-														"heading":    types.NewKeywordProperty(),
-														"paragraphs": types.NewKeywordProperty(),
+														"heading":    &types.TextProperty{Index: util.FalsePtr()},
+														"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
 													},
 												},
 											},
@@ -95,7 +98,7 @@ var WorkMapping = &types.TypeMapping{
 	},
 }
 
-// structs for actual content (headings, paragraphs, footnotes, summaries), stored in a linear structure to make searching and fetching it simple
+// structs for actual content (headings, paragraphs, footnotes, summaries), stored in a linear structure to simplify searching and fetching
 type Type string
 
 const (
@@ -124,13 +127,13 @@ var ContentMapping = &types.TypeMapping{
 		"type":       types.NewKeywordProperty(),
 		"id":         types.NewKeywordProperty(),
 		"ordinal":    types.NewIntegerNumberProperty(),
-		"ref":        types.NewKeywordProperty(),
-		"fmtText":    types.NewKeywordProperty(),
-		"tocText":    types.NewKeywordProperty(),
+		"ref":        &types.TextProperty{Index: util.FalsePtr()},
+		"fmtText":    &types.TextProperty{Index: util.FalsePtr()},
+		"tocText":    &types.TextProperty{Index: util.FalsePtr()},
 		"searchText": types.NewTextProperty(),
-		"pages":      types.NewKeywordProperty(),
-		"fnRefs":     types.NewKeywordProperty(),
-		"summaryRef": types.NewKeywordProperty(),
+		"pages":      &types.TextProperty{Index: util.FalsePtr()},
+		"fnRefs":     &types.TextProperty{Index: util.FalsePtr()},
+		"summaryRef": &types.TextProperty{Index: util.FalsePtr()},
 		"workId":     types.NewKeywordProperty(),
 	},
 }

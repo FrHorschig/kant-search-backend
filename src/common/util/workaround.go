@@ -10,3 +10,8 @@ func ToStrVal(s *string) string {
 	}
 	return *s
 }
+
+func FalsePtr() *bool {
+	f := false
+	return &f
+}
