@@ -23,7 +23,7 @@ func TestContentRepo(t *testing.T) {
 	contents := []esmodel.Content{
 		{
 			Type:       esmodel.Footnote,
-			Ref:        util.ToStrPtr("A121"),
+			Ref:        util.StrPtr("A121"),
 			FmtText:    "formatted text 1",
 			SearchText: "search text 1",
 			Pages:      []int32{1, 2, 3},
@@ -39,7 +39,7 @@ func TestContentRepo(t *testing.T) {
 		},
 		{
 			Type:       esmodel.Paragraph,
-			Ref:        util.ToStrPtr("A124"),
+			Ref:        util.StrPtr("A124"),
 			FmtText:    "formatted text 3",
 			SearchText: "search text 3",
 			Pages:      []int32{4, 5},
@@ -48,7 +48,7 @@ func TestContentRepo(t *testing.T) {
 		},
 		{
 			Type:       esmodel.Paragraph,
-			Ref:        util.ToStrPtr("A124"),
+			Ref:        util.StrPtr("A124"),
 			FmtText:    "formatted text 4",
 			SearchText: "search text 4",
 			Pages:      []int32{4, 5},
@@ -57,7 +57,7 @@ func TestContentRepo(t *testing.T) {
 		},
 		{
 			Type:       esmodel.Summary,
-			Ref:        util.ToStrPtr("A125"),
+			Ref:        util.StrPtr("A125"),
 			FmtText:    "formatted text 5",
 			SearchText: "search text 5",
 			Pages:      []int32{4, 5},

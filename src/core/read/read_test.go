@@ -100,9 +100,9 @@ func testProcessWork(t *testing.T, sut *readProcessorImpl, workRepo *mocks.MockW
 	work := esmodel.Work{
 		Id:           workId,
 		Code:         "GMS",
-		Abbreviation: util.ToStrPtr("GMS"),
+		Abbreviation: util.StrPtr("GMS"),
 		Title:        "Grundlegung zur Metaphysik der Sitten",
-		Year:         util.ToStrPtr("1785"),
+		Year:         util.StrPtr("1785"),
 	}
 	// GIVEN
 	workRepo.EXPECT().Get(gomock.Any(), workId).Return(&work, nil)
@@ -129,7 +129,7 @@ func testProcessFootnotes(t *testing.T, sut *readProcessorImpl, contentRepo *moc
 	workId := "workId"
 	fn := esmodel.Content{
 		Type:       esmodel.Footnote,
-		Ref:        util.ToStrPtr("A121"),
+		Ref:        util.StrPtr("A121"),
 		FmtText:    "formatted text 1",
 		SearchText: "search text 1",
 		Pages:      []int32{1, 2, 3},
@@ -197,7 +197,7 @@ func testProcessParagraphs(t *testing.T, sut *readProcessorImpl, contentRepo *mo
 	workId := "workId"
 	par := esmodel.Content{
 		Type:       esmodel.Paragraph,
-		Ref:        util.ToStrPtr("A124"),
+		Ref:        util.StrPtr("A124"),
 		FmtText:    "formatted text 3",
 		SearchText: "search text 3",
 		Pages:      []int32{4, 5},
@@ -232,7 +232,7 @@ func testProcessSummaries(t *testing.T, sut *readProcessorImpl, contentRepo *moc
 	workId := "workId"
 	summ := esmodel.Content{
 		Type:       esmodel.Summary,
-		Ref:        util.ToStrPtr("A125"),
+		Ref:        util.StrPtr("A125"),
 		FmtText:    "formatted text 5",
 		SearchText: "search text 5",
 		Pages:      []int32{4, 5},

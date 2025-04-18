@@ -1,11 +1,10 @@
 package util
 
-// TODO adjust name
-func ToStrPtr(s string) *string {
+func StrPtr(s string) *string {
 	return &s
 }
 
-func ToStrVal(s *string) string {
+func StrVal(s *string) string {
 	if s == nil {
 		return ""
 	}

@@ -20,9 +20,9 @@ func TestWorkRepo(t *testing.T) {
 	repo := NewWorkRepo(dbClient)
 	work := esmodel.Work{
 		Code:         "GMS",
-		Abbreviation: util.ToStrPtr("GMS"),
+		Abbreviation: util.StrPtr("GMS"),
 		Title:        "Grundlegung zur Metaphysik der Sitten",
-		Year:         util.ToStrPtr("1785"),
+		Year:         util.StrPtr("1785"),
 	}
 
 	// WHEN Insert

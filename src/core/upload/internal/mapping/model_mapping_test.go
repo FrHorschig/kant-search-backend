@@ -52,7 +52,7 @@ func TestModelMapping(t *testing.T) {
 			}},
 			model: []model.Work{{
 				Title: "work title",
-				Year:  commonutil.ToStrPtr("1724"),
+				Year:  commonutil.StrPtr("1724"),
 				Sections: []model.Section{
 					{
 						Heading: model.Heading{
@@ -443,7 +443,7 @@ func TestModelMapping(t *testing.T) {
 func assertWork(t *testing.T, exp model.Work, act model.Work) {
 	assert.NotNil(t, exp)
 	assert.NotNil(t, act)
-	assert.Equal(t, commonutil.ToStrVal(exp.Year), commonutil.ToStrVal(act.Year))
+	assert.Equal(t, commonutil.StrVal(exp.Year), commonutil.StrVal(act.Year))
 
 	assert.Equal(t, len(exp.Sections), len(act.Sections))
 	for i := range exp.Sections {
