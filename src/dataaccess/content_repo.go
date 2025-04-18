@@ -15,6 +15,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/operationtype"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/rs/zerolog/log"
 )
 
@@ -25,6 +26,7 @@ type ContentRepo interface {
 	GetParagraphsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
 	GetSummariesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
 	DeleteByWorkId(ctx context.Context, workId string) error
+	Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error)
 }
 
 type contentRepoImpl struct {
@@ -69,7 +71,7 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 
 func (rec *contentRepoImpl) GetFootnotesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: createContentQuery(workId, string(esmodel.Footnote)),
+		Query: util.CreateContentQuery(workId, esmodel.Footnote),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -89,7 +91,7 @@ func (rec *contentRepoImpl) GetFootnotesByWorkId(ctx context.Context, workId str
 
 func (rec *contentRepoImpl) GetHeadingsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: createContentQuery(workId, string(esmodel.Heading)),
+		Query: util.CreateContentQuery(workId, esmodel.Heading),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -109,7 +111,7 @@ func (rec *contentRepoImpl) GetHeadingsByWorkId(ctx context.Context, workId stri
 
 func (rec *contentRepoImpl) GetParagraphsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: createContentQuery(workId, string(esmodel.Paragraph)),
+		Query: util.CreateContentQuery(workId, esmodel.Paragraph),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -129,7 +131,7 @@ func (rec *contentRepoImpl) GetParagraphsByWorkId(ctx context.Context, workId st
 
 func (rec *contentRepoImpl) GetSummariesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: createContentQuery(workId, string(esmodel.Summary)),
+		Query: util.CreateContentQuery(workId, esmodel.Summary),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -167,21 +169,57 @@ func (rec *contentRepoImpl) DeleteByWorkId(ctx context.Context, workId string) e
 	return nil
 }
 
-func createContentQuery(workId string, cType string) *types.Query {
-	return &types.Query{
-		Bool: &types.BoolQuery{
-			Must: []types.Query{
-				{
-					Term: map[string]types.TermQuery{
-						"workId": {Value: workId},
-					},
-				},
-				{
-					Term: map[string]types.TermQuery{
-						"type": {Value: cType},
-					},
+func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error) {
+	searchQuery, err := util.CreateQuery(ast)
+	if err != nil {
+		return nil, err
+	}
+	if searchQuery == nil {
+		// empty search term (== nil searchQueries) is catched in api layer, so if this is the case, the error is technical, not a user error
+		return nil, errors.New("search AST must not be nil")
+	}
+	optionQueries := []types.Query{}
+	for _, wId := range options.WorkIds {
+		optionQueries = append(optionQueries, util.CreateWorkIdQuery(wId))
+	}
+
+	res, err := rec.dbClient.Search().Index(rec.indexName).Request(
+		&search.Request{
+			Query: &types.Query{
+				Bool: &types.BoolQuery{
+					Must:   []types.Query{*searchQuery},
+					Filter: optionQueries,
 				},
 			},
-		},
+			Sort:      util.CreateSortOptions(),
+			Highlight: util.CreateHighlightOptions(),
+		}).Do(ctx)
+	if err != nil {
+		return nil, err
 	}
+
+	results := []model.SearchResult{}
+	for _, hit := range res.Hits.Hits {
+		var c esmodel.Content
+		err = json.Unmarshal(hit.Source_, &c)
+		if err != nil {
+			return nil, err
+		}
+		// TODO later: set numbers of fragments to zero, then extract the indices of the pre and post highlight tag, then map them to the fmtText field, use it with the indices for a) showing the full paragraph with highlighting and b) finding the exact page and line number of a match
+		results = append(results, model.SearchResult{
+			Snippets:  createSnippets(hit.Highlight["searchText"]),
+			Pages:     c.Pages,
+			ContentId: c.Id,
+			WorkId:    c.WorkId,
+		})
+	}
+	return results, nil
+}
+
+func createSnippets(snips []string) []string {
+	result := []string{}
+	for _, s := range snips {
+		result = append(result, fmt.Sprintf("...%s...", s))
+	}
+	return result
 }

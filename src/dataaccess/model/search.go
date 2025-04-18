@@ -31,8 +31,7 @@ type SearchOptions struct {
 }
 
 type SearchResult struct {
-	Snippet   string
-	Text      string
+	Snippets  []string
 	Pages     []int32
 	ContentId string
 	WorkId    string
