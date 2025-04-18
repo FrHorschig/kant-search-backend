@@ -1,5 +1,6 @@
 package util
 
+// TODO adjust name
 func ToStrPtr(s string) *string {
 	return &s
 }
@@ -14,4 +15,8 @@ func ToStrVal(s *string) string {
 func FalsePtr() *bool {
 	f := false
 	return &f
+}
+
+func IntPtr(i int) *int {
+	return &i
 }

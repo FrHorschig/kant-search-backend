@@ -123,7 +123,7 @@ func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mo
 		t.Fatal(err)
 	}
 	matches := []model.SearchResult{{
-		Snippet:   "Test",
+		Snippets:  []string{"Test"},
 		Pages:     []int32{1},
 		ContentId: "contentId",
 		WorkId:    "workId",
