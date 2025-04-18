@@ -18,15 +18,6 @@ jobs:
       - name: make owner lowercase
         run: |
           echo "OWNER=$(echo $OWNER | awk '{print tolower($0)}')" >> $GITHUB_ENV
-      - name: login to ghcr
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ env.OWNER }}
-          password: ${{ secrets.DB_IMAGE_PAT}}
-      - name: pull database image
-        run: |
-          docker pull ${{ env.DB_IMG }}
       - name: set up python venv
         run: |
           cd src_py
