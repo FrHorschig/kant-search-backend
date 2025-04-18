@@ -227,7 +227,7 @@ func createHeading(lv *loopVariables, h model.Heading) esmodel.Content {
 		Type:       esmodel.Heading,
 		Ordinal:    lv.ordinal,
 		FmtText:    h.Text,
-		TocText:    util.ToStrPtr(h.TocText),
+		TocText:    util.StrPtr(h.TocText),
 		SearchText: extract.RemoveTags(h.Text),
 		Pages:      h.Pages,
 		FnRefs:     h.FnRefs,

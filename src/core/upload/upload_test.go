@@ -47,9 +47,9 @@ func TestUploadProcessSuccess(t *testing.T) {
 	}
 	work := model.Work{
 		Code:         "code",
-		Abbreviation: util.ToStrPtr("abbrev"),
+		Abbreviation: util.StrPtr("abbrev"),
 		Title:        "work title",
-		Year:         util.ToStrPtr("1785"),
+		Year:         util.StrPtr("1785"),
 		Sections: []model.Section{
 			{
 				Heading: inHead(1),
@@ -269,7 +269,7 @@ func inHeadC(n int32, workId string) esmodel.Content {
 		Type:       esmodel.Heading,
 		Ordinal:    ordinal,
 		FmtText:    "<fmt-tag>heading</fmt-tag> text " + nr,
-		TocText:    util.ToStrPtr("toc text " + nr),
+		TocText:    util.StrPtr("toc text " + nr),
 		SearchText: "heading text " + nr,
 		Pages:      []int32{n},
 		FnRefs:     []string{"fnRef" + nr},
@@ -284,7 +284,7 @@ func outHeadC(n int32, workId string) esmodel.Content {
 		Ordinal:    ordinal,
 		Type:       esmodel.Heading,
 		FmtText:    "<fmt-tag>heading</fmt-tag> text " + nr,
-		TocText:    util.ToStrPtr("toc text " + nr),
+		TocText:    util.StrPtr("toc text " + nr),
 		SearchText: "heading text " + nr,
 		Pages:      []int32{n},
 		FnRefs:     []string{"fnRef" + nr},
@@ -300,7 +300,7 @@ func inPar(n int32) model.Paragraph {
 		Text:       "<fmt-tag>paragraph</fmt-tag> text " + nr,
 		Pages:      []int32{n},
 		FnRefs:     []string{"fnRef" + nr},
-		SummaryRef: util.ToStrPtr("summRef" + nr),
+		SummaryRef: util.StrPtr("summRef" + nr),
 	}
 }
 
@@ -313,7 +313,7 @@ func inParC(n int32, workId string) esmodel.Content {
 		SearchText: "paragraph text " + nr,
 		Pages:      []int32{n},
 		FnRefs:     []string{"fnRef" + nr},
-		SummaryRef: util.ToStrPtr("summRef" + nr),
+		SummaryRef: util.StrPtr("summRef" + nr),
 		WorkId:     workId,
 	}
 }
@@ -328,7 +328,7 @@ func outParC(n int32, workId string) esmodel.Content {
 		SearchText: "paragraph text " + nr,
 		Pages:      []int32{n},
 		FnRefs:     []string{"fnRef" + nr},
-		SummaryRef: util.ToStrPtr("summRef" + nr),
+		SummaryRef: util.StrPtr("summRef" + nr),
 		WorkId:     workId,
 	}
 	ordinal += 1
@@ -349,7 +349,7 @@ func inFnC(n int32, workId string) esmodel.Content {
 	return esmodel.Content{
 		Type:       esmodel.Footnote,
 		Ordinal:    ordinal,
-		Ref:        util.ToStrPtr("fnRef" + nr),
+		Ref:        util.StrPtr("fnRef" + nr),
 		FmtText:    "<fmt-tag>footnote</fmt-tag> text " + nr,
 		SearchText: "footnote text " + nr,
 		Pages:      []int32{n},
@@ -363,7 +363,7 @@ func outFnC(n int32, workId string) esmodel.Content {
 		Type:       esmodel.Footnote,
 		Id:         "footnoteId" + nr,
 		Ordinal:    ordinal,
-		Ref:        util.ToStrPtr("fnRef" + nr),
+		Ref:        util.StrPtr("fnRef" + nr),
 		FmtText:    "<fmt-tag>footnote</fmt-tag> text " + nr,
 		SearchText: "footnote text " + nr,
 		Pages:      []int32{n},
@@ -390,7 +390,7 @@ func inSummC(n int32, workId string) esmodel.Content {
 	return esmodel.Content{
 		Type:       esmodel.Summary,
 		Ordinal:    ordinal,
-		Ref:        util.ToStrPtr("summRef" + nr),
+		Ref:        util.StrPtr("summRef" + nr),
 		FmtText:    "<fmt-tag>summary</fmt-tag> text " + nr,
 		SearchText: "summary text " + nr,
 		Pages:      []int32{n, n + 100},
@@ -405,7 +405,7 @@ func outSummC(n int32, workId string) esmodel.Content {
 		Type:       esmodel.Summary,
 		Id:         "summaryId" + nr,
 		Ordinal:    ordinal,
-		Ref:        util.ToStrPtr("summRef" + nr),
+		Ref:        util.StrPtr("summRef" + nr),
 		FmtText:    "<fmt-tag>summary</fmt-tag> text " + nr,
 		SearchText: "summary text " + nr,
 		Pages:      []int32{n, n + 100},
@@ -619,8 +619,8 @@ func mockXmlMapper(mapper *mocks.MockXmlMapper) {
 		{
 			Code:         "c",
 			Title:        "t",
-			Abbreviation: util.ToStrPtr("abbr"),
-			Year:         util.ToStrPtr("2024"),
+			Abbreviation: util.StrPtr("abbr"),
+			Year:         util.StrPtr("2024"),
 			Sections: []model.Section{{
 				Heading: inHead(1),
 				Paragraphs: []model.Paragraph{

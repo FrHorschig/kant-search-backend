@@ -41,9 +41,9 @@ func TestWorkToApiModels(t *testing.T) {
 	in := &esmodel.Work{
 		Id:           "w1",
 		Code:         "C1",
-		Abbreviation: util.ToStrPtr("abbr"),
+		Abbreviation: util.StrPtr("abbr"),
 		Title:        "The Work",
-		Year:         util.ToStrPtr("2024"),
+		Year:         util.StrPtr("2024"),
 		Sections: []esmodel.Section{
 			{
 				Heading:    "Section 1",
@@ -76,7 +76,7 @@ func TestWorkToApiModels(t *testing.T) {
 
 func TestFootnotesToApiModels(t *testing.T) {
 	in := []esmodel.Content{
-		{Id: "f1", Ref: util.ToStrPtr("ref1"), FmtText: "Footnote text"},
+		{Id: "f1", Ref: util.StrPtr("ref1"), FmtText: "Footnote text"},
 	}
 	expected := []models.Footnote{
 		{Id: "f1", Ref: "ref1", Text: "Footnote text"},
@@ -90,7 +90,7 @@ func TestFootnotesToApiModels(t *testing.T) {
 
 func TestHeadingsToApiModels(t *testing.T) {
 	in := []esmodel.Content{
-		{Id: "h1", FmtText: "Heading text", TocText: util.ToStrPtr("toc text"), FnRefs: []string{"fn1"}},
+		{Id: "h1", FmtText: "Heading text", TocText: util.StrPtr("toc text"), FnRefs: []string{"fn1"}},
 	}
 	expected := []models.Heading{
 		{Id: "h1", Text: "Heading text", TocText: "toc text", FnRefs: []string{"fn1"}},
@@ -104,7 +104,7 @@ func TestHeadingsToApiModels(t *testing.T) {
 
 func TestParagraphsToApiModels(t *testing.T) {
 	in := []esmodel.Content{
-		{Id: "p1", FmtText: "Paragraph text", FnRefs: []string{"fn1"}, SummaryRef: util.ToStrPtr("s1")},
+		{Id: "p1", FmtText: "Paragraph text", FnRefs: []string{"fn1"}, SummaryRef: util.StrPtr("s1")},
 	}
 	expected := []models.Paragraph{
 		{Id: "p1", Text: "Paragraph text", FnRefs: []string{"fn1"}, SummaryRef: "s1"},
@@ -118,7 +118,7 @@ func TestParagraphsToApiModels(t *testing.T) {
 
 func TestSummariesToApiModels(t *testing.T) {
 	in := []esmodel.Content{
-		{Id: "s1", Ref: util.ToStrPtr("ref1"), FmtText: "Summary text", FnRefs: []string{"fn1"}},
+		{Id: "s1", Ref: util.StrPtr("ref1"), FmtText: "Summary text", FnRefs: []string{"fn1"}},
 	}
 	expected := []models.Summary{
 		{Id: "s1", Ref: "ref1", Text: "Summary text", FnRefs: []string{"fn1"}},

@@ -94,9 +94,9 @@ func testReadWork(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockR
 	work := esmodel.Work{
 		Id:           workId,
 		Code:         "GMS",
-		Abbreviation: util.ToStrPtr("GMS"),
+		Abbreviation: util.StrPtr("GMS"),
 		Title:        "Grundlegung zur Metaphysik der Sitten",
-		Year:         util.ToStrPtr("1785"),
+		Year:         util.StrPtr("1785"),
 	}
 	// GIVEN
 	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId, nil)
@@ -159,7 +159,7 @@ func testReadFootnotes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 	workId := "A123"
 	fn := esmodel.Content{
 		Type:       esmodel.Footnote,
-		Ref:        util.ToStrPtr("A121"),
+		Ref:        util.StrPtr("A121"),
 		FmtText:    "formatted text 1",
 		SearchText: "search text 1",
 		Pages:      []int32{1, 2, 3},
@@ -265,7 +265,7 @@ func testReadParagraphs(t *testing.T, sut *readHandlerImpl, readProcessor *mocks
 	workId := "A123"
 	par := esmodel.Content{
 		Type:       esmodel.Paragraph,
-		Ref:        util.ToStrPtr("A124"),
+		Ref:        util.StrPtr("A124"),
 		FmtText:    "formatted text 3",
 		SearchText: "search text 3",
 		Pages:      []int32{4, 5},
@@ -319,7 +319,7 @@ func testReadSummaries(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 	workId := "A123"
 	summ := esmodel.Content{
 		Type:       esmodel.Summary,
-		Ref:        util.ToStrPtr("A125"),
+		Ref:        util.StrPtr("A125"),
 		FmtText:    "formatted text 5",
 		SearchText: "search text 5",
 		Pages:      []int32{4, 5},

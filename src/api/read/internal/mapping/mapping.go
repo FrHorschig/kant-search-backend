@@ -31,9 +31,9 @@ func WorkToApiModels(in *esmodel.Work) models.Work {
 	out := models.Work{
 		Id:           in.Id,
 		Code:         in.Code,
-		Abbreviation: util.ToStrVal(in.Abbreviation),
+		Abbreviation: util.StrVal(in.Abbreviation),
 		Title:        in.Title,
-		Year:         util.ToStrVal(in.Year),
+		Year:         util.StrVal(in.Year),
 		Sections:     mapSections(in.Sections),
 	}
 	return out
@@ -56,7 +56,7 @@ func FootnotesToApiModels(in []esmodel.Content) []models.Footnote {
 	for _, c := range in {
 		out = append(out, models.Footnote{
 			Id:   c.Id,
-			Ref:  util.ToStrVal(c.Ref),
+			Ref:  util.StrVal(c.Ref),
 			Text: c.FmtText,
 		})
 	}
@@ -69,7 +69,7 @@ func HeadingsToApiModels(in []esmodel.Content) []models.Heading {
 		out = append(out, models.Heading{
 			Id:      c.Id,
 			Text:    c.FmtText,
-			TocText: util.ToStrVal(c.TocText),
+			TocText: util.StrVal(c.TocText),
 			FnRefs:  c.FnRefs,
 		})
 	}
@@ -83,7 +83,7 @@ func ParagraphsToApiModels(in []esmodel.Content) []models.Paragraph {
 			Id:         c.Id,
 			Text:       c.FmtText,
 			FnRefs:     c.FnRefs,
-			SummaryRef: util.ToStrVal(c.SummaryRef),
+			SummaryRef: util.StrVal(c.SummaryRef),
 		})
 	}
 	return out
@@ -94,7 +94,7 @@ func SummariesToApiModels(in []esmodel.Content) []models.Summary {
 	for _, c := range in {
 		out = append(out, models.Summary{
 			Id:     c.Id,
-			Ref:    util.ToStrVal(c.Ref),
+			Ref:    util.StrVal(c.Ref),
 			Text:   c.FmtText,
 			FnRefs: c.FnRefs,
 		})
