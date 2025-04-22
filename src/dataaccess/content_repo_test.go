@@ -10,13 +10,13 @@ import (
 
 	"github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestContentRepo(t *testing.T) {
+func TestContentInsertGetDelete(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
-
 	repo := NewContentRepo(dbClient)
 
 	workId := "work123"
@@ -39,7 +39,6 @@ func TestContentRepo(t *testing.T) {
 		},
 		{
 			Type:       esmodel.Paragraph,
-			Ref:        util.StrPtr("A124"),
 			FmtText:    "formatted text 3",
 			SearchText: "search text 3",
 			Pages:      []int32{4, 5},
@@ -48,7 +47,6 @@ func TestContentRepo(t *testing.T) {
 		},
 		{
 			Type:       esmodel.Paragraph,
-			Ref:        util.StrPtr("A124"),
 			FmtText:    "formatted text 4",
 			SearchText: "search text 4",
 			Pages:      []int32{4, 5},
@@ -130,9 +128,108 @@ func TestContentRepo(t *testing.T) {
 	assert.Len(t, summ, 0)
 }
 
+func TestContentSearchComplexQuery(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	repo := NewContentRepo(dbClient)
+
+	workId := "work123"
+	workId2 := "456work"
+	searchTerms := &model.AstNode{ // (dog | cat) & !mouse & "night bird"
+		Token: newAnd(),
+		Left: &model.AstNode{
+			Token: newAnd(),
+			Left: &model.AstNode{
+				Token: newOr(),
+				Left:  &model.AstNode{Token: newWord("dog")},
+				Right: &model.AstNode{Token: newWord("cat")},
+			},
+			Right: &model.AstNode{
+				Token: newNot(),
+				Left:  &model.AstNode{Token: newWord("mouse")},
+			},
+		},
+		Right: &model.AstNode{Token: newPhrase("night bird")},
+	}
+	options := model.SearchOptions{
+		WorkIds: []string{workId},
+	}
+
+	// GIVEN
+	err := repo.Insert(ctx, []esmodel.Content{
+		{
+			Type:       esmodel.Paragraph,
+			SearchText: "dog night bird",
+			WorkId:     workId,
+		},
+		{
+			Type:       esmodel.Paragraph,
+			SearchText: "cat night bird",
+			WorkId:     workId,
+		},
+		{
+			Type:       esmodel.Paragraph,
+			SearchText: "dog mice night bird",
+			WorkId:     workId,
+		},
+		{
+			Type:       esmodel.Paragraph,
+			SearchText: "dog mouse night bird",
+			WorkId:     workId,
+		},
+		{
+			Type:       esmodel.Paragraph,
+			SearchText: "dog knight bird",
+			WorkId:     workId,
+		},
+		{
+			Type:       esmodel.Paragraph,
+			SearchText: "cat night burd",
+			WorkId:     workId,
+		},
+		{
+			Type:       esmodel.Paragraph,
+			SearchText: "dog night bird 2",
+			WorkId:     workId2,
+		},
+		{
+			Type:       esmodel.Paragraph,
+			SearchText: "cat night bird 2",
+			WorkId:     workId2,
+		},
+	})
+	if err != nil {
+		t.Fatal("content insertion failure")
+	}
+	refreshContents(t)
+
+	// WHEN
+	hits, err := repo.Search(ctx, searchTerms, options)
+
+	// THEN
+	assert.Nil(t, err)
+	assert.Len(t, hits, 3)
+}
+
 func refreshContents(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_, err := dbClient.Indices.Refresh().Index("contents").Do(ctx)
 	assert.Nil(t, err)
+}
+
+func newAnd() *model.Token {
+	return &model.Token{IsAnd: true, Text: "&"}
+}
+func newOr() *model.Token {
+	return &model.Token{IsOr: true, Text: "|"}
+}
+func newNot() *model.Token {
+	return &model.Token{IsNot: true, Text: "!"}
+}
+func newWord(text string) *model.Token {
+	return &model.Token{IsWord: true, Text: text}
+}
+func newPhrase(text string) *model.Token {
+	return &model.Token{IsPhrase: true, Text: text}
 }
