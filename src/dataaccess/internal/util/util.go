@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
@@ -14,10 +15,24 @@ import (
 )
 
 func CreateIndex(es *elasticsearch.TypedClient, name string, mapping *types.TypeMapping) error {
-	_, err := es.Indices.Create(name).Request(&create.Request{
+	ctx := context.Background()
+	ok, err := es.Indices.Exists(name).Do(ctx)
+	if err != nil {
+		return err
+	}
+	if ok {
+		return nil
+	}
+
+	res, err := es.Indices.Create(name).Request(&create.Request{
 		Mappings: mapping,
-	}).Do(context.Background())
-	// TODO check what happens if the index already exists
+	}).Do(ctx)
+	if err != nil {
+		return err
+	}
+	if !res.Acknowledged {
+		return fmt.Errorf("creation of index '%s' not acknowledged", name)
+	}
 	return err
 }
 
@@ -39,6 +54,7 @@ func CreateContentQuery(workId string, cType esmodel.Type) *types.Query {
 		},
 	}
 }
+
 func CreateQuery(node *model.AstNode) (*types.Query, error) {
 	if node == nil {
 		return nil, nil
@@ -132,18 +148,20 @@ func createNotQuery(node *model.AstNode) (*types.Query, error) {
 	if err != nil {
 		return nil, err
 	}
-	q2, err := CreateQuery(node.Right)
-	if err != nil {
-		return nil, err
-	}
-	if q1 == nil && q2 == nil {
-		return nil, errors.New("NOT nodes must have either a left and a right child")
-	}
-	if q1 != nil && q2 != nil {
-		return nil, errors.New("NOT nodes must have only one child")
+	if q1 == nil {
+		q2, err := CreateQuery(node.Right)
+		if err != nil {
+			return nil, err
+		}
+		if q2 == nil {
+			return nil, errors.New("NOT nodes must have either a left and a right child")
+		}
+		return &types.Query{Bool: &types.BoolQuery{
+			MustNot: []types.Query{*q2},
+		}}, nil
 	}
 	return &types.Query{Bool: &types.BoolQuery{
-		MustNot: []types.Query{*q1, *q2},
+		MustNot: []types.Query{*q1},
 	}}, nil
 }
 
