@@ -183,6 +183,7 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 		optionQueries = append(optionQueries, util.CreateWorkIdQuery(wId))
 	}
 
+	// TODO implement includeHeadings option
 	res, err := rec.dbClient.Search().Index(rec.indexName).Request(
 		&search.Request{
 			Query: &types.Query{
