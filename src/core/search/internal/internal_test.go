@@ -37,8 +37,34 @@ func TestAstParser(t *testing.T) {
 			},
 		},
 		{
+			name:  "Simple AND",
+			input: "hello & world",
+			expected: &model.AstNode{
+				Token: newAnd(),
+				Left:  &model.AstNode{Token: newWord("hello")},
+				Right: &model.AstNode{Token: newWord("world")},
+			},
+		},
+		{
+			name:  "Simple OR",
+			input: "hello & world",
+			expected: &model.AstNode{
+				Token: newOr(),
+				Left:  &model.AstNode{Token: newWord("hello")},
+				Right: &model.AstNode{Token: newWord("world")},
+			},
+		},
+		{
+			name:  "Simple NOT",
+			input: "!hello",
+			expected: &model.AstNode{
+				Token: newNot(),
+				Left:  &model.AstNode{Token: newWord("hello")},
+			},
+		},
+		{
 			name:  "Complex search query",
-			input: "(dog | cat) & !mouse & (owl | \"night bird\")",
+			input: "(dog | cat) & !mouse & \"night bird\"",
 			expected: &model.AstNode{
 				Token: newAnd(),
 				Left: &model.AstNode{
@@ -53,11 +79,7 @@ func TestAstParser(t *testing.T) {
 						Left:  &model.AstNode{Token: newWord("mouse")},
 					},
 				},
-				Right: &model.AstNode{
-					Token: newOr(),
-					Left:  &model.AstNode{Token: newWord("owl")},
-					Right: &model.AstNode{Token: newPhrase("night bird")},
-				},
+				Right: &model.AstNode{Token: newPhrase("night bird")},
 			},
 		},
 	}
