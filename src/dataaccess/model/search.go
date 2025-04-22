@@ -25,9 +25,11 @@ const (
 )
 
 type SearchOptions struct {
-	IncludeHeadings bool
-	Scope           SearchScope
-	WorkIds         []string
+	IncludeHeadings  bool
+	IncludeFootnotes bool
+	IncludeSummaries bool
+	Scope            SearchScope
+	WorkIds          []string
 }
 
 type SearchResult struct {

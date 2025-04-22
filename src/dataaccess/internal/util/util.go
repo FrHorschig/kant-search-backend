@@ -36,7 +36,7 @@ func CreateIndex(es *elasticsearch.TypedClient, name string, mapping *types.Type
 	return err
 }
 
-func CreateWorkIdQuery(workId string) types.Query {
+func createWorkIdQuery(workId string) types.Query {
 	return types.Query{
 		Term: map[string]types.TermQuery{
 			"workId": {Value: workId},
@@ -44,18 +44,18 @@ func CreateWorkIdQuery(workId string) types.Query {
 	}
 }
 
-func CreateContentQuery(workId string, cType esmodel.Type) *types.Query {
+func CreateContentQuery(workId string, cType []esmodel.Type) *types.Query {
 	return &types.Query{
 		Bool: &types.BoolQuery{
 			Filter: []types.Query{
-				CreateWorkIdQuery(workId),
+				createWorkIdQuery(workId),
 				createTypeQuery(cType),
 			},
 		},
 	}
 }
 
-func CreateQuery(node *model.AstNode) (*types.Query, error) {
+func CreateSearchQuery(node *model.AstNode) (*types.Query, error) {
 	if node == nil {
 		return nil, nil
 	}
@@ -101,20 +101,20 @@ func CreateHighlightOptions() *types.Highlight {
 	}
 }
 
-func createTypeQuery(cType esmodel.Type) types.Query {
-	return types.Query{
-		Term: map[string]types.TermQuery{
-			"type": {Value: cType},
+func createTypeQuery(cType []esmodel.Type) types.Query {
+	return types.Query{Terms: &types.TermsQuery{
+		TermsQuery: map[string]types.TermsQueryField{
+			"type": cType,
 		},
-	}
+	}}
 }
 
 func createAndQuery(node *model.AstNode) (*types.Query, error) {
-	q1, err := CreateQuery(node.Left)
+	q1, err := CreateSearchQuery(node.Left)
 	if err != nil {
 		return nil, err
 	}
-	q2, err := CreateQuery(node.Right)
+	q2, err := CreateSearchQuery(node.Right)
 	if err != nil {
 		return nil, err
 	}
@@ -127,11 +127,11 @@ func createAndQuery(node *model.AstNode) (*types.Query, error) {
 }
 
 func createOrQuery(node *model.AstNode) (*types.Query, error) {
-	q1, err := CreateQuery(node.Left)
+	q1, err := CreateSearchQuery(node.Left)
 	if err != nil {
 		return nil, err
 	}
-	q2, err := CreateQuery(node.Right)
+	q2, err := CreateSearchQuery(node.Right)
 	if err != nil {
 		return nil, err
 	}
@@ -144,12 +144,12 @@ func createOrQuery(node *model.AstNode) (*types.Query, error) {
 }
 
 func createNotQuery(node *model.AstNode) (*types.Query, error) {
-	q1, err := CreateQuery(node.Left)
+	q1, err := CreateSearchQuery(node.Left)
 	if err != nil {
 		return nil, err
 	}
 	if q1 == nil {
-		q2, err := CreateQuery(node.Right)
+		q2, err := CreateSearchQuery(node.Right)
 		if err != nil {
 			return nil, err
 		}
@@ -179,4 +179,23 @@ func createTextMatchQuery(term string) *types.Query {
 			"searchText": {Query: term},
 		},
 	}
+}
+
+func CreateOptionQueries(opts model.SearchOptions) []types.Query {
+	qs := []types.Query{}
+	for _, wId := range opts.WorkIds {
+		qs = append(qs, createWorkIdQuery(wId))
+	}
+	types := []esmodel.Type{esmodel.Paragraph}
+	if opts.IncludeHeadings {
+		types = append(types, esmodel.Heading)
+	}
+	if opts.IncludeFootnotes {
+		types = append(types, esmodel.Footnote)
+	}
+	if opts.IncludeSummaries {
+		types = append(types, esmodel.Summary)
+	}
+	qs = append(qs, createTypeQuery(types))
+	return qs
 }
