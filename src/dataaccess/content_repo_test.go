@@ -17,7 +17,7 @@ import (
 func TestContentInsertGetDelete(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
-	repo := NewContentRepo(dbClient)
+	sut := NewContentRepo(dbClient)
 
 	workId := "work123"
 	contents := []esmodel.Content{
@@ -64,7 +64,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 	}
 
 	// WHEN Insert
-	err := repo.Insert(ctx, contents)
+	err := sut.Insert(ctx, contents)
 	// THEN
 	assert.Nil(t, err)
 	for _, c := range contents {
@@ -73,19 +73,19 @@ func TestContentInsertGetDelete(t *testing.T) {
 	refreshContents(t)
 
 	// WHEN Get footnote
-	fns, err := repo.GetFootnotesByWorkId(ctx, workId)
+	fns, err := sut.GetFootnotesByWorkId(ctx, workId)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, fns, 1)
 	assert.Equal(t, contents[0].SearchText, fns[0].SearchText)
 	// WHEN Get heading
-	heads, err := repo.GetHeadingsByWorkId(ctx, workId)
+	heads, err := sut.GetHeadingsByWorkId(ctx, workId)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 1)
 	assert.Equal(t, contents[1].SearchText, heads[0].SearchText)
 	// WHEN Get paragraphs
-	pars, err := repo.GetParagraphsByWorkId(ctx, workId)
+	pars, err := sut.GetParagraphsByWorkId(ctx, workId)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 1)
@@ -94,121 +94,154 @@ func TestContentInsertGetDelete(t *testing.T) {
 		[]string{pars[0].SearchText, pars[1].SearchText},
 	)
 	// WHEN Get summary
-	summ, err := repo.GetSummariesByWorkId(ctx, workId)
+	summ, err := sut.GetSummariesByWorkId(ctx, workId)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, summ, 1)
 	assert.Equal(t, contents[4].SearchText, summ[0].SearchText)
 
 	// WHEN Delete
-	err = repo.DeleteByWorkId(ctx, workId)
+	err = sut.DeleteByWorkId(ctx, workId)
 	// THEN
 	assert.Nil(t, err)
 	refreshContents(t)
 
 	// WHEN Get footnote
-	fns, err = repo.GetFootnotesByWorkId(ctx, workId)
+	fns, err = sut.GetFootnotesByWorkId(ctx, workId)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, fns, 0)
 	// WHEN Get heading
-	heads, err = repo.GetHeadingsByWorkId(ctx, workId)
+	heads, err = sut.GetHeadingsByWorkId(ctx, workId)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 0)
 	// WHEN Get paragraphs
-	pars, err = repo.GetParagraphsByWorkId(ctx, workId)
+	pars, err = sut.GetParagraphsByWorkId(ctx, workId)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 0)
 	// WHEN Get summary
-	summ, err = repo.GetSummariesByWorkId(ctx, workId)
+	summ, err = sut.GetSummariesByWorkId(ctx, workId)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, summ, 0)
 }
 
-func TestContentSearchComplexQuery(t *testing.T) {
+func TestSearch(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
-	repo := NewContentRepo(dbClient)
+	sut := NewContentRepo(dbClient)
 
 	workId := "work123"
 	workId2 := "456work"
-	searchTerms := &model.AstNode{ // (dog | cat) & !mouse & "night bird"
-		Token: newAnd(),
-		Left: &model.AstNode{
-			Token: newAnd(),
-			Left: &model.AstNode{
-				Token: newOr(),
-				Left:  &model.AstNode{Token: newWord("dog")},
-				Right: &model.AstNode{Token: newWord("cat")},
+	testdata := []struct {
+		name        string
+		dbInput     []esmodel.Content
+		searchTerms *model.AstNode
+		options     model.SearchOptions
+		hitCount    int
+	}{
+		{
+			name: "test complex query",
+			dbInput: []esmodel.Content{
+				{Type: esmodel.Paragraph, SearchText: "dog night bird", WorkId: workId},
+				{Type: esmodel.Paragraph, SearchText: "cat night bird", WorkId: workId},
+				{Type: esmodel.Paragraph, SearchText: "dog mice night bird", WorkId: workId},
+				{Type: esmodel.Paragraph, SearchText: "dog mouse night bird", WorkId: workId},
+				{Type: esmodel.Paragraph, SearchText: "dog knight bird", WorkId: workId},
+				{Type: esmodel.Paragraph, SearchText: "cat night burd", WorkId: workId},
+				{Type: esmodel.Paragraph, SearchText: "dog night bird 2", WorkId: workId2},
+				{Type: esmodel.Paragraph, SearchText: "cat night bird 2", WorkId: workId2},
 			},
-			Right: &model.AstNode{
-				Token: newNot(),
-				Left:  &model.AstNode{Token: newWord("mouse")},
+			searchTerms: &model.AstNode{ // (dog | cat) & !mouse & "night bird"
+				Token: newAnd(),
+				Left: &model.AstNode{
+					Token: newAnd(),
+					Left: &model.AstNode{
+						Token: newOr(),
+						Left:  &model.AstNode{Token: newWord("dog")},
+						Right: &model.AstNode{Token: newWord("cat")},
+					},
+					Right: &model.AstNode{
+						Token: newNot(),
+						Left:  &model.AstNode{Token: newWord("mouse")},
+					},
+				},
+				Right: &model.AstNode{Token: newPhrase("night bird")},
 			},
+			options:  model.SearchOptions{WorkIds: []string{workId}},
+			hitCount: 3,
 		},
-		Right: &model.AstNode{Token: newPhrase("night bird")},
-	}
-	options := model.SearchOptions{
-		WorkIds: []string{workId},
+		{
+			name: "test includeHeadings option",
+			dbInput: []esmodel.Content{
+				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkId: workId},
+				{Type: esmodel.Heading, SearchText: "heading text", WorkId: workId},
+				{Type: esmodel.Footnote, SearchText: "footnote text", WorkId: workId},
+				{Type: esmodel.Summary, SearchText: "summary text", WorkId: workId},
+			},
+			searchTerms: &model.AstNode{Token: newWord("text")},
+			options: model.SearchOptions{
+				WorkIds:         []string{workId},
+				IncludeHeadings: true,
+			},
+			hitCount: 2,
+		},
+		{
+			name: "test includeFootnotes option",
+			dbInput: []esmodel.Content{
+				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkId: workId},
+				{Type: esmodel.Heading, SearchText: "heading text", WorkId: workId},
+				{Type: esmodel.Footnote, SearchText: "footnote text", WorkId: workId},
+				{Type: esmodel.Summary, SearchText: "summary text", WorkId: workId},
+			},
+			searchTerms: &model.AstNode{Token: newWord("text")},
+			options: model.SearchOptions{
+				WorkIds:          []string{workId},
+				IncludeFootnotes: true,
+			},
+			hitCount: 2,
+		},
+		{
+			name: "test includeSummaries option",
+			dbInput: []esmodel.Content{
+				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkId: workId},
+				{Type: esmodel.Heading, SearchText: "heading text", WorkId: workId},
+				{Type: esmodel.Footnote, SearchText: "footnote text", WorkId: workId},
+				{Type: esmodel.Summary, SearchText: "summary text", WorkId: workId},
+			},
+			searchTerms: &model.AstNode{Token: newWord("text")},
+			options: model.SearchOptions{
+				WorkIds:          []string{workId},
+				IncludeSummaries: true,
+			},
+			hitCount: 2,
+		},
 	}
 
-	// GIVEN
-	err := repo.Insert(ctx, []esmodel.Content{
-		{
-			Type:       esmodel.Paragraph,
-			SearchText: "dog night bird",
-			WorkId:     workId,
-		},
-		{
-			Type:       esmodel.Paragraph,
-			SearchText: "cat night bird",
-			WorkId:     workId,
-		},
-		{
-			Type:       esmodel.Paragraph,
-			SearchText: "dog mice night bird",
-			WorkId:     workId,
-		},
-		{
-			Type:       esmodel.Paragraph,
-			SearchText: "dog mouse night bird",
-			WorkId:     workId,
-		},
-		{
-			Type:       esmodel.Paragraph,
-			SearchText: "dog knight bird",
-			WorkId:     workId,
-		},
-		{
-			Type:       esmodel.Paragraph,
-			SearchText: "cat night burd",
-			WorkId:     workId,
-		},
-		{
-			Type:       esmodel.Paragraph,
-			SearchText: "dog night bird 2",
-			WorkId:     workId2,
-		},
-		{
-			Type:       esmodel.Paragraph,
-			SearchText: "cat night bird 2",
-			WorkId:     workId2,
-		},
-	})
-	if err != nil {
-		t.Fatal("content insertion failure")
+	for _, tc := range testdata {
+		err := sut.Insert(ctx, tc.dbInput)
+		if err != nil {
+			t.Fatal("content insertion failure")
+		}
+		refreshContents(t)
+
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := sut.Search(ctx, tc.searchTerms, tc.options)
+			assert.Nil(t, err)
+			assert.Len(t, result, tc.hitCount)
+		})
+
+		err = sut.DeleteByWorkId(ctx, workId)
+		if err != nil {
+			t.Fatal("content deletion failure")
+		}
+		sut.DeleteByWorkId(ctx, workId2)
+		if err != nil {
+			t.Fatal("content deletion failure")
+		}
 	}
-	refreshContents(t)
-
-	// WHEN
-	hits, err := repo.Search(ctx, searchTerms, options)
-
-	// THEN
-	assert.Nil(t, err)
-	assert.Len(t, hits, 3)
 }
 
 func refreshContents(t *testing.T) {

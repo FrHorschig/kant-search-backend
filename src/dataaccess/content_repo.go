@@ -71,7 +71,7 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 
 func (rec *contentRepoImpl) GetFootnotesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workId, esmodel.Footnote),
+		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Footnote}),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (rec *contentRepoImpl) GetFootnotesByWorkId(ctx context.Context, workId str
 
 func (rec *contentRepoImpl) GetHeadingsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workId, esmodel.Heading),
+		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Heading}),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (rec *contentRepoImpl) GetHeadingsByWorkId(ctx context.Context, workId stri
 
 func (rec *contentRepoImpl) GetParagraphsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workId, esmodel.Paragraph),
+		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Paragraph}),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -131,7 +131,7 @@ func (rec *contentRepoImpl) GetParagraphsByWorkId(ctx context.Context, workId st
 
 func (rec *contentRepoImpl) GetSummariesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workId, esmodel.Summary),
+		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Summary}),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -170,7 +170,7 @@ func (rec *contentRepoImpl) DeleteByWorkId(ctx context.Context, workId string) e
 }
 
 func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error) {
-	searchQuery, err := util.CreateQuery(ast)
+	searchQuery, err := util.CreateSearchQuery(ast)
 	if err != nil {
 		return nil, err
 	}
@@ -178,12 +178,8 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 		// empty search term (== nil searchQueries) is catched in api layer, so if this is the case, the error is technical, not a user error
 		return nil, errors.New("search AST must not be nil")
 	}
-	optionQueries := []types.Query{}
-	for _, wId := range options.WorkIds {
-		optionQueries = append(optionQueries, util.CreateWorkIdQuery(wId))
-	}
+	optionQueries := util.CreateOptionQueries(options)
 
-	// TODO implement includeHeadings option
 	res, err := rec.dbClient.Search().Index(rec.indexName).Request(
 		&search.Request{
 			Query: &types.Query{
