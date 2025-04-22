@@ -23,9 +23,11 @@ func TestCriteriaToCoreModel(t *testing.T) {
 	ss, opts := CriteriaToCoreModel(&criteria)
 
 	assert.Equal(t, ss, criteria.SearchString)
-	assert.Equal(t, opts.IncludeHeadings, criteria.Options.IncludeHeadings)
-	assert.Equal(t, string(opts.Scope), string(criteria.Options.Scope))
 	assert.Equal(t, opts.WorkIds, criteria.Options.WorkIds)
+	assert.Equal(t, string(opts.Scope), string(criteria.Options.Scope))
+	assert.Equal(t, opts.IncludeHeadings, criteria.Options.IncludeHeadings)
+	assert.Equal(t, opts.IncludeFootnotes, criteria.Options.IncludeFootnotes)
+	assert.Equal(t, opts.IncludeSummaries, criteria.Options.IncludeSummaries)
 }
 
 // func TestMatchesToApiModels(t *testing.T) {

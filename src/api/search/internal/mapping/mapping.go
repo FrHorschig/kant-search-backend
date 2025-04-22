@@ -7,9 +7,11 @@ import (
 
 func CriteriaToCoreModel(in *models.SearchCriteria) (string, model.SearchOptions) {
 	return in.SearchString, model.SearchOptions{
-		WorkIds:         in.Options.WorkIds,
-		Scope:           model.SearchScope(in.Options.Scope),
-		IncludeHeadings: in.Options.IncludeHeadings,
+		WorkIds:          in.Options.WorkIds,
+		Scope:            model.SearchScope(in.Options.Scope),
+		IncludeHeadings:  in.Options.IncludeHeadings,
+		IncludeFootnotes: in.Options.IncludeFootnotes,
+		IncludeSummaries: in.Options.IncludeSummaries,
 	}
 }
 
