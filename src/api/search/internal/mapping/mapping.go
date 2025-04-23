@@ -15,32 +15,30 @@ func CriteriaToCoreModel(in *models.SearchCriteria) (string, model.SearchOptions
 	}
 }
 
-func MatchesToApiModels(matches []model.SearchResult) []models.SearchResult {
-	// TODO
-	// resultByWorkId := make(map[string][]models.Match)
-	// for _, match := range matches {
-	// 	apiMatch := models.Match{
-	// 		Snippets:  match.Snippets,
-	// 		Pages:     match.Pages,
-	// 		ContentId: match.ContentId,
-	// 	}
+func MatchesToApiModels(hits []model.SearchResult) []models.SearchResult {
+	resultByWorkId := make(map[string][]models.Hit)
+	for _, hit := range hits {
+		apiHit := models.Hit{
+			Snippets:  hit.Snippets,
+			Pages:     hit.Pages,
+			ContentId: hit.ContentId,
+		}
 
-	// 	arr, exists := resultByWorkId[match.WorkId]
-	// 	if !exists {
-	// 		arr = []models.Match{apiMatch}
-	// 	} else {
-	// 		arr = append(arr, apiMatch)
-	// 	}
-	// 	resultByWorkId[match.WorkId] = arr
-	// }
+		arr, exists := resultByWorkId[hit.WorkId]
+		if exists {
+			arr = append(arr, apiHit)
+		} else {
+			arr = []models.Hit{apiHit}
+		}
+		resultByWorkId[hit.WorkId] = arr
+	}
 
-	// var results []models.SearchResult
-	// for workId, apiMatches := range resultByWorkId {
-	// 	results = append(results, models.SearchResult{
-	// 		WorkId:  workId,
-	// 		Matches: apiMatches,
-	// 	})
-	// }
-	// return results
-	return nil
+	var results []models.SearchResult
+	for workId, apiHits := range resultByWorkId {
+		results = append(results, models.SearchResult{
+			WorkId: workId,
+			Hits:   apiHits,
+		})
+	}
+	return results
 }
