@@ -4,9 +4,11 @@
 package mapping
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,43 +32,74 @@ func TestCriteriaToCoreModel(t *testing.T) {
 	assert.Equal(t, opts.IncludeSummaries, criteria.Options.IncludeSummaries)
 }
 
-// func TestMatchesToApiModels(t *testing.T) {
-// 	match1 := model.SearchResult{
-// 		Snippets:  []string{"snippet"},
-// 		Pages:     []int32{1, 2},
-// 		ContentId: "content1Id",
-// 		WorkId:    "work1Id",
-// 	}
-// 	match2 := model.SearchResult{
-// 		Snippets:  []string{"snippet2"},
-// 		Pages:     []int32{3, 4},
-// 		ContentId: "content2Id",
-// 		WorkId:    "work1Id",
-// 	}
-// 	match3 := model.SearchResult{
-// 		Snippets:  []string{"snippet3"},
-// 		Pages:     []int32{5, 6},
-// 		ContentId: "content3Id",
-// 		WorkId:    "work2Id",
-// 	}
-// 	matches := []model.SearchResult{
-// 		match1, match2, match3,
-// 	}
+func TestMatchesToApiModels(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []model.SearchResult
+		expected []models.SearchResult
+	}{
+		{
+			name:     "empty input returns empty output",
+			input:    []model.SearchResult{},
+			expected: []models.SearchResult{},
+		},
+		{
+			name: "single result",
+			input: []model.SearchResult{
+				{
+					WorkId:    "w1",
+					Snippets:  []string{"snippet1"},
+					Pages:     []int32{1},
+					ContentId: "c1",
+				},
+			},
+			expected: []models.SearchResult{
+				{
+					WorkId: "w1",
+					Hits:   []models.Hit{{Snippets: []string{"snippet1"}, Pages: []int32{1}, ContentId: "c1"}},
+				},
+			},
+		},
+		{
+			name: "multiple results",
+			input: []model.SearchResult{
+				{WorkId: "w1", Snippets: []string{"a"}, Pages: []int32{1}, ContentId: "x"},
+				{WorkId: "w2", Snippets: []string{"b"}, Pages: []int32{2}, ContentId: "y"},
+			},
+			expected: []models.SearchResult{
+				{
+					WorkId: "w1",
+					Hits:   []models.Hit{{Snippets: []string{"a"}, Pages: []int32{1}, ContentId: "x"}},
+				},
+				{
+					WorkId: "w2",
+					Hits:   []models.Hit{{Snippets: []string{"b"}, Pages: []int32{2}, ContentId: "y"}},
+				},
+			},
+		},
+	}
 
-// 	results := MatchesToApiModels(matches)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := MatchesToApiModels(tt.input)
+			if !equalSearchResults(actual, tt.expected) {
+				t.Errorf("expected %+v, got %+v", tt.expected, actual)
+			}
+		})
+	}
+}
 
-// 	assert.Len(t, results, 2)
-
-// 	assert.Equal(t, results[0].WorkId, match1.WorkId)
-// 	assert.Equal(t, results[0].Matches[0].Pages, match1.Pages)
-// 	assert.Equal(t, results[0].Matches[0].Snippet, match1.Snippet)
-// 	assert.Equal(t, results[0].Matches[0].ContentId, match1.ContentId)
-// 	assert.Equal(t, results[0].Matches[1].Pages, match2.Pages)
-// 	assert.Equal(t, results[0].Matches[1].Snippet, match2.Snippet)
-// 	assert.Equal(t, results[0].Matches[1].ContentId, match2.ContentId)
-
-// 	assert.Equal(t, results[1].WorkId, match3.WorkId)
-// 	assert.Equal(t, results[1].Matches[0].Pages, match3.Pages)
-// 	assert.Equal(t, results[1].Matches[0].Snippet, match3.Snippet)
-// 	assert.Equal(t, results[1].Matches[0].ContentId, match3.ContentId)
-// }
+func equalSearchResults(a, b []models.SearchResult) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	m1 := make(map[string][]models.Hit)
+	m2 := make(map[string][]models.Hit)
+	for _, r := range a {
+		m1[r.WorkId] = r.Hits
+	}
+	for _, r := range b {
+		m2[r.WorkId] = r.Hits
+	}
+	return reflect.DeepEqual(m1, m2)
+}
