@@ -71,7 +71,9 @@ func registerHandlers(e *echo.Echo, uploadHandler apiupload.UploadHandler, readH
 		return readHandler.ReadSummaries(ctx)
 	})
 
-	// TODO search endpoint
+	e.GET(("/api/v1/search"), func(ctx echo.Context) error {
+		return searchHandler.Search(ctx)
+	})
 }
 
 func main() {
