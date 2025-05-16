@@ -34,7 +34,10 @@ func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.S
 		}
 		fns = append(fns, fn)
 	}
-	matchFnsToWorks(works, fns)
+	err := matchFnsToWorks(works, fns)
+	if err.HasError {
+		return nil, err
+	}
 
 	sms := []model.Summary{}
 	for _, s := range summaries {
@@ -44,8 +47,11 @@ func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.S
 		}
 		sms = append(sms, summary)
 	}
-	mapSummariesToWorks(works, sms)
-	err := insertSummaryRefs(works)
+	err = mapSummariesToWorks(works, sms)
+	if err.HasError {
+		return nil, err
+	}
+	err = insertSummaryRefs(works)
 	if err.HasError {
 		return nil, err
 	}
@@ -169,7 +175,7 @@ func mapSummary(s treemodel.Summary) (model.Summary, errors.UploadError) {
 }
 
 func postprocessWork(work *model.Work) {
-	var maxPage int32 = 1
+	var maxPage int32 = 0
 	for i := range work.Paragraphs {
 		postprocessParagraph(&work.Paragraphs[i], &maxPage)
 	}
@@ -222,7 +228,8 @@ func postprocessSection(section *model.Section, latestPage *int32) {
 	}
 }
 
-func matchFnsToWorks(works []model.Work, fns []model.Footnote) {
+func matchFnsToWorks(works []model.Work, fns []model.Footnote) errors.UploadError {
+	prevMax := int32(0)
 	for i := range works {
 		var min int32 = 0
 		var max int32 = 0
@@ -233,7 +240,12 @@ func matchFnsToWorks(works []model.Work, fns []model.Footnote) {
 				works[i].Footnotes = append(works[i].Footnotes, fns[j])
 			}
 		}
+		if min < prevMax {
+			return errors.New(fmt.Errorf("minimum page number %d of work '%s' is smaller than the maximum page number %d of the previous work", min, works[i].Title, prevMax), nil)
+		}
+		prevMax = max
 	}
+	return errors.Nil()
 }
 
 func insertSummaryRefs(works []model.Work) errors.UploadError {
@@ -250,7 +262,8 @@ func insertSummaryRefs(works []model.Work) errors.UploadError {
 	return errors.Nil()
 }
 
-func mapSummariesToWorks(works []model.Work, summaries []model.Summary) {
+func mapSummariesToWorks(works []model.Work, summaries []model.Summary) errors.UploadError {
+	prevMax := int32(0)
 	for i := range works {
 		var min int32 = 0
 		var max int32 = 0
@@ -261,7 +274,12 @@ func mapSummariesToWorks(works []model.Work, summaries []model.Summary) {
 				works[i].Summaries = append(works[i].Summaries, summaries[j])
 			}
 		}
+		if min < prevMax {
+			return errors.New(fmt.Errorf("minimum page number %d of work '%s' is smaller than the maximum page number %d of the previous work", min, works[i].Title, prevMax), nil)
+		}
+		prevMax = max
 	}
+	return errors.Nil()
 }
 
 func startsWithPageRef(text, pageRef string) bool {
@@ -314,7 +332,7 @@ func insertSummaryRef(summary *model.Summary, sections []model.Section) errors.U
 	page, line := findPageLine(summary.Ref)
 	p, err := findSummaryParagraph(summary, sections)
 	if err.HasError {
-		// in this case the summary starts in the middle of a paragraph, this is an error in the text, so we ignore it like the online version at kant-digital.bbaw.de does
+		// in this case the summary starts in the middle of a paragraph, this is probably an error in the text, so we ignore the summary
 		log.Debug().Msgf("found summary in the middle of a paragraph: %d.%d", page, line)
 		return errors.Nil()
 	}
