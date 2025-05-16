@@ -11,6 +11,7 @@ type Work struct {
 	Abbreviation *string
 	Title        string
 	Year         *string
+	Paragraphs   []Paragraph
 	Sections     []Section
 	Footnotes    []Footnote
 	Summaries    []Summary

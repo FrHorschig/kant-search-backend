@@ -3,6 +3,7 @@ package extract
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -17,9 +18,15 @@ func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errors.Uplo
 	if nStr == defaultStr {
 		return 0, errors.New(fmt.Errorf("missing '%s' attribute in '%s' element", attr, el.Tag), nil)
 	}
+
+	// TODO make this configurable at runtime
+	if slices.Contains([]string{"272a", "272c", "272d"}, nStr) {
+		nStr = "272"
+	}
+
 	n, err := strconv.ParseInt(nStr, 10, 32)
 	if err != nil {
-		return 0, errors.New(nil, fmt.Errorf("error converting string '%s' to number: %v", nStr, err.Error()))
+		return 0, errors.New(fmt.Errorf("can't convert attribute string '%s' to number", nStr), nil)
 	}
 	return int32(n), errors.Nil()
 }
@@ -43,7 +50,7 @@ func ExtractPages(text string) ([]int32, errors.UploadError) {
 		nStr := match[1]
 		n, err := strconv.ParseInt(nStr, 10, 32)
 		if err != nil {
-			return nil, errors.New(nil, fmt.Errorf("error converting string '%s' to number: %v", nStr, err.Error()))
+			return nil, errors.New(fmt.Errorf("can't convert page string '%s' to number", nStr), nil)
 		}
 		result = append(result, int32(n))
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	model "github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
+	"github.com/rs/zerolog/log"
 )
 
 func level(el *etree.Element) model.Level {
@@ -74,8 +75,11 @@ func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, 
 				continue
 			}
 			text += extracted
+		} else if childEl, ok := ch.(*etree.Comment); ok {
+			log.Debug().Msgf("Comment: '%s'", childEl.Data)
+			continue
 		} else {
-			return "", errors.New(nil, fmt.Errorf("unknown child type in tag '%v', it is neither CharData nor Element", elem.Tag))
+			return "", errors.New(nil, fmt.Errorf("unknown child type '%v' in tag '%v', it is neither CharData nor Element nor Comment", ch.(*etree.Element).Tag, elem.Tag))
 		}
 		text += " "
 	}

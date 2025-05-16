@@ -19,7 +19,7 @@ func TestTreeMapping(t *testing.T) {
 		"Test year assignment":                 testYearAssignment,
 		"Test paragraph extraction":            testParagraphExtraction,
 		"Test op is ignored":                   testOpIsIgnored,
-		"Test extraction of allparts":          testMainSummaryFootnoteExtraction,
+		"Test extraction of all parts":         testMainSummaryFootnoteExtraction,
 		"Test error in h1":                     testErrorInH1,
 		"Test error in h2":                     testErrorInH2,
 		"Test error in hu":                     testErrorInHu,

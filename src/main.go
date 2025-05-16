@@ -70,6 +70,8 @@ func registerHandlers(e *echo.Echo, uploadHandler apiupload.UploadHandler, readH
 	e.GET(("/api/v1/works/:workId/summaries"), func(ctx echo.Context) error {
 		return readHandler.ReadSummaries(ctx)
 	})
+
+	// TODO search endpoint
 }
 
 func main() {

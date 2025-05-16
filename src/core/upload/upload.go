@@ -52,7 +52,7 @@ func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml st
 
 	errInsert := insertNewData(ctx, rec.volumeRepo, rec.workRepo, rec.contentRepo, vol, works)
 	if errInsert != nil {
-		deleteExistingData(ctx, rec.volumeRepo, rec.workRepo, rec.contentRepo, volNr) // ignore the error, because here insertion error is more interesting
+		deleteExistingData(ctx, rec.volumeRepo, rec.workRepo, rec.contentRepo, volNr) // ignore the error, because here the insertion error is the more interesting one
 		return errors.New(nil, errInsert)
 	}
 	return errors.Nil()
@@ -62,6 +62,9 @@ func deleteExistingData(ctx context.Context, volRepo dataaccess.VolumeRepo, work
 	vol, err := volRepo.GetByVolumeNumber(ctx, volNr)
 	if err != nil {
 		return err
+	}
+	if vol == nil {
+		return nil
 	}
 	err = volRepo.Delete(ctx, volNr)
 	if err != nil {
@@ -110,6 +113,11 @@ func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, workRepo 
 			ordinal:     int32(0),
 		}
 
+		paragraphs, err := insertParagraphs(loopVars, w.Paragraphs)
+		if err != nil {
+			return err
+		}
+		work.Paragraphs = append(work.Paragraphs, paragraphs...)
 		sections, err := insertContents(loopVars, w.Sections)
 		if err != nil {
 			return err
@@ -146,6 +154,7 @@ func createWork(w model.Work, ordinal int32) esmodel.Work {
 		Abbreviation: w.Abbreviation,
 		Title:        w.Title,
 		Year:         w.Year,
+		Paragraphs:   []string{},
 		Sections:     []esmodel.Section{},
 	}
 }
@@ -192,10 +201,12 @@ func insertParagraphs(lv *loopVariables, paragraphs []model.Paragraph) ([]string
 	pars := []esmodel.Content{}
 	fnsAndSumm := []esmodel.Content{}
 	for _, p := range paragraphs {
-		summ := lv.summByRef[*p.SummaryRef]
-		fnsAndSumm = append(fnsAndSumm, createSummary(lv, summ))
-		for _, fnRef := range summ.FnRefs {
-			fnsAndSumm = append(fnsAndSumm, createFootnote(lv, lv.fnByRef[fnRef]))
+		if p.SummaryRef != nil {
+			summ := lv.summByRef[*p.SummaryRef]
+			fnsAndSumm = append(fnsAndSumm, createSummary(lv, summ))
+			for _, fnRef := range summ.FnRefs {
+				fnsAndSumm = append(fnsAndSumm, createFootnote(lv, lv.fnByRef[fnRef]))
+			}
 		}
 		pars = append(pars, createParagraph(lv, p))
 		for _, fnRef := range p.FnRefs {
@@ -206,12 +217,13 @@ func insertParagraphs(lv *loopVariables, paragraphs []model.Paragraph) ([]string
 		return []string{}, nil
 	}
 
-	err := lv.contentRepo.Insert(lv.ctx, fnsAndSumm)
-	if err != nil {
-		return nil, err
+	if len(fnsAndSumm) > 0 {
+		err := lv.contentRepo.Insert(lv.ctx, fnsAndSumm)
+		if err != nil {
+			return nil, err
+		}
 	}
-
-	err = lv.contentRepo.Insert(lv.ctx, pars)
+	err := lv.contentRepo.Insert(lv.ctx, pars)
 	if err != nil {
 		return nil, err
 	}
