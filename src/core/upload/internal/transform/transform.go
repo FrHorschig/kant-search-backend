@@ -3,6 +3,7 @@ package transform
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
@@ -120,9 +121,12 @@ func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 		tocTitle += " "
 		textTitle += " "
 	}
+	tocTitle = extract.RemoveTags(tocTitle)
+	tocTitle = strings.TrimSpace(tocTitle)
+	tocTitle = removePunctuation(tocTitle)
 	return model.Heading{
 		Level:     level(elem),
-		TocTitle:  strings.TrimSpace(tocTitle),
+		TocTitle:  tocTitle,
 		TextTitle: strings.TrimSpace(textTitle),
 	}, errors.Nil()
 }
@@ -269,4 +273,31 @@ func summary(elem *etree.Element) (model.Summary, errors.UploadError) {
 		Line: line,
 		Text: text,
 	}, errors.Nil()
+}
+
+func removePunctuation(s string) string {
+	var result []rune
+	length := len(s)
+	for i, r := range s {
+		if r == ':' {
+			if i > 0 && i < length-1 {
+				result = append(result, r)
+			}
+			continue
+		}
+		if unicode.IsPunct(r) {
+			continue
+		}
+		result = append(result, r)
+	}
+	return string(result)
+}
+
+func IsAllUpperCase(s string) bool {
+	for _, r := range s {
+		if unicode.IsLetter(r) && !unicode.IsUpper(r) {
+			return false
+		}
+	}
+	return true
 }

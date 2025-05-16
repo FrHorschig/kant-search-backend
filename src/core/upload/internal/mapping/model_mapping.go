@@ -63,7 +63,7 @@ func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.Upl
 	work := model.Work{}
 	work.Code = Metadata[vol-1][index].Code
 	work.Abbreviation = &Metadata[vol-1][index].Abbreviation
-	work.Title = h0.Heading.TextTitle
+	work.Title = h0.Heading.TocTitle
 	work.Year = &h0.Heading.Year
 	for _, p := range h0.Paragraphs {
 		par, err := mapParagraph(p)
