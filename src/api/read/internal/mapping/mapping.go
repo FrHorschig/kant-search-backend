@@ -34,6 +34,7 @@ func WorkToApiModels(in *esmodel.Work) models.Work {
 		Abbreviation: util.StrVal(in.Abbreviation),
 		Title:        in.Title,
 		Year:         util.StrVal(in.Year),
+		Paragraphs:   in.Paragraphs,
 		Sections:     mapSections(in.Sections),
 	}
 	return out

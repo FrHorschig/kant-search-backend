@@ -11,6 +11,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
+	"github.com/rs/zerolog/log"
 )
 
 func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.Summary, footnotes []treemodel.Footnote) ([]model.Work, errors.UploadError) {
@@ -20,7 +21,7 @@ func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.S
 		if err.HasError {
 			return nil, err
 		}
-		postprocessSections(&work)
+		postprocessWork(&work)
 		works = append(works, work)
 	}
 	// TODO (later) handle images and tables
@@ -58,8 +59,12 @@ func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.Upl
 	work.Abbreviation = &Metadata[vol-1][index].Abbreviation
 	work.Title = h0.Heading.TextTitle
 	work.Year = &h0.Heading.Year
-	if len(h0.Paragraphs) > 0 {
-		return work, errors.New(fmt.Errorf("work has paragraphs before the first non-worktitle heading"), nil)
+	for _, p := range h0.Paragraphs {
+		par, err := mapParagraph(p)
+		if err.HasError {
+			return work, err
+		}
+		work.Paragraphs = append(work.Paragraphs, par)
 	}
 	for _, s := range h0.Sections {
 		sec, err := mapSection(s)
@@ -163,14 +168,35 @@ func mapSummary(s treemodel.Summary) (model.Summary, errors.UploadError) {
 	}, errors.Nil()
 }
 
-func postprocessSections(work *model.Work) {
+func postprocessWork(work *model.Work) {
 	var maxPage int32 = 1
-	for _, sec := range work.Sections {
-		postprocess(&sec, &maxPage)
+	for i := range work.Paragraphs {
+		postprocessParagraph(&work.Paragraphs[i], &maxPage)
+	}
+	for i := range work.Sections {
+		postprocessSection(&work.Sections[i], &maxPage)
 	}
 }
 
-func postprocess(section *model.Section, latestPage *int32) {
+func postprocessParagraph(par *model.Paragraph, latestPage *int32) {
+	if len(par.Pages) > 0 {
+		firstPage := par.Pages[0]
+		pageRef := util.FmtPage(firstPage)
+		if !startsWithPageRef(par.Text, pageRef) {
+			par.Pages = append([]int32{firstPage - 1}, par.Pages...)
+		}
+		lastPage := par.Pages[len(par.Pages)-1]
+		if lastPage > *latestPage {
+			*latestPage = lastPage
+		}
+
+	} else {
+		// this happens when a paragraph is fully inside a page and at least on line away from the page start and end
+		par.Pages = []int32{*latestPage}
+	}
+}
+
+func postprocessSection(section *model.Section, latestPage *int32) {
 	head := &section.Heading
 	if len(head.Pages) > 0 {
 		firstPage := head.Pages[0]
@@ -188,26 +214,11 @@ func postprocess(section *model.Section, latestPage *int32) {
 	}
 
 	for i := range section.Paragraphs {
-		par := &section.Paragraphs[i]
-		if len(par.Pages) > 0 {
-			firstPage := par.Pages[0]
-			pageRef := util.FmtPage(firstPage)
-			if !startsWithPageRef(par.Text, pageRef) {
-				par.Pages = append([]int32{firstPage - 1}, par.Pages...)
-			}
-			lastPage := par.Pages[len(par.Pages)-1]
-			if lastPage > *latestPage {
-				*latestPage = lastPage
-			}
-
-		} else {
-			// this happens when a paragraph is fully inside a page and at least on line away from the page start and end
-			par.Pages = []int32{*latestPage}
-		}
+		postprocessParagraph(&section.Paragraphs[i], latestPage)
 	}
 
 	for i := range section.Sections {
-		postprocess(&section.Sections[i], latestPage)
+		postprocessSection(&section.Sections[i], latestPage)
 	}
 }
 
@@ -215,7 +226,7 @@ func matchFnsToWorks(works []model.Work, fns []model.Footnote) {
 	for i := range works {
 		var min int32 = 0
 		var max int32 = 0
-		findMinMaxPages(works[i].Sections, &min, &max)
+		findMinMaxPages(works[i].Paragraphs, works[i].Sections, &min, &max)
 		for j := range fns {
 			pages := fns[j].Pages
 			if pages[0] >= min && pages[len(pages)-1] <= max {
@@ -243,7 +254,7 @@ func mapSummariesToWorks(works []model.Work, summaries []model.Summary) {
 	for i := range works {
 		var min int32 = 0
 		var max int32 = 0
-		findMinMaxPages(works[i].Sections, &min, &max)
+		findMinMaxPages(works[i].Paragraphs, works[i].Sections, &min, &max)
 		for j := range summaries {
 			pages := summaries[j].Pages
 			if pages[0] >= min && pages[len(pages)-1] <= max {
@@ -256,10 +267,18 @@ func mapSummariesToWorks(works []model.Work, summaries []model.Summary) {
 func startsWithPageRef(text, pageRef string) bool {
 	index := strings.Index(text, pageRef)
 	cleaned := extract.RemoveTags(text[:index])
-	return cleaned == "" // text before page ref is only formatting code, so the "real text" starts with the page ref
+	return cleaned == "" // in this case the text before page ref is only formatting code, so the "real" text starts with the page ref
 }
 
-func findMinMaxPages(sections []model.Section, min, max *int32) {
+func findMinMaxPages(paragraphs []model.Paragraph, sections []model.Section, min, max *int32) {
+	for _, p := range paragraphs {
+		if *min == 0 || p.Pages[0] < *min {
+			*min = p.Pages[0]
+		}
+		if p.Pages[len(p.Pages)-1] > *max {
+			*max = p.Pages[len(p.Pages)-1]
+		}
+	}
 	for _, s := range sections {
 		if len(s.Heading.Pages) > 0 {
 			if *min == 0 || s.Heading.Pages[0] < *min {
@@ -279,7 +298,7 @@ func findMinMaxPages(sections []model.Section, min, max *int32) {
 				}
 			}
 		}
-		findMinMaxPages(s.Sections, min, max)
+		findMinMaxPages([]model.Paragraph{}, s.Sections, min, max)
 	}
 }
 
@@ -292,11 +311,13 @@ func findPageLine(name string) (int32, int32) {
 }
 
 func insertSummaryRef(summary *model.Summary, sections []model.Section) errors.UploadError {
+	page, line := findPageLine(summary.Ref)
 	p, err := findSummaryParagraph(summary, sections)
 	if err.HasError {
-		return err
+		// in this case the summary starts in the middle of a paragraph, this is an error in the text, so we ignore it like the online version at kant-digital.bbaw.de does
+		log.Debug().Msgf("found summary in the middle of a paragraph: %d.%d", page, line)
+		return errors.Nil()
 	}
-	page, line := findPageLine(summary.Ref)
 	if p == nil {
 		return errors.New(fmt.Errorf("could not find a paragraph for summary on page %d line %d", page, line), nil)
 	}
@@ -307,7 +328,6 @@ func insertSummaryRef(summary *model.Summary, sections []model.Section) errors.U
 	}
 	// line references should already by included in the summary text
 
-	p.Text = util.FmtSummaryRef(summary.Ref) + p.Text
 	p.SummaryRef = &summary.Ref
 	return errors.Nil()
 }

@@ -227,7 +227,7 @@ func romzahl(elem *etree.Element) (string, errors.UploadError) {
 	}
 	num, err := strconv.ParseInt(matches[1], 10, 64)
 	if err != nil {
-		return "", errors.New(nil, fmt.Errorf("error converting string '%s' to number: %v", matches[1], err.Error()))
+		return "", errors.New(fmt.Errorf("can't convert string '%s' to number", matches[1]), nil)
 	}
 	return arabicToRoman(num) + matches[2], errors.Nil()
 }

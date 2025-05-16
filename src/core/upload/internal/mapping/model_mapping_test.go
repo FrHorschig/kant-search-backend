@@ -1,7 +1,6 @@
 package mapping
 
 import (
-	"fmt"
 	"testing"
 
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
@@ -371,11 +370,11 @@ func TestModelMapping(t *testing.T) {
 						Heading: model.Heading{Text: util.FmtHeading(1, "")},
 						Paragraphs: []model.Paragraph{
 							{
-								Text:  sumRef(43, 348) + page(43) + line(348) + "I'm a paragraph.",
+								Text:  page(43) + line(348) + "I'm a paragraph.",
 								Pages: []int32{43},
 							},
 							{
-								Text:  sumRef(43, 58685) + line(58685) + "I'm a paragraph without a page number.",
+								Text:  line(58685) + "I'm a paragraph without a page number.",
 								Pages: []int32{43},
 							},
 						},
@@ -390,7 +389,7 @@ func TestModelMapping(t *testing.T) {
 						Heading: model.Heading{Text: util.FmtHeading(1, "")},
 						Paragraphs: []model.Paragraph{
 							{
-								Text:  sumRef(482, 5) + line(5) + "I'm a paragraph with " + page(483) + " a page break inside.",
+								Text:  line(5) + "I'm a paragraph with " + page(483) + " a page break inside.",
 								Pages: []int32{482, 483},
 							},
 						},
@@ -420,7 +419,7 @@ func TestModelMapping(t *testing.T) {
 				Line: 31,
 				Text: "Summary.",
 			}},
-			expectError: true,
+			expectError: false,
 		},
 	}
 
@@ -500,8 +499,4 @@ func page(page int32) string {
 
 func fnRef(page int32, nr int32) string {
 	return util.FmtFnRef(page, nr)
-}
-
-func sumRef(page, line int32) string {
-	return util.FmtSummaryRef(fmt.Sprintf("%d.%d", page, line))
 }

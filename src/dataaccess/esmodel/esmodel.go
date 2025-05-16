@@ -42,6 +42,7 @@ type Work struct {
 	Abbreviation *string   `json:"abbreviation"`
 	Title        string    `json:"title"`
 	Year         *string   `json:"year"`
+	Paragraphs   []string  `json:"paragraphs"`
 	Sections     []Section `json:"sections"`
 }
 

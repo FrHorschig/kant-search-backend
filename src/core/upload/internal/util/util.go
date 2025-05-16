@@ -15,7 +15,7 @@ const (
 	SummaryRefMatch = `<ks-meta-sumref>.*?</ks-meta-sumref>`
 )
 
-func FmtFnRef(page, nr int32) string {
+func FmtFnRef(page int32, nr int32) string {
 	return fmt.Sprintf(fnRefFmt, page, nr)
 }
 
