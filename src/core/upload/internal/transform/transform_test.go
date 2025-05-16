@@ -28,7 +28,7 @@ func TestHx(t *testing.T) {
 			name:              "Text with fett child element",
 			text:              "Test text",
 			child:             createElement("fett", nil, "fettText", nil),
-			expectedTocTitle:  "Test text " + util.FmtBold("fettText"),
+			expectedTocTitle:  "Test text " + "fettText",
 			expectedTextTitle: "Test text " + util.FmtBold("fettText"),
 		},
 		{
@@ -49,7 +49,7 @@ func TestHx(t *testing.T) {
 			name:              "Text with gesperrt child element",
 			text:              "Test text",
 			child:             createElement("gesperrt", nil, "gesperrtText", nil),
-			expectedTocTitle:  "Test text " + util.FmtTracked("gesperrtText"),
+			expectedTocTitle:  "Test text " + "gesperrtText",
 			expectedTextTitle: "Test text " + util.FmtTracked("gesperrtText"),
 		},
 		{
@@ -84,7 +84,7 @@ func TestHx(t *testing.T) {
 			name:              "Text with romzahl child element",
 			text:              "Test text",
 			child:             createElement("romzahl", nil, "2.", nil),
-			expectedTocTitle:  "Test text II.",
+			expectedTocTitle:  "Test text II",
 			expectedTextTitle: "Test text II.",
 		},
 		{
