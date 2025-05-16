@@ -149,6 +149,7 @@ func TestUploadProcessSuccess(t *testing.T) {
 			Abbreviation: work.Abbreviation,
 			Title:        work.Title,
 			Year:         work.Year,
+			Paragraphs:   []string{},
 			Sections:     []esmodel.Section{},
 		})).
 		Do(func(ctx context.Context, w *esmodel.Work) {
@@ -170,6 +171,7 @@ func TestUploadProcessSuccess(t *testing.T) {
 		Abbreviation: work.Abbreviation,
 		Title:        work.Title,
 		Year:         work.Year,
+		Paragraphs:   []string{},
 		Sections: []esmodel.Section{
 			{
 				Heading:    "headingId1",
