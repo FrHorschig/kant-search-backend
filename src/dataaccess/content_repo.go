@@ -13,6 +13,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/operationtype"
+	commonutil "github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
@@ -28,6 +29,8 @@ type ContentRepo interface {
 	DeleteByWorkId(ctx context.Context, workId string) error
 	Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error)
 }
+
+const resultsSize = 10000
 
 type contentRepoImpl struct {
 	dbClient  *elasticsearch.TypedClient
@@ -81,6 +84,7 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 func (rec *contentRepoImpl) GetFootnotesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
 		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Footnote}),
+		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -101,6 +105,7 @@ func (rec *contentRepoImpl) GetFootnotesByWorkId(ctx context.Context, workId str
 func (rec *contentRepoImpl) GetHeadingsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
 		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Heading}),
+		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -121,6 +126,7 @@ func (rec *contentRepoImpl) GetHeadingsByWorkId(ctx context.Context, workId stri
 func (rec *contentRepoImpl) GetParagraphsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
 		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Paragraph}),
+		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -141,6 +147,7 @@ func (rec *contentRepoImpl) GetParagraphsByWorkId(ctx context.Context, workId st
 func (rec *contentRepoImpl) GetSummariesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
 		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Summary}),
+		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
 		return nil, err
