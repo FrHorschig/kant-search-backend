@@ -51,7 +51,7 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 	for _, c := range data {
 		bulk.CreateOp(*types.NewCreateOperation(), c)
 	}
-	res, err := bulk.Do(context.TODO())
+	res, err := bulk.Do(ctx)
 	if err != nil {
 		return err
 	}
