@@ -61,7 +61,7 @@ func (rec *workRepoImpl) Update(ctx context.Context, data *esmodel.Work) error {
 }
 
 func (rec *workRepoImpl) Get(ctx context.Context, id string) (*esmodel.Work, error) {
-	res, err := rec.dbClient.Get(rec.indexName, id).Do(context.TODO())
+	res, err := rec.dbClient.Get(rec.indexName, id).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
