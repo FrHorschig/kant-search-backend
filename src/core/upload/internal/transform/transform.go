@@ -124,6 +124,7 @@ func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 	tocTitle = extract.RemoveTags(tocTitle)
 	tocTitle = strings.TrimSpace(tocTitle)
 	tocTitle = removePunctuation(tocTitle)
+	tocTitle = fixCapitalization(tocTitle)
 	return model.Heading{
 		Level:     level(elem),
 		TocTitle:  tocTitle,
@@ -293,7 +294,18 @@ func removePunctuation(s string) string {
 	return string(result)
 }
 
-func IsAllUpperCase(s string) bool {
+func fixCapitalization(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+
+	if isAllUpperCase(s) {
+		return s[:1] + strings.ToLower(s[1:])
+	}
+	return strings.ToUpper(s[:1]) + s[1:]
+}
+
+func isAllUpperCase(s string) bool {
 	for _, r := range s {
 		if unicode.IsLetter(r) && !unicode.IsUpper(r) {
 			return false
