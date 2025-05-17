@@ -65,8 +65,6 @@ func RemoveTags(text string) string {
 	text = re.ReplaceAllString(text, "")
 	re = regexp.MustCompile(util.PageMatch)
 	text = re.ReplaceAllString(text, "")
-	re = regexp.MustCompile(util.SummaryRefMatch)
-	text = re.ReplaceAllString(text, "")
 	re = regexp.MustCompile(`<[^>]*>`)
 	text = re.ReplaceAllString(text, "")
 	re = regexp.MustCompile(`\s+`)

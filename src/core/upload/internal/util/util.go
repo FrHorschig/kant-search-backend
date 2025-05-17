@@ -5,14 +5,12 @@ import (
 )
 
 const (
-	fnRefFmt        = `<ks-meta-fnref>%d.%d</ks-meta-fnref>`
-	FnRefMatch      = `<ks-meta-fnref>(\d+\.\d+)</ks-meta-fnref>`
-	lineFmt         = `<ks-meta-line>%d</ks-meta-line>`
-	LineMatch       = `<ks-meta-line>(\d+)</ks-meta-line>`
-	pageFmt         = `<ks-meta-page>%d</ks-meta-page>`
-	PageMatch       = `<ks-meta-page>(\d+)</ks-meta-page>`
-	summaryRefFmt   = `<ks-meta-sumref>%s</ks-meta-sumref>`
-	SummaryRefMatch = `<ks-meta-sumref>.*?</ks-meta-sumref>`
+	fnRefFmt   = `<ks-meta-fnref>%d.%d</ks-meta-fnref>`
+	FnRefMatch = `<ks-meta-fnref>(\d+\.\d+)</ks-meta-fnref>`
+	lineFmt    = `<ks-meta-line>%d</ks-meta-line>`
+	LineMatch  = `<ks-meta-line>(\d+)</ks-meta-line>`
+	pageFmt    = `<ks-meta-page>%d</ks-meta-page>`
+	PageMatch  = `<ks-meta-page>(\d+)</ks-meta-page>`
 )
 
 func FmtFnRef(page int32, nr int32) string {
@@ -25,10 +23,6 @@ func FmtLine(line int32) string {
 
 func FmtPage(page int32) string {
 	return fmt.Sprintf(pageFmt, page)
-}
-
-func FmtSummaryRef(name string) string {
-	return fmt.Sprintf(summaryRefFmt, name)
 }
 
 const (
