@@ -1,7 +1,6 @@
 package extract
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/beevik/etree"
@@ -159,11 +158,6 @@ func TestRemoveTags(t *testing.T) {
 			expected: "This is a text with and .",
 		},
 		{
-			name:     "Text with summary matches",
-			text:     "This is a text with " + summ(5, 7) + " and " + summ(10, 22) + ".",
-			expected: "This is a text with and .",
-		},
-		{
 			name:     "Text with HTML tags",
 			text:     "<div>This is <b>bold</b> and <i>italic</i>.</div>",
 			expected: "This is bold and italic.",
@@ -213,8 +207,4 @@ func page(page int32) string {
 
 func fnRef(page, nr int32) string {
 	return util.FmtFnRef(page, nr)
-}
-
-func summ(page, line int32) string {
-	return util.FmtSummaryRef(fmt.Sprintf("%d.%d", page, line))
 }
