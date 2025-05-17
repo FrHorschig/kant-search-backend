@@ -38,7 +38,7 @@ const (
 	formulaFmt    = "<ks-fmt-formula>%s</ks-fmt-formula>"
 	headingFmt    = "<ks-fmt-h%d>%s</ks-fmt-h%d>"
 	langFmt       = `%s`
-	parHeadingFmt = "ks-fmt-hpar>%s</ks-fmt-hpar>"
+	parHeadingFmt = "<ks-fmt-hpar>%s</ks-fmt-hpar>"
 	trackedFmt    = "<ks-fmt-tracked>%s</ks-fmt-tracked>"
 )
 
