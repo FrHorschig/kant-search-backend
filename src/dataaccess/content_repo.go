@@ -47,11 +47,11 @@ func NewContentRepo(dbClient *elasticsearch.TypedClient) ContentRepo {
 }
 
 func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) error {
-	bulk := rec.dbClient.Bulk().Index(rec.indexName)
+	insert := rec.dbClient.Bulk().Index(rec.indexName)
 	for _, c := range data {
-		bulk.CreateOp(*types.NewCreateOperation(), c)
+		insert.CreateOp(*types.NewCreateOperation(), c)
 	}
-	res, err := bulk.Do(ctx)
+	res, err := insert.Do(ctx)
 	if err != nil {
 		return err
 	}
@@ -65,6 +65,15 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 			return errors.New("unable to create new document")
 		}
 		data[i].Id = *item[operationtype.Create].Id_
+	}
+
+	update := rec.dbClient.Bulk().Index(rec.indexName)
+	for _, c := range data {
+		update.UpdateOp(types.UpdateOperation{Id_: &c.Id}, c, types.NewUpdateAction())
+	}
+	_, err = update.Do(ctx)
+	if err != nil {
+		return err
 	}
 	return nil
 }
