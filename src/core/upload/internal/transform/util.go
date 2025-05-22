@@ -2,6 +2,7 @@ package transform
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/beevik/etree"
@@ -83,5 +84,11 @@ func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, 
 		}
 		text += " "
 	}
-	return strings.TrimSpace(text), errors.Nil()
+	return contractSpaces(text), errors.Nil()
+}
+
+func contractSpaces(s string) string {
+	re := regexp.MustCompile(`\s+`)
+	contracted := re.ReplaceAllString(s, " ")
+	return strings.TrimSpace(contracted)
 }
