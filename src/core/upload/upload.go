@@ -93,6 +93,7 @@ type loopVariables struct {
 }
 
 func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, workRepo dataaccess.WorkRepo, contentRepo dataaccess.ContentRepo, v *model.Volume, works []model.Work) error {
+	// TODO problem: using auto generated ids makes it so that the ids are different if the volume is uploaded again
 	vol := esmodel.Volume{
 		VolumeNumber: v.VolumeNumber,
 		Title:        v.Title,
