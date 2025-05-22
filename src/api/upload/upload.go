@@ -49,6 +49,7 @@ func (rec *uploadHandlerImpl) PostVolume(ctx echo.Context) error {
 
 	xml = replaceHtml(xml)
 	xml = replaceCustomEntities(xml)
+	xml = preprocess(xml)
 	volNum, code, msg := validateXmlContent(xml)
 	if code != 0 {
 		log.Error().Msg(msg)
@@ -130,17 +131,6 @@ func readToString(input []byte) (string, error) {
 	}
 }
 
-func replaceCustomEntities(xml string) string {
-	customEntities := map[string]string{
-		"&kreis;":   "○",
-		"&quadrat;": "■",
-	}
-	for entity, replacement := range customEntities {
-		xml = strings.ReplaceAll(xml, entity, replacement)
-	}
-	return xml
-}
-
 func replaceHtml(xml string) string {
 	xml = html.UnescapeString(xml)
 	replacements := map[string]string{
@@ -200,4 +190,21 @@ func replaceHtml(xml string) string {
 		xml = re.ReplaceAllString(xml, replacement)
 	}
 	return xml
+}
+
+func replaceCustomEntities(xml string) string {
+	customEntities := map[string]string{
+		"&kreis;":   "○",
+		"&quadrat;": "■",
+	}
+	for entity, replacement := range customEntities {
+		xml = strings.ReplaceAll(xml, entity, replacement)
+	}
+	return xml
+}
+
+func preprocess(xml string) string {
+	// TODO find a better solution that this (without it, `trenn` tags are replaced by spaces in the end result)
+	re := regexp.MustCompile(`\s*<trenn/>\s*`)
+	return re.ReplaceAllString(xml, "")
 }
