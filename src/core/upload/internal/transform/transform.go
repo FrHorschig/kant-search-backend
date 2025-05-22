@@ -313,8 +313,3 @@ func isAllUpperCase(s string) bool {
 	}
 	return true
 }
-
-func contractSpaces(s string) string {
-	// TODO implement and use me for all fmtText
-	return ""
-}
