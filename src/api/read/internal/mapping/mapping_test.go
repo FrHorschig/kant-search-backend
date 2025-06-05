@@ -16,7 +16,7 @@ func TestVolumesToApiModels(t *testing.T) {
 			Section:      2,
 			Title:        "Volume One",
 			Works: []esmodel.WorkRef{
-				{Code: "C1", Title: "Work One"},
+				{Code: "C1", Abbreviation: util.StrPtr("abbrev"), Title: "Work One"},
 			},
 		},
 	}
@@ -26,7 +26,7 @@ func TestVolumesToApiModels(t *testing.T) {
 			Section:      2,
 			Title:        "Volume One",
 			Works: []models.WorkRef{
-				{Code: "C1", Title: "Work One"},
+				{Code: "C1", Abbreviation: "abbrev", Title: "Work One"},
 			},
 		},
 	}

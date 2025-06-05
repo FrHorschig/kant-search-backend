@@ -132,8 +132,9 @@ func TestUploadProcessSuccess(t *testing.T) {
 			Section:      vol.Section,
 			Title:        vol.Title,
 			Works: []esmodel.WorkRef{{
-				Code:  work.Code,
-				Title: work.Title,
+				Code:         work.Code,
+				Abbreviation: work.Abbreviation,
+				Title:        work.Title,
 			}},
 		}, nil)
 	contentRepo.EXPECT().DeleteByWorkCode(gomock.Any(), gomock.Eq(wCode)).Return(nil)

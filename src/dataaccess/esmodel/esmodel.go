@@ -14,8 +14,9 @@ type Volume struct {
 }
 
 type WorkRef struct {
-	Code  string `json:"code"`
-	Title string `json:"title"`
+	Code         string  `json:"code"`
+	Abbreviation *string `json:"abbreviation"`
+	Title        string  `json:"title"`
 }
 
 var VolumeMapping = &types.TypeMapping{
@@ -25,8 +26,9 @@ var VolumeMapping = &types.TypeMapping{
 		"title":        &types.TextProperty{Index: util.FalsePtr()},
 		"works": &types.NestedProperty{
 			Properties: map[string]types.Property{
-				"code":  &types.TextProperty{Index: util.FalsePtr()},
-				"title": &types.TextProperty{Index: util.FalsePtr()},
+				"code":         &types.TextProperty{Index: util.FalsePtr()},
+				"abbreviation": &types.TextProperty{Index: util.FalsePtr()},
+				"title":        &types.TextProperty{Index: util.FalsePtr()},
 			},
 		},
 	},
