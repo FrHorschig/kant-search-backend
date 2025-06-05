@@ -55,19 +55,19 @@ func registerHandlers(e *echo.Echo, uploadHandler apiupload.UploadHandler, readH
 	e.GET(("/api/v1/volumes"), func(ctx echo.Context) error {
 		return readHandler.ReadVolumes(ctx)
 	})
-	e.GET(("/api/v1/works/:workId"), func(ctx echo.Context) error {
+	e.GET(("/api/v1/works/:workCode"), func(ctx echo.Context) error {
 		return readHandler.ReadWork(ctx)
 	})
-	e.GET(("/api/v1/works/:workId/footnotes"), func(ctx echo.Context) error {
+	e.GET(("/api/v1/works/:workCode/footnotes"), func(ctx echo.Context) error {
 		return readHandler.ReadFootnotes(ctx)
 	})
-	e.GET(("/api/v1/works/:workId/headings"), func(ctx echo.Context) error {
+	e.GET(("/api/v1/works/:workCode/headings"), func(ctx echo.Context) error {
 		return readHandler.ReadHeadings(ctx)
 	})
-	e.GET(("/api/v1/works/:workId/paragraphs"), func(ctx echo.Context) error {
+	e.GET(("/api/v1/works/:workCode/paragraphs"), func(ctx echo.Context) error {
 		return readHandler.ReadParagraphs(ctx)
 	})
-	e.GET(("/api/v1/works/:workId/summaries"), func(ctx echo.Context) error {
+	e.GET(("/api/v1/works/:workCode/summaries"), func(ctx echo.Context) error {
 		return readHandler.ReadSummaries(ctx)
 	})
 
