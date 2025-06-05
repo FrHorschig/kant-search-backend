@@ -285,7 +285,8 @@ func createSummary(lv *loopVariables, s model.Summary) esmodel.Content {
 
 func createWorkRef(work *esmodel.Work) esmodel.WorkRef {
 	return esmodel.WorkRef{
-		Code:  work.Code,
-		Title: work.Title,
+		Code:         work.Code,
+		Abbreviation: work.Abbreviation,
+		Title:        work.Title,
 	}
 }

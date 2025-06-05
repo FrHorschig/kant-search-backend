@@ -17,8 +17,9 @@ func VolumesToApiModels(in []esmodel.Volume) []models.Volume {
 		}
 		for _, wIn := range vIn.Works {
 			vOut.Works = append(vOut.Works, models.WorkRef{
-				Code:  wIn.Code,
-				Title: wIn.Title,
+				Code:         wIn.Code,
+				Abbreviation: util.StrVal(wIn.Abbreviation),
+				Title:        wIn.Title,
 			})
 		}
 		out = append(out, vOut)

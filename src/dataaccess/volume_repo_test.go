@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,8 +22,9 @@ func TestVolumeRepo(t *testing.T) {
 		Section:      2,
 		Title:        "volume title",
 		Works: []esmodel.WorkRef{{
-			Code:  "code",
-			Title: "work title",
+			Code:         "code",
+			Abbreviation: util.StrPtr("abbrev"),
+			Title:        "work title",
 		}},
 	}
 	vol2 := esmodel.Volume{
@@ -30,8 +32,9 @@ func TestVolumeRepo(t *testing.T) {
 		Section:      3,
 		Title:        "volume title 2",
 		Works: []esmodel.WorkRef{{
-			Code:  "code2",
-			Title: "work title 2",
+			Code:         "code2",
+			Abbreviation: util.StrPtr("abbrev2"),
+			Title:        "work title 2",
 		}},
 	}
 
