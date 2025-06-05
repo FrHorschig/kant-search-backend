@@ -298,11 +298,11 @@ func fixCapitalization(s string) string {
 	if len(s) == 0 {
 		return s
 	}
-
+	runes := []rune(s)
 	if isAllUpperCase(s) {
-		return s[:1] + strings.ToLower(s[1:])
+		return string(runes[:1]) + strings.ToLower(string(runes[1:]))
 	}
-	return strings.ToUpper(s[:1]) + s[1:]
+	return strings.ToUpper(string(runes[:1])) + string(runes[1:])
 }
 
 func isAllUpperCase(s string) bool {
