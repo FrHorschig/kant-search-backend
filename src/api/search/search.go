@@ -36,7 +36,7 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 		log.Error().Err(err).Msg("empty search terms")
 		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_SEARCH_TERMS)
 	}
-	if len(options.WorkIds) == 0 {
+	if len(options.WorkCodes) == 0 {
 		log.Error().Err(err).Msg("empty work selection")
 		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORKS_SELECTION)
 	}

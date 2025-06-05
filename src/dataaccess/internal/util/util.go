@@ -36,19 +36,19 @@ func CreateIndex(es *elasticsearch.TypedClient, name string, mapping *types.Type
 	return err
 }
 
-func createWorkIdQuery(workId string) types.Query {
+func CreateWorkCodeQuery(workCode string) types.Query {
 	return types.Query{
 		Term: map[string]types.TermQuery{
-			"workId": {Value: workId},
+			"workCode": {Value: workCode},
 		},
 	}
 }
 
-func CreateContentQuery(workId string, cType []esmodel.Type) *types.Query {
+func CreateContentQuery(workCode string, cType []esmodel.Type) *types.Query {
 	return &types.Query{
 		Bool: &types.BoolQuery{
 			Filter: []types.Query{
-				createWorkIdQuery(workId),
+				CreateWorkCodeQuery(workCode),
 				createTypeQuery(cType),
 			},
 		},
@@ -183,8 +183,8 @@ func createTextMatchQuery(term string) *types.Query {
 
 func CreateOptionQueries(opts model.SearchOptions) []types.Query {
 	qs := []types.Query{}
-	for _, wId := range opts.WorkIds {
-		qs = append(qs, createWorkIdQuery(wId))
+	for _, wId := range opts.WorkCodes {
+		qs = append(qs, CreateWorkCodeQuery(wId))
 	}
 	types := []esmodel.Type{esmodel.Paragraph}
 	if opts.IncludeHeadings {

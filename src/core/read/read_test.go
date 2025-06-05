@@ -69,8 +69,7 @@ func testProcessVolumes(t *testing.T, sut *readProcessorImpl, volumeRepo *mocks.
 		Section:      2,
 		Title:        "volume title",
 		Works: []esmodel.WorkRef{{
-			Id:    "workId",
-			Code:  "code",
+			Code:  "workCode",
 			Title: "work title",
 		}},
 	}
@@ -96,51 +95,50 @@ func testProcessVolumesError(t *testing.T, sut *readProcessorImpl, volumeRepo *m
 }
 
 func testProcessWork(t *testing.T, sut *readProcessorImpl, workRepo *mocks.MockWorkRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	work := esmodel.Work{
-		Id:           workId,
 		Code:         "GMS",
 		Abbreviation: util.StrPtr("GMS"),
 		Title:        "Grundlegung zur Metaphysik der Sitten",
 		Year:         util.StrPtr("1785"),
 	}
 	// GIVEN
-	workRepo.EXPECT().Get(gomock.Any(), workId).Return(&work, nil)
+	workRepo.EXPECT().Get(gomock.Any(), workCode).Return(&work, nil)
 	// WHEN
-	res, err := sut.ProcessWork(ctx, workId)
+	res, err := sut.ProcessWork(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Equal(t, work, *res)
 }
 
 func testProcessWorkError(t *testing.T, sut *readProcessorImpl, workRepo *mocks.MockWorkRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	e := errors.New("test error")
 	// GIVEN
-	workRepo.EXPECT().Get(gomock.Any(), workId).Return(nil, e)
+	workRepo.EXPECT().Get(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
-	res, err := sut.ProcessWork(ctx, workId)
+	res, err := sut.ProcessWork(ctx, workCode)
 	// THEN
 	assert.NotNil(t, err)
 	assert.Nil(t, res)
 }
 
 func testProcessFootnotes(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	fn := esmodel.Content{
 		Type:       esmodel.Footnote,
 		Ref:        util.StrPtr("A121"),
 		FmtText:    "formatted text 1",
 		SearchText: "search text 1",
 		Pages:      []int32{1, 2, 3},
-		WorkId:     workId,
+		WorkCode:   workCode,
 	}
 	// GIVEN
 	contentRepo.EXPECT().
-		GetFootnotesByWorkId(gomock.Any(), workId).
+		GetFootnotesByWorkCode(gomock.Any(), workCode).
 		Return([]esmodel.Content{fn}, nil)
 	// WHEN
-	res, err := sut.ProcessFootnotes(ctx, workId)
+	res, err := sut.ProcessFootnotes(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, res, 1)
@@ -148,33 +146,33 @@ func testProcessFootnotes(t *testing.T, sut *readProcessorImpl, contentRepo *moc
 }
 
 func testProcessFootnotesError(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	e := errors.New("test error")
 	// GIVEN
-	contentRepo.EXPECT().GetFootnotesByWorkId(gomock.Any(), workId).Return(nil, e)
+	contentRepo.EXPECT().GetFootnotesByWorkCode(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
-	res, err := sut.ProcessFootnotes(ctx, workId)
+	res, err := sut.ProcessFootnotes(ctx, workCode)
 	// THEN
 	assert.NotNil(t, err)
 	assert.Nil(t, res)
 }
 
 func testProcessHeadings(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	head := esmodel.Content{
 		Type:       esmodel.Heading,
 		FmtText:    "formatted text 2",
 		SearchText: "search text 2",
 		Pages:      []int32{1, 2, 3},
 		FnRefs:     []string{"fn1.2", "fn2.3"},
-		WorkId:     workId,
+		WorkCode:   workCode,
 	}
 	// GIVEN
 	contentRepo.EXPECT().
-		GetHeadingsByWorkId(gomock.Any(), workId).
+		GetHeadingsByWorkCode(gomock.Any(), workCode).
 		Return([]esmodel.Content{head}, nil)
 	// WHEN
-	res, err := sut.ProcessHeadings(ctx, workId)
+	res, err := sut.ProcessHeadings(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, res, 1)
@@ -182,19 +180,19 @@ func testProcessHeadings(t *testing.T, sut *readProcessorImpl, contentRepo *mock
 }
 
 func testProcessHeadingsError(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	e := errors.New("test error")
 	// GIVEN
-	contentRepo.EXPECT().GetHeadingsByWorkId(gomock.Any(), workId).Return(nil, e)
+	contentRepo.EXPECT().GetHeadingsByWorkCode(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
-	res, err := sut.ProcessHeadings(ctx, workId)
+	res, err := sut.ProcessHeadings(ctx, workCode)
 	// THEN
 	assert.NotNil(t, err)
 	assert.Nil(t, res)
 }
 
 func testProcessParagraphs(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	par := esmodel.Content{
 		Type:       esmodel.Paragraph,
 		Ref:        util.StrPtr("A124"),
@@ -202,14 +200,14 @@ func testProcessParagraphs(t *testing.T, sut *readProcessorImpl, contentRepo *mo
 		SearchText: "search text 3",
 		Pages:      []int32{4, 5},
 		FnRefs:     []string{"fn3.4", "fn4.5"},
-		WorkId:     workId,
+		WorkCode:   workCode,
 	}
 	// GIVEN
 	contentRepo.EXPECT().
-		GetParagraphsByWorkId(gomock.Any(), workId).
+		GetParagraphsByWorkCode(gomock.Any(), workCode).
 		Return([]esmodel.Content{par}, nil)
 	// WHEN
-	res, err := sut.ProcessParagraphs(ctx, workId)
+	res, err := sut.ProcessParagraphs(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, res, 1)
@@ -217,33 +215,33 @@ func testProcessParagraphs(t *testing.T, sut *readProcessorImpl, contentRepo *mo
 }
 
 func testProcessParagraphsError(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	e := errors.New("test error")
 	// GIVEN
-	contentRepo.EXPECT().GetParagraphsByWorkId(gomock.Any(), workId).Return(nil, e)
+	contentRepo.EXPECT().GetParagraphsByWorkCode(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
-	res, err := sut.ProcessParagraphs(ctx, workId)
+	res, err := sut.ProcessParagraphs(ctx, workCode)
 	// THEN
 	assert.NotNil(t, err)
 	assert.Nil(t, res)
 }
 
 func testProcessSummaries(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	summ := esmodel.Content{
 		Type:       esmodel.Summary,
 		Ref:        util.StrPtr("A125"),
 		FmtText:    "formatted text 5",
 		SearchText: "search text 5",
 		Pages:      []int32{4, 5},
-		WorkId:     workId,
+		WorkCode:   workCode,
 	}
 	// GIVEN
 	contentRepo.EXPECT().
-		GetSummariesByWorkId(gomock.Any(), workId).
+		GetSummariesByWorkCode(gomock.Any(), workCode).
 		Return([]esmodel.Content{summ}, nil)
 	// WHEN
-	res, err := sut.ProcessSummaries(ctx, workId)
+	res, err := sut.ProcessSummaries(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, res, 1)
@@ -251,12 +249,12 @@ func testProcessSummaries(t *testing.T, sut *readProcessorImpl, contentRepo *moc
 }
 
 func testProcessSummariesError(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
-	workId := "workId"
+	workCode := "workCode"
 	e := errors.New("test error")
 	// GIVEN
-	contentRepo.EXPECT().GetSummariesByWorkId(gomock.Any(), workId).Return(nil, e)
+	contentRepo.EXPECT().GetSummariesByWorkCode(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
-	res, err := sut.ProcessSummaries(ctx, workId)
+	res, err := sut.ProcessSummaries(ctx, workCode)
 	// THEN
 	assert.NotNil(t, err)
 	assert.Nil(t, res)

@@ -8,6 +8,8 @@ import (
 	"fmt"
 
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/result"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
@@ -15,9 +17,8 @@ import (
 
 type WorkRepo interface {
 	Insert(ctx context.Context, data *esmodel.Work) error
-	Update(ctx context.Context, data *esmodel.Work) error
-	Get(ctx context.Context, id string) (*esmodel.Work, error)
-	Delete(ctx context.Context, id string) error
+	Get(ctx context.Context, code string) (*esmodel.Work, error)
+	Delete(ctx context.Context, code string) error
 }
 
 type workRepoImpl struct {
@@ -43,47 +44,46 @@ func (rec *workRepoImpl) Insert(ctx context.Context, data *esmodel.Work) error {
 		return err
 	}
 	if res.Result != result.Created {
-		return fmt.Errorf("unable to create work with id %s", data.Id)
-	}
-	data.Id = res.Id_
-	return nil
-}
-
-func (rec *workRepoImpl) Update(ctx context.Context, data *esmodel.Work) error {
-	res, err := rec.dbClient.Update(rec.indexName, data.Id).Doc(&data).Do(ctx)
-	if err != nil {
-		return err
-	}
-	if res.Result != result.Updated {
-		return fmt.Errorf("unable to update work with id %s", data.Id)
+		return fmt.Errorf("unable to create work with code %s", data.Code)
 	}
 	return nil
 }
 
-func (rec *workRepoImpl) Get(ctx context.Context, id string) (*esmodel.Work, error) {
-	res, err := rec.dbClient.Get(rec.indexName, id).Do(ctx)
+func (rec *workRepoImpl) Get(ctx context.Context, code string) (*esmodel.Work, error) {
+	res, err := rec.dbClient.Search().Request(&search.Request{
+		Query: createCodeQuery(code),
+	}).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if !res.Found {
-		return nil, fmt.Errorf("work with ID %s not found", id)
+	if len(res.Hits.Hits) == 0 {
+		return nil, fmt.Errorf("no work with code %s found", code)
+	}
+	if len(res.Hits.Hits) > 1 {
+		return nil, fmt.Errorf("multiple works with code %s found", code)
 	}
 
 	var work esmodel.Work
-	err = json.Unmarshal(res.Source_, &work)
+	err = json.Unmarshal(res.Hits.Hits[0].Source_, &work)
 	if err != nil {
 		return nil, err
 	}
 	return &work, nil
 }
 
-func (rec *workRepoImpl) Delete(ctx context.Context, id string) error {
-	res, err := rec.dbClient.Delete(rec.indexName, id).Do(ctx)
+func (rec *workRepoImpl) Delete(ctx context.Context, code string) error {
+	res, err := rec.dbClient.DeleteByQuery(rec.indexName).Query(createCodeQuery(code)).Do(ctx)
 	if err != nil {
 		return err
 	}
-	if res.Result != result.Deleted {
-		return fmt.Errorf("unable to delete work with id %s", id)
+	if len(res.Failures) > 0 {
+		return fmt.Errorf("unable to delete work with code %s", code)
 	}
 	return nil
+}
+
+func createCodeQuery(code string) *types.Query {
+	return &types.Query{
+		Term: map[string]types.TermQuery{"code": {Value: code}},
+	}
 }

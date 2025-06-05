@@ -14,7 +14,6 @@ type Volume struct {
 }
 
 type WorkRef struct {
-	Id    string `json:"id"`
 	Code  string `json:"code"`
 	Title string `json:"title"`
 }
@@ -26,7 +25,6 @@ var VolumeMapping = &types.TypeMapping{
 		"title":        &types.TextProperty{Index: util.FalsePtr()},
 		"works": &types.NestedProperty{
 			Properties: map[string]types.Property{
-				"id":    types.NewKeywordProperty(),
 				"code":  &types.TextProperty{Index: util.FalsePtr()},
 				"title": &types.TextProperty{Index: util.FalsePtr()},
 			},
@@ -36,54 +34,53 @@ var VolumeMapping = &types.TypeMapping{
 
 // structs for works tree data without content
 type Work struct {
-	Id           string    `json:"id"`
-	Ordinal      int32     `json:"ordinal"`
 	Code         string    `json:"code"`
 	Abbreviation *string   `json:"abbreviation"`
 	Title        string    `json:"title"`
 	Year         *string   `json:"year"`
-	Paragraphs   []string  `json:"paragraphs"`
+	Ordinal      int32     `json:"ordinal"`
+	Paragraphs   []int32   `json:"paragraphs"`
 	Sections     []Section `json:"sections"`
 }
 
 type Section struct {
-	Heading    string    `json:"heading"`
-	Paragraphs []string  `json:"paragraphs"`
+	Heading    int32     `json:"heading"`
+	Paragraphs []int32   `json:"paragraphs"`
 	Sections   []Section `json:"sections"`
 }
 
 var WorkMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
-		"id":           types.NewKeywordProperty(),
-		"ordinal":      types.NewIntegerNumberProperty(),
-		"code":         &types.TextProperty{Index: util.FalsePtr()},
+		"code":         types.NewKeywordProperty(),
 		"abbreviation": &types.TextProperty{Index: util.FalsePtr()},
 		"title":        &types.TextProperty{Index: util.FalsePtr()},
-		"year":         &types.TextProperty{Index: util.FalsePtr()},
+		"year":         &types.IntegerNumberProperty{Index: util.FalsePtr()},
+		"ordinal":      types.NewIntegerNumberProperty(),
+		"paragraphs":   &types.IntegerNumberProperty{Index: util.FalsePtr()},
 		"sections": &types.NestedProperty{
 			Properties: map[string]types.Property{
-				"heading":    &types.TextProperty{Index: util.FalsePtr()},
-				"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
+				"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
+				"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
 				"sections": &types.NestedProperty{
 					Properties: map[string]types.Property{
-						"heading":    &types.TextProperty{Index: util.FalsePtr()},
-						"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
+						"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
+						"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
 						"sections": &types.NestedProperty{
 							Properties: map[string]types.Property{
-								"heading":    &types.TextProperty{Index: util.FalsePtr()},
-								"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
+								"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
+								"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
 								"sections": &types.NestedProperty{
 									Properties: map[string]types.Property{
-										"heading":    &types.TextProperty{Index: util.FalsePtr()},
-										"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
+										"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
+										"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
 										"sections": &types.NestedProperty{
 											Properties: map[string]types.Property{
-												"heading":    &types.TextProperty{Index: util.FalsePtr()},
-												"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
+												"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
+												"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
 												"sections": &types.NestedProperty{
 													Properties: map[string]types.Property{
-														"heading":    &types.TextProperty{Index: util.FalsePtr()},
-														"paragraphs": &types.TextProperty{Index: util.FalsePtr()},
+														"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
+														"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
 													},
 												},
 											},
@@ -111,22 +108,20 @@ const (
 
 type Content struct {
 	Type       Type     `json:"type"`
-	Id         string   `json:"id"`
-	Ordinal    int32    `json:"ordinal"`
-	Ref        *string  `json:"ref"`
+	Ordinal    int32    `json:"ordinal"` // used for sorting search results
+	Ref        *string  `json:"ref"`     // only for footnotes and summaries
 	FmtText    string   `json:"fmtText"`
 	TocText    *string  `json:"tocText"`
 	SearchText string   `json:"searchText"`
 	Pages      []int32  `json:"pages"`
-	FnRefs     []string `json:"fnRefs"`
-	SummaryRef *string  `json:"summaryRef"`
-	WorkId     string   `json:"workId"`
+	FnRefs     []string `json:"fnRefs"`     // not for footnoes
+	SummaryRef *string  `json:"summaryRef"` // only for paragraphs
+	WorkCode   string   `json:"workCode"`
 }
 
 var ContentMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
 		"type":       types.NewKeywordProperty(),
-		"id":         types.NewKeywordProperty(),
 		"ordinal":    types.NewIntegerNumberProperty(),
 		"ref":        &types.TextProperty{Index: util.FalsePtr()},
 		"fmtText":    &types.TextProperty{Index: util.FalsePtr()},
@@ -135,6 +130,6 @@ var ContentMapping = &types.TypeMapping{
 		"pages":      &types.TextProperty{Index: util.FalsePtr()},
 		"fnRefs":     &types.TextProperty{Index: util.FalsePtr()},
 		"summaryRef": &types.TextProperty{Index: util.FalsePtr()},
-		"workId":     types.NewKeywordProperty(),
+		"workCode":   types.NewKeywordProperty(),
 	},
 }

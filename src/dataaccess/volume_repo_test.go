@@ -21,7 +21,6 @@ func TestVolumeRepo(t *testing.T) {
 		Section:      2,
 		Title:        "volume title",
 		Works: []esmodel.WorkRef{{
-			Id:    "workId",
 			Code:  "code",
 			Title: "work title",
 		}},
@@ -31,7 +30,6 @@ func TestVolumeRepo(t *testing.T) {
 		Section:      3,
 		Title:        "volume title 2",
 		Works: []esmodel.WorkRef{{
-			Id:    "workId2",
 			Code:  "code2",
 			Title: "work title 2",
 		}},
