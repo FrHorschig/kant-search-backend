@@ -71,7 +71,7 @@ func registerHandlers(e *echo.Echo, uploadHandler apiupload.UploadHandler, readH
 		return readHandler.ReadSummaries(ctx)
 	})
 
-	e.GET(("/api/v1/search"), func(ctx echo.Context) error {
+	e.POST(("/api/v1/search"), func(ctx echo.Context) error {
 		return searchHandler.Search(ctx)
 	})
 }
