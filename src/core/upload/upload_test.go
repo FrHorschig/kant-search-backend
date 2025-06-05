@@ -5,6 +5,7 @@ package upload
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -330,144 +331,133 @@ func TestUploadProcessErrors(t *testing.T) {
 		contentRepo: contentRepo,
 		xmlMapper:   xmlMapper,
 	}
-	// wId := "workId"
-	// testErr := fmt.Errorf("new error for vol num %d", 1)
+	wCode := "code"
+	testErr := fmt.Errorf("new error for vol num %d", 1)
 
 	tests := []struct {
 		name      string
 		mockSetup func(*dbMocks.MockVolumeRepo, *dbMocks.MockWorkRepo, *dbMocks.MockContentRepo, *mocks.MockXmlMapper)
 	}{
-		// {
-		// 	name: "MapVolume fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		xm.EXPECT().MapVolume(gomock.Any(), gomock.Any()).
-		// 			Return(nil, errors.New(nil, testErr))
-		// 	},
-		// },
-		// {
-		// 	name: "MapWorks fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		gomock.InOrder(
-		// 			xm.EXPECT().MapVolume(gomock.Any(), gomock.Any()).
-		// 				Return(&model.Volume{}, errors.Nil()),
-		// 			xm.EXPECT().MapWorks(gomock.Any(), gomock.Any()).
-		// 				Return(nil, errors.New(nil, testErr)),
-		// 		)
-		// 	},
-		// },
-		// {
-		// 	name: "GetByVolumeNumber fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		mockXmlMapper(xm)
-		// 		vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).Return(nil, testErr)
-		// 	},
-		// },
-		// {
-		// 	name: "VolumeRepo.Delete fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		mockXmlMapper(xm)
-		// 		gomock.InOrder(
-		// 			vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).
-		// 				Return(&esmodel.Volume{
-		// 					Works: []esmodel.WorkRef{{Code: wCode}},
-		// 				}, nil),
-		// 			vr.EXPECT().Delete(gomock.Any(), gomock.Any()).
-		// 				Return(testErr),
-		// 		)
-		// 	},
-		// },
-		// {
-		// 	name: "WorkRepo.Delete fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		mockXmlMapper(xm)
-		// 		gomock.InOrder(
-		// 			vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).
-		// 				Return(&esmodel.Volume{
-		// 					Works: []esmodel.WorkRef{{Code: wCode}},
-		// 				}, nil),
-		// 			vr.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil),
-		// 			wr.EXPECT().Delete(gomock.Any(), wCode).Return(testErr),
-		// 		)
-		// 	},
-		// },
-		// {
-		// 	name: "ContentRepo.DeleteByWorkCode fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		mockXmlMapper(xm)
-		// 		gomock.InOrder(
-		// 			vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).
-		// 				Return(&esmodel.Volume{
-		// 					Works: []esmodel.WorkRef{{Code: wCode}},
-		// 				}, nil),
-		// 			vr.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil),
-		// 			wr.EXPECT().Delete(gomock.Any(), wCode).Return(nil),
-		// 			cr.EXPECT().DeleteByWorkCode(gomock.Any(), wCode).
-		// 				Return(testErr),
-		// 		)
-		// 	},
-		// },
-		// {
-		// 	name: "Insert heading fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		mockXmlMapper(xm)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 		cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(testErr)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 	},
-		// },
-		// {
-		// 	name: "Insert summary and footnote fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		mockXmlMapper(xm)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 		gomock.InOrder(
-		// 			cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil),
-		// 			cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-		// 				Return(testErr),
-		// 		)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 	},
-		// },
-		// {
-		// 	name: "Insert paragraphs fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		mockXmlMapper(xm)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 		gomock.InOrder(
-		// 			cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil).Times(2),
-		// 			cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-		// 				Return(testErr),
-		// 		)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 	},
-		// },
-		// {
-		// 	name: "Insert work fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		mockXmlMapper(xm)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 		gomock.InOrder(
-		// 			cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil).Times(3),
-		// 			wr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(testErr),
-		// 		)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 	},
-		// },
-		// {
-		// 	name: "Insert volume fails",
-		// 	mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-		// 		mockXmlMapper(xm)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 		gomock.InOrder(
-		// 			cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-		// 				Times(3).Return(nil),
-		// 			wr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil),
-		// 			vr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-		// 				Return(testErr),
-		// 		)
-		// 		mockDeletion(vr, wr, cr, wCode)
-		// 	},
-		// },
+		{
+			name: "MapVolume fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				xm.EXPECT().MapVolume(gomock.Any(), gomock.Any()).
+					Return(nil, errors.New(nil, testErr))
+			},
+		},
+		{
+			name: "MapWorks fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				gomock.InOrder(
+					xm.EXPECT().MapVolume(gomock.Any(), gomock.Any()).
+						Return(&model.Volume{}, errors.Nil()),
+					xm.EXPECT().MapWorks(gomock.Any(), gomock.Any()).
+						Return(nil, errors.New(nil, testErr)),
+				)
+			},
+		},
+		{
+			name: "GetByVolumeNumber fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				mockXmlMapper(xm, wCode)
+				vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).Return(nil, testErr)
+			},
+		},
+		{
+			name: "ContentRepo.DeleteByWorkCode fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				mockXmlMapper(xm, wCode)
+				gomock.InOrder(
+					vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).
+						Return(&esmodel.Volume{
+							Works: []esmodel.WorkRef{{Code: wCode}},
+						}, nil),
+					cr.EXPECT().DeleteByWorkCode(gomock.Any(), wCode).
+						Return(testErr),
+				)
+			},
+		},
+		{
+			name: "WorkRepo.Delete fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				mockXmlMapper(xm, wCode)
+				gomock.InOrder(
+					vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).
+						Return(&esmodel.Volume{
+							Works: []esmodel.WorkRef{{Code: wCode}},
+						}, nil),
+					cr.EXPECT().DeleteByWorkCode(gomock.Any(), wCode).
+						Return(nil),
+					wr.EXPECT().Delete(gomock.Any(), wCode).Return(testErr),
+				)
+			},
+		},
+		{
+			name: "VolumeRepo.Delete fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				mockXmlMapper(xm, wCode)
+				gomock.InOrder(
+					vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).
+						Return(&esmodel.Volume{
+							Works: []esmodel.WorkRef{{Code: wCode}},
+						}, nil),
+					cr.EXPECT().DeleteByWorkCode(gomock.Any(), wCode).
+						Return(nil),
+					wr.EXPECT().Delete(gomock.Any(), wCode).Return(nil),
+					vr.EXPECT().Delete(gomock.Any(), gomock.Any()).
+						Return(testErr),
+				)
+			},
+		},
+		{
+			name: "Insert heading fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				mockXmlMapper(xm, wCode)
+				mockDeletion(vr, wr, cr, wCode)
+				cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(testErr)
+				mockDeletion(vr, wr, cr, wCode)
+			},
+		},
+		{
+			name: "Insert paragraphs fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				mockXmlMapper(xm, wCode)
+				mockDeletion(vr, wr, cr, wCode)
+				gomock.InOrder(
+					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil),
+					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
+						Return(testErr),
+				)
+				mockDeletion(vr, wr, cr, wCode)
+			},
+		},
+		{
+			name: "Insert work fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				mockXmlMapper(xm, wCode)
+				mockDeletion(vr, wr, cr, wCode)
+				gomock.InOrder(
+					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil).Times(2),
+					wr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(testErr),
+				)
+				mockDeletion(vr, wr, cr, wCode)
+			},
+		},
+		{
+			name: "Insert volume fails",
+			mockSetup: func(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
+				mockXmlMapper(xm, wCode)
+				mockDeletion(vr, wr, cr, wCode)
+				gomock.InOrder(
+					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
+						Times(2).Return(nil),
+					wr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil),
+					vr.EXPECT().Insert(gomock.Any(), gomock.Any()).
+						Return(testErr),
+				)
+				mockDeletion(vr, wr, cr, wCode)
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -479,11 +469,11 @@ func TestUploadProcessErrors(t *testing.T) {
 	}
 }
 
-func mockXmlMapper(mapper *mocks.MockXmlMapper) {
+func mockXmlMapper(mapper *mocks.MockXmlMapper, wCode string) {
 	mapper.EXPECT().MapVolume(gomock.Any(), gomock.Any()).Return(&model.Volume{}, errors.Nil())
 	mapper.EXPECT().MapWorks(gomock.Any(), gomock.Any()).Return([]model.Work{
 		{
-			Code:         "c",
+			Code:         wCode,
 			Title:        "t",
 			Abbreviation: util.StrPtr("abbr"),
 			Year:         util.StrPtr("2024"),
@@ -493,8 +483,6 @@ func mockXmlMapper(mapper *mocks.MockXmlMapper) {
 					par(2),
 				},
 			}},
-			Footnotes: []model.Footnote{fn(3)},
-			Summaries: []model.Summary{summ(4)},
 		},
 	}, errors.Nil())
 }
@@ -503,7 +491,7 @@ func mockDeletion(vr *dbMocks.MockVolumeRepo, wr *dbMocks.MockWorkRepo, cr *dbMo
 	vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).Return(&esmodel.Volume{
 		Works: []esmodel.WorkRef{{Code: wCode}},
 	}, nil)
-	vr.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil)
-	wr.EXPECT().Delete(gomock.Any(), wCode).Return(nil)
 	cr.EXPECT().DeleteByWorkCode(gomock.Any(), wCode).Return(nil)
+	wr.EXPECT().Delete(gomock.Any(), wCode).Return(nil)
+	vr.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil)
 }
