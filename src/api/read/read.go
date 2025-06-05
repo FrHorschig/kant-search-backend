@@ -42,7 +42,7 @@ func (rec *readHandlerImpl) ReadVolumes(ctx echo.Context) error {
 func (rec *readHandlerImpl) ReadWork(ctx echo.Context) error {
 	workCode := ctx.Param("workCode")
 	if workCode == "" {
-		msg := "empty work ID"
+		msg := "empty work code"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
@@ -63,7 +63,7 @@ func (rec *readHandlerImpl) ReadWork(ctx echo.Context) error {
 func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
 	workCode := ctx.Param("workCode")
 	if workCode == "" {
-		msg := "empty work ID"
+		msg := "empty work code"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
@@ -82,7 +82,7 @@ func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
 func (rec *readHandlerImpl) ReadHeadings(ctx echo.Context) error {
 	workCode := ctx.Param("workCode")
 	if workCode == "" {
-		msg := "empty work ID"
+		msg := "empty work code"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
@@ -100,7 +100,7 @@ func (rec *readHandlerImpl) ReadHeadings(ctx echo.Context) error {
 func (rec *readHandlerImpl) ReadParagraphs(ctx echo.Context) error {
 	workCode := ctx.Param("workCode")
 	if workCode == "" {
-		msg := "empty work ID"
+		msg := "empty work code"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
@@ -118,7 +118,7 @@ func (rec *readHandlerImpl) ReadParagraphs(ctx echo.Context) error {
 func (rec *readHandlerImpl) ReadSummaries(ctx echo.Context) error {
 	workCode := ctx.Param("workCode")
 	if workCode == "" {
-		msg := "empty work ID"
+		msg := "empty work code"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
