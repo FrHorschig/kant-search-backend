@@ -12,6 +12,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/result"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/sortorder"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 	"github.com/rs/zerolog/log"
@@ -66,6 +67,13 @@ func (rec *volumeRepoImpl) GetAll(ctx context.Context) ([]esmodel.Volume, error)
 	res, err := rec.dbClient.Search().Index(rec.indexName).
 		Request(&search.Request{
 			Query: &types.Query{MatchAll: &types.MatchAllQuery{}},
+			Sort: []types.SortCombinations{
+				types.SortOptions{
+					SortOptions: map[string]types.FieldSort{
+						"volumeNumber": {Order: &sortorder.Asc},
+					},
+				},
+			},
 		}).Do(ctx)
 	if err != nil {
 		return nil, err
