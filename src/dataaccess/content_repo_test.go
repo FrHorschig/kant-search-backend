@@ -19,7 +19,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 	defer cancel()
 	sut := NewContentRepo(dbClient)
 
-	workId := "work123"
+	workCode := "work123"
 	contents := []esmodel.Content{
 		{
 			Type:       esmodel.Footnote,
@@ -27,7 +27,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 			FmtText:    "formatted text 1",
 			SearchText: "search text 1",
 			Pages:      []int32{1, 2, 3},
-			WorkId:     workId,
+			WorkCode:   workCode,
 		},
 		{
 			Type:       esmodel.Heading,
@@ -35,7 +35,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 			SearchText: "search text 2",
 			Pages:      []int32{1, 2, 3},
 			FnRefs:     []string{"fn1.2", "fn2.3"},
-			WorkId:     workId,
+			WorkCode:   workCode,
 		},
 		{
 			Type:       esmodel.Paragraph,
@@ -43,7 +43,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 			SearchText: "search text 3",
 			Pages:      []int32{4, 5},
 			FnRefs:     []string{"fn3.4", "fn4.5"},
-			WorkId:     workId,
+			WorkCode:   workCode,
 		},
 		{
 			Type:       esmodel.Paragraph,
@@ -51,7 +51,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 			SearchText: "search text 4",
 			Pages:      []int32{4, 5},
 			FnRefs:     []string{"fn3.4", "fn4.5"},
-			WorkId:     workId,
+			WorkCode:   workCode,
 		},
 		{
 			Type:       esmodel.Summary,
@@ -59,7 +59,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 			FmtText:    "formatted text 5",
 			SearchText: "search text 5",
 			Pages:      []int32{4, 5},
-			WorkId:     workId,
+			WorkCode:   workCode,
 		},
 	}
 
@@ -67,25 +67,22 @@ func TestContentInsertGetDelete(t *testing.T) {
 	err := sut.Insert(ctx, contents)
 	// THEN
 	assert.Nil(t, err)
-	for _, c := range contents {
-		assert.NotEmpty(t, c.Id)
-	}
 	refreshContents(t)
 
 	// WHEN Get footnote
-	fns, err := sut.GetFootnotesByWorkId(ctx, workId)
+	fns, err := sut.GetFootnotesByWorkCode(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, fns, 1)
 	assert.Equal(t, contents[0].SearchText, fns[0].SearchText)
 	// WHEN Get heading
-	heads, err := sut.GetHeadingsByWorkId(ctx, workId)
+	heads, err := sut.GetHeadingsByWorkCode(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 1)
 	assert.Equal(t, contents[1].SearchText, heads[0].SearchText)
 	// WHEN Get paragraphs
-	pars, err := sut.GetParagraphsByWorkId(ctx, workId)
+	pars, err := sut.GetParagraphsByWorkCode(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 1)
@@ -94,35 +91,35 @@ func TestContentInsertGetDelete(t *testing.T) {
 		[]string{pars[0].SearchText, pars[1].SearchText},
 	)
 	// WHEN Get summary
-	summ, err := sut.GetSummariesByWorkId(ctx, workId)
+	summ, err := sut.GetSummariesByWorkCode(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, summ, 1)
 	assert.Equal(t, contents[4].SearchText, summ[0].SearchText)
 
 	// WHEN Delete
-	err = sut.DeleteByWorkId(ctx, workId)
+	err = sut.DeleteByWorkCode(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	refreshContents(t)
 
 	// WHEN Get footnote
-	fns, err = sut.GetFootnotesByWorkId(ctx, workId)
+	fns, err = sut.GetFootnotesByWorkCode(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, fns, 0)
 	// WHEN Get heading
-	heads, err = sut.GetHeadingsByWorkId(ctx, workId)
+	heads, err = sut.GetHeadingsByWorkCode(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 0)
 	// WHEN Get paragraphs
-	pars, err = sut.GetParagraphsByWorkId(ctx, workId)
+	pars, err = sut.GetParagraphsByWorkCode(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 0)
 	// WHEN Get summary
-	summ, err = sut.GetSummariesByWorkId(ctx, workId)
+	summ, err = sut.GetSummariesByWorkCode(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, summ, 0)
@@ -133,8 +130,8 @@ func TestSearch(t *testing.T) {
 	defer cancel()
 	sut := NewContentRepo(dbClient)
 
-	workId := "work123"
-	workId2 := "456work"
+	workCode := "work123"
+	workCode2 := "456work"
 	testdata := []struct {
 		name        string
 		dbInput     []esmodel.Content
@@ -145,14 +142,14 @@ func TestSearch(t *testing.T) {
 		{
 			name: "test complex query",
 			dbInput: []esmodel.Content{
-				{Type: esmodel.Paragraph, SearchText: "dog night bird", WorkId: workId},
-				{Type: esmodel.Paragraph, SearchText: "cat night bird", WorkId: workId},
-				{Type: esmodel.Paragraph, SearchText: "dog mice night bird", WorkId: workId},
-				{Type: esmodel.Paragraph, SearchText: "dog mouse night bird", WorkId: workId},
-				{Type: esmodel.Paragraph, SearchText: "dog knight bird", WorkId: workId},
-				{Type: esmodel.Paragraph, SearchText: "cat night burd", WorkId: workId},
-				{Type: esmodel.Paragraph, SearchText: "dog night bird 2", WorkId: workId2},
-				{Type: esmodel.Paragraph, SearchText: "cat night bird 2", WorkId: workId2},
+				{Type: esmodel.Paragraph, SearchText: "dog night bird", WorkCode: workCode},
+				{Type: esmodel.Paragraph, SearchText: "cat night bird", WorkCode: workCode},
+				{Type: esmodel.Paragraph, SearchText: "dog mice night bird", WorkCode: workCode},
+				{Type: esmodel.Paragraph, SearchText: "dog mouse night bird", WorkCode: workCode},
+				{Type: esmodel.Paragraph, SearchText: "dog knight bird", WorkCode: workCode},
+				{Type: esmodel.Paragraph, SearchText: "cat night burd", WorkCode: workCode},
+				{Type: esmodel.Paragraph, SearchText: "dog night bird 2", WorkCode: workCode2},
+				{Type: esmodel.Paragraph, SearchText: "cat night bird 2", WorkCode: workCode2},
 			},
 			searchTerms: &model.AstNode{ // (dog | cat) & !mouse & "night bird"
 				Token: newAnd(),
@@ -170,20 +167,20 @@ func TestSearch(t *testing.T) {
 				},
 				Right: &model.AstNode{Token: newPhrase("night bird")},
 			},
-			options:  model.SearchOptions{WorkIds: []string{workId}},
+			options:  model.SearchOptions{WorkCodes: []string{workCode}},
 			hitCount: 3,
 		},
 		{
 			name: "test includeHeadings option",
 			dbInput: []esmodel.Content{
-				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkId: workId},
-				{Type: esmodel.Heading, SearchText: "heading text", WorkId: workId},
-				{Type: esmodel.Footnote, SearchText: "footnote text", WorkId: workId},
-				{Type: esmodel.Summary, SearchText: "summary text", WorkId: workId},
+				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
+				{Type: esmodel.Heading, SearchText: "heading text", WorkCode: workCode},
+				{Type: esmodel.Footnote, SearchText: "footnote text", WorkCode: workCode},
+				{Type: esmodel.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
 			searchTerms: &model.AstNode{Token: newWord("text")},
 			options: model.SearchOptions{
-				WorkIds:         []string{workId},
+				WorkCodes:       []string{workCode},
 				IncludeHeadings: true,
 			},
 			hitCount: 2,
@@ -191,14 +188,14 @@ func TestSearch(t *testing.T) {
 		{
 			name: "test includeFootnotes option",
 			dbInput: []esmodel.Content{
-				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkId: workId},
-				{Type: esmodel.Heading, SearchText: "heading text", WorkId: workId},
-				{Type: esmodel.Footnote, SearchText: "footnote text", WorkId: workId},
-				{Type: esmodel.Summary, SearchText: "summary text", WorkId: workId},
+				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
+				{Type: esmodel.Heading, SearchText: "heading text", WorkCode: workCode},
+				{Type: esmodel.Footnote, SearchText: "footnote text", WorkCode: workCode},
+				{Type: esmodel.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
 			searchTerms: &model.AstNode{Token: newWord("text")},
 			options: model.SearchOptions{
-				WorkIds:          []string{workId},
+				WorkCodes:        []string{workCode},
 				IncludeFootnotes: true,
 			},
 			hitCount: 2,
@@ -206,14 +203,14 @@ func TestSearch(t *testing.T) {
 		{
 			name: "test includeSummaries option",
 			dbInput: []esmodel.Content{
-				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkId: workId},
-				{Type: esmodel.Heading, SearchText: "heading text", WorkId: workId},
-				{Type: esmodel.Footnote, SearchText: "footnote text", WorkId: workId},
-				{Type: esmodel.Summary, SearchText: "summary text", WorkId: workId},
+				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
+				{Type: esmodel.Heading, SearchText: "heading text", WorkCode: workCode},
+				{Type: esmodel.Footnote, SearchText: "footnote text", WorkCode: workCode},
+				{Type: esmodel.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
 			searchTerms: &model.AstNode{Token: newWord("text")},
 			options: model.SearchOptions{
-				WorkIds:          []string{workId},
+				WorkCodes:        []string{workCode},
 				IncludeSummaries: true,
 			},
 			hitCount: 2,
@@ -233,11 +230,11 @@ func TestSearch(t *testing.T) {
 			assert.Len(t, result, tc.hitCount)
 		})
 
-		err = sut.DeleteByWorkId(ctx, workId)
+		err = sut.DeleteByWorkCode(ctx, workCode)
 		if err != nil {
 			t.Fatal("content deletion failure")
 		}
-		sut.DeleteByWorkId(ctx, workId2)
+		sut.DeleteByWorkCode(ctx, workCode2)
 		if err != nil {
 			t.Fatal("content deletion failure")
 		}

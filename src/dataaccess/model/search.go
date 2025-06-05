@@ -29,12 +29,12 @@ type SearchOptions struct {
 	IncludeFootnotes bool
 	IncludeSummaries bool
 	Scope            SearchScope
-	WorkIds          []string
+	WorkCodes        []string
 }
 
 type SearchResult struct {
-	Snippets  []string
-	Pages     []int32
-	ContentId string
-	WorkId    string
+	Snippets []string
+	Pages    []int32
+	Ordinal  int32
+	WorkCode string
 }

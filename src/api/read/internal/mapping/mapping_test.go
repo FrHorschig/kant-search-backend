@@ -16,7 +16,7 @@ func TestVolumesToApiModels(t *testing.T) {
 			Section:      2,
 			Title:        "Volume One",
 			Works: []esmodel.WorkRef{
-				{Id: "w1", Code: "C1", Title: "Work One"},
+				{Code: "C1", Title: "Work One"},
 			},
 		},
 	}
@@ -26,7 +26,7 @@ func TestVolumesToApiModels(t *testing.T) {
 			Section:      2,
 			Title:        "Volume One",
 			Works: []models.WorkRef{
-				{Id: "w1", Code: "C1", Title: "Work One"},
+				{Code: "C1", Title: "Work One"},
 			},
 		},
 	}
@@ -39,30 +39,28 @@ func TestVolumesToApiModels(t *testing.T) {
 
 func TestWorkToApiModels(t *testing.T) {
 	in := &esmodel.Work{
-		Id:           "w1",
 		Code:         "C1",
 		Abbreviation: util.StrPtr("abbr"),
 		Title:        "The Work",
 		Year:         util.StrPtr("2024"),
 		Sections: []esmodel.Section{
 			{
-				Heading:    "Section 1",
-				Paragraphs: []string{"par1Id", "par2Id"},
+				Heading:    1,
+				Paragraphs: []int32{2, 3},
 				Sections:   []esmodel.Section{},
 			},
 		},
 	}
 
 	expected := models.Work{
-		Id:           "w1",
 		Code:         "C1",
 		Abbreviation: "abbr",
 		Title:        "The Work",
 		Year:         "2024",
 		Sections: []models.Section{
 			{
-				Heading:    "Section 1",
-				Paragraphs: []string{"par1Id", "par2Id"},
+				Heading:    1,
+				Paragraphs: []int32{2, 3},
 				Sections:   []models.Section{},
 			},
 		},
@@ -76,10 +74,10 @@ func TestWorkToApiModels(t *testing.T) {
 
 func TestFootnotesToApiModels(t *testing.T) {
 	in := []esmodel.Content{
-		{Id: "f1", Ref: util.StrPtr("ref1"), FmtText: "Footnote text"},
+		{Ordinal: 1, Ref: util.StrPtr("ref1"), FmtText: "Footnote text"},
 	}
 	expected := []models.Footnote{
-		{Id: "f1", Ref: "ref1", Text: "Footnote text"},
+		{Ordinal: 1, Ref: "ref1", Text: "Footnote text"},
 	}
 
 	out := FootnotesToApiModels(in)
@@ -90,10 +88,10 @@ func TestFootnotesToApiModels(t *testing.T) {
 
 func TestHeadingsToApiModels(t *testing.T) {
 	in := []esmodel.Content{
-		{Id: "h1", FmtText: "Heading text", TocText: util.StrPtr("toc text"), FnRefs: []string{"fn1"}},
+		{Ordinal: 1, FmtText: "Heading text", TocText: util.StrPtr("toc text"), FnRefs: []string{"fn1"}},
 	}
 	expected := []models.Heading{
-		{Id: "h1", Text: "Heading text", TocText: "toc text", FnRefs: []string{"fn1"}},
+		{Ordinal: 1, Text: "Heading text", TocText: "toc text", FnRefs: []string{"fn1"}},
 	}
 
 	out := HeadingsToApiModels(in)
@@ -104,10 +102,10 @@ func TestHeadingsToApiModels(t *testing.T) {
 
 func TestParagraphsToApiModels(t *testing.T) {
 	in := []esmodel.Content{
-		{Id: "p1", FmtText: "Paragraph text", FnRefs: []string{"fn1"}, SummaryRef: util.StrPtr("s1")},
+		{Ordinal: 1, FmtText: "Paragraph text", FnRefs: []string{"fn1"}, SummaryRef: util.StrPtr("s1")},
 	}
 	expected := []models.Paragraph{
-		{Id: "p1", Text: "Paragraph text", FnRefs: []string{"fn1"}, SummaryRef: "s1"},
+		{Ordinal: 1, Text: "Paragraph text", FnRefs: []string{"fn1"}, SummaryRef: "s1"},
 	}
 
 	out := ParagraphsToApiModels(in)
@@ -118,10 +116,10 @@ func TestParagraphsToApiModels(t *testing.T) {
 
 func TestSummariesToApiModels(t *testing.T) {
 	in := []esmodel.Content{
-		{Id: "s1", Ref: util.StrPtr("ref1"), FmtText: "Summary text", FnRefs: []string{"fn1"}},
+		{Ordinal: 1, Ref: util.StrPtr("ref1"), FmtText: "Summary text", FnRefs: []string{"fn1"}},
 	}
 	expected := []models.Summary{
-		{Id: "s1", Ref: "ref1", Text: "Summary text", FnRefs: []string{"fn1"}},
+		{Ordinal: 1, Ref: "ref1", Text: "Summary text", FnRefs: []string{"fn1"}},
 	}
 
 	out := SummariesToApiModels(in)

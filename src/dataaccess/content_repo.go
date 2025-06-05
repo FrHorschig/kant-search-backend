@@ -22,11 +22,11 @@ import (
 
 type ContentRepo interface {
 	Insert(ctx context.Context, data []esmodel.Content) error
-	GetFootnotesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
-	GetHeadingsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
-	GetParagraphsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
-	GetSummariesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error)
-	DeleteByWorkId(ctx context.Context, workId string) error
+	GetFootnotesByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error)
+	GetHeadingsByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error)
+	GetParagraphsByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error)
+	GetSummariesByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error)
+	DeleteByWorkCode(ctx context.Context, workCode string) error
 	Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error)
 }
 
@@ -59,7 +59,7 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 		return err
 	}
 
-	for i, item := range res.Items {
+	for _, item := range res.Items {
 		e := item[operationtype.Create].Error
 		if e != nil && e.Reason != nil {
 			return errors.New(*e.Reason)
@@ -67,23 +67,13 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 		if *item[operationtype.Create].Result != "created" {
 			return errors.New("unable to create new document")
 		}
-		data[i].Id = *item[operationtype.Create].Id_
-	}
-
-	update := rec.dbClient.Bulk().Index(rec.indexName)
-	for _, c := range data {
-		update.UpdateOp(types.UpdateOperation{Id_: &c.Id}, c, types.NewUpdateAction())
-	}
-	_, err = update.Do(ctx)
-	if err != nil {
-		return err
 	}
 	return nil
 }
 
-func (rec *contentRepoImpl) GetFootnotesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetFootnotesByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Footnote}),
+		Query: util.CreateContentQuery(workCode, []esmodel.Type{esmodel.Footnote}),
 		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
@@ -102,9 +92,9 @@ func (rec *contentRepoImpl) GetFootnotesByWorkId(ctx context.Context, workId str
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) GetHeadingsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetHeadingsByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Heading}),
+		Query: util.CreateContentQuery(workCode, []esmodel.Type{esmodel.Heading}),
 		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
@@ -123,9 +113,9 @@ func (rec *contentRepoImpl) GetHeadingsByWorkId(ctx context.Context, workId stri
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) GetParagraphsByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetParagraphsByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Paragraph}),
+		Query: util.CreateContentQuery(workCode, []esmodel.Type{esmodel.Paragraph}),
 		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
@@ -144,9 +134,9 @@ func (rec *contentRepoImpl) GetParagraphsByWorkId(ctx context.Context, workId st
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) GetSummariesByWorkId(ctx context.Context, workId string) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetSummariesByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error) {
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workId, []esmodel.Type{esmodel.Summary}),
+		Query: util.CreateContentQuery(workCode, []esmodel.Type{esmodel.Summary}),
 		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
@@ -165,9 +155,9 @@ func (rec *contentRepoImpl) GetSummariesByWorkId(ctx context.Context, workId str
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) DeleteByWorkId(ctx context.Context, workId string) error {
+func (rec *contentRepoImpl) DeleteByWorkCode(ctx context.Context, workCode string) error {
 	res, err := rec.dbClient.DeleteByQuery(rec.indexName).Request(&deletebyquery.Request{
-		Query: createTermQuery("workId", workId),
+		Query: createTermQuery("workCode", workCode),
 	}).Do(ctx)
 	if err != nil {
 		return err
@@ -180,7 +170,7 @@ func (rec *contentRepoImpl) DeleteByWorkId(ctx context.Context, workId string) e
 				log.Error().Msgf("Failed to delete content: %s", *e)
 			}
 		}
-		return fmt.Errorf("unable to delete work with id %s", workId)
+		return fmt.Errorf("unable to delete work with code %s", workCode)
 	}
 	return nil
 }
@@ -220,10 +210,10 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 		}
 		// TODO later: set numbers of fragments to zero, then extract the indices of the pre and post highlight tag, then map them to the fmtText field, use it with the indices for a) showing the full paragraph with highlighting and b) finding the exact page and line number of a match
 		results = append(results, model.SearchResult{
-			Snippets:  createSnippets(hit.Highlight["searchText"]),
-			Pages:     c.Pages,
-			ContentId: c.Id,
-			WorkId:    c.WorkId,
+			Snippets: createSnippets(hit.Highlight["searchText"]),
+			Pages:    c.Pages,
+			Ordinal:  c.Ordinal,
+			WorkCode: c.WorkCode,
 		})
 	}
 	return results, nil

@@ -5,7 +5,8 @@ type WorkMetadata struct {
 	Abbreviation string
 }
 
-// TODO frhorschig: find a better solution than hardcoding this data here
+// TODO find a better solution than hardcoding this data here -> read from config, check that code is unique!
+// keep in sync with <frontend-dir>/src/app/search/util/works-select-util.ts
 var Metadata = [][]WorkMetadata{
 	{ // Band 1
 		{Code: "GSK", Abbreviation: "GSK"},
@@ -19,7 +20,6 @@ var Metadata = [][]WorkMetadata{
 		{Code: "FBZE", Abbreviation: "FBZE"},
 		{Code: "MON_PH", Abbreviation: "MonPh"},
 		{Code: "TW", Abbreviation: "TW"},
-		{Code: "INTRO_1", Abbreviation: ""},
 	},
 	{ // Band 2
 		{Code: "EACG", Abbreviation: "EACG"},
@@ -31,7 +31,7 @@ var Metadata = [][]WorkMetadata{
 		{Code: "NG", Abbreviation: "NG"},
 		{Code: "GSE", Abbreviation: "GSE"},
 		{Code: "VKK", Abbreviation: "VKK"},
-		{Code: "REZ_SILBERSCHLAG_2", Abbreviation: ""},
+		{Code: "REZ_SIL_2", Abbreviation: ""},
 		{Code: "UD", Abbreviation: "UD"},
 		{Code: "NEV", Abbreviation: "NEV"},
 		{Code: "TG", Abbreviation: "TG"},
@@ -69,30 +69,31 @@ var Metadata = [][]WorkMetadata{
 		{Code: "IDEE_GESCHICHTE", Abbreviation: ""},
 		{Code: "FRAGE_AUFKLAERUNG", Abbreviation: ""},
 		{Code: "REZ_HERDER", Abbreviation: "RezHerder"},
-		{Code: "VULKANE_MOND", Abbreviation: ""},
+		{Code: "VULKANE", Abbreviation: ""},
 		{Code: "VUB", Abbreviation: "VUB"},
-		{Code: "BEGRIFF_MENSCHENRACE", Abbreviation: ""},
-		{Code: "ANFANG_MENSCHENGESCHICHTE", Abbreviation: ""},
+		{Code: "MENSCHENRACE", Abbreviation: ""},
+		{Code: "MENSCHENGESCH", Abbreviation: ""},
 		{Code: "REZ_HUFELAND", Abbreviation: "RezHufeland"},
 		{Code: "WDO", Abbreviation: "WDO"},
-		{Code: "BEM_MORGENSTUNDEN", Abbreviation: ""},
+		{Code: "BEM_MORGEN", Abbreviation: ""},
 		{Code: "UEGTP", Abbreviation: "ÜGTP"},
 		{Code: "UEE", Abbreviation: "ÜE"},
-		{Code: "MISSLINGEN_THEODICEE", Abbreviation: ""},
+		{Code: "THEODICEE", Abbreviation: ""},
 		{Code: "TP", Abbreviation: "TP"},
-		{Code: "MOND_WITTERUNG", Abbreviation: ""},
+		{Code: "WITTERUNG", Abbreviation: ""},
 		{Code: "EAD", Abbreviation: ""},
 		{Code: "ZEF", Abbreviation: "ZeF"},
 		{Code: "VT", Abbreviation: "VT"},
-		{Code: "AUSGLEICH_STREIT", Abbreviation: ""},
+		{Code: "AUSGLEICH", Abbreviation: ""},
 		{Code: "VNAEF", Abbreviation: "VNAEF"},
 		{Code: "VRML", Abbreviation: "VRML"},
 		{Code: "BUCHMACHEREI", Abbreviation: ""},
-		{Code: "VORREDE_REL_PHIL", Abbreviation: ""},
-		{Code: "NACHSCHRIFT_WOERTERBUCH", Abbreviation: ""},
-		{Code: "NACHTRAG_8", Abbreviation: ""},
-		{Code: "REZ_SILBERSCHLAG_8", Abbreviation: ""},
-		{Code: "ANHANG_8", Abbreviation: ""},
+		{Code: "REL_PHIL", Abbreviation: ""},
+		{Code: "WOERTERBUCH", Abbreviation: ""},
+		// TODO how to handle this special case?
+		// {Code: "NACHTRAG_8", Abbreviation: ""},
+		{Code: "REZ_SIL_8", Abbreviation: ""},
+		// {Code: "ANHANG_8", Abbreviation: ""},
 		{Code: "REZ_ULRICH", Abbreviation: "RezUlrich"},
 	},
 	{ // Band 9

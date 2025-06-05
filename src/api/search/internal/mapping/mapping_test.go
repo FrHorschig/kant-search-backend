@@ -18,14 +18,14 @@ func TestCriteriaToCoreModel(t *testing.T) {
 		Options: models.SearchOptions{
 			IncludeHeadings: false,
 			Scope:           models.SearchScope("PARAGRAPH"),
-			WorkIds:         []string{"id1", "id2"},
+			WorkCodes:       []string{"id1", "id2"},
 		},
 	}
 
 	ss, opts := CriteriaToCoreModel(&criteria)
 
 	assert.Equal(t, ss, criteria.SearchString)
-	assert.Equal(t, opts.WorkIds, criteria.Options.WorkIds)
+	assert.Equal(t, opts.WorkCodes, criteria.Options.WorkCodes)
 	assert.Equal(t, string(opts.Scope), string(criteria.Options.Scope))
 	assert.Equal(t, opts.IncludeHeadings, criteria.Options.IncludeHeadings)
 	assert.Equal(t, opts.IncludeFootnotes, criteria.Options.IncludeFootnotes)
@@ -47,33 +47,33 @@ func TestMatchesToApiModels(t *testing.T) {
 			name: "single result",
 			input: []model.SearchResult{
 				{
-					WorkId:    "w1",
-					Snippets:  []string{"snippet1"},
-					Pages:     []int32{1},
-					ContentId: "c1",
+					WorkCode: "w1",
+					Snippets: []string{"snippet1"},
+					Pages:    []int32{1},
+					Ordinal:  1,
 				},
 			},
 			expected: []models.SearchResult{
 				{
-					WorkId: "w1",
-					Hits:   []models.Hit{{Snippets: []string{"snippet1"}, Pages: []int32{1}, ContentId: "c1"}},
+					WorkCode: "w1",
+					Hits:     []models.Hit{{Snippets: []string{"snippet1"}, Pages: []int32{1}, Ordinal: 1}},
 				},
 			},
 		},
 		{
 			name: "multiple results",
 			input: []model.SearchResult{
-				{WorkId: "w1", Snippets: []string{"a"}, Pages: []int32{1}, ContentId: "x"},
-				{WorkId: "w2", Snippets: []string{"b"}, Pages: []int32{2}, ContentId: "y"},
+				{WorkCode: "w1", Snippets: []string{"a"}, Pages: []int32{1}, Ordinal: 1},
+				{WorkCode: "w2", Snippets: []string{"b"}, Pages: []int32{2}, Ordinal: 2},
 			},
 			expected: []models.SearchResult{
 				{
-					WorkId: "w1",
-					Hits:   []models.Hit{{Snippets: []string{"a"}, Pages: []int32{1}, ContentId: "x"}},
+					WorkCode: "w1",
+					Hits:     []models.Hit{{Snippets: []string{"a"}, Pages: []int32{1}, Ordinal: 1}},
 				},
 				{
-					WorkId: "w2",
-					Hits:   []models.Hit{{Snippets: []string{"b"}, Pages: []int32{2}, ContentId: "y"}},
+					WorkCode: "w2",
+					Hits:     []models.Hit{{Snippets: []string{"b"}, Pages: []int32{2}, Ordinal: 2}},
 				},
 			},
 		},
@@ -96,10 +96,10 @@ func equalSearchResults(a, b []models.SearchResult) bool {
 	m1 := make(map[string][]models.Hit)
 	m2 := make(map[string][]models.Hit)
 	for _, r := range a {
-		m1[r.WorkId] = r.Hits
+		m1[r.WorkCode] = r.Hits
 	}
 	for _, r := range b {
-		m2[r.WorkId] = r.Hits
+		m2[r.WorkCode] = r.Hits
 	}
 	return reflect.DeepEqual(m1, m2)
 }

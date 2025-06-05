@@ -7,37 +7,37 @@ import (
 
 func CriteriaToCoreModel(in *models.SearchCriteria) (string, model.SearchOptions) {
 	return in.SearchString, model.SearchOptions{
-		WorkIds:          in.Options.WorkIds,
-		Scope:            model.SearchScope(in.Options.Scope),
 		IncludeHeadings:  in.Options.IncludeHeadings,
 		IncludeFootnotes: in.Options.IncludeFootnotes,
 		IncludeSummaries: in.Options.IncludeSummaries,
+		Scope:            model.SearchScope(in.Options.Scope),
+		WorkCodes:        in.Options.WorkCodes,
 	}
 }
 
 func MatchesToApiModels(hits []model.SearchResult) []models.SearchResult {
-	resultByWorkId := make(map[string][]models.Hit)
+	resultByWorkCode := make(map[string][]models.Hit)
 	for _, hit := range hits {
 		apiHit := models.Hit{
-			Snippets:  hit.Snippets,
-			Pages:     hit.Pages,
-			ContentId: hit.ContentId,
+			Snippets: hit.Snippets,
+			Pages:    hit.Pages,
+			Ordinal:  hit.Ordinal,
 		}
 
-		arr, exists := resultByWorkId[hit.WorkId]
+		arr, exists := resultByWorkCode[hit.WorkCode]
 		if exists {
 			arr = append(arr, apiHit)
 		} else {
 			arr = []models.Hit{apiHit}
 		}
-		resultByWorkId[hit.WorkId] = arr
+		resultByWorkCode[hit.WorkCode] = arr
 	}
 
 	var results []models.SearchResult
-	for workId, apiHits := range resultByWorkId {
+	for workCode, apiHits := range resultByWorkCode {
 		results = append(results, models.SearchResult{
-			WorkId: workId,
-			Hits:   apiHits,
+			Hits:     apiHits,
+			WorkCode: workCode,
 		})
 	}
 	return results

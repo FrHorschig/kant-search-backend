@@ -40,14 +40,14 @@ func (rec *readHandlerImpl) ReadVolumes(ctx echo.Context) error {
 }
 
 func (rec *readHandlerImpl) ReadWork(ctx echo.Context) error {
-	workId := ctx.Param("workId")
-	if workId == "" {
+	workCode := ctx.Param("workCode")
+	if workCode == "" {
 		msg := "empty work ID"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
-	work, err := rec.readProcessor.ProcessWork(ctx.Request().Context(), workId)
+	work, err := rec.readProcessor.ProcessWork(ctx.Request().Context(), workCode)
 	if err != nil {
 		log.Error().Err(err).Msgf("error reading work: %v", err)
 		return errors.InternalServerError(ctx)
@@ -61,14 +61,14 @@ func (rec *readHandlerImpl) ReadWork(ctx echo.Context) error {
 }
 
 func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
-	workId := ctx.Param("workId")
-	if workId == "" {
+	workCode := ctx.Param("workCode")
+	if workCode == "" {
 		msg := "empty work ID"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
-	footnotes, err := rec.readProcessor.ProcessFootnotes(ctx.Request().Context(), workId)
+	footnotes, err := rec.readProcessor.ProcessFootnotes(ctx.Request().Context(), workCode)
 	if err != nil {
 		log.Error().Err(err).Msgf("error reading footnotes: %v", err)
 		return errors.InternalServerError(ctx)
@@ -80,14 +80,14 @@ func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
 }
 
 func (rec *readHandlerImpl) ReadHeadings(ctx echo.Context) error {
-	workId := ctx.Param("workId")
-	if workId == "" {
+	workCode := ctx.Param("workCode")
+	if workCode == "" {
 		msg := "empty work ID"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
-	headings, err := rec.readProcessor.ProcessHeadings(ctx.Request().Context(), workId)
+	headings, err := rec.readProcessor.ProcessHeadings(ctx.Request().Context(), workCode)
 	if err != nil {
 		log.Error().Err(err).Msgf("error reading headings: %v", err)
 		return errors.InternalServerError(ctx)
@@ -98,14 +98,14 @@ func (rec *readHandlerImpl) ReadHeadings(ctx echo.Context) error {
 }
 
 func (rec *readHandlerImpl) ReadParagraphs(ctx echo.Context) error {
-	workId := ctx.Param("workId")
-	if workId == "" {
+	workCode := ctx.Param("workCode")
+	if workCode == "" {
 		msg := "empty work ID"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
-	paragraphs, err := rec.readProcessor.ProcessParagraphs(ctx.Request().Context(), workId)
+	paragraphs, err := rec.readProcessor.ProcessParagraphs(ctx.Request().Context(), workCode)
 	if err != nil {
 		log.Error().Err(err).Msgf("error reading paragraphs: %v", err)
 		return errors.InternalServerError(ctx)
@@ -116,14 +116,14 @@ func (rec *readHandlerImpl) ReadParagraphs(ctx echo.Context) error {
 }
 
 func (rec *readHandlerImpl) ReadSummaries(ctx echo.Context) error {
-	workId := ctx.Param("workId")
-	if workId == "" {
+	workCode := ctx.Param("workCode")
+	if workCode == "" {
 		msg := "empty work ID"
 		log.Error().Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
-	summaries, err := rec.readProcessor.ProcessSummaries(ctx.Request().Context(), workId)
+	summaries, err := rec.readProcessor.ProcessSummaries(ctx.Request().Context(), workCode)
 	if err != nil {
 		log.Error().Err(err).Msgf("error reading summaries: %v", err)
 		return errors.InternalServerError(ctx)

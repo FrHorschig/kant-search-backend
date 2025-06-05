@@ -17,7 +17,6 @@ func VolumesToApiModels(in []esmodel.Volume) []models.Volume {
 		}
 		for _, wIn := range vIn.Works {
 			vOut.Works = append(vOut.Works, models.WorkRef{
-				Id:    wIn.Id,
 				Code:  wIn.Code,
 				Title: wIn.Title,
 			})
@@ -29,7 +28,6 @@ func VolumesToApiModels(in []esmodel.Volume) []models.Volume {
 
 func WorkToApiModels(in *esmodel.Work) models.Work {
 	out := models.Work{
-		Id:           in.Id,
 		Code:         in.Code,
 		Abbreviation: util.StrVal(in.Abbreviation),
 		Title:        in.Title,
@@ -56,9 +54,9 @@ func FootnotesToApiModels(in []esmodel.Content) []models.Footnote {
 	out := []models.Footnote{}
 	for _, c := range in {
 		out = append(out, models.Footnote{
-			Id:   c.Id,
-			Ref:  util.StrVal(c.Ref),
-			Text: c.FmtText,
+			Ordinal: c.Ordinal,
+			Ref:     util.StrVal(c.Ref),
+			Text:    c.FmtText,
 		})
 	}
 	return out
@@ -68,7 +66,7 @@ func HeadingsToApiModels(in []esmodel.Content) []models.Heading {
 	out := []models.Heading{}
 	for _, c := range in {
 		out = append(out, models.Heading{
-			Id:      c.Id,
+			Ordinal: c.Ordinal,
 			Text:    c.FmtText,
 			TocText: util.StrVal(c.TocText),
 			FnRefs:  c.FnRefs,
@@ -81,7 +79,7 @@ func ParagraphsToApiModels(in []esmodel.Content) []models.Paragraph {
 	out := []models.Paragraph{}
 	for _, c := range in {
 		out = append(out, models.Paragraph{
-			Id:         c.Id,
+			Ordinal:    c.Ordinal,
 			Text:       c.FmtText,
 			FnRefs:     c.FnRefs,
 			SummaryRef: util.StrVal(c.SummaryRef),
@@ -94,10 +92,10 @@ func SummariesToApiModels(in []esmodel.Content) []models.Summary {
 	out := []models.Summary{}
 	for _, c := range in {
 		out = append(out, models.Summary{
-			Id:     c.Id,
-			Ref:    util.StrVal(c.Ref),
-			Text:   c.FmtText,
-			FnRefs: c.FnRefs,
+			Ordinal: c.Ordinal,
+			Ref:     util.StrVal(c.Ref),
+			Text:    c.FmtText,
+			FnRefs:  c.FnRefs,
 		})
 	}
 	return out

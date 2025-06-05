@@ -57,8 +57,7 @@ func testReadVolumes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.Mo
 		Section:      2,
 		Title:        "volume title",
 		Works: []esmodel.WorkRef{{
-			Id:    "A123",
-			Code:  "code",
+			Code:  "A123",
 			Title: "work title",
 		}},
 	}
@@ -90,19 +89,18 @@ func testReadVolumesError(t *testing.T, sut *readHandlerImpl, readProcessor *moc
 }
 
 func testReadWork(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "GMS"
 	work := esmodel.Work{
-		Id:           workId,
-		Code:         "GMS",
+		Code:         workCode,
 		Abbreviation: util.StrPtr("GMS"),
 		Title:        "Grundlegung zur Metaphysik der Sitten",
 		Year:         util.StrPtr("1785"),
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId, nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
-	readProcessor.EXPECT().ProcessWork(gomock.Any(), workId).Return(&work, nil)
+	ctx := createCtxWithWorkCode(req, res, workCode)
+	readProcessor.EXPECT().ProcessWork(gomock.Any(), workCode).Return(&work, nil)
 	// WHEN
 	sut.ReadWork(ctx)
 	// THEN
@@ -111,11 +109,11 @@ func testReadWork(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockR
 }
 
 func testReadWorkEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := ""
+	workCode := ""
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId, nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
+	ctx := createCtxWithWorkCode(req, res, workCode)
 	// WHEN
 	sut.ReadWork(ctx)
 	// THEN
@@ -125,12 +123,12 @@ func testReadWorkEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mock
 }
 
 func testReadWorkNotFound(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId, nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
-	readProcessor.EXPECT().ProcessWork(gomock.Any(), workId).Return(nil, nil)
+	ctx := createCtxWithWorkCode(req, res, workCode)
+	readProcessor.EXPECT().ProcessWork(gomock.Any(), workCode).Return(nil, nil)
 	// WHEN
 	sut.ReadWork(ctx)
 	// THEN
@@ -140,13 +138,13 @@ func testReadWorkNotFound(t *testing.T, sut *readHandlerImpl, readProcessor *moc
 }
 
 func testReadWorkError(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	e := errors.New("test error")
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId, nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
-	readProcessor.EXPECT().ProcessWork(gomock.Any(), workId).Return(nil, e)
+	ctx := createCtxWithWorkCode(req, res, workCode)
+	readProcessor.EXPECT().ProcessWork(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
 	sut.ReadWork(ctx)
 	// THEN
@@ -156,21 +154,21 @@ func testReadWorkError(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 }
 
 func testReadFootnotes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	fn := esmodel.Content{
 		Type:       esmodel.Footnote,
 		Ref:        util.StrPtr("A121"),
 		FmtText:    "formatted text 1",
 		SearchText: "search text 1",
 		Pages:      []int32{1, 2, 3},
-		WorkId:     workId,
+		WorkCode:   workCode,
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId+"/footnotes", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/footnotes", nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
+	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
-		ProcessFootnotes(gomock.Any(), workId).
+		ProcessFootnotes(gomock.Any(), workCode).
 		Return([]esmodel.Content{fn}, nil)
 	// WHEN
 	sut.ReadFootnotes(ctx)
@@ -180,11 +178,11 @@ func testReadFootnotes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 }
 
 func testReadFootnotesEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := ""
+	workCode := ""
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId, nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
+	ctx := createCtxWithWorkCode(req, res, workCode)
 	// WHEN
 	sut.ReadFootnotes(ctx)
 	// THEN
@@ -194,13 +192,13 @@ func testReadFootnotesEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor 
 }
 
 func testReadFootnotesError(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	e := errors.New("test error")
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId+"/footnotes", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/footnotes", nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
-	readProcessor.EXPECT().ProcessFootnotes(gomock.Any(), workId).Return(nil, e)
+	ctx := createCtxWithWorkCode(req, res, workCode)
+	readProcessor.EXPECT().ProcessFootnotes(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
 	sut.ReadFootnotes(ctx)
 	// THEN
@@ -209,21 +207,21 @@ func testReadFootnotesError(t *testing.T, sut *readHandlerImpl, readProcessor *m
 }
 
 func testReadHeadings(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	head := esmodel.Content{
 		Type:       esmodel.Heading,
 		FmtText:    "formatted text 2",
 		SearchText: "search text 2",
 		Pages:      []int32{1, 2, 3},
 		FnRefs:     []string{"fn1.2", "fn2.3"},
-		WorkId:     workId,
+		WorkCode:   workCode,
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId+"/headings", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/headings", nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
+	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
-		ProcessHeadings(gomock.Any(), workId).
+		ProcessHeadings(gomock.Any(), workCode).
 		Return([]esmodel.Content{head}, nil)
 	// WHEN
 	sut.ReadHeadings(ctx)
@@ -233,11 +231,11 @@ func testReadHeadings(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.M
 }
 
 func testReadHeadingsEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := ""
+	workCode := ""
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId, nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
+	ctx := createCtxWithWorkCode(req, res, workCode)
 	// WHEN
 	sut.ReadHeadings(ctx)
 	// THEN
@@ -247,13 +245,13 @@ func testReadHeadingsEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *
 }
 
 func testReadHeadingsError(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	e := errors.New("test error")
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId+"/headings", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/headings", nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
-	readProcessor.EXPECT().ProcessHeadings(gomock.Any(), workId).Return(nil, e)
+	ctx := createCtxWithWorkCode(req, res, workCode)
+	readProcessor.EXPECT().ProcessHeadings(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
 	sut.ReadHeadings(ctx)
 	// THEN
@@ -262,7 +260,7 @@ func testReadHeadingsError(t *testing.T, sut *readHandlerImpl, readProcessor *mo
 }
 
 func testReadParagraphs(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	par := esmodel.Content{
 		Type:       esmodel.Paragraph,
 		Ref:        util.StrPtr("A124"),
@@ -270,14 +268,14 @@ func testReadParagraphs(t *testing.T, sut *readHandlerImpl, readProcessor *mocks
 		SearchText: "search text 3",
 		Pages:      []int32{4, 5},
 		FnRefs:     []string{"fn3.4", "fn4.5"},
-		WorkId:     workId,
+		WorkCode:   workCode,
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId+"/paragraphs", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/paragraphs", nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
+	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
-		ProcessParagraphs(gomock.Any(), workId).
+		ProcessParagraphs(gomock.Any(), workCode).
 		Return([]esmodel.Content{par}, nil)
 	// WHEN
 	sut.ReadParagraphs(ctx)
@@ -287,11 +285,11 @@ func testReadParagraphs(t *testing.T, sut *readHandlerImpl, readProcessor *mocks
 }
 
 func testReadParagraphsEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := ""
+	workCode := ""
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId, nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
+	ctx := createCtxWithWorkCode(req, res, workCode)
 	// WHEN
 	sut.ReadParagraphs(ctx)
 	// THEN
@@ -301,13 +299,13 @@ func testReadParagraphsEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor
 }
 
 func testReadParagraphsError(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	e := errors.New("test error")
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId+"/paragraphs", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/paragraphs", nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
-	readProcessor.EXPECT().ProcessParagraphs(gomock.Any(), workId).Return(nil, e)
+	ctx := createCtxWithWorkCode(req, res, workCode)
+	readProcessor.EXPECT().ProcessParagraphs(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
 	sut.ReadParagraphs(ctx)
 	// THEN
@@ -316,21 +314,21 @@ func testReadParagraphsError(t *testing.T, sut *readHandlerImpl, readProcessor *
 }
 
 func testReadSummaries(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	summ := esmodel.Content{
 		Type:       esmodel.Summary,
 		Ref:        util.StrPtr("A125"),
 		FmtText:    "formatted text 5",
 		SearchText: "search text 5",
 		Pages:      []int32{4, 5},
-		WorkId:     workId,
+		WorkCode:   workCode,
 	}
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId+"/summaries", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/summaries", nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
+	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
-		ProcessSummaries(gomock.Any(), workId).
+		ProcessSummaries(gomock.Any(), workCode).
 		Return([]esmodel.Content{summ}, nil)
 	// WHEN
 	sut.ReadSummaries(ctx)
@@ -340,11 +338,11 @@ func testReadSummaries(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 }
 
 func testReadSummariesEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := ""
+	workCode := ""
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId, nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
+	ctx := createCtxWithWorkCode(req, res, workCode)
 	// WHEN
 	sut.ReadSummaries(ctx)
 	// THEN
@@ -354,13 +352,13 @@ func testReadSummariesEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor 
 }
 
 func testReadSummariesError(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workId := "A123"
+	workCode := "A123"
 	e := errors.New("test error")
 	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workId+"/summaries", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/summaries", nil)
 	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkId(req, res, workId)
-	readProcessor.EXPECT().ProcessSummaries(gomock.Any(), workId).Return(nil, e)
+	ctx := createCtxWithWorkCode(req, res, workCode)
+	readProcessor.EXPECT().ProcessSummaries(gomock.Any(), workCode).Return(nil, e)
 	// WHEN
 	sut.ReadSummaries(ctx)
 	// THEN
@@ -368,9 +366,9 @@ func testReadSummariesError(t *testing.T, sut *readHandlerImpl, readProcessor *m
 	assert.Contains(t, res.Body.String(), "message")
 }
 
-func createCtxWithWorkId(req *http.Request, res *httptest.ResponseRecorder, workId string) echo.Context {
+func createCtxWithWorkCode(req *http.Request, res *httptest.ResponseRecorder, workCode string) echo.Context {
 	ctx := echo.New().NewContext(req, res)
-	ctx.SetParamNames("workId")
-	ctx.SetParamValues(workId)
+	ctx.SetParamNames("workCode")
+	ctx.SetParamValues(workCode)
 	return ctx
 }
