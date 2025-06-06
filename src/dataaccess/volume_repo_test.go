@@ -21,20 +21,40 @@ func TestVolumeRepo(t *testing.T) {
 		VolumeNumber: 1,
 		Section:      2,
 		Title:        "volume title",
-		Works: []esmodel.WorkRef{{
-			Code:         "code",
-			Abbreviation: util.StrPtr("abbrev"),
-			Title:        "work title",
+		Works: []esmodel.Work{{
+			Code:         "GMS",
+			Abbreviation: util.StrPtr("GMS"),
+			Title:        "Grundlegung zur Metaphysik der Sitten",
+			Year:         util.StrPtr("1785"),
+			Ordinal:      1,
+			Sections: []esmodel.Section{{
+				Heading:    1,
+				Paragraphs: []int32{2, 3, 4},
+				Sections: []esmodel.Section{{
+					Heading:    5,
+					Paragraphs: []int32{6, 7},
+				}},
+			}},
 		}},
 	}
 	vol2 := esmodel.Volume{
 		VolumeNumber: 2,
 		Section:      3,
 		Title:        "volume title 2",
-		Works: []esmodel.WorkRef{{
-			Code:         "code2",
-			Abbreviation: util.StrPtr("abbrev2"),
-			Title:        "work title 2",
+		Works: []esmodel.Work{{
+			Code:         "KPV",
+			Abbreviation: util.StrPtr("KPV"),
+			Title:        "Kritik der praktischen Vernunft",
+			Year:         util.StrPtr("1788"),
+			Ordinal:      1,
+			Sections: []esmodel.Section{{
+				Heading:    1,
+				Paragraphs: []int32{2, 3, 4},
+				Sections: []esmodel.Section{{
+					Heading:    5,
+					Paragraphs: []int32{6, 7},
+				}},
+			}},
 		}},
 	}
 

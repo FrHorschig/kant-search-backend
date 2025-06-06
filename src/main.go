@@ -55,9 +55,6 @@ func registerHandlers(e *echo.Echo, uploadHandler apiupload.UploadHandler, readH
 	e.GET(("/api/v1/volumes"), func(ctx echo.Context) error {
 		return readHandler.ReadVolumes(ctx)
 	})
-	e.GET(("/api/v1/works/:workCode"), func(ctx echo.Context) error {
-		return readHandler.ReadWork(ctx)
-	})
 	e.GET(("/api/v1/works/:workCode/footnotes"), func(ctx echo.Context) error {
 		return readHandler.ReadFootnotes(ctx)
 	})
@@ -80,11 +77,10 @@ func main() {
 	es := initEsConnection()
 
 	volumeRepo := db.NewVolumeRepo(es)
-	workRepo := db.NewWorkRepo(es)
 	contentRepo := db.NewContentRepo(es)
 
-	uploadProcessor := coreupload.NewUploadProcessor(volumeRepo, workRepo, contentRepo)
-	readProcessor := coreread.NewReadProcessor(volumeRepo, workRepo, contentRepo)
+	uploadProcessor := coreupload.NewUploadProcessor(volumeRepo, contentRepo)
+	readProcessor := coreread.NewReadProcessor(volumeRepo, contentRepo)
 	searchProcessor := coresearch.NewSearchProcessor(contentRepo)
 
 	uploadHandler := apiupload.NewUploadHandler(uploadProcessor)

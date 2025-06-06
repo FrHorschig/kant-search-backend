@@ -15,8 +15,21 @@ func TestVolumesToApiModels(t *testing.T) {
 			VolumeNumber: 1,
 			Section:      2,
 			Title:        "Volume One",
-			Works: []esmodel.WorkRef{
-				{Code: "C1", Abbreviation: util.StrPtr("abbrev"), Title: "Work One"},
+			Works: []esmodel.Work{
+				{
+					Ordinal:      1,
+					Code:         "C1",
+					Abbreviation: util.StrPtr("abbr"),
+					Title:        "The Work",
+					Year:         util.StrPtr("2024"),
+					Sections: []esmodel.Section{
+						{
+							Heading:    1,
+							Paragraphs: []int32{2, 3},
+							Sections:   []esmodel.Section{},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -25,48 +38,26 @@ func TestVolumesToApiModels(t *testing.T) {
 			VolumeNumber: 1,
 			Section:      2,
 			Title:        "Volume One",
-			Works: []models.WorkRef{
-				{Code: "C1", Abbreviation: "abbrev", Title: "Work One"},
+			Works: []models.Work{
+				{
+					Ordinal:      1,
+					Code:         "C1",
+					Abbreviation: "abbr",
+					Title:        "The Work",
+					Year:         "2024",
+					Sections: []models.Section{
+						{
+							Heading:    1,
+							Paragraphs: []int32{2, 3},
+							Sections:   []models.Section{},
+						},
+					},
+				},
 			},
 		},
 	}
 
 	out := VolumesToApiModels(in)
-	if !reflect.DeepEqual(out, expected) {
-		t.Errorf("Expected %+v, got %+v", expected, out)
-	}
-}
-
-func TestWorkToApiModels(t *testing.T) {
-	in := &esmodel.Work{
-		Code:         "C1",
-		Abbreviation: util.StrPtr("abbr"),
-		Title:        "The Work",
-		Year:         util.StrPtr("2024"),
-		Sections: []esmodel.Section{
-			{
-				Heading:    1,
-				Paragraphs: []int32{2, 3},
-				Sections:   []esmodel.Section{},
-			},
-		},
-	}
-
-	expected := models.Work{
-		Code:         "C1",
-		Abbreviation: "abbr",
-		Title:        "The Work",
-		Year:         "2024",
-		Sections: []models.Section{
-			{
-				Heading:    1,
-				Paragraphs: []int32{2, 3},
-				Sections:   []models.Section{},
-			},
-		},
-	}
-
-	out := WorkToApiModels(in)
 	if !reflect.DeepEqual(out, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, out)
 	}

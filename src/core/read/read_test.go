@@ -21,11 +21,9 @@ func TestReadProcessor(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	volumeRepo := dbMocks.NewMockVolumeRepo(ctrl)
-	workRepo := dbMocks.NewMockWorkRepo(ctrl)
 	contentRepo := dbMocks.NewMockContentRepo(ctrl)
 	sut := &readProcessorImpl{
 		volumeRepo:  volumeRepo,
-		workRepo:    workRepo,
 		contentRepo: contentRepo,
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
@@ -37,14 +35,6 @@ func TestReadProcessor(t *testing.T) {
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t, sut, volumeRepo, ctx)
-		})
-	}
-	for scenario, fn := range map[string]func(*testing.T, *readProcessorImpl, *mocks.MockWorkRepo, context.Context){
-		"Process work":            testProcessWork,
-		"Process work with error": testProcessWorkError,
-	} {
-		t.Run(scenario, func(t *testing.T) {
-			fn(t, sut, workRepo, ctx)
 		})
 	}
 	for scenario, fn := range map[string]func(*testing.T, *readProcessorImpl, *mocks.MockContentRepo, context.Context){
@@ -68,7 +58,7 @@ func testProcessVolumes(t *testing.T, sut *readProcessorImpl, volumeRepo *mocks.
 		VolumeNumber: 1,
 		Section:      2,
 		Title:        "volume title",
-		Works: []esmodel.WorkRef{{
+		Works: []esmodel.Work{{
 			Code:  "workCode",
 			Title: "work title",
 		}},
@@ -89,35 +79,6 @@ func testProcessVolumesError(t *testing.T, sut *readProcessorImpl, volumeRepo *m
 	volumeRepo.EXPECT().GetAll(gomock.Any()).Return(nil, e)
 	// WHEN
 	res, err := sut.ProcessVolumes(ctx)
-	// THEN
-	assert.NotNil(t, err)
-	assert.Nil(t, res)
-}
-
-func testProcessWork(t *testing.T, sut *readProcessorImpl, workRepo *mocks.MockWorkRepo, ctx context.Context) {
-	workCode := "workCode"
-	work := esmodel.Work{
-		Code:         "GMS",
-		Abbreviation: util.StrPtr("GMS"),
-		Title:        "Grundlegung zur Metaphysik der Sitten",
-		Year:         util.StrPtr("1785"),
-	}
-	// GIVEN
-	workRepo.EXPECT().Get(gomock.Any(), workCode).Return(&work, nil)
-	// WHEN
-	res, err := sut.ProcessWork(ctx, workCode)
-	// THEN
-	assert.Nil(t, err)
-	assert.Equal(t, work, *res)
-}
-
-func testProcessWorkError(t *testing.T, sut *readProcessorImpl, workRepo *mocks.MockWorkRepo, ctx context.Context) {
-	workCode := "workCode"
-	e := errors.New("test error")
-	// GIVEN
-	workRepo.EXPECT().Get(gomock.Any(), workCode).Return(nil, e)
-	// WHEN
-	res, err := sut.ProcessWork(ctx, workCode)
 	// THEN
 	assert.NotNil(t, err)
 	assert.Nil(t, res)

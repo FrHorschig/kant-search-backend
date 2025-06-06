@@ -15,7 +15,7 @@ func CriteriaToCoreModel(in *models.SearchCriteria) (string, model.SearchOptions
 	}
 }
 
-func MatchesToApiModels(hits []model.SearchResult) []models.SearchResult {
+func HitsToApiModels(hits []model.SearchResult) []models.SearchResult {
 	resultByWorkCode := make(map[string][]models.Hit)
 	for _, hit := range hits {
 		apiHit := models.Hit{

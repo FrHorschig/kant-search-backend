@@ -20,15 +20,13 @@ type UploadProcessor interface {
 
 type uploadProcessorImpl struct {
 	volumeRepo  dataaccess.VolumeRepo
-	workRepo    dataaccess.WorkRepo
 	contentRepo dataaccess.ContentRepo
 	xmlMapper   internal.XmlMapper
 }
 
-func NewUploadProcessor(volumeRepo dataaccess.VolumeRepo, workRepo dataaccess.WorkRepo, contentRepo dataaccess.ContentRepo) UploadProcessor {
+func NewUploadProcessor(volumeRepo dataaccess.VolumeRepo, contentRepo dataaccess.ContentRepo) UploadProcessor {
 	processor := uploadProcessorImpl{
 		volumeRepo:  volumeRepo,
-		workRepo:    workRepo,
 		contentRepo: contentRepo,
 		xmlMapper:   internal.NewXmlMapper(),
 	}
@@ -45,20 +43,20 @@ func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml st
 		return err
 	}
 
-	errDelete := deleteExistingData(ctx, rec.volumeRepo, rec.workRepo, rec.contentRepo, volNr)
+	errDelete := deleteExistingData(ctx, rec.volumeRepo, rec.contentRepo, volNr)
 	if errDelete != nil {
 		return errors.New(nil, errDelete)
 	}
 
-	errInsert := insertNewData(ctx, rec.volumeRepo, rec.workRepo, rec.contentRepo, vol, works)
+	errInsert := insertNewData(ctx, rec.volumeRepo, rec.contentRepo, vol, works)
 	if errInsert != nil {
-		deleteExistingData(ctx, rec.volumeRepo, rec.workRepo, rec.contentRepo, volNr) // ignore the error, because here the insertion error is the more interesting one
+		deleteExistingData(ctx, rec.volumeRepo, rec.contentRepo, volNr) // ignore the error, because here the insertion error is the more interesting one
 		return errors.New(nil, errInsert)
 	}
 	return errors.Nil()
 }
 
-func deleteExistingData(ctx context.Context, volRepo dataaccess.VolumeRepo, workRepo dataaccess.WorkRepo, contentRepo dataaccess.ContentRepo, volNr int32) error {
+func deleteExistingData(ctx context.Context, volRepo dataaccess.VolumeRepo, contentRepo dataaccess.ContentRepo, volNr int32) error {
 	vol, err := volRepo.GetByVolumeNumber(ctx, volNr)
 	if err != nil {
 		return err
@@ -68,10 +66,6 @@ func deleteExistingData(ctx context.Context, volRepo dataaccess.VolumeRepo, work
 	}
 	for _, workRef := range vol.Works {
 		err = contentRepo.DeleteByWorkCode(ctx, workRef.Code)
-		if err != nil {
-			return err
-		}
-		err = workRepo.Delete(ctx, workRef.Code)
 		if err != nil {
 			return err
 		}
@@ -92,10 +86,11 @@ type loopVariables struct {
 	ordinal     int32
 }
 
-func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, workRepo dataaccess.WorkRepo, contentRepo dataaccess.ContentRepo, v *model.Volume, works []model.Work) error {
+func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, contentRepo dataaccess.ContentRepo, v *model.Volume, works []model.Work) error {
 	vol := esmodel.Volume{
 		VolumeNumber: v.VolumeNumber,
-		Title:        v.Title,
+		// TODO section
+		Title: v.Title,
 	}
 	for i, w := range works {
 		loopVars := &loopVariables{
@@ -114,16 +109,8 @@ func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, workRepo 
 		if err != nil {
 			return err
 		}
-
-		work := createWork(w, int32(i+1))
-		work.Paragraphs = append(work.Paragraphs, paragraphs...)
-		work.Sections = append(work.Sections, sections...)
-		err = workRepo.Insert(ctx, &work)
-		if err != nil {
-			return err
-		}
-
-		vol.Works = append(vol.Works, createWorkRef(&work))
+		work := createWork(w, int32(i+1), paragraphs, sections)
+		vol.Works = append(vol.Works, work)
 	}
 	return volRepo.Insert(ctx, &vol)
 }
@@ -143,15 +130,15 @@ func createSummsByRef(summaries []model.Summary) map[string]model.Summary {
 	}
 	return result
 }
-func createWork(w model.Work, ordinal int32) esmodel.Work {
+func createWork(w model.Work, ordinal int32, pars []int32, secs []esmodel.Section) esmodel.Work {
 	return esmodel.Work{
 		Ordinal:      ordinal,
 		Code:         w.Code,
 		Abbreviation: w.Abbreviation,
 		Title:        w.Title,
 		Year:         w.Year,
-		Paragraphs:   []int32{},
-		Sections:     []esmodel.Section{},
+		Paragraphs:   pars,
+		Sections:     secs,
 	}
 }
 
@@ -281,12 +268,4 @@ func createSummary(lv *loopVariables, s model.Summary) esmodel.Content {
 	}
 	lv.ordinal += 1
 	return summary
-}
-
-func createWorkRef(work *esmodel.Work) esmodel.WorkRef {
-	return esmodel.WorkRef{
-		Code:         work.Code,
-		Abbreviation: work.Abbreviation,
-		Title:        work.Title,
-	}
 }
