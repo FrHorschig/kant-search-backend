@@ -182,20 +182,26 @@ func createTextMatchQuery(term string) *types.Query {
 }
 
 func CreateOptionQueries(opts model.SearchOptions) []types.Query {
-	qs := []types.Query{}
-	for _, wId := range opts.WorkCodes {
-		qs = append(qs, CreateWorkCodeQuery(wId))
-	}
-	types := []esmodel.Type{esmodel.Paragraph}
+	tps := []esmodel.Type{esmodel.Paragraph}
 	if opts.IncludeHeadings {
-		types = append(types, esmodel.Heading)
+		tps = append(tps, esmodel.Heading)
 	}
 	if opts.IncludeFootnotes {
-		types = append(types, esmodel.Footnote)
+		tps = append(tps, esmodel.Footnote)
 	}
 	if opts.IncludeSummaries {
-		types = append(types, esmodel.Summary)
+		tps = append(tps, esmodel.Summary)
 	}
-	qs = append(qs, createTypeQuery(types))
-	return qs
+	return []types.Query{
+		createWorkCodesQuery(opts.WorkCodes),
+		createTypeQuery(tps),
+	}
+}
+
+func createWorkCodesQuery(workCodes []string) types.Query {
+	return types.Query{Terms: &types.TermsQuery{
+		TermsQuery: map[string]types.TermsQueryField{
+			"workCode": workCodes,
+		},
+	}}
 }
