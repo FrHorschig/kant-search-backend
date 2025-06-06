@@ -53,5 +53,5 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 		}
 	}
 
-	return ctx.JSON(200, mapping.MatchesToApiModels(matches))
+	return ctx.JSON(200, mapping.HitsToApiModels(matches))
 }

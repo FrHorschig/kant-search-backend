@@ -13,28 +13,22 @@ func VolumesToApiModels(in []esmodel.Volume) []models.Volume {
 			VolumeNumber: vIn.VolumeNumber,
 			Section:      vIn.Section,
 			Title:        vIn.Title,
-			Works:        []models.WorkRef{},
+			Works:        []models.Work{},
 		}
 		for _, wIn := range vIn.Works {
-			vOut.Works = append(vOut.Works, models.WorkRef{
-				Code:         wIn.Code,
-				Abbreviation: util.StrVal(wIn.Abbreviation),
-				Title:        wIn.Title,
-			})
+			vOut.Works = append(vOut.Works,
+				models.Work{
+					Ordinal:      wIn.Ordinal,
+					Code:         wIn.Code,
+					Abbreviation: util.StrVal(wIn.Abbreviation),
+					Title:        wIn.Title,
+					Year:         util.StrVal(wIn.Year),
+					Paragraphs:   wIn.Paragraphs,
+					Sections:     mapSections(wIn.Sections),
+				},
+			)
 		}
 		out = append(out, vOut)
-	}
-	return out
-}
-
-func WorkToApiModels(in *esmodel.Work) models.Work {
-	out := models.Work{
-		Code:         in.Code,
-		Abbreviation: util.StrVal(in.Abbreviation),
-		Title:        in.Title,
-		Year:         util.StrVal(in.Year),
-		Paragraphs:   in.Paragraphs,
-		Sections:     mapSections(in.Sections),
 	}
 	return out
 }

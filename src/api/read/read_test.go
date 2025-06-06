@@ -26,24 +26,20 @@ func TestReadHandler(t *testing.T) {
 	}
 
 	for scenario, fn := range map[string]func(*testing.T, *readHandlerImpl, *mocks.MockReadProcessor){
-		"Read volumes":                  testReadVolumes,
-		"Read volumes with error":       testReadVolumesError,
-		"Read work":                     testReadWork,
-		"Read work not found":           testReadWorkNotFound,
-		"Read work with empty id":       testReadWorkEmptyId,
-		"Read work with error":          testReadWorkError,
-		"Read footnotes":                testReadFootnotes,
-		"Read footnotes with empty id":  testReadFootnotesEmptyId,
-		"Read footnotes with error":     testReadFootnotesError,
-		"Read headings":                 testReadHeadings,
-		"Read headings with empty id":   testReadHeadingsEmptyId,
-		"Read headings with error":      testReadHeadingsError,
-		"Read paragraphs":               testReadParagraphs,
-		"Read paragraphs with empty id": testReadParagraphsEmptyId,
-		"Read paragraphs with error":    testReadParagraphsError,
-		"Read summaries":                testReadSummaries,
-		"Read summaries with empty id":  testReadSummariesEmptyId,
-		"Read summaries with error":     testReadSummariesError,
+		"Read volumes":                    testReadVolumes,
+		"Read volumes with error":         testReadVolumesError,
+		"Read footnotes":                  testReadFootnotes,
+		"Read footnotes with empty code":  testReadFootnotesEmptyCode,
+		"Read footnotes with error":       testReadFootnotesError,
+		"Read headings":                   testReadHeadings,
+		"Read headings with empty code":   testReadHeadingsEmptyCode,
+		"Read headings with error":        testReadHeadingsError,
+		"Read paragraphs":                 testReadParagraphs,
+		"Read paragraphs with empty code": testReadParagraphsEmptyCode,
+		"Read paragraphs with error":      testReadParagraphsError,
+		"Read summaries":                  testReadSummaries,
+		"Read summaries with empty code":  testReadSummariesEmptyCode,
+		"Read summaries with error":       testReadSummariesError,
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t, sut, readProcessor)
@@ -56,7 +52,7 @@ func testReadVolumes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.Mo
 		VolumeNumber: 1,
 		Section:      2,
 		Title:        "volume title",
-		Works: []esmodel.WorkRef{{
+		Works: []esmodel.Work{{
 			Code:  "A123",
 			Title: "work title",
 		}},
@@ -88,71 +84,6 @@ func testReadVolumesError(t *testing.T, sut *readHandlerImpl, readProcessor *moc
 
 }
 
-func testReadWork(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workCode := "GMS"
-	work := esmodel.Work{
-		Code:         workCode,
-		Abbreviation: util.StrPtr("GMS"),
-		Title:        "Grundlegung zur Metaphysik der Sitten",
-		Year:         util.StrPtr("1785"),
-	}
-	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
-	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkCode(req, res, workCode)
-	readProcessor.EXPECT().ProcessWork(gomock.Any(), workCode).Return(&work, nil)
-	// WHEN
-	sut.ReadWork(ctx)
-	// THEN
-	assert.Equal(t, http.StatusOK, ctx.Response().Status)
-	assert.Contains(t, res.Body.String(), work.Title)
-}
-
-func testReadWorkEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workCode := ""
-	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
-	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkCode(req, res, workCode)
-	// WHEN
-	sut.ReadWork(ctx)
-	// THEN
-	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assert.Contains(t, res.Body.String(), "empty work ID")
-
-}
-
-func testReadWorkNotFound(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workCode := "A123"
-	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
-	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkCode(req, res, workCode)
-	readProcessor.EXPECT().ProcessWork(gomock.Any(), workCode).Return(nil, nil)
-	// WHEN
-	sut.ReadWork(ctx)
-	// THEN
-	assert.Equal(t, http.StatusNotFound, ctx.Response().Status)
-	assert.Contains(t, res.Body.String(), "message")
-
-}
-
-func testReadWorkError(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	workCode := "A123"
-	e := errors.New("test error")
-	// GIVEN
-	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
-	res := httptest.NewRecorder()
-	ctx := createCtxWithWorkCode(req, res, workCode)
-	readProcessor.EXPECT().ProcessWork(gomock.Any(), workCode).Return(nil, e)
-	// WHEN
-	sut.ReadWork(ctx)
-	// THEN
-	assert.Equal(t, http.StatusInternalServerError, ctx.Response().Status)
-	assert.Contains(t, res.Body.String(), "message")
-
-}
-
 func testReadFootnotes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := "A123"
 	fn := esmodel.Content{
@@ -177,7 +108,7 @@ func testReadFootnotes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 	assert.Contains(t, res.Body.String(), fn.FmtText)
 }
 
-func testReadFootnotesEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
+func testReadFootnotesEmptyCode(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := ""
 	// GIVEN
 	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
@@ -187,7 +118,7 @@ func testReadFootnotesEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor 
 	sut.ReadFootnotes(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assert.Contains(t, res.Body.String(), "empty work ID")
+	assert.Contains(t, res.Body.String(), "empty work code")
 
 }
 
@@ -230,7 +161,7 @@ func testReadHeadings(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.M
 	assert.Contains(t, res.Body.String(), head.FmtText)
 }
 
-func testReadHeadingsEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
+func testReadHeadingsEmptyCode(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := ""
 	// GIVEN
 	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
@@ -240,7 +171,7 @@ func testReadHeadingsEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *
 	sut.ReadHeadings(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assert.Contains(t, res.Body.String(), "empty work ID")
+	assert.Contains(t, res.Body.String(), "empty work code")
 
 }
 
@@ -284,7 +215,7 @@ func testReadParagraphs(t *testing.T, sut *readHandlerImpl, readProcessor *mocks
 	assert.Contains(t, res.Body.String(), par.FmtText)
 }
 
-func testReadParagraphsEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
+func testReadParagraphsEmptyCode(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := ""
 	// GIVEN
 	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
@@ -294,7 +225,7 @@ func testReadParagraphsEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor
 	sut.ReadParagraphs(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assert.Contains(t, res.Body.String(), "empty work ID")
+	assert.Contains(t, res.Body.String(), "empty work code")
 
 }
 
@@ -337,7 +268,7 @@ func testReadSummaries(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 	assert.Contains(t, res.Body.String(), summ.FmtText)
 }
 
-func testReadSummariesEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
+func testReadSummariesEmptyCode(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := ""
 	// GIVEN
 	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode, nil)
@@ -347,7 +278,7 @@ func testReadSummariesEmptyId(t *testing.T, sut *readHandlerImpl, readProcessor 
 	sut.ReadSummaries(ctx)
 	// THEN
 	assert.Equal(t, http.StatusBadRequest, ctx.Response().Status)
-	assert.Contains(t, res.Body.String(), "empty work ID")
+	assert.Contains(t, res.Body.String(), "empty work code")
 
 }
 

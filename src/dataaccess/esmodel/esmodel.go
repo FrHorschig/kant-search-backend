@@ -5,36 +5,14 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/util"
 )
 
-// structs for volume-works tree data
+// structs for volume-works metadata
 type Volume struct {
-	VolumeNumber int32     `json:"volumeNumber"`
-	Section      int32     `json:"section"`
-	Title        string    `json:"title"`
-	Works        []WorkRef `json:"works"`
+	VolumeNumber int32  `json:"volumeNumber"`
+	Section      int32  `json:"section"`
+	Title        string `json:"title"`
+	Works        []Work `json:"works"`
 }
 
-type WorkRef struct {
-	Code         string  `json:"code"`
-	Abbreviation *string `json:"abbreviation"`
-	Title        string  `json:"title"`
-}
-
-var VolumeMapping = &types.TypeMapping{
-	Properties: map[string]types.Property{
-		"volumeNumber": types.NewIntegerNumberProperty(),
-		"section":      &types.IntegerNumberProperty{Index: util.FalsePtr()},
-		"title":        &types.TextProperty{Index: util.FalsePtr()},
-		"works": &types.NestedProperty{
-			Properties: map[string]types.Property{
-				"code":         &types.TextProperty{Index: util.FalsePtr()},
-				"abbreviation": &types.TextProperty{Index: util.FalsePtr()},
-				"title":        &types.TextProperty{Index: util.FalsePtr()},
-			},
-		},
-	},
-}
-
-// structs for works tree data without content
 type Work struct {
 	Code         string    `json:"code"`
 	Abbreviation *string   `json:"abbreviation"`
@@ -51,17 +29,14 @@ type Section struct {
 	Sections   []Section `json:"sections"`
 }
 
-var WorkMapping = &types.TypeMapping{
+var VolumeMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
-		"code":         types.NewKeywordProperty(),
-		"abbreviation": &types.TextProperty{Index: util.FalsePtr()},
+		"volumeNumber": types.NewIntegerNumberProperty(),
+		"section":      &types.IntegerNumberProperty{Index: util.FalsePtr()},
 		"title":        &types.TextProperty{Index: util.FalsePtr()},
-		"year":         &types.TextProperty{Index: util.FalsePtr()},
-		"ordinal":      types.NewIntegerNumberProperty(),
-		"paragraphs":   &types.IntegerNumberProperty{Index: util.FalsePtr()},
-		"sections": &types.NestedProperty{
+		"works": &types.TypeMapping{
 			Properties: map[string]types.Property{
-				"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
+				"code":       types.NewKeywordProperty(),
 				"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
 				"sections": &types.NestedProperty{
 					Properties: map[string]types.Property{
@@ -83,6 +58,12 @@ var WorkMapping = &types.TypeMapping{
 													Properties: map[string]types.Property{
 														"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
 														"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
+														"sections": &types.NestedProperty{
+															Properties: map[string]types.Property{
+																"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
+																"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
+															},
+														},
 													},
 												},
 											},

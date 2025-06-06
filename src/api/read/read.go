@@ -13,7 +13,6 @@ import (
 
 type ReadHandler interface {
 	ReadVolumes(ctx echo.Context) error
-	ReadWork(ctx echo.Context) error
 	ReadFootnotes(ctx echo.Context) error
 	ReadHeadings(ctx echo.Context) error
 	ReadParagraphs(ctx echo.Context) error
@@ -37,27 +36,6 @@ func (rec *readHandlerImpl) ReadVolumes(ctx echo.Context) error {
 
 	apiVolumes := mapping.VolumesToApiModels(volumes)
 	return ctx.JSON(http.StatusOK, apiVolumes)
-}
-
-func (rec *readHandlerImpl) ReadWork(ctx echo.Context) error {
-	workCode := ctx.Param("workCode")
-	if workCode == "" {
-		msg := "empty work code"
-		log.Error().Msg(msg)
-		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
-	}
-
-	work, err := rec.readProcessor.ProcessWork(ctx.Request().Context(), workCode)
-	if err != nil {
-		log.Error().Err(err).Msgf("error reading work: %v", err)
-		return errors.InternalServerError(ctx)
-	}
-
-	if work == nil {
-		return errors.NotFound(ctx)
-	}
-	apiWork := mapping.WorkToApiModels(work)
-	return ctx.JSON(http.StatusOK, apiWork)
 }
 
 func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
