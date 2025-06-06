@@ -31,8 +31,8 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 		return errors.BadRequest(ctx, models.BAD_REQUEST_INVALID_SEARCH_CRITERIA)
 	}
 
-	searchString, options := mapping.CriteriaToCoreModel(criteria)
-	if len(strings.TrimSpace(searchString)) == 0 {
+	searchTerms, options := mapping.CriteriaToCoreModel(criteria)
+	if len(strings.TrimSpace(searchTerms)) == 0 {
 		log.Error().Err(err).Msg("empty search terms")
 		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_SEARCH_TERMS)
 	}
@@ -41,7 +41,7 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORKS_SELECTION)
 	}
 
-	matches, searchErr := rec.searchProcessor.Search(ctx.Request().Context(), searchString, options)
+	matches, searchErr := rec.searchProcessor.Search(ctx.Request().Context(), searchTerms, options)
 	if searchErr.HasError {
 		if searchErr.SyntaxError != nil {
 			e := searchErr.SyntaxError

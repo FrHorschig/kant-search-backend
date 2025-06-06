@@ -56,7 +56,7 @@ var WorkMapping = &types.TypeMapping{
 		"code":         types.NewKeywordProperty(),
 		"abbreviation": &types.TextProperty{Index: util.FalsePtr()},
 		"title":        &types.TextProperty{Index: util.FalsePtr()},
-		"year":         &types.IntegerNumberProperty{Index: util.FalsePtr()},
+		"year":         &types.TextProperty{Index: util.FalsePtr()},
 		"ordinal":      types.NewIntegerNumberProperty(),
 		"paragraphs":   &types.IntegerNumberProperty{Index: util.FalsePtr()},
 		"sections": &types.NestedProperty{

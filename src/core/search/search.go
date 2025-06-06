@@ -28,7 +28,14 @@ func NewSearchProcessor(contentRepo dataaccess.ContentRepo) SearchProcessor {
 	return &impl
 }
 
-func (rec *searchProcessorImpl) Search(ctx context.Context, searchString string, options model.SearchOptions) ([]model.SearchResult, errors.SearchError) {
-	// TODO implement me
-	return nil, errors.Nil()
+func (rec *searchProcessorImpl) Search(ctx context.Context, searchTerms string, options model.SearchOptions) ([]model.SearchResult, errors.SearchError) {
+	ast, syntaxErr := rec.astParser.Parse(searchTerms)
+	if syntaxErr != nil {
+		return nil, errors.New(syntaxErr, nil)
+	}
+	results, err := rec.contentRepo.Search(ctx, ast, options)
+	if err != nil {
+		return nil, errors.New(nil, err)
+	}
+	return results, errors.Nil()
 }

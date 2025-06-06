@@ -184,14 +184,14 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 		// empty search term (== nil searchQueries) is catched in api layer, so if this is the case, the error is technical, not a user error
 		return nil, errors.New("search AST must not be nil")
 	}
-	optionQueries := util.CreateOptionQueries(options)
+	optionQueries := util.CreateOptionQueries(options) // BUG HERE
 
 	res, err := rec.dbClient.Search().Index(rec.indexName).Request(
 		&search.Request{
 			Query: &types.Query{
 				Bool: &types.BoolQuery{
 					Must:   []types.Query{*searchQuery},
-					Filter: optionQueries,
+					Filter: optionQueries, // BUG HERE
 				},
 			},
 			Sort:      util.CreateSortOptions(),

@@ -14,7 +14,7 @@ import (
 
 func TestCriteriaToCoreModel(t *testing.T) {
 	criteria := models.SearchCriteria{
-		SearchString: "search terms",
+		SearchTerms: "search terms",
 		Options: models.SearchOptions{
 			IncludeHeadings: false,
 			Scope:           models.SearchScope("PARAGRAPH"),
@@ -24,7 +24,7 @@ func TestCriteriaToCoreModel(t *testing.T) {
 
 	ss, opts := CriteriaToCoreModel(&criteria)
 
-	assert.Equal(t, ss, criteria.SearchString)
+	assert.Equal(t, ss, criteria.SearchTerms)
 	assert.Equal(t, opts.WorkCodes, criteria.Options.WorkCodes)
 	assert.Equal(t, string(opts.Scope), string(criteria.Options.Scope))
 	assert.Equal(t, opts.IncludeHeadings, criteria.Options.IncludeHeadings)
