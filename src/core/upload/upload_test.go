@@ -159,7 +159,7 @@ func TestUploadProcessSuccess(t *testing.T) {
 				},
 			}},
 		}, nil)
-	contentRepo.EXPECT().DeleteByWorkCode(gomock.Any(), gomock.Eq(wCode)).Return(nil)
+	contentRepo.EXPECT().DeleteByWork(gomock.Any(), gomock.Eq(wCode)).Return(nil)
 	volumeRepo.EXPECT().Delete(gomock.Any(), gomock.Eq(volNr)).Return(nil)
 
 	// data insertion
@@ -361,7 +361,7 @@ func TestUploadProcessErrors(t *testing.T) {
 						Return(&esmodel.Volume{
 							Works: []esmodel.Work{{Code: wCode}},
 						}, nil),
-					cr.EXPECT().DeleteByWorkCode(gomock.Any(), wCode).
+					cr.EXPECT().DeleteByWork(gomock.Any(), wCode).
 						Return(testErr),
 				)
 			},
@@ -375,7 +375,7 @@ func TestUploadProcessErrors(t *testing.T) {
 						Return(&esmodel.Volume{
 							Works: []esmodel.Work{{Code: wCode}},
 						}, nil),
-					cr.EXPECT().DeleteByWorkCode(gomock.Any(), wCode).
+					cr.EXPECT().DeleteByWork(gomock.Any(), wCode).
 						Return(nil),
 					vr.EXPECT().Delete(gomock.Any(), gomock.Any()).
 						Return(testErr),
@@ -452,6 +452,6 @@ func mockDeletion(vr *dbMocks.MockVolumeRepo, cr *dbMocks.MockContentRepo, wCode
 		&esmodel.Volume{Works: []esmodel.Work{{Code: wCode}}},
 		nil,
 	)
-	cr.EXPECT().DeleteByWorkCode(gomock.Any(), wCode).Return(nil)
+	cr.EXPECT().DeleteByWork(gomock.Any(), wCode).Return(nil)
 	vr.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(nil)
 }

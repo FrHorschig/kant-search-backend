@@ -1,7 +1,10 @@
 package read
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/frhorschig/kant-search-api/src/go/models"
 	"github.com/frhorschig/kant-search-backend/api/read/internal/errors"
@@ -46,7 +49,14 @@ func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
-	footnotes, err := rec.readProcessor.ProcessFootnotes(ctx.Request().Context(), workCode)
+	ordsParam := ctx.QueryParam("ordinals")
+	ordinals, err := findOrdinals(ordsParam)
+	if err != nil {
+		msg := fmt.Sprintf("invalid ordinal values: %v", ordsParam)
+		log.Error().Err(err).Msg(msg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
+	}
+	footnotes, err := rec.readProcessor.ProcessFootnotes(ctx.Request().Context(), workCode, ordinals)
 	if err != nil {
 		log.Error().Err(err).Msgf("error reading footnotes: %v", err)
 		return errors.InternalServerError(ctx)
@@ -65,7 +75,14 @@ func (rec *readHandlerImpl) ReadHeadings(ctx echo.Context) error {
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
-	headings, err := rec.readProcessor.ProcessHeadings(ctx.Request().Context(), workCode)
+	ordsParam := ctx.QueryParam("ordinals")
+	ordinals, err := findOrdinals(ordsParam)
+	if err != nil {
+		msg := fmt.Sprintf("invalid ordinal values: %v", ordsParam)
+		log.Error().Err(err).Msg(msg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
+	}
+	headings, err := rec.readProcessor.ProcessHeadings(ctx.Request().Context(), workCode, ordinals)
 	if err != nil {
 		log.Error().Err(err).Msgf("error reading headings: %v", err)
 		return errors.InternalServerError(ctx)
@@ -83,7 +100,14 @@ func (rec *readHandlerImpl) ReadParagraphs(ctx echo.Context) error {
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
-	paragraphs, err := rec.readProcessor.ProcessParagraphs(ctx.Request().Context(), workCode)
+	ordsParam := ctx.QueryParam("ordinals")
+	ordinals, err := findOrdinals(ordsParam)
+	if err != nil {
+		msg := fmt.Sprintf("invalid ordinal values: %v", ordsParam)
+		log.Error().Err(err).Msg(msg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
+	}
+	paragraphs, err := rec.readProcessor.ProcessParagraphs(ctx.Request().Context(), workCode, ordinals)
 	if err != nil {
 		log.Error().Err(err).Msgf("error reading paragraphs: %v", err)
 		return errors.InternalServerError(ctx)
@@ -101,7 +125,14 @@ func (rec *readHandlerImpl) ReadSummaries(ctx echo.Context) error {
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
 
-	summaries, err := rec.readProcessor.ProcessSummaries(ctx.Request().Context(), workCode)
+	ordsParam := ctx.QueryParam("ordinals")
+	ordinals, err := findOrdinals(ordsParam)
+	if err != nil {
+		msg := fmt.Sprintf("invalid ordinal values: %v", ordsParam)
+		log.Error().Err(err).Msg(msg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
+	}
+	summaries, err := rec.readProcessor.ProcessSummaries(ctx.Request().Context(), workCode, ordinals)
 	if err != nil {
 		log.Error().Err(err).Msgf("error reading summaries: %v", err)
 		return errors.InternalServerError(ctx)
@@ -109,4 +140,21 @@ func (rec *readHandlerImpl) ReadSummaries(ctx echo.Context) error {
 
 	apiSummaries := mapping.SummariesToApiModels(summaries)
 	return ctx.JSON(http.StatusOK, apiSummaries)
+}
+
+func findOrdinals(ordsParam string) ([]int32, error) {
+	ords := []int32{}
+	parts := strings.Split(ordsParam, ",")
+	for _, part := range parts {
+		ordStr := strings.TrimSpace(part)
+		if ordStr == "" {
+			continue
+		}
+		ord, err := strconv.ParseInt(ordStr, 10, 32)
+		if err != nil {
+			return nil, err
+		}
+		ords = append(ords, int32(ord))
+	}
+	return ords, nil
 }

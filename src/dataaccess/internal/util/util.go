@@ -109,6 +109,20 @@ func createTypeQuery(cType []esmodel.Type) types.Query {
 	}}
 }
 
+func CreateOrdinalQuery(ordinals []int32) types.Query {
+	values := make([]interface{}, len(ordinals))
+	for i, v := range ordinals {
+		values[i] = v
+	}
+	return types.Query{
+		Terms: &types.TermsQuery{
+			TermsQuery: map[string]types.TermsQueryField{
+				"ordinal": values,
+			},
+		},
+	}
+}
+
 func createAndQuery(node *model.AstNode) (*types.Query, error) {
 	q1, err := CreateSearchQuery(node.Left)
 	if err != nil {

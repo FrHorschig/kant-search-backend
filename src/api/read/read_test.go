@@ -35,6 +35,7 @@ func TestReadHandler(t *testing.T) {
 		"Read headings with empty code":   testReadHeadingsEmptyCode,
 		"Read headings with error":        testReadHeadingsError,
 		"Read paragraphs":                 testReadParagraphs,
+		"Read paragraphs with ordinals":   testReadParagraphsWithOrdinals,
 		"Read paragraphs with empty code": testReadParagraphsEmptyCode,
 		"Read paragraphs with error":      testReadParagraphsError,
 		"Read summaries":                  testReadSummaries,
@@ -99,7 +100,7 @@ func testReadFootnotes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 	res := httptest.NewRecorder()
 	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
-		ProcessFootnotes(gomock.Any(), workCode).
+		ProcessFootnotes(gomock.Any(), workCode, []int32{}).
 		Return([]esmodel.Content{fn}, nil)
 	// WHEN
 	sut.ReadFootnotes(ctx)
@@ -129,7 +130,7 @@ func testReadFootnotesError(t *testing.T, sut *readHandlerImpl, readProcessor *m
 	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/footnotes", nil)
 	res := httptest.NewRecorder()
 	ctx := createCtxWithWorkCode(req, res, workCode)
-	readProcessor.EXPECT().ProcessFootnotes(gomock.Any(), workCode).Return(nil, e)
+	readProcessor.EXPECT().ProcessFootnotes(gomock.Any(), workCode, []int32{}).Return(nil, e)
 	// WHEN
 	sut.ReadFootnotes(ctx)
 	// THEN
@@ -152,7 +153,7 @@ func testReadHeadings(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.M
 	res := httptest.NewRecorder()
 	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
-		ProcessHeadings(gomock.Any(), workCode).
+		ProcessHeadings(gomock.Any(), workCode, []int32{}).
 		Return([]esmodel.Content{head}, nil)
 	// WHEN
 	sut.ReadHeadings(ctx)
@@ -182,7 +183,7 @@ func testReadHeadingsError(t *testing.T, sut *readHandlerImpl, readProcessor *mo
 	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/headings", nil)
 	res := httptest.NewRecorder()
 	ctx := createCtxWithWorkCode(req, res, workCode)
-	readProcessor.EXPECT().ProcessHeadings(gomock.Any(), workCode).Return(nil, e)
+	readProcessor.EXPECT().ProcessHeadings(gomock.Any(), workCode, []int32{}).Return(nil, e)
 	// WHEN
 	sut.ReadHeadings(ctx)
 	// THEN
@@ -206,7 +207,32 @@ func testReadParagraphs(t *testing.T, sut *readHandlerImpl, readProcessor *mocks
 	res := httptest.NewRecorder()
 	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
-		ProcessParagraphs(gomock.Any(), workCode).
+		ProcessParagraphs(gomock.Any(), workCode, []int32{}).
+		Return([]esmodel.Content{par}, nil)
+	// WHEN
+	sut.ReadParagraphs(ctx)
+	// THEN
+	assert.Equal(t, http.StatusOK, ctx.Response().Status)
+	assert.Contains(t, res.Body.String(), par.FmtText)
+}
+
+func testReadParagraphsWithOrdinals(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
+	workCode := "A123"
+	par := esmodel.Content{
+		Type:       esmodel.Paragraph,
+		Ref:        util.StrPtr("A124"),
+		FmtText:    "formatted text 3",
+		SearchText: "search text 3",
+		Pages:      []int32{4, 5},
+		FnRefs:     []string{"fn3.4", "fn4.5"},
+		WorkCode:   workCode,
+	}
+	// GIVEN
+	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/paragraphs"+"?ordinals=2,99,485", nil)
+	res := httptest.NewRecorder()
+	ctx := createCtxWithWorkCode(req, res, workCode)
+	readProcessor.EXPECT().
+		ProcessParagraphs(gomock.Any(), workCode, []int32{2, 99, 485}).
 		Return([]esmodel.Content{par}, nil)
 	// WHEN
 	sut.ReadParagraphs(ctx)
@@ -236,7 +262,7 @@ func testReadParagraphsError(t *testing.T, sut *readHandlerImpl, readProcessor *
 	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/paragraphs", nil)
 	res := httptest.NewRecorder()
 	ctx := createCtxWithWorkCode(req, res, workCode)
-	readProcessor.EXPECT().ProcessParagraphs(gomock.Any(), workCode).Return(nil, e)
+	readProcessor.EXPECT().ProcessParagraphs(gomock.Any(), workCode, []int32{}).Return(nil, e)
 	// WHEN
 	sut.ReadParagraphs(ctx)
 	// THEN
@@ -259,7 +285,7 @@ func testReadSummaries(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 	res := httptest.NewRecorder()
 	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
-		ProcessSummaries(gomock.Any(), workCode).
+		ProcessSummaries(gomock.Any(), workCode, []int32{}).
 		Return([]esmodel.Content{summ}, nil)
 	// WHEN
 	sut.ReadSummaries(ctx)
@@ -289,7 +315,7 @@ func testReadSummariesError(t *testing.T, sut *readHandlerImpl, readProcessor *m
 	req := httptest.NewRequest(echo.GET, "/api/v1/works/"+workCode+"/summaries", nil)
 	res := httptest.NewRecorder()
 	ctx := createCtxWithWorkCode(req, res, workCode)
-	readProcessor.EXPECT().ProcessSummaries(gomock.Any(), workCode).Return(nil, e)
+	readProcessor.EXPECT().ProcessSummaries(gomock.Any(), workCode, []int32{}).Return(nil, e)
 	// WHEN
 	sut.ReadSummaries(ctx)
 	// THEN

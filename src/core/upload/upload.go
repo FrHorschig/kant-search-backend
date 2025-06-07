@@ -65,7 +65,7 @@ func deleteExistingData(ctx context.Context, volRepo dataaccess.VolumeRepo, cont
 		return nil
 	}
 	for _, workRef := range vol.Works {
-		err = contentRepo.DeleteByWorkCode(ctx, workRef.Code)
+		err = contentRepo.DeleteByWork(ctx, workRef.Code)
 		if err != nil {
 			return err
 		}

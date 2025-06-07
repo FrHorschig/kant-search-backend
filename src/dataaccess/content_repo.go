@@ -22,11 +22,11 @@ import (
 
 type ContentRepo interface {
 	Insert(ctx context.Context, data []esmodel.Content) error
-	GetFootnotesByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error)
-	GetHeadingsByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error)
-	GetParagraphsByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error)
-	GetSummariesByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error)
-	DeleteByWorkCode(ctx context.Context, workCode string) error
+	GetFootnotesByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
+	GetHeadingsByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
+	GetParagraphsByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
+	GetSummariesByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
+	DeleteByWork(ctx context.Context, workCode string) error
 	Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error)
 }
 
@@ -71,9 +71,19 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 	return nil
 }
 
-func (rec *contentRepoImpl) GetFootnotesByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetFootnotesByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+	contentQuery := util.CreateContentQuery(
+		workCode,
+		[]esmodel.Type{esmodel.Footnote},
+	)
+	if len(ordinals) > 0 {
+		contentQuery.Bool.Filter = append(
+			contentQuery.Bool.Filter,
+			util.CreateOrdinalQuery(ordinals),
+		)
+	}
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workCode, []esmodel.Type{esmodel.Footnote}),
+		Query: contentQuery,
 		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
@@ -92,9 +102,19 @@ func (rec *contentRepoImpl) GetFootnotesByWorkCode(ctx context.Context, workCode
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) GetHeadingsByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetHeadingsByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+	contentQuery := util.CreateContentQuery(
+		workCode,
+		[]esmodel.Type{esmodel.Heading},
+	)
+	if len(ordinals) > 0 {
+		contentQuery.Bool.Filter = append(
+			contentQuery.Bool.Filter,
+			util.CreateOrdinalQuery(ordinals),
+		)
+	}
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workCode, []esmodel.Type{esmodel.Heading}),
+		Query: contentQuery,
 		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
@@ -113,9 +133,19 @@ func (rec *contentRepoImpl) GetHeadingsByWorkCode(ctx context.Context, workCode 
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) GetParagraphsByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetParagraphsByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+	contentQuery := util.CreateContentQuery(
+		workCode,
+		[]esmodel.Type{esmodel.Paragraph},
+	)
+	if len(ordinals) > 0 {
+		contentQuery.Bool.Filter = append(
+			contentQuery.Bool.Filter,
+			util.CreateOrdinalQuery(ordinals),
+		)
+	}
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workCode, []esmodel.Type{esmodel.Paragraph}),
+		Query: contentQuery,
 		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
@@ -134,9 +164,19 @@ func (rec *contentRepoImpl) GetParagraphsByWorkCode(ctx context.Context, workCod
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) GetSummariesByWorkCode(ctx context.Context, workCode string) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetSummariesByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+	contentQuery := util.CreateContentQuery(
+		workCode,
+		[]esmodel.Type{esmodel.Summary},
+	)
+	if len(ordinals) > 0 {
+		contentQuery.Bool.Filter = append(
+			contentQuery.Bool.Filter,
+			util.CreateOrdinalQuery(ordinals),
+		)
+	}
 	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: util.CreateContentQuery(workCode, []esmodel.Type{esmodel.Summary}),
+		Query: contentQuery,
 		Size:  commonutil.IntPtr(resultsSize),
 	}).Do(ctx)
 	if err != nil {
@@ -155,7 +195,7 @@ func (rec *contentRepoImpl) GetSummariesByWorkCode(ctx context.Context, workCode
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) DeleteByWorkCode(ctx context.Context, workCode string) error {
+func (rec *contentRepoImpl) DeleteByWork(ctx context.Context, workCode string) error {
 	res, err := rec.dbClient.DeleteByQuery(rec.indexName).Request(&deletebyquery.Request{
 		Query: createTermQuery("workCode", workCode),
 	}).Do(ctx)
@@ -184,18 +224,20 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 		// empty search term (== nil searchQueries) is catched in api layer, so if this is the case, the error is technical, not a user error
 		return nil, errors.New("search AST must not be nil")
 	}
-	optionQueries := util.CreateOptionQueries(options) // BUG HERE
+	optionQueries := util.CreateOptionQueries(options)
 
+	// TODO check if sorting make this so slow
 	res, err := rec.dbClient.Search().Index(rec.indexName).Request(
 		&search.Request{
 			Query: &types.Query{
 				Bool: &types.BoolQuery{
 					Must:   []types.Query{*searchQuery},
-					Filter: optionQueries, // BUG HERE
+					Filter: optionQueries,
 				},
 			},
 			Sort:      util.CreateSortOptions(),
 			Highlight: util.CreateHighlightOptions(),
+			Size:      commonutil.IntPtr(10000), // TODO check: what to do when there are more results; and how to show them in the frontend
 		}).Do(ctx)
 	if err != nil {
 		return nil, err
