@@ -97,7 +97,7 @@ type Content struct {
 	TocText    *string  `json:"tocText"`
 	SearchText string   `json:"searchText"`
 	Pages      []int32  `json:"pages"`
-	FnRefs     []string `json:"fnRefs"`     // not for footnoes
+	FnRefs     []string `json:"fnRefs"`     // not for footnotes
 	SummaryRef *string  `json:"summaryRef"` // only for paragraphs
 	WorkCode   string   `json:"workCode"`
 }

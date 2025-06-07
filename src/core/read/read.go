@@ -11,10 +11,10 @@ import (
 
 type ReadProcessor interface {
 	ProcessVolumes(ctx context.Context) ([]esmodel.Volume, error)
-	ProcessFootnotes(ctx context.Context, workCode string) ([]esmodel.Content, error)
-	ProcessHeadings(ctx context.Context, workCode string) ([]esmodel.Content, error)
-	ProcessParagraphs(ctx context.Context, workCode string) ([]esmodel.Content, error)
-	ProcessSummaries(ctx context.Context, workCode string) ([]esmodel.Content, error)
+	ProcessFootnotes(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
+	ProcessHeadings(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
+	ProcessParagraphs(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
+	ProcessSummaries(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
 }
 
 type readProcessorImpl struct {
@@ -34,18 +34,18 @@ func (rec *readProcessorImpl) ProcessVolumes(ctx context.Context) ([]esmodel.Vol
 	return rec.volumeRepo.GetAll(ctx)
 }
 
-func (rec *readProcessorImpl) ProcessFootnotes(ctx context.Context, workCode string) ([]esmodel.Content, error) {
-	return rec.contentRepo.GetFootnotesByWorkCode(ctx, workCode)
+func (rec *readProcessorImpl) ProcessFootnotes(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+	return rec.contentRepo.GetFootnotesByWork(ctx, workCode, ordinals)
 }
 
-func (rec *readProcessorImpl) ProcessHeadings(ctx context.Context, workCode string) ([]esmodel.Content, error) {
-	return rec.contentRepo.GetHeadingsByWorkCode(ctx, workCode)
+func (rec *readProcessorImpl) ProcessHeadings(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+	return rec.contentRepo.GetHeadingsByWork(ctx, workCode, ordinals)
 }
 
-func (rec *readProcessorImpl) ProcessParagraphs(ctx context.Context, workCode string) ([]esmodel.Content, error) {
-	return rec.contentRepo.GetParagraphsByWorkCode(ctx, workCode)
+func (rec *readProcessorImpl) ProcessParagraphs(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+	return rec.contentRepo.GetParagraphsByWork(ctx, workCode, ordinals)
 }
 
-func (rec *readProcessorImpl) ProcessSummaries(ctx context.Context, workCode string) ([]esmodel.Content, error) {
-	return rec.contentRepo.GetSummariesByWorkCode(ctx, workCode)
+func (rec *readProcessorImpl) ProcessSummaries(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+	return rec.contentRepo.GetSummariesByWork(ctx, workCode, ordinals)
 }

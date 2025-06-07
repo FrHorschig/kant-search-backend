@@ -23,6 +23,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 	contents := []esmodel.Content{
 		{
 			Type:       esmodel.Footnote,
+			Ordinal:    1,
 			Ref:        util.StrPtr("A121"),
 			FmtText:    "formatted text 1",
 			SearchText: "search text 1",
@@ -31,6 +32,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 		},
 		{
 			Type:       esmodel.Heading,
+			Ordinal:    2,
 			FmtText:    "formatted text 2",
 			SearchText: "search text 2",
 			Pages:      []int32{1, 2, 3},
@@ -39,6 +41,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 		},
 		{
 			Type:       esmodel.Paragraph,
+			Ordinal:    3,
 			FmtText:    "formatted text 3",
 			SearchText: "search text 3",
 			Pages:      []int32{4, 5},
@@ -47,6 +50,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 		},
 		{
 			Type:       esmodel.Paragraph,
+			Ordinal:    4,
 			FmtText:    "formatted text 4",
 			SearchText: "search text 4",
 			Pages:      []int32{4, 5},
@@ -55,6 +59,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 		},
 		{
 			Type:       esmodel.Summary,
+			Ordinal:    5,
 			Ref:        util.StrPtr("A125"),
 			FmtText:    "formatted text 5",
 			SearchText: "search text 5",
@@ -70,19 +75,19 @@ func TestContentInsertGetDelete(t *testing.T) {
 	refreshContents(t)
 
 	// WHEN Get footnote
-	fns, err := sut.GetFootnotesByWorkCode(ctx, workCode)
+	fns, err := sut.GetFootnotesByWork(ctx, workCode, []int32{})
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, fns, 1)
 	assert.Equal(t, contents[0].SearchText, fns[0].SearchText)
 	// WHEN Get heading
-	heads, err := sut.GetHeadingsByWorkCode(ctx, workCode)
+	heads, err := sut.GetHeadingsByWork(ctx, workCode, []int32{})
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 1)
 	assert.Equal(t, contents[1].SearchText, heads[0].SearchText)
 	// WHEN Get paragraphs
-	pars, err := sut.GetParagraphsByWorkCode(ctx, workCode)
+	pars, err := sut.GetParagraphsByWork(ctx, workCode, []int32{})
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 1)
@@ -90,36 +95,42 @@ func TestContentInsertGetDelete(t *testing.T) {
 		[]string{contents[2].SearchText, contents[3].SearchText},
 		[]string{pars[0].SearchText, pars[1].SearchText},
 	)
+	// WHEN Get single paragraph
+	pars, err = sut.GetParagraphsByWork(ctx, workCode, []int32{4})
+	// THEN
+	assert.Nil(t, err)
+	assert.Len(t, pars, 1)
+	assert.Equal(t, contents[3].SearchText, pars[0].SearchText)
 	// WHEN Get summary
-	summ, err := sut.GetSummariesByWorkCode(ctx, workCode)
+	summ, err := sut.GetSummariesByWork(ctx, workCode, []int32{})
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, summ, 1)
 	assert.Equal(t, contents[4].SearchText, summ[0].SearchText)
 
 	// WHEN Delete
-	err = sut.DeleteByWorkCode(ctx, workCode)
+	err = sut.DeleteByWork(ctx, workCode)
 	// THEN
 	assert.Nil(t, err)
 	refreshContents(t)
 
 	// WHEN Get footnote
-	fns, err = sut.GetFootnotesByWorkCode(ctx, workCode)
+	fns, err = sut.GetFootnotesByWork(ctx, workCode, []int32{})
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, fns, 0)
 	// WHEN Get heading
-	heads, err = sut.GetHeadingsByWorkCode(ctx, workCode)
+	heads, err = sut.GetHeadingsByWork(ctx, workCode, []int32{})
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 0)
 	// WHEN Get paragraphs
-	pars, err = sut.GetParagraphsByWorkCode(ctx, workCode)
+	pars, err = sut.GetParagraphsByWork(ctx, workCode, []int32{})
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, heads, 0)
 	// WHEN Get summary
-	summ, err = sut.GetSummariesByWorkCode(ctx, workCode)
+	summ, err = sut.GetSummariesByWork(ctx, workCode, []int32{})
 	// THEN
 	assert.Nil(t, err)
 	assert.Len(t, summ, 0)
@@ -230,11 +241,11 @@ func TestSearch(t *testing.T) {
 			assert.Len(t, result, tc.hitCount)
 		})
 
-		err = sut.DeleteByWorkCode(ctx, workCode)
+		err = sut.DeleteByWork(ctx, workCode)
 		if err != nil {
 			t.Fatal("content deletion failure")
 		}
-		sut.DeleteByWorkCode(ctx, workCode2)
+		sut.DeleteByWork(ctx, workCode2)
 		if err != nil {
 			t.Fatal("content deletion failure")
 		}
