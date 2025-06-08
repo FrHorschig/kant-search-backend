@@ -55,10 +55,6 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError
 			if err.HasError {
 				return nil, err
 			}
-			if pagePrefix != "" {
-				hx.TextTitle = pagePrefix + " " + hx.TextTitle
-				pagePrefix = ""
-			}
 			if hx.TocTitle == "" {
 				// this happens if hx only has an hu element, which is the part of the heading that is not displayed in the TOC
 				currentSec.Paragraphs = append(currentSec.Paragraphs, util.FmtParHeading(hx.TextTitle))
@@ -74,6 +70,10 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError
 			sec.Parent = parent
 			sec.Heading.Level = parent.Heading.Level + 1 // this ensures a level difference of 1 in parent-child headings, even if by mistake a level is skipped
 			sec.Heading.TextTitle = util.FmtHeading(int32(sec.Heading.Level), sec.Heading.TextTitle)
+			if pagePrefix != "" {
+				sec.Heading.TextTitle = pagePrefix + " " + sec.Heading.TextTitle
+				pagePrefix = ""
+			}
 
 			sec.Parent.Sections = append(sec.Parent.Sections, sec)
 			currentSec = &parent.Sections[len(parent.Sections)-1]

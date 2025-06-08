@@ -16,12 +16,13 @@ import (
 
 func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.Summary, footnotes []treemodel.Footnote) ([]model.Work, errors.UploadError) {
 	works := []model.Work{}
+	latestPage := int32(1)
 	for i, w := range sections {
 		work, err := mapWork(w, vol, i)
 		if err.HasError {
 			return nil, err
 		}
-		postprocessWork(&work)
+		postprocessWork(&work, &latestPage)
 		works = append(works, work)
 	}
 	// TODO (later) handle images and tables
@@ -112,7 +113,7 @@ func mapHeading(h treemodel.Heading) (model.Heading, errors.UploadError) {
 		return model.Heading{}, err
 	}
 	heading := model.Heading{
-		Text:    util.FmtHeading(int32(h.Level), h.TextTitle),
+		Text:    h.TextTitle,
 		TocText: h.TocTitle,
 		Pages:   pages,
 		FnRefs:  extract.ExtractFnRefs(h.TextTitle),
@@ -174,13 +175,12 @@ func mapSummary(s treemodel.Summary) (model.Summary, errors.UploadError) {
 	}, errors.Nil()
 }
 
-func postprocessWork(work *model.Work) {
-	var maxPage int32 = 0
+func postprocessWork(work *model.Work, latestPage *int32) {
 	for i := range work.Paragraphs {
-		postprocessParagraph(&work.Paragraphs[i], &maxPage)
+		postprocessParagraph(&work.Paragraphs[i], latestPage)
 	}
 	for i := range work.Sections {
-		postprocessSection(&work.Sections[i], &maxPage)
+		postprocessSection(&work.Sections[i], latestPage)
 	}
 }
 
@@ -229,10 +229,10 @@ func postprocessSection(section *model.Section, latestPage *int32) {
 }
 
 func matchFnsToWorks(works []model.Work, fns []model.Footnote) errors.UploadError {
-	prevMax := int32(0)
+	prevMax := int32(1)
 	for i := range works {
-		var min int32 = 0
-		var max int32 = 0
+		var min int32 = prevMax
+		var max int32 = 1
 		findMinMaxPages(works[i].Paragraphs, works[i].Sections, &min, &max)
 		for j := range fns {
 			pages := fns[j].Pages
@@ -263,10 +263,10 @@ func insertSummaryRefs(works []model.Work) errors.UploadError {
 }
 
 func mapSummariesToWorks(works []model.Work, summaries []model.Summary) errors.UploadError {
-	prevMax := int32(0)
+	prevMax := int32(1)
 	for i := range works {
-		var min int32 = 0
-		var max int32 = 0
+		var min int32 = prevMax + 1
+		var max int32 = 1
 		findMinMaxPages(works[i].Paragraphs, works[i].Sections, &min, &max)
 		for j := range summaries {
 			pages := summaries[j].Pages
@@ -290,7 +290,7 @@ func startsWithPageRef(text, pageRef string) bool {
 
 func findMinMaxPages(paragraphs []model.Paragraph, sections []model.Section, min, max *int32) {
 	for _, p := range paragraphs {
-		if *min == 0 || p.Pages[0] < *min {
+		if p.Pages[0] < *min {
 			*min = p.Pages[0]
 		}
 		if p.Pages[len(p.Pages)-1] > *max {
@@ -299,7 +299,7 @@ func findMinMaxPages(paragraphs []model.Paragraph, sections []model.Section, min
 	}
 	for _, s := range sections {
 		if len(s.Heading.Pages) > 0 {
-			if *min == 0 || s.Heading.Pages[0] < *min {
+			if s.Heading.Pages[0] < *min {
 				*min = s.Heading.Pages[0]
 			}
 			if s.Heading.Pages[len(s.Heading.Pages)-1] > *max {
@@ -308,7 +308,7 @@ func findMinMaxPages(paragraphs []model.Paragraph, sections []model.Section, min
 		}
 		for _, p := range s.Paragraphs {
 			if len(p.Pages) > 0 {
-				if *min == 0 || p.Pages[0] < *min {
+				if p.Pages[0] < *min {
 					*min = p.Pages[0]
 				}
 				if p.Pages[len(p.Pages)-1] > *max {

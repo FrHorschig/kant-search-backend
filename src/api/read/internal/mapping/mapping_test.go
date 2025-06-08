@@ -79,10 +79,10 @@ func TestFootnotesToApiModels(t *testing.T) {
 
 func TestHeadingsToApiModels(t *testing.T) {
 	in := []esmodel.Content{
-		{Ordinal: 1, FmtText: "Heading text", TocText: util.StrPtr("toc text"), FnRefs: []string{"fn1"}},
+		{Ordinal: 1, FmtText: "Heading text", TocText: util.StrPtr("toc text"), Pages: []int32{34}, FnRefs: []string{"fn1"}},
 	}
 	expected := []models.Heading{
-		{Ordinal: 1, Text: "Heading text", TocText: "toc text", FnRefs: []string{"fn1"}},
+		{Ordinal: 1, Text: "Heading text", TocText: "toc text", Pages: []int32{34}, FnRefs: []string{"fn1"}},
 	}
 
 	out := HeadingsToApiModels(in)
