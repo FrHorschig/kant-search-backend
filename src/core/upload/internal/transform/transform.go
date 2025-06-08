@@ -123,7 +123,7 @@ func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 	}
 	tocTitle = extract.RemoveTags(tocTitle)
 	tocTitle = strings.TrimSpace(tocTitle)
-	tocTitle = removePunctuation(tocTitle)
+	tocTitle = removeTrailingPunctuation(tocTitle)
 	tocTitle = fixCapitalization(tocTitle)
 	return model.Heading{
 		Level:     level(elem),
@@ -276,22 +276,13 @@ func summary(elem *etree.Element) (model.Summary, errors.UploadError) {
 	}, errors.Nil()
 }
 
-func removePunctuation(s string) string {
-	var result []rune
-	length := len(s)
-	for i, r := range s {
-		if r == ':' {
-			if i > 0 && i < length-1 {
-				result = append(result, r)
-			}
-			continue
-		}
-		if unicode.IsPunct(r) {
-			continue
-		}
-		result = append(result, r)
+func removeTrailingPunctuation(s string) string {
+	runes := []rune(s)
+	end := len(runes)
+	for end > 0 && unicode.IsPunct(runes[end-1]) {
+		end--
 	}
-	return string(result)
+	return string(runes[:end])
 }
 
 func fixCapitalization(s string) string {
