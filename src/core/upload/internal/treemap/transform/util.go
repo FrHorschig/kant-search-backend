@@ -7,11 +7,11 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
-	model "github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/rs/zerolog/log"
 )
 
-func level(el *etree.Element) model.Level {
+func level(el *etree.Element) model.TreeLevel {
 	switch el.Tag {
 	case "h1":
 		return model.HWork

@@ -1,11 +1,10 @@
-package mapping
+package modelmap
 
 import (
 	"testing"
 
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,20 +13,20 @@ func TestModelMapping(t *testing.T) {
 	testCases := []struct {
 		name        string
 		volume      int32
-		sections    []treemodel.Section
-		summaries   []treemodel.Summary
-		footnotes   []treemodel.Footnote
+		sections    []model.TreeSection
+		summaries   []model.TreeSummary
+		footnotes   []model.TreeFootnote
 		model       []model.Work
 		expectError bool
 	}{
 		{
 			name:   "Merge summaries into paragraphs",
 			volume: 1,
-			sections: []treemodel.Section{
+			sections: []model.TreeSection{
 				{
-					Heading: treemodel.Heading{Level: treemodel.HWork, TextTitle: "work"},
-					Sections: []treemodel.Section{{
-						Heading: treemodel.Heading{Level: treemodel.H1, TextTitle: "h1"},
+					Heading: model.TreeHeading{Level: model.HWork, TextTitle: "work"},
+					Sections: []model.TreeSection{{
+						Heading: model.TreeHeading{Level: model.H1, TextTitle: "h1"},
 						Paragraphs: []string{
 							page(43) + line(348) + "I'm a paragraph.",
 							line(58685) + "I'm a paragraph without a page number.",
@@ -35,16 +34,16 @@ func TestModelMapping(t *testing.T) {
 					}},
 				},
 				{
-					Heading: treemodel.Heading{Level: treemodel.HWork, TextTitle: "work2"},
-					Sections: []treemodel.Section{{
-						Heading: treemodel.Heading{Level: treemodel.H1, TextTitle: page(102) + "2h1"},
+					Heading: model.TreeHeading{Level: model.HWork, TextTitle: "work2"},
+					Sections: []model.TreeSection{{
+						Heading: model.TreeHeading{Level: model.H1, TextTitle: page(102) + "2h1"},
 						Paragraphs: []string{
 							line(5) + "I'm a paragraph with " + page(483) + " a page break inside.",
 						},
 					}},
 				},
 			},
-			summaries: []treemodel.Summary{
+			summaries: []model.TreeSummary{
 				{Page: 43, Line: 348, Text: "Summary 1"},
 				{Page: 43, Line: 58685, Text: "Summary 2"},
 				{Page: 482, Line: 5, Text: "Summary 3"},
