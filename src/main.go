@@ -79,7 +79,8 @@ func main() {
 	volumeRepo := db.NewVolumeRepo(es)
 	contentRepo := db.NewContentRepo(es)
 
-	uploadProcessor := coreupload.NewUploadProcessor(volumeRepo, contentRepo)
+	configPath := os.Getenv("CONFIG_PATH")
+	uploadProcessor := coreupload.NewUploadProcessor(volumeRepo, contentRepo, configPath)
 	readProcessor := coreread.NewReadProcessor(volumeRepo, contentRepo)
 	searchProcessor := coresearch.NewSearchProcessor(contentRepo)
 

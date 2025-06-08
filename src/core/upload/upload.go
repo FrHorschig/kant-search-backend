@@ -8,6 +8,7 @@ import (
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/metadata"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
@@ -24,11 +25,11 @@ type uploadProcessorImpl struct {
 	xmlMapper   internal.XmlMapper
 }
 
-func NewUploadProcessor(volumeRepo dataaccess.VolumeRepo, contentRepo dataaccess.ContentRepo) UploadProcessor {
+func NewUploadProcessor(volumeRepo dataaccess.VolumeRepo, contentRepo dataaccess.ContentRepo, configPath string) UploadProcessor {
 	processor := uploadProcessorImpl{
 		volumeRepo:  volumeRepo,
 		contentRepo: contentRepo,
-		xmlMapper:   internal.NewXmlMapper(),
+		xmlMapper:   internal.NewXmlMapper(metadata.NewMetadata(configPath)),
 	}
 	return &processor
 }
