@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/beevik/etree"
-	model "github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -429,21 +429,21 @@ func TestRandtext(t *testing.T) {
 		text        string
 		attrs       map[string]string
 		child       *etree.Element
-		expected    model.Summary
+		expected    model.TreeSummary
 		expectError bool
 	}{
 		{
 			name:     "Text with randtext attributes",
 			text:     "Some text",
 			attrs:    map[string]string{"seite": "123", "anfang": "567"},
-			expected: model.Summary{Page: 123, Line: 567, Text: "Some text"},
+			expected: model.TreeSummary{Page: 123, Line: 567, Text: "Some text"},
 		},
 		{
 			name:     "Text with p child element",
 			text:     "Some text",
 			attrs:    map[string]string{"seite": "123", "anfang": "567"},
 			child:    createElement("p", nil, "pText", nil),
-			expected: model.Summary{Page: 123, Line: 567, Text: "Some text pText"},
+			expected: model.TreeSummary{Page: 123, Line: 567, Text: "Some text pText"},
 		},
 		{
 			name:        "text with unknown child element",
@@ -492,21 +492,21 @@ func TestFootnote(t *testing.T) {
 		text        string
 		attrs       map[string]string
 		child       *etree.Element
-		expected    model.Footnote
+		expected    model.TreeFootnote
 		expectError bool
 	}{
 		{
 			name:     "Text with footnote attributes",
 			text:     "Some text",
 			attrs:    map[string]string{"seite": "123", "nr": "567"},
-			expected: model.Footnote{Page: 123, Nr: 567, Text: "Some text"},
+			expected: model.TreeFootnote{Page: 123, Nr: 567, Text: "Some text"},
 		},
 		{
 			name:     "Text with p child element",
 			text:     "Some text",
 			attrs:    map[string]string{"seite": "123", "nr": "567"},
 			child:    createElement("p", nil, "pText", nil),
-			expected: model.Footnote{Page: 123, Nr: 567, Text: "Some text pText"},
+			expected: model.TreeFootnote{Page: 123, Nr: 567, Text: "Some text pText"},
 		},
 		{
 			name:        "text with unknown child element",

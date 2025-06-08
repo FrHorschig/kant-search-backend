@@ -1,4 +1,4 @@
-package mapping
+package modelmap
 
 import (
 	"fmt"
@@ -7,14 +7,12 @@ import (
 	"strings"
 
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
-func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.Summary, footnotes []treemodel.Footnote) ([]model.Work, errors.UploadError) {
+func MapToModel(vol int32, sections []model.TreeSection, summaries []model.TreeSummary, footnotes []model.TreeFootnote) ([]model.Work, errors.UploadError) {
 	works := []model.Work{}
 	latestPage := int32(1)
 	for i, w := range sections {
@@ -60,7 +58,7 @@ func MapToModel(vol int32, sections []treemodel.Section, summaries []treemodel.S
 	return works, errors.Nil()
 }
 
-func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.UploadError) {
+func mapWork(h0 model.TreeSection, vol int32, index int) (model.Work, errors.UploadError) {
 	work := model.Work{}
 	work.Code = Metadata[vol-1][index].Code
 	work.Abbreviation = &Metadata[vol-1][index].Abbreviation
@@ -83,7 +81,7 @@ func mapWork(h0 treemodel.Section, vol int32, index int) (model.Work, errors.Upl
 	return work, errors.Nil()
 }
 
-func mapSection(s treemodel.Section) (model.Section, errors.UploadError) {
+func mapSection(s model.TreeSection) (model.Section, errors.UploadError) {
 	section := model.Section{}
 	heading, err := mapHeading(s.Heading)
 	if err.HasError {
@@ -107,8 +105,8 @@ func mapSection(s treemodel.Section) (model.Section, errors.UploadError) {
 	return section, errors.Nil()
 }
 
-func mapHeading(h treemodel.Heading) (model.Heading, errors.UploadError) {
-	pages, err := extract.ExtractPages(h.TextTitle)
+func mapHeading(h model.TreeHeading) (model.Heading, errors.UploadError) {
+	pages, err := util.ExtractPages(h.TextTitle)
 	if err.HasError {
 		return model.Heading{}, err
 	}
@@ -116,26 +114,26 @@ func mapHeading(h treemodel.Heading) (model.Heading, errors.UploadError) {
 		Text:    h.TextTitle,
 		TocText: h.TocTitle,
 		Pages:   pages,
-		FnRefs:  extract.ExtractFnRefs(h.TextTitle),
+		FnRefs:  util.ExtractFnRefs(h.TextTitle),
 	}
 	return heading, errors.Nil()
 }
 
 func mapParagraph(p string) (model.Paragraph, errors.UploadError) {
-	pages, err := extract.ExtractPages(p)
+	pages, err := util.ExtractPages(p)
 	if err.HasError {
 		return model.Paragraph{}, err
 	}
 	paragraph := model.Paragraph{
 		Text:   p,
 		Pages:  pages,
-		FnRefs: extract.ExtractFnRefs(p),
+		FnRefs: util.ExtractFnRefs(p),
 	}
 	return paragraph, errors.Nil()
 }
 
-func mapFootnote(f treemodel.Footnote) (model.Footnote, errors.UploadError) {
-	pages, err := extract.ExtractPages(f.Text)
+func mapFootnote(f model.TreeFootnote) (model.Footnote, errors.UploadError) {
+	pages, err := util.ExtractPages(f.Text)
 	if err.HasError {
 		return model.Footnote{}, err
 	}
@@ -154,8 +152,8 @@ func mapFootnote(f treemodel.Footnote) (model.Footnote, errors.UploadError) {
 	}, errors.Nil()
 }
 
-func mapSummary(s treemodel.Summary) (model.Summary, errors.UploadError) {
-	pages, err := extract.ExtractPages(s.Text)
+func mapSummary(s model.TreeSummary) (model.Summary, errors.UploadError) {
+	pages, err := util.ExtractPages(s.Text)
 	if err.HasError {
 		return model.Summary{}, err
 	}
@@ -171,7 +169,7 @@ func mapSummary(s treemodel.Summary) (model.Summary, errors.UploadError) {
 		Ref:    fmt.Sprintf("%d.%d", s.Page, s.Line),
 		Text:   s.Text,
 		Pages:  pages,
-		FnRefs: extract.ExtractFnRefs(s.Text),
+		FnRefs: util.ExtractFnRefs(s.Text),
 	}, errors.Nil()
 }
 
@@ -284,7 +282,7 @@ func mapSummariesToWorks(works []model.Work, summaries []model.Summary) errors.U
 
 func startsWithPageRef(text, pageRef string) bool {
 	index := strings.Index(text, pageRef)
-	cleaned := extract.RemoveTags(text[:index])
+	cleaned := util.RemoveTags(text[:index])
 	return cleaned == "" // in this case the text before page ref is only formatting code, so the "real" text starts with the page ref
 }
 
@@ -397,6 +395,6 @@ func isSummaryParagraph(p *model.Paragraph, page, line int32) (bool, errors.Uplo
 }
 
 func isSummaryAtStart(text string, startIndex int) bool {
-	cleaned := extract.RemoveTags(text[:startIndex])
+	cleaned := util.RemoveTags(text[:startIndex])
 	return cleaned == "" // text before summary is only formatting code, so the "real text" starts with the summary
 }

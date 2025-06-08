@@ -7,12 +7,11 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
-	model "github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-func Hx(el *etree.Element) (model.Heading, errors.UploadError) {
+func Hx(el *etree.Element) (model.TreeHeading, errors.UploadError) {
 	return hx(el)
 }
 
@@ -32,15 +31,15 @@ func Table() string {
 	return table()
 }
 
-func Summary(el *etree.Element) (model.Summary, errors.UploadError) {
+func Summary(el *etree.Element) (model.TreeSummary, errors.UploadError) {
 	return summary(el)
 }
 
-func Footnote(el *etree.Element) (model.Footnote, errors.UploadError) {
+func Footnote(el *etree.Element) (model.TreeFootnote, errors.UploadError) {
 	return footnote(el)
 }
 
-func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
+func hx(elem *etree.Element) (model.TreeHeading, errors.UploadError) {
 	textTitle := ""
 	tocTitle := ""
 	for _, ch := range elem.Child {
@@ -52,27 +51,27 @@ func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 			case "fett":
 				fett, err := fett(el)
 				if err.HasError {
-					return model.Heading{}, err
+					return model.TreeHeading{}, err
 				}
 				tocTitle += fett
 				textTitle += fett
 			case "fr":
 				fr, err := fr(el)
 				if err.HasError {
-					return model.Heading{}, err
+					return model.TreeHeading{}, err
 				}
 				textTitle += fr
 			case "fremdsprache":
 				fremdsprache, err := fremdsprache(el)
 				if err.HasError {
-					return model.Heading{}, err
+					return model.TreeHeading{}, err
 				}
 				tocTitle += fremdsprache
 				textTitle += fremdsprache
 			case "gesperrt":
 				gesperrt, err := gesperrt(el)
 				if err.HasError {
-					return model.Heading{}, err
+					return model.TreeHeading{}, err
 				}
 				tocTitle += gesperrt
 				textTitle += gesperrt
@@ -81,13 +80,13 @@ func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 			case "hu":
 				hu, err := hu(el)
 				if err.HasError {
-					return model.Heading{}, err
+					return model.TreeHeading{}, err
 				}
 				textTitle += hu
 			case "name":
 				name, err := name(el)
 				if err.HasError {
-					return model.Heading{}, err
+					return model.TreeHeading{}, err
 				}
 				tocTitle += name
 				textTitle += name
@@ -96,14 +95,14 @@ func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 			case "romzahl":
 				romzahl, err := romzahl(el)
 				if err.HasError {
-					return model.Heading{}, err
+					return model.TreeHeading{}, err
 				}
 				tocTitle += romzahl
 				textTitle += romzahl
 			case "seite":
 				page, err := seite(el)
 				if err.HasError {
-					return model.Heading{}, err
+					return model.TreeHeading{}, err
 				}
 				textTitle += page
 			case "trenn":
@@ -111,21 +110,21 @@ func hx(elem *etree.Element) (model.Heading, errors.UploadError) {
 			case "zeile":
 				line, err := zeile(el)
 				if err.HasError {
-					return model.Heading{}, err
+					return model.TreeHeading{}, err
 				}
 				textTitle += line
 			default:
-				return model.Heading{}, errors.New(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
+				return model.TreeHeading{}, errors.New(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
 			}
 		}
 		tocTitle += " "
 		textTitle += " "
 	}
-	tocTitle = extract.RemoveTags(tocTitle)
+	tocTitle = util.RemoveTags(tocTitle)
 	tocTitle = strings.TrimSpace(tocTitle)
 	tocTitle = removeTrailingPunctuation(tocTitle)
 	tocTitle = fixCapitalization(tocTitle)
-	return model.Heading{
+	return model.TreeHeading{
 		Level:     level(elem),
 		TocTitle:  tocTitle,
 		TextTitle: strings.TrimSpace(textTitle),
@@ -209,7 +208,7 @@ func p(elem *etree.Element) (string, errors.UploadError) {
 }
 
 func seite(elem *etree.Element) (string, errors.UploadError) {
-	page, err := extract.ExtractNumericAttribute(elem, "nr")
+	page, err := util.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}
@@ -220,7 +219,7 @@ func table() string {
 	return util.TableMatch
 }
 
-func footnote(elem *etree.Element) (model.Footnote, errors.UploadError) {
+func footnote(elem *etree.Element) (model.TreeFootnote, errors.UploadError) {
 	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "p":
@@ -231,24 +230,24 @@ func footnote(elem *etree.Element) (model.Footnote, errors.UploadError) {
 	}
 	text, err := extractText(elem, switchFn)
 	if err.HasError {
-		return model.Footnote{}, err
+		return model.TreeFootnote{}, err
 	}
-	page, err := extract.ExtractNumericAttribute(elem, "seite")
+	page, err := util.ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
-		return model.Footnote{}, err
+		return model.TreeFootnote{}, err
 	}
-	nr, err := extract.ExtractNumericAttribute(elem, "nr")
+	nr, err := util.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
-		return model.Footnote{}, err
+		return model.TreeFootnote{}, err
 	}
-	return model.Footnote{
+	return model.TreeFootnote{
 		Page: page,
 		Nr:   nr,
 		Text: text,
 	}, errors.Nil()
 }
 
-func summary(elem *etree.Element) (model.Summary, errors.UploadError) {
+func summary(elem *etree.Element) (model.TreeSummary, errors.UploadError) {
 	switchFn := func(el *etree.Element) (string, errors.UploadError) {
 		switch el.Tag {
 		case "p":
@@ -259,17 +258,17 @@ func summary(elem *etree.Element) (model.Summary, errors.UploadError) {
 	}
 	text, err := extractText(elem, switchFn)
 	if err.HasError {
-		return model.Summary{}, err
+		return model.TreeSummary{}, err
 	}
-	page, err := extract.ExtractNumericAttribute(elem, "seite")
+	page, err := util.ExtractNumericAttribute(elem, "seite")
 	if err.HasError {
-		return model.Summary{}, err
+		return model.TreeSummary{}, err
 	}
-	line, err := extract.ExtractNumericAttribute(elem, "anfang")
+	line, err := util.ExtractNumericAttribute(elem, "anfang")
 	if err.HasError {
-		return model.Summary{}, err
+		return model.TreeSummary{}, err
 	}
-	return model.Summary{
+	return model.TreeSummary{
 		Page: page,
 		Line: line,
 		Text: text,

@@ -1,10 +1,9 @@
-package extract
+package util
 
 import (
 	"testing"
 
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -198,13 +197,13 @@ func TestRemoveTags(t *testing.T) {
 }
 
 func line(line int32) string {
-	return util.FmtLine(line)
+	return FmtLine(line)
 }
 
 func page(page int32) string {
-	return util.FmtPage(page)
+	return FmtPage(page)
 }
 
 func fnRef(page, nr int32) string {
-	return util.FmtFnRef(page, nr)
+	return FmtFnRef(page, nr)
 }

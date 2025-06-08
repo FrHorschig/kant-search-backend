@@ -5,11 +5,11 @@ package upload
 import (
 	"context"
 
-	"github.com/frhorschig/kant-search-backend/common/util"
+	commonutil "github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/extract"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 )
@@ -216,8 +216,8 @@ func createHeading(lv *loopVariables, h model.Heading) esmodel.Content {
 		Type:       esmodel.Heading,
 		Ordinal:    lv.ordinal,
 		FmtText:    h.Text,
-		TocText:    util.StrPtr(h.TocText),
-		SearchText: extract.RemoveTags(h.Text),
+		TocText:    commonutil.StrPtr(h.TocText),
+		SearchText: util.RemoveTags(h.Text),
 		Pages:      h.Pages,
 		FnRefs:     h.FnRefs,
 		WorkCode:   lv.workCode,
@@ -231,7 +231,7 @@ func createParagraph(lv *loopVariables, p model.Paragraph) esmodel.Content {
 		Type:       esmodel.Paragraph,
 		Ordinal:    lv.ordinal,
 		FmtText:    p.Text,
-		SearchText: extract.RemoveTags(p.Text),
+		SearchText: util.RemoveTags(p.Text),
 		Pages:      p.Pages,
 		FnRefs:     p.FnRefs,
 		SummaryRef: p.SummaryRef,
@@ -247,7 +247,7 @@ func createFootnote(lv *loopVariables, f model.Footnote) esmodel.Content {
 		Ordinal:    lv.ordinal,
 		Ref:        &f.Ref,
 		FmtText:    f.Text,
-		SearchText: extract.RemoveTags(f.Text),
+		SearchText: util.RemoveTags(f.Text),
 		Pages:      f.Pages,
 		WorkCode:   lv.workCode,
 	}
@@ -261,7 +261,7 @@ func createSummary(lv *loopVariables, s model.Summary) esmodel.Content {
 		Ordinal:    lv.ordinal,
 		Ref:        &s.Ref,
 		FmtText:    s.Text,
-		SearchText: extract.RemoveTags(s.Text),
+		SearchText: util.RemoveTags(s.Text),
 		Pages:      s.Pages,
 		FnRefs:     s.FnRefs,
 		WorkCode:   lv.workCode,

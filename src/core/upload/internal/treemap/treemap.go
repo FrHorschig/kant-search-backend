@@ -1,4 +1,4 @@
-package mapping
+package treemap
 
 import (
 	"fmt"
@@ -6,12 +6,12 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/transform"
-	model "github.com/frhorschig/kant-search-backend/core/upload/internal/treemodel"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/treemap/transform"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-func MapToTree(doc *etree.Document) ([]model.Section, []model.Summary, []model.Footnote, errors.UploadError) {
+func MapToTree(doc *etree.Document) ([]model.TreeSection, []model.TreeSummary, []model.TreeFootnote, errors.UploadError) {
 	works, err := findSections(doc.FindElement("//hauptteil"))
 	if err.HasError {
 		return nil, nil, nil, err
@@ -27,9 +27,9 @@ func MapToTree(doc *etree.Document) ([]model.Section, []model.Summary, []model.F
 	return works, summaries, footnotes, errors.Nil()
 }
 
-func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError) {
-	secs := make([]model.Section, 0)
-	var currentSec *model.Section
+func findSections(hauptteil *etree.Element) ([]model.TreeSection, errors.UploadError) {
+	secs := make([]model.TreeSection, 0)
+	var currentSec *model.TreeSection
 	currentYear := ""
 	pagePrefix := ""
 	for _, el := range hauptteil.ChildElements() {
@@ -45,7 +45,7 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError
 				pagePrefix = ""
 			}
 
-			sec := model.Section{Heading: hx, Paragraphs: []string{}, Sections: []model.Section{}}
+			sec := model.TreeSection{Heading: hx, Paragraphs: []string{}, Sections: []model.TreeSection{}}
 			sec.Heading.Year = currentYear
 			secs = append(secs, sec)
 			currentSec = &secs[len(secs)-1]
@@ -61,7 +61,7 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError
 				continue
 			}
 
-			sec := model.Section{Heading: hx, Paragraphs: []string{}, Sections: []model.Section{}}
+			sec := model.TreeSection{Heading: hx, Paragraphs: []string{}, Sections: []model.TreeSection{}}
 			if len(secs) == 0 {
 				return nil, errors.New(fmt.Errorf("the first heading is '%s', but must be h1", el.Tag), nil)
 			}
@@ -123,11 +123,11 @@ func findSections(hauptteil *etree.Element) ([]model.Section, errors.UploadError
 	return secs, errors.Nil()
 }
 
-func findSummaries(randtexte *etree.Element) ([]model.Summary, errors.UploadError) {
+func findSummaries(randtexte *etree.Element) ([]model.TreeSummary, errors.UploadError) {
 	if randtexte == nil {
-		return []model.Summary{}, errors.Nil()
+		return []model.TreeSummary{}, errors.Nil()
 	}
-	result := make([]model.Summary, 0)
+	result := make([]model.TreeSummary, 0)
 	for _, el := range randtexte.ChildElements() {
 		rt, err := transform.Summary(el)
 		if err.HasError {
@@ -138,11 +138,11 @@ func findSummaries(randtexte *etree.Element) ([]model.Summary, errors.UploadErro
 	return result, errors.Nil()
 }
 
-func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.UploadError) {
+func findFootnotes(fussnoten *etree.Element) ([]model.TreeFootnote, errors.UploadError) {
 	if fussnoten == nil {
-		return []model.Footnote{}, errors.Nil()
+		return []model.TreeFootnote{}, errors.Nil()
 	}
-	result := make([]model.Footnote, 0)
+	result := make([]model.TreeFootnote, 0)
 	for _, el := range fussnoten.ChildElements() {
 		rt, err := transform.Footnote(el)
 		if err.HasError {
@@ -153,7 +153,7 @@ func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errors.UploadErr
 	return result, errors.Nil()
 }
 
-func findParent(hx model.Heading, current *model.Section) *model.Section {
+func findParent(hx model.TreeHeading, current *model.TreeSection) *model.TreeSection {
 	if hx.Level > current.Heading.Level { // new heading is lower in hierarchy
 		return current
 	} else if hx.Level == current.Heading.Level {

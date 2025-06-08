@@ -1,4 +1,4 @@
-package mapping
+package modelmap
 
 type WorkMetadata struct {
 	Code         string
