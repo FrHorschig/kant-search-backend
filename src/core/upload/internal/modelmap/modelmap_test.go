@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/metadata"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ import (
 func TestModelMapping(t *testing.T) {
 	testCases := []struct {
 		name        string
-		volume      int32
+		volume      metadata.VolumeMetadata
 		sections    []model.TreeSection
 		summaries   []model.TreeSummary
 		footnotes   []model.TreeFootnote
@@ -20,8 +21,11 @@ func TestModelMapping(t *testing.T) {
 		expectError bool
 	}{
 		{
-			name:   "Merge summaries into paragraphs",
-			volume: 1,
+			name: "Merge summaries into paragraphs",
+			volume: metadata.VolumeMetadata{
+				VolumeNumber: 1,
+				Works:        []metadata.WorkMetadata{{Code: "code"}, {Code: "code2"}},
+			},
 			sections: []model.TreeSection{
 				{
 					Heading: model.TreeHeading{Level: model.HWork, TextTitle: "work"},
@@ -51,6 +55,7 @@ func TestModelMapping(t *testing.T) {
 			model: []model.Work{
 				{
 					Title: "work",
+					Code:  "code",
 					Sections: []model.Section{{
 						Heading: model.Heading{Text: "h1", Pages: []int32{1}},
 						Paragraphs: []model.Paragraph{
@@ -71,6 +76,7 @@ func TestModelMapping(t *testing.T) {
 				},
 				{
 					Title: "work2",
+					Code:  "code2",
 					Sections: []model.Section{{
 						Heading: model.Heading{Text: page(102) + "2h1", Pages: []int32{102}},
 						Paragraphs: []model.Paragraph{

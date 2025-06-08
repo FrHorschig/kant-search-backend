@@ -1,0 +1,126 @@
+[
+  {
+    "volumeNumber": 1,
+    "title": "Vorkritische Schriften I: 1747-1756",
+    "works": [
+      { "code": "GSK", "abbreviation": "GSK" },
+      { "code": "UFE", "abbreviation": "UFE" },
+      { "code": "FE", "abbreviation": "FE" },
+      { "code": "NTH", "abbreviation": "NTH" },
+      { "code": "Di", "abbreviation": "Di" },
+      { "code": "PND", "abbreviation": "PND" },
+      { "code": "VUE", "abbreviation": "VUE" },
+      { "code": "GNVE", "abbreviation": "GNVE" },
+      { "code": "FBZE", "abbreviation": "FBZE" },
+      { "code": "MON_PH", "abbreviation": "MonPh" },
+      { "code": "TW", "abbreviation": "TW" }
+    ]
+  },
+  {
+    "volumeNumber": 2,
+    "title": "Vorkritische Schriften II: 1757-1777",
+    "works": [
+      { "code": "EACG", "abbreviation": "EACG" },
+      { "code": "NLBR", "abbreviation": "NLBR" },
+      { "code": "VBO", "abbreviation": "VBO" },
+      { "code": "GAJFF", "abbreviation": "GAJFF" },
+      { "code": "DFS", "abbreviation": "DfS" },
+      { "code": "BDG", "abbreviation": "BDG" },
+      { "code": "NG", "abbreviation": "NG" },
+      { "code": "GSE", "abbreviation": "GSE" },
+      { "code": "VKK", "abbreviation": "VKK" },
+      { "code": "REZ_SIL_2", "abbreviation": "" },
+      { "code": "UD", "abbreviation": "UD" },
+      { "code": "NEV", "abbreviation": "NEV" },
+      { "code": "TG", "abbreviation": "TG" },
+      { "code": "GUGR", "abbreviation": "GUGR" },
+      { "code": "MSI", "abbreviation": "MSI" },
+      { "code": "REZ_MOSCATI", "abbreviation": "RezMoscati" },
+      { "code": "VVRM", "abbreviation": "VvRM" },
+      { "code": "AP", "abbreviation": "AP" }
+    ]
+  },
+  {
+    "volumeNumber": 3,
+    "title": "Kritik der reinen Vernunft (2. Aufl. 1787)",
+    "works": [{ "code": "KRV_B", "abbreviation": "KrV B" }]
+  },
+  {
+    "volumeNumber": 4,
+    "title": "Kritik der reinen Vernunft (1. Aufl. 1781), Prolegomena, Grundlegung zur Metaphysik der Sitten, Metaphysische Anfangsgründe der Naturwissenschaft",
+    "works": [
+      { "code": "KRV_A", "abbreviation": "KrV A" },
+      { "code": "PROL", "abbreviation": "Prol" },
+      { "code": "GMS", "abbreviation": "GMS" },
+      { "code": "MAN", "abbreviation": "MAN" }
+    ]
+  },
+  {
+    "volumeNumber": 5,
+    "title": "Kritik der praktischen Vernunft, Kritik der Urteilskraft",
+    "works": [
+      { "code": "KPV", "abbreviation": "KpV" },
+      { "code": "KU", "abbreviation": "KU" }
+    ]
+  },
+  {
+    "volumeNumber": 6,
+    "title": "ie Religion innerhalb der Grenzen der blossen Vernunft, Die Metaphysik der Sitten",
+    "works": [
+      { "code": "RGV", "abbreviation": "RGV" },
+      { "code": "MS", "abbreviation": "MS" }
+    ]
+  },
+  {
+    "volumeNumber": 7,
+    "title": "Der Streit der Fakultäten, Anthropologie in pragmatischer Hinsicht",
+    "works": [
+      { "code": "SF", "abbreviation": "SF" },
+      { "code": "ANTH", "abbreviation": "Anth" }
+    ]
+  },
+  {
+    "volumeNumber": 8,
+    "title": "Abhandlungen nach 1781",
+    "works": [
+      { "code": "LAMBERT_BRIEFWECHSEL", "abbreviation": "" },
+      { "code": "NACHRICHT_AERZTE", "abbreviation": "" },
+      { "code": "REZ_SCHULZ", "abbreviation": "RezSchulz" },
+      { "code": "IDEE_GESCHICHTE", "abbreviation": "" },
+      { "code": "FRAGE_AUFKLAERUNG", "abbreviation": "" },
+      { "code": "REZ_HERDER", "abbreviation": "RezHerder" },
+      { "code": "VULKANE", "abbreviation": "" },
+      { "code": "VUB", "abbreviation": "VUB" },
+      { "code": "MENSCHENRACE", "abbreviation": "" },
+      { "code": "MENSCHENGESCH", "abbreviation": "" },
+      { "code": "REZ_HUFELAND", "abbreviation": "RezHufeland" },
+      { "code": "WDO", "abbreviation": "WDO" },
+      { "code": "BEM_MORGEN", "abbreviation": "" },
+      { "code": "UEGTP", "abbreviation": "ÜGTP" },
+      { "code": "UEE", "abbreviation": "ÜE" },
+      { "code": "THEODICEE", "abbreviation": "" },
+      { "code": "TP", "abbreviation": "TP" },
+      { "code": "WITTERUNG", "abbreviation": "" },
+      { "code": "EAD", "abbreviation": "" },
+      { "code": "ZEF", "abbreviation": "ZeF" },
+      { "code": "VT", "abbreviation": "VT" },
+      { "code": "AUSGLEICH", "abbreviation": "" },
+      { "code": "VNAEF", "abbreviation": "VNAEF" },
+      { "code": "VRML", "abbreviation": "VRML" },
+      { "code": "BUCHMACHEREI", "abbreviation": "" },
+      { "code": "REL_PHIL", "abbreviation": "" },
+      { "code": "WOERTERBUCH", "abbreviation": "" },
+      { "code": "REZ_SIL_8", "abbreviation": "" },
+      { "code": "REZ_ULRICH", "abbreviation": "RezUlrich" }
+    ]
+  },
+  {
+    "volumeNumber": 9,
+    "title": "Logik. Physische Geographie, Pädagogik",
+    "works": [
+      { "code": "LOG", "abbreviation": "Log" },
+      { "code": "PG", "abbreviation": "PG" },
+      { "code": "PAED", "abbreviation": "Päd" }
+    ]
+  }
+]

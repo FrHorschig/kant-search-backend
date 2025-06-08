@@ -7,16 +7,17 @@ import (
 	"strings"
 
 	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/metadata"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
-func MapToModel(vol int32, sections []model.TreeSection, summaries []model.TreeSummary, footnotes []model.TreeFootnote) ([]model.Work, errors.UploadError) {
+func MapToModel(metadata metadata.VolumeMetadata, sections []model.TreeSection, summaries []model.TreeSummary, footnotes []model.TreeFootnote) ([]model.Work, errors.UploadError) {
 	works := []model.Work{}
 	latestPage := int32(1)
 	for i, w := range sections {
-		work, err := mapWork(w, vol, i)
+		work, err := mapWork(w, metadata, i)
 		if err.HasError {
 			return nil, err
 		}
@@ -58,10 +59,10 @@ func MapToModel(vol int32, sections []model.TreeSection, summaries []model.TreeS
 	return works, errors.Nil()
 }
 
-func mapWork(h0 model.TreeSection, vol int32, index int) (model.Work, errors.UploadError) {
+func mapWork(h0 model.TreeSection, metadata metadata.VolumeMetadata, index int) (model.Work, errors.UploadError) {
 	work := model.Work{}
-	work.Code = Metadata[vol-1][index].Code
-	work.Abbreviation = &Metadata[vol-1][index].Abbreviation
+	work.Code = metadata.Works[index].Code
+	work.Abbreviation = metadata.Works[index].Abbreviation
 	work.Title = h0.Heading.TocTitle
 	work.Year = &h0.Heading.Year
 	for _, p := range h0.Paragraphs {
