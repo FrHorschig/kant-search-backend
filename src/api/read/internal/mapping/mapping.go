@@ -64,6 +64,7 @@ func HeadingsToApiModels(in []esmodel.Content) []models.Heading {
 			Ordinal: c.Ordinal,
 			Text:    c.FmtText,
 			TocText: util.StrVal(c.TocText),
+			Pages:   c.Pages,
 			FnRefs:  c.FnRefs,
 		})
 	}
