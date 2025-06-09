@@ -34,7 +34,6 @@ func antiqua(elem *etree.Element) (string, errors.UploadError) {
 }
 
 func bildBildverweis(elem *etree.Element) string {
-	// TODO adjust to extract imgref instead of img
 	return util.FmtImage(
 		strings.TrimSpace(elem.SelectAttrValue("src", "MISSING_IMG_SRC")),
 		strings.TrimSpace(elem.SelectAttrValue("beschreibung", "MISSING_IMG_DESC")),
