@@ -65,9 +65,6 @@ func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
 		return errors.InternalServerError(ctx)
 	}
 
-	if len(footnotes) == 0 {
-		return errors.NotFound(ctx)
-	}
 	apiFootnotes := mapping.FootnotesToApiModels(footnotes)
 	return ctx.JSON(http.StatusOK, apiFootnotes)
 }
@@ -93,9 +90,6 @@ func (rec *readHandlerImpl) ReadHeadings(ctx echo.Context) error {
 		return errors.InternalServerError(ctx)
 	}
 
-	if len(headings) == 0 {
-		return errors.NotFound(ctx)
-	}
 	apiHeadings := mapping.HeadingsToApiModels(headings)
 	return ctx.JSON(http.StatusOK, apiHeadings)
 }
@@ -121,9 +115,6 @@ func (rec *readHandlerImpl) ReadParagraphs(ctx echo.Context) error {
 		return errors.InternalServerError(ctx)
 	}
 
-	if len(paragraphs) == 0 {
-		return errors.NotFound(ctx)
-	}
 	apiParagraphs := mapping.ParagraphsToApiModels(paragraphs)
 	return ctx.JSON(http.StatusOK, apiParagraphs)
 }
@@ -149,9 +140,6 @@ func (rec *readHandlerImpl) ReadSummaries(ctx echo.Context) error {
 		return errors.InternalServerError(ctx)
 	}
 
-	if len(summaries) == 0 {
-		return errors.NotFound(ctx)
-	}
 	apiSummaries := mapping.SummariesToApiModels(summaries)
 	return ctx.JSON(http.StatusOK, apiSummaries)
 }
