@@ -10,7 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/frhorschig/kant-search-backend/core/upload/errs"
+	"github.com/frhorschig/kant-search-backend/common/errs"
 	procMocks "github.com/frhorschig/kant-search-backend/core/upload/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"

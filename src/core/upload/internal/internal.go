@@ -4,7 +4,7 @@ package internal
 
 import (
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/errs"
+	"github.com/frhorschig/kant-search-backend/common/errs"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/metadata"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/modelmap"

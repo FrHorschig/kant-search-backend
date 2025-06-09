@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/frhorschig/kant-search-backend/common/errs"
 	"github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/core/upload/errs"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
