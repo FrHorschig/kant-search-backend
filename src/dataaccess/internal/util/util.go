@@ -91,9 +91,8 @@ func CreateHighlightOptions() *types.Highlight {
 	return &types.Highlight{
 		Fields: map[string]types.HighlightField{
 			"searchText": {
-				// TODO adjust this after testing with the frontend
 				FragmentSize:      util.IntPtr(150),
-				NumberOfFragments: util.IntPtr(3),
+				NumberOfFragments: util.IntPtr(5),
 			},
 		},
 		PreTags:  []string{"<ks-meta-hit>"},
