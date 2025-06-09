@@ -6,7 +6,7 @@ import (
 	"context"
 
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/errs"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/metadata"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
@@ -16,7 +16,7 @@ import (
 )
 
 type UploadProcessor interface {
-	Process(ctx context.Context, volNum int32, xml string) errors.UploadError
+	Process(ctx context.Context, volNum int32, xml string) errs.UploadError
 }
 
 type uploadProcessorImpl struct {
@@ -34,7 +34,7 @@ func NewUploadProcessor(volumeRepo dataaccess.VolumeRepo, contentRepo dataaccess
 	return &processor
 }
 
-func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml string) errors.UploadError {
+func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml string) errs.UploadError {
 	vol, err := rec.xmlMapper.MapVolume(volNr, xml)
 	if err.HasError {
 		return err
@@ -46,15 +46,15 @@ func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml st
 
 	errDelete := deleteExistingData(ctx, rec.volumeRepo, rec.contentRepo, volNr)
 	if errDelete != nil {
-		return errors.New(nil, errDelete)
+		return errs.New(nil, errDelete)
 	}
 
 	errInsert := insertNewData(ctx, rec.volumeRepo, rec.contentRepo, vol, works)
 	if errInsert != nil {
 		deleteExistingData(ctx, rec.volumeRepo, rec.contentRepo, volNr) // ignore the error, because here the insertion error is the more interesting one
-		return errors.New(nil, errInsert)
+		return errs.New(nil, errInsert)
 	}
-	return errors.Nil()
+	return errs.Nil()
 }
 
 func deleteExistingData(ctx context.Context, volRepo dataaccess.VolumeRepo, contentRepo dataaccess.ContentRepo, volNr int32) error {
