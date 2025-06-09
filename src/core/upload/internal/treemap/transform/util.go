@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/errs"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/rs/zerolog/log"
 )
@@ -62,7 +62,7 @@ func arabicToRoman(number int64) string {
 	return roman.String()
 }
 
-func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, errors.UploadError)) (string, errors.UploadError) {
+func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, errs.UploadError)) (string, errs.UploadError) {
 	text := ""
 	for _, ch := range elem.Child {
 		if str, ok := ch.(*etree.CharData); ok {
@@ -80,11 +80,11 @@ func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, 
 			log.Debug().Msgf("Comment: '%s'", childEl.Data)
 			continue
 		} else {
-			return "", errors.New(nil, fmt.Errorf("unknown child type '%v' in tag '%v', it is neither CharData nor Element nor Comment", ch.(*etree.Element).Tag, elem.Tag))
+			return "", errs.New(nil, fmt.Errorf("unknown child type '%v' in tag '%v', it is neither CharData nor Element nor Comment", ch.(*etree.Element).Tag, elem.Tag))
 		}
 		text += " "
 	}
-	return contractSpaces(text), errors.Nil()
+	return contractSpaces(text), errs.Nil()
 }
 
 func contractSpaces(s string) string {

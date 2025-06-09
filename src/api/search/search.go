@@ -41,7 +41,7 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 		return errors.BadRequest(ctx, models.BAD_REQUEST_EMPTY_WORKS_SELECTION)
 	}
 
-	matches, searchErr := rec.searchProcessor.Search(ctx.Request().Context(), searchTerms, options)
+	results, searchErr := rec.searchProcessor.Search(ctx.Request().Context(), searchTerms, options)
 	if searchErr.HasError {
 		if searchErr.SyntaxError != nil {
 			e := searchErr.SyntaxError
@@ -53,5 +53,5 @@ func (rec *searchHandlerImpl) Search(ctx echo.Context) error {
 		}
 	}
 
-	return ctx.JSON(200, mapping.HitsToApiModels(matches))
+	return ctx.JSON(200, mapping.HitsToApiModels(results))
 }

@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/errs"
 )
 
 const (
@@ -99,11 +99,11 @@ func RemoveTags(text string) string {
 	return strings.TrimSpace(text)
 }
 
-func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errors.UploadError) {
+func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errs.UploadError) {
 	defaultStr := "DEFAULT_STRING"
 	nStr := strings.TrimSpace(el.SelectAttrValue(attr, defaultStr))
 	if nStr == defaultStr {
-		return 0, errors.New(fmt.Errorf("missing '%s' attribute in '%s' element", attr, el.Tag), nil)
+		return 0, errs.New(fmt.Errorf("missing '%s' attribute in '%s' element", attr, el.Tag), nil)
 	}
 
 	// TODO make this configurable at runtime
@@ -113,9 +113,9 @@ func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errors.Uplo
 
 	n, err := strconv.ParseInt(nStr, 10, 32)
 	if err != nil {
-		return 0, errors.New(fmt.Errorf("can't convert attribute string '%s' to number", nStr), nil)
+		return 0, errs.New(fmt.Errorf("can't convert attribute string '%s' to number", nStr), nil)
 	}
-	return int32(n), errors.Nil()
+	return int32(n), errs.Nil()
 }
 
 func ExtractFnRefs(text string) []string {
@@ -128,7 +128,7 @@ func ExtractFnRefs(text string) []string {
 	return result
 }
 
-func ExtractPages(text string) ([]int32, errors.UploadError) {
+func ExtractPages(text string) ([]int32, errs.UploadError) {
 	re := regexp.MustCompile(PageMatch)
 	matches := re.FindAllStringSubmatch(text, -1)
 
@@ -137,10 +137,10 @@ func ExtractPages(text string) ([]int32, errors.UploadError) {
 		nStr := match[1]
 		n, err := strconv.ParseInt(nStr, 10, 32)
 		if err != nil {
-			return nil, errors.New(fmt.Errorf("can't convert page string '%s' to number", nStr), nil)
+			return nil, errs.New(fmt.Errorf("can't convert page string '%s' to number", nStr), nil)
 		}
 		result = append(result, int32(n))
 	}
 
-	return result, errors.Nil()
+	return result, errs.Nil()
 }

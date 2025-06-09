@@ -5,13 +5,13 @@ import (
 	"strings"
 
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/errs"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/treemap/transform"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-func MapToTree(doc *etree.Document) ([]model.TreeSection, []model.TreeSummary, []model.TreeFootnote, errors.UploadError) {
+func MapToTree(doc *etree.Document) ([]model.TreeSection, []model.TreeSummary, []model.TreeFootnote, errs.UploadError) {
 	works, err := findSections(doc.FindElement("//hauptteil"))
 	if err.HasError {
 		return nil, nil, nil, err
@@ -24,10 +24,10 @@ func MapToTree(doc *etree.Document) ([]model.TreeSection, []model.TreeSummary, [
 	if err.HasError {
 		return nil, nil, nil, err
 	}
-	return works, summaries, footnotes, errors.Nil()
+	return works, summaries, footnotes, errs.Nil()
 }
 
-func findSections(hauptteil *etree.Element) ([]model.TreeSection, errors.UploadError) {
+func findSections(hauptteil *etree.Element) ([]model.TreeSection, errs.UploadError) {
 	secs := make([]model.TreeSection, 0)
 	var currentSec *model.TreeSection
 	currentYear := ""
@@ -63,7 +63,7 @@ func findSections(hauptteil *etree.Element) ([]model.TreeSection, errors.UploadE
 
 			sec := model.TreeSection{Heading: hx, Paragraphs: []string{}, Sections: []model.TreeSection{}}
 			if len(secs) == 0 {
-				return nil, errors.New(fmt.Errorf("the first heading is '%s', but must be h1", el.Tag), nil)
+				return nil, errs.New(fmt.Errorf("the first heading is '%s', but must be h1", el.Tag), nil)
 			}
 
 			parent := findParent(hx, currentSec)
@@ -117,15 +117,15 @@ func findSections(hauptteil *etree.Element) ([]model.TreeSection, errors.UploadE
 			currentSec.Paragraphs = append(currentSec.Paragraphs, transform.Table())
 
 		default:
-			return nil, errors.New(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
+			return nil, errs.New(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
 		}
 	}
-	return secs, errors.Nil()
+	return secs, errs.Nil()
 }
 
-func findSummaries(randtexte *etree.Element) ([]model.TreeSummary, errors.UploadError) {
+func findSummaries(randtexte *etree.Element) ([]model.TreeSummary, errs.UploadError) {
 	if randtexte == nil {
-		return []model.TreeSummary{}, errors.Nil()
+		return []model.TreeSummary{}, errs.Nil()
 	}
 	result := make([]model.TreeSummary, 0)
 	for _, el := range randtexte.ChildElements() {
@@ -135,12 +135,12 @@ func findSummaries(randtexte *etree.Element) ([]model.TreeSummary, errors.Upload
 		}
 		result = append(result, rt)
 	}
-	return result, errors.Nil()
+	return result, errs.Nil()
 }
 
-func findFootnotes(fussnoten *etree.Element) ([]model.TreeFootnote, errors.UploadError) {
+func findFootnotes(fussnoten *etree.Element) ([]model.TreeFootnote, errs.UploadError) {
 	if fussnoten == nil {
-		return []model.TreeFootnote{}, errors.Nil()
+		return []model.TreeFootnote{}, errs.Nil()
 	}
 	result := make([]model.TreeFootnote, 0)
 	for _, el := range fussnoten.ChildElements() {
@@ -150,7 +150,7 @@ func findFootnotes(fussnoten *etree.Element) ([]model.TreeFootnote, errors.Uploa
 		}
 		result = append(result, rt)
 	}
-	return result, errors.Nil()
+	return result, errs.Nil()
 }
 
 func findParent(hx model.TreeHeading, current *model.TreeSection) *model.TreeSection {

@@ -1,11 +1,11 @@
 package transform
 
 import (
-	stderr "errors"
+	"errors"
 	"testing"
 
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/errs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func TestExtractText(t *testing.T) {
 		before         string
 		child          *etree.Element
 		switchFnString string
-		switchFnErr    errors.UploadError
+		switchFnErr    errs.UploadError
 		after          string
 		expected       string
 		expectError    bool
@@ -54,7 +54,7 @@ func TestExtractText(t *testing.T) {
 			name:        "switchFn returns error",
 			before:      "text one",
 			child:       createElement("my-tag", nil, "", nil),
-			switchFnErr: errors.New(stderr.New("some error"), nil),
+			switchFnErr: errs.New(errors.New("some error"), nil),
 			after:       "text two",
 			expectError: true,
 		},
@@ -66,7 +66,7 @@ func TestExtractText(t *testing.T) {
 			if tc.after != "" {
 				el.CreateText(tc.after)
 			}
-			switchFn := func(el *etree.Element) (string, errors.UploadError) {
+			switchFn := func(el *etree.Element) (string, errs.UploadError) {
 				return tc.switchFnString, tc.switchFnErr
 			}
 

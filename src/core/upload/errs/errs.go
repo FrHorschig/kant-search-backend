@@ -1,4 +1,4 @@
-package errors
+package errs
 
 type UploadError struct {
 	HasError       bool

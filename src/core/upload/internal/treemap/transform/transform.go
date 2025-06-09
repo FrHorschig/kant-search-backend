@@ -6,24 +6,24 @@ import (
 	"unicode"
 
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/errs"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 )
 
-func Hx(el *etree.Element) (model.TreeHeading, errors.UploadError) {
+func Hx(el *etree.Element) (model.TreeHeading, errs.UploadError) {
 	return hx(el)
 }
 
-func Hu(el *etree.Element) (string, errors.UploadError) {
+func Hu(el *etree.Element) (string, errs.UploadError) {
 	return hu(el)
 }
 
-func P(el *etree.Element) (string, errors.UploadError) {
+func P(el *etree.Element) (string, errs.UploadError) {
 	return p(el)
 }
 
-func Seite(el *etree.Element) (string, errors.UploadError) {
+func Seite(el *etree.Element) (string, errs.UploadError) {
 	return seite(el)
 }
 
@@ -31,15 +31,15 @@ func Table() string {
 	return table()
 }
 
-func Summary(el *etree.Element) (model.TreeSummary, errors.UploadError) {
+func Summary(el *etree.Element) (model.TreeSummary, errs.UploadError) {
 	return summary(el)
 }
 
-func Footnote(el *etree.Element) (model.TreeFootnote, errors.UploadError) {
+func Footnote(el *etree.Element) (model.TreeFootnote, errs.UploadError) {
 	return footnote(el)
 }
 
-func hx(elem *etree.Element) (model.TreeHeading, errors.UploadError) {
+func hx(elem *etree.Element) (model.TreeHeading, errs.UploadError) {
 	textTitle := ""
 	tocTitle := ""
 	for _, ch := range elem.Child {
@@ -114,7 +114,7 @@ func hx(elem *etree.Element) (model.TreeHeading, errors.UploadError) {
 				}
 				textTitle += line
 			default:
-				return model.TreeHeading{}, errors.New(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
+				return model.TreeHeading{}, errs.New(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
 			}
 		}
 		tocTitle += " "
@@ -128,14 +128,14 @@ func hx(elem *etree.Element) (model.TreeHeading, errors.UploadError) {
 		Level:     level(elem),
 		TocTitle:  tocTitle,
 		TextTitle: strings.TrimSpace(textTitle),
-	}, errors.Nil()
+	}, errs.Nil()
 }
 
-func hu(elem *etree.Element) (string, errors.UploadError) {
-	switchFn := func(el *etree.Element) (string, errors.UploadError) {
+func hu(elem *etree.Element) (string, errs.UploadError) {
+	switchFn := func(el *etree.Element) (string, errs.UploadError) {
 		switch el.Tag {
 		case "em1":
-			return em1(el), errors.Nil()
+			return em1(el), errs.Nil()
 		case "fett":
 			return fett(el)
 		case "fr":
@@ -147,33 +147,33 @@ func hu(elem *etree.Element) (string, errors.UploadError) {
 		case "name":
 			return name(el)
 		case "op":
-			return "", errors.Nil()
+			return "", errs.Nil()
 		case "romzahl":
 			return romzahl(el)
 		case "seite":
 			return seite(el)
 		case "trenn":
-			return "", errors.Nil()
+			return "", errs.Nil()
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
 }
 
-func p(elem *etree.Element) (string, errors.UploadError) {
-	switchFn := func(el *etree.Element) (string, errors.UploadError) {
+func p(elem *etree.Element) (string, errs.UploadError) {
+	switchFn := func(el *etree.Element) (string, errs.UploadError) {
 		switch el.Tag {
 		case "antiqua":
 			return antiqua(el)
 		case "bild":
-			return bildBildverweis(el), errors.Nil()
+			return bildBildverweis(el), errs.Nil()
 		case "bildverweis":
-			return bildBildverweis(el), errors.Nil()
+			return bildBildverweis(el), errs.Nil()
 		case "em1":
-			return em1(el), errors.Nil()
+			return em1(el), errs.Nil()
 		case "em2":
 			return em2(el)
 		case "fett":
@@ -189,43 +189,43 @@ func p(elem *etree.Element) (string, errors.UploadError) {
 		case "name":
 			return name(el)
 		case "op":
-			return "", errors.Nil()
+			return "", errs.Nil()
 		case "romzahl":
 			return romzahl(el)
 		case "table":
-			return table(), errors.Nil()
+			return table(), errs.Nil()
 		case "seite":
 			return seite(el)
 		case "trenn":
-			return "", errors.Nil()
+			return "", errs.Nil()
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
 }
 
-func seite(elem *etree.Element) (string, errors.UploadError) {
+func seite(elem *etree.Element) (string, errs.UploadError) {
 	page, err := util.ExtractNumericAttribute(elem, "nr")
 	if err.HasError {
 		return "", err
 	}
-	return util.FmtPage(page), errors.Nil()
+	return util.FmtPage(page), errs.Nil()
 }
 
 func table() string {
 	return util.TableMatch
 }
 
-func footnote(elem *etree.Element) (model.TreeFootnote, errors.UploadError) {
-	switchFn := func(el *etree.Element) (string, errors.UploadError) {
+func footnote(elem *etree.Element) (model.TreeFootnote, errs.UploadError) {
+	switchFn := func(el *etree.Element) (string, errs.UploadError) {
 		switch el.Tag {
 		case "p":
 			return p(el)
 		default:
-			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	text, err := extractText(elem, switchFn)
@@ -244,16 +244,16 @@ func footnote(elem *etree.Element) (model.TreeFootnote, errors.UploadError) {
 		Page: page,
 		Nr:   nr,
 		Text: text,
-	}, errors.Nil()
+	}, errs.Nil()
 }
 
-func summary(elem *etree.Element) (model.TreeSummary, errors.UploadError) {
-	switchFn := func(el *etree.Element) (string, errors.UploadError) {
+func summary(elem *etree.Element) (model.TreeSummary, errs.UploadError) {
+	switchFn := func(el *etree.Element) (string, errs.UploadError) {
 		switch el.Tag {
 		case "p":
 			return p(el)
 		default:
-			return "", errors.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
 	text, err := extractText(elem, switchFn)
@@ -272,7 +272,7 @@ func summary(elem *etree.Element) (model.TreeSummary, errors.UploadError) {
 		Page: page,
 		Line: line,
 		Text: text,
-	}, errors.Nil()
+	}, errs.Nil()
 }
 
 func removeTrailingPunctuation(s string) string {

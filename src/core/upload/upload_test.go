@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/core/upload/errors"
+	"github.com/frhorschig/kant-search-backend/core/upload/errs"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
@@ -118,10 +118,10 @@ func TestUploadProcessSuccess(t *testing.T) {
 	// mapping
 	xmlMapper.EXPECT().
 		MapVolume(gomock.Eq(volNr), gomock.Any()).
-		Return(vol, errors.Nil())
+		Return(vol, errs.Nil())
 	xmlMapper.EXPECT().
 		MapWorks(gomock.Eq(volNr), gomock.Any()).
-		Return([]model.Work{work}, errors.Nil())
+		Return([]model.Work{work}, errs.Nil())
 
 	// data deletion
 	volumeRepo.EXPECT().
@@ -308,7 +308,7 @@ func esSumm(n int32, workCode string) esmodel.Content {
 	ordinal += 1
 	return summ
 }
-func TestUploadProcessErrors(t *testing.T) {
+func TestUploadProcesserrs(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	volumeRepo := dbMocks.NewMockVolumeRepo(ctrl)
@@ -331,7 +331,7 @@ func TestUploadProcessErrors(t *testing.T) {
 			name: "MapVolume fails",
 			mockSetup: func(vr *dbMocks.MockVolumeRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
 				xm.EXPECT().MapVolume(gomock.Any(), gomock.Any()).
-					Return(nil, errors.New(nil, testErr))
+					Return(nil, errs.New(nil, testErr))
 			},
 		},
 		{
@@ -339,9 +339,9 @@ func TestUploadProcessErrors(t *testing.T) {
 			mockSetup: func(vr *dbMocks.MockVolumeRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
 				gomock.InOrder(
 					xm.EXPECT().MapVolume(gomock.Any(), gomock.Any()).
-						Return(&model.Volume{}, errors.Nil()),
+						Return(&model.Volume{}, errs.Nil()),
 					xm.EXPECT().MapWorks(gomock.Any(), gomock.Any()).
-						Return(nil, errors.New(nil, testErr)),
+						Return(nil, errs.New(nil, testErr)),
 				)
 			},
 		},
@@ -430,7 +430,7 @@ func TestUploadProcessErrors(t *testing.T) {
 }
 
 func mockXmlMapper(mapper *mocks.MockXmlMapper, wCode string) {
-	mapper.EXPECT().MapVolume(gomock.Any(), gomock.Any()).Return(&model.Volume{}, errors.Nil())
+	mapper.EXPECT().MapVolume(gomock.Any(), gomock.Any()).Return(&model.Volume{}, errs.Nil())
 	mapper.EXPECT().MapWorks(gomock.Any(), gomock.Any()).Return([]model.Work{
 		{
 			Code:         wCode,
@@ -444,7 +444,7 @@ func mockXmlMapper(mapper *mocks.MockXmlMapper, wCode string) {
 				},
 			}},
 		},
-	}, errors.Nil())
+	}, errs.Nil())
 }
 
 func mockDeletion(vr *dbMocks.MockVolumeRepo, cr *dbMocks.MockContentRepo, wCode string) {
