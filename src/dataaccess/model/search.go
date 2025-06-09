@@ -37,4 +37,5 @@ type SearchResult struct {
 	Pages    []int32
 	Ordinal  int32
 	WorkCode string
+	Text     string
 }
