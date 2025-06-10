@@ -312,11 +312,3 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 	}
 	return results, nil
 }
-
-func createSnippets(snips []string) []string {
-	result := []string{}
-	for _, s := range snips {
-		result = append(result, fmt.Sprintf("...%s...", s))
-	}
-	return result
-}

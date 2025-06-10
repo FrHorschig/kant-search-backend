@@ -4,6 +4,9 @@ package upload
 
 import (
 	"context"
+	"fmt"
+	"strings"
+	"unicode"
 
 	"github.com/frhorschig/kant-search-backend/common/errs"
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
@@ -177,12 +180,19 @@ func insertContents(lv *loopVariables, sections []model.Section) ([]esmodel.Sect
 	return result, nil
 }
 
-func insertHeading(lv *loopVariables, h model.Heading) (int32, error) {
-	contents := make([]esmodel.Content, len(h.FnRefs)+1)
-	contents[0] = createHeading(lv, h)
-	for i, fnRef := range h.FnRefs {
-		fn := lv.fnByRef[fnRef]
-		contents[i+1] = createFootnote(lv, fn)
+func insertHeading(lv *loopVariables, heading model.Heading) (int32, error) {
+	contents := make([]esmodel.Content, len(heading.FnRefs)+1)
+	h, err := createHeading(lv, heading)
+	if err != nil {
+		return 0, err
+	}
+	contents[0] = h
+	for i, fnRef := range heading.FnRefs {
+		f, err := createFootnote(lv, lv.fnByRef[fnRef])
+		if err != nil {
+			return 0, err
+		}
+		contents[i+1] = f
 	}
 	lv.contents = append(lv.contents, contents...)
 	return contents[0].Ordinal, nil
@@ -194,80 +204,170 @@ func insertParagraphs(lv *loopVariables, paragraphs []model.Paragraph) ([]int32,
 	}
 	parOrds := make([]int32, len(paragraphs))
 	toInsert := []esmodel.Content{}
-	for i, p := range paragraphs {
-		if p.SummaryRef != nil {
-			summ := lv.summByRef[*p.SummaryRef]
-			toInsert = append(toInsert, createSummary(lv, summ))
+	for i, par := range paragraphs {
+		if par.SummaryRef != nil {
+			summ := lv.summByRef[*par.SummaryRef]
+			s, err := createSummary(lv, summ)
+			if err != nil {
+				return nil, err
+			}
+			toInsert = append(toInsert, s)
 			for _, fnRef := range summ.FnRefs {
-				toInsert = append(toInsert, createFootnote(lv, lv.fnByRef[fnRef]))
+				f, err := createFootnote(lv, lv.fnByRef[fnRef])
+				if err != nil {
+					return nil, err
+				}
+				toInsert = append(toInsert, f)
 			}
 		}
-		par := createParagraph(lv, p)
-		parOrds[i] = par.Ordinal
-		toInsert = append(toInsert, par)
+		p, err := createParagraph(lv, par)
+		if err != nil {
+			return nil, err
+		}
+		parOrds[i] = p.Ordinal
+		toInsert = append(toInsert, p)
 		for _, fnRef := range p.FnRefs {
-			toInsert = append(toInsert, createFootnote(lv, lv.fnByRef[fnRef]))
+			f, err := createFootnote(lv, lv.fnByRef[fnRef])
+			if err != nil {
+				return nil, err
+			}
+			toInsert = append(toInsert, f)
 		}
 	}
 	lv.contents = append(lv.contents, toInsert...)
 	return parOrds, nil
 }
 
-func createHeading(lv *loopVariables, h model.Heading) esmodel.Content {
+func createHeading(lv *loopVariables, h model.Heading) (esmodel.Content, error) {
+	searchText := util.RemoveTags(h.Text)
+	wordIndexMap, err := findWordIndexMap(searchText, h.Text)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
 	heading := esmodel.Content{
-		Type:       esmodel.Heading,
-		Ordinal:    lv.ordinal,
-		FmtText:    h.Text,
-		TocText:    commonutil.StrPtr(h.TocText),
-		SearchText: util.RemoveTags(h.Text),
-		Pages:      h.Pages,
-		FnRefs:     h.FnRefs,
-		WorkCode:   lv.workCode,
+		Type:         esmodel.Heading,
+		Ordinal:      lv.ordinal,
+		FmtText:      h.Text,
+		TocText:      commonutil.StrPtr(h.TocText),
+		SearchText:   searchText,
+		WordIndexMap: wordIndexMap,
+		Pages:        h.Pages,
+		FnRefs:       h.FnRefs,
+		WorkCode:     lv.workCode,
 	}
 	lv.ordinal += 1
-	return heading
+	return heading, nil
 }
 
-func createParagraph(lv *loopVariables, p model.Paragraph) esmodel.Content {
+func createParagraph(lv *loopVariables, p model.Paragraph) (esmodel.Content, error) {
+	searchText := util.RemoveTags(p.Text)
+	wordIndexMap, err := findWordIndexMap(searchText, p.Text)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
 	paragraph := esmodel.Content{
-		Type:       esmodel.Paragraph,
-		Ordinal:    lv.ordinal,
-		FmtText:    p.Text,
-		SearchText: util.RemoveTags(p.Text),
-		Pages:      p.Pages,
-		FnRefs:     p.FnRefs,
-		SummaryRef: p.SummaryRef,
-		WorkCode:   lv.workCode,
+		Type:         esmodel.Paragraph,
+		Ordinal:      lv.ordinal,
+		FmtText:      p.Text,
+		SearchText:   searchText,
+		WordIndexMap: wordIndexMap,
+		Pages:        p.Pages,
+		FnRefs:       p.FnRefs,
+		SummaryRef:   p.SummaryRef,
+		WorkCode:     lv.workCode,
 	}
 	lv.ordinal += 1
-	return paragraph
+	return paragraph, nil
 }
 
-func createFootnote(lv *loopVariables, f model.Footnote) esmodel.Content {
+func createFootnote(lv *loopVariables, f model.Footnote) (esmodel.Content, error) {
+	searchText := util.RemoveTags(f.Text)
+	wordIndexMap, err := findWordIndexMap(searchText, f.Text)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
 	footnote := esmodel.Content{
-		Type:       esmodel.Footnote,
-		Ordinal:    lv.ordinal,
-		Ref:        &f.Ref,
-		FmtText:    f.Text,
-		SearchText: util.RemoveTags(f.Text),
-		Pages:      f.Pages,
-		WorkCode:   lv.workCode,
+		Type:         esmodel.Footnote,
+		Ordinal:      lv.ordinal,
+		Ref:          &f.Ref,
+		FmtText:      f.Text,
+		SearchText:   searchText,
+		WordIndexMap: wordIndexMap,
+		Pages:        f.Pages,
+		WorkCode:     lv.workCode,
 	}
 	lv.ordinal += 1
-	return footnote
+	return footnote, nil
 }
 
-func createSummary(lv *loopVariables, s model.Summary) esmodel.Content {
+func createSummary(lv *loopVariables, s model.Summary) (esmodel.Content, error) {
+	searchText := util.RemoveTags(s.Text)
+	wordIndexMap, err := findWordIndexMap(searchText, s.Text)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
 	summary := esmodel.Content{
-		Type:       esmodel.Summary,
-		Ordinal:    lv.ordinal,
-		Ref:        &s.Ref,
-		FmtText:    s.Text,
-		SearchText: util.RemoveTags(s.Text),
-		Pages:      s.Pages,
-		FnRefs:     s.FnRefs,
-		WorkCode:   lv.workCode,
+		Type:         esmodel.Summary,
+		Ordinal:      lv.ordinal,
+		Ref:          &s.Ref,
+		FmtText:      s.Text,
+		SearchText:   searchText,
+		WordIndexMap: wordIndexMap,
+		Pages:        s.Pages,
+		FnRefs:       s.FnRefs,
+		WorkCode:     lv.workCode,
 	}
 	lv.ordinal += 1
-	return summary
+	return summary, nil
+}
+
+type WordData struct {
+	Text  string
+	Index int32
+}
+
+func findWordIndexMap(rawText string, fmtText string) (map[int32]int32, error) {
+	rawWords := extractWordData(rawText)
+	fmtWords := extractWordData(util.MaskTags(fmtText)) // we mask the tags here so that no word from a tag in fmtText may be accidentally matched to a normal word in rawText; this could happen if we later introduce tags with metadata (like image or table tags)
+	if len(rawWords) != len(fmtWords) {
+		// and because we mask all known tags, we (should) get the exact same number of words in both cases
+		return nil, fmt.Errorf("unequal number of words in searchText and fmtText: {%s} vs {%s}", fmtText, rawText)
+	}
+
+	result := make(map[int32]int32)
+	for i, rawWord := range rawWords {
+		fmtWord := fmtWords[i]
+		if rawWord.Text != fmtWord.Text { // just one more sanity check
+			return nil, fmt.Errorf("unequal matched words '%s' at index %d in searchText and '%s' at %d in fmtText", rawWord.Text, rawWord.Index, fmtWord.Text, fmtWord.Index)
+		}
+		result[rawWord.Index] = fmtWord.Index
+	}
+	return result, nil
+}
+
+func extractWordData(text string) []WordData {
+	words := []WordData{}
+	var currentWord strings.Builder
+	startIndex := 0
+	for i, r := range text {
+		if unicode.IsLetter(r) {
+			if currentWord.Len() == 0 {
+				startIndex = i
+			}
+			currentWord.WriteRune(r)
+		} else if currentWord.Len() > 0 {
+			words = append(words, WordData{
+				Text:  currentWord.String(),
+				Index: int32(startIndex),
+			})
+			currentWord.Reset()
+		}
+	}
+	if currentWord.Len() > 0 {
+		words = append(words, WordData{
+			Text:  currentWord.String(),
+			Index: int32(startIndex),
+		})
+	}
+	return words
 }

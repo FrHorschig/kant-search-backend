@@ -33,14 +33,29 @@ func FmtPage(page int32) string {
 }
 
 const (
-	boldFmt       = "<ks-fmt-bold>%s</ks-fmt-bold>"
-	emphFmt       = "<ks-fmt-emph>%s</ks-fmt-emph>"
-	emph2Fmt      = "<ks-fmt-emph2>%s</ks-fmt-emph2>"
-	formulaFmt    = "<ks-fmt-formula>%s</ks-fmt-formula>"
-	headingFmt    = "<ks-fmt-h%d>%s</ks-fmt-h%d>"
-	langFmt       = `%s`
-	parHeadingFmt = "<ks-fmt-hpar>%s</ks-fmt-hpar>"
-	trackedFmt    = "<ks-fmt-tracked>%s</ks-fmt-tracked>"
+	boldFmtStart    = "<ks-fmt-bold>"
+	boldFmtEnd      = "</ks-fmt-bold>"
+	boldFmt         = boldFmtStart + "%s" + boldFmtEnd
+	emphFmtStart    = "<ks-fmt-emph>"
+	emphFmtEnd      = "</ks-fmt-emph>"
+	emphFmt         = emphFmtStart + "%s" + emphFmtEnd
+	emph2FmtStart   = "<ks-fmt-emph2>"
+	emph2FmtEnd     = "</ks-fmt-emph2>"
+	emph2Fmt        = emph2FmtStart + "%s" + emph2FmtEnd
+	formulaFmtStart = "<ks-fmt-formula>"
+	formulaFmtEnd   = "</ks-fmt-formula>"
+	formulaFmt      = formulaFmtStart + "%s" + formulaFmtEnd
+	headingFmt      = "<ks-fmt-h%d>%s</ks-fmt-h%d>"
+	headMatchStart  = `<ks-fmt-h\d>`
+	headMatchEnd    = `</ks-fmt-h\d>`
+	headMatch       = headMatchStart + `%s` + headMatchEnd
+	langFmt         = `%s`
+	parHeadFmtStart = "<ks-fmt-hpar>"
+	parHeadFmtEnd   = "</ks-fmt-hpar>"
+	parHeadFmt      = parHeadFmtStart + "%s" + parHeadFmtEnd
+	trackedFmtStart = "<ks-fmt-tracked>"
+	trackedFmtEnd   = "</ks-fmt-tracked>"
+	trackedFmt      = trackedFmtStart + "%s" + trackedFmtEnd
 )
 
 func FmtBold(content string) string {
@@ -68,7 +83,7 @@ func FmtLang(lang string) string {
 }
 
 func FmtParHeading(content string) string {
-	return fmt.Sprintf(parHeadingFmt, content)
+	return fmt.Sprintf(parHeadFmt, content)
 }
 
 func FmtTracked(content string) string {
@@ -97,6 +112,37 @@ func RemoveTags(text string) string {
 	re = regexp.MustCompile(`\s+`)
 	text = re.ReplaceAllString(text, " ")
 	return strings.TrimSpace(text)
+}
+
+func MaskTags(input string) string {
+	re := regexp.MustCompile(FnRefMatch)
+	input = re.ReplaceAllStringFunc(input, mask)
+	re = regexp.MustCompile(LineMatch)
+	input = re.ReplaceAllStringFunc(input, mask)
+	re = regexp.MustCompile(PageMatch)
+	input = re.ReplaceAllStringFunc(input, mask)
+	re = regexp.MustCompile(headMatchStart)
+	input = re.ReplaceAllStringFunc(input, mask)
+	re = regexp.MustCompile(headMatchEnd)
+	input = re.ReplaceAllStringFunc(input, mask)
+
+	input = strings.ReplaceAll(input, boldFmtStart, mask(boldFmtStart))
+	input = strings.ReplaceAll(input, boldFmtEnd, mask(boldFmtEnd))
+	input = strings.ReplaceAll(input, emphFmtStart, mask(emphFmtStart))
+	input = strings.ReplaceAll(input, emphFmtEnd, mask(emphFmtEnd))
+	input = strings.ReplaceAll(input, emph2FmtStart, mask(emph2FmtStart))
+	input = strings.ReplaceAll(input, emph2FmtEnd, mask(emph2FmtEnd))
+	input = strings.ReplaceAll(input, formulaFmtStart, mask(formulaFmtStart))
+	input = strings.ReplaceAll(input, formulaFmtEnd, mask(formulaFmtEnd))
+	input = strings.ReplaceAll(input, parHeadFmtStart, mask(parHeadFmtStart))
+	input = strings.ReplaceAll(input, parHeadFmtEnd, mask(parHeadFmtEnd))
+	input = strings.ReplaceAll(input, trackedFmtStart, mask(trackedFmtStart))
+	input = strings.ReplaceAll(input, trackedFmtEnd, mask(trackedFmtEnd))
+	return input
+}
+
+func mask(s string) string {
+	return strings.Repeat("*", len(s))
 }
 
 func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errs.UploadError) {
