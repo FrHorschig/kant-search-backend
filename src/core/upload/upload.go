@@ -49,10 +49,10 @@ func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml st
 		return errs.New(nil, errDelete)
 	}
 
-	errInsert := insertNewData(ctx, rec.volumeRepo, rec.contentRepo, vol, works)
-	if errInsert != nil {
-		deleteExistingData(ctx, rec.volumeRepo, rec.contentRepo, volNr) // ignore the error, because here the insertion error is the more interesting one
-		return errs.New(nil, errInsert)
+	err = insertNewData(ctx, rec.volumeRepo, rec.contentRepo, vol, works)
+	if err.HasError {
+		deleteExistingData(ctx, rec.volumeRepo, rec.contentRepo, volNr) // ignore the potential delete error, because here the insertion error is the more interesting one
+		return err
 	}
 	return errs.Nil()
 }
@@ -79,41 +79,48 @@ func deleteExistingData(ctx context.Context, volRepo dataaccess.VolumeRepo, cont
 }
 
 type loopVariables struct {
-	ctx         context.Context
-	contentRepo dataaccess.ContentRepo
-	fnByRef     map[string]model.Footnote
-	summByRef   map[string]model.Summary
-	workCode    string
-	ordinal     int32
+	fnByRef   map[string]model.Footnote
+	summByRef map[string]model.Summary
+	workCode  string
+	ordinal   int32
+	contents  []esmodel.Content
 }
 
-func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, contentRepo dataaccess.ContentRepo, v *model.Volume, works []model.Work) error {
+func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, contentRepo dataaccess.ContentRepo, v *model.Volume, works []model.Work) errs.UploadError {
 	vol := esmodel.Volume{
 		VolumeNumber: v.VolumeNumber,
-		// TODO section
-		Title: v.Title,
+		Title:        v.Title,
+	}
+
+	loopVars := &loopVariables{
+		contents: []esmodel.Content{},
 	}
 	for i, w := range works {
-		loopVars := &loopVariables{
-			ctx:         ctx,
-			contentRepo: contentRepo,
-			fnByRef:     createFnByRef(w.Footnotes),
-			summByRef:   createSummsByRef(w.Summaries),
-			workCode:    w.Code,
-			ordinal:     int32(1),
-		}
+		loopVars.fnByRef = createFnByRef(w.Footnotes)
+		loopVars.summByRef = createSummsByRef(w.Summaries)
+		loopVars.workCode = w.Code
+		loopVars.ordinal = int32(1)
 		paragraphs, err := insertParagraphs(loopVars, w.Paragraphs)
 		if err != nil {
-			return err
+			return errs.New(nil, err)
 		}
 		sections, err := insertContents(loopVars, w.Sections)
 		if err != nil {
-			return err
+			return errs.New(nil, err)
 		}
 		work := createWork(w, int32(i+1), paragraphs, sections)
 		vol.Works = append(vol.Works, work)
 	}
-	return volRepo.Insert(ctx, &vol)
+
+	err := contentRepo.Insert(ctx, loopVars.contents)
+	if err != nil {
+		return errs.New(nil, err)
+	}
+	err = volRepo.Insert(ctx, &vol)
+	if err != nil {
+		return errs.New(nil, err)
+	}
+	return errs.Nil()
 }
 
 func createFnByRef(footnotes []model.Footnote) map[string]model.Footnote {
@@ -177,10 +184,7 @@ func insertHeading(lv *loopVariables, h model.Heading) (int32, error) {
 		fn := lv.fnByRef[fnRef]
 		contents[i+1] = createFootnote(lv, fn)
 	}
-	err := lv.contentRepo.Insert(lv.ctx, contents)
-	if err != nil {
-		return 0, err
-	}
+	lv.contents = append(lv.contents, contents...)
 	return contents[0].Ordinal, nil
 }
 
@@ -205,10 +209,7 @@ func insertParagraphs(lv *loopVariables, paragraphs []model.Paragraph) ([]int32,
 			toInsert = append(toInsert, createFootnote(lv, lv.fnByRef[fnRef]))
 		}
 	}
-	err := lv.contentRepo.Insert(lv.ctx, toInsert)
-	if err != nil {
-		return nil, err
-	}
+	lv.contents = append(lv.contents, toInsert...)
 	return parOrds, nil
 }
 

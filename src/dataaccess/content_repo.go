@@ -11,6 +11,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/deletebyquery"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/operationtype"
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
@@ -42,11 +43,57 @@ func NewContentRepo(dbClient *elasticsearch.TypedClient) ContentRepo {
 		dbClient:  dbClient,
 		indexName: "contents",
 	}
-	err := util.CreateIndex(repo.dbClient, repo.indexName, esmodel.ContentMapping)
+	err := createContentIndex(repo.dbClient, repo.indexName)
 	if err != nil {
 		panic(err)
 	}
 	return repo
+}
+
+func createContentIndex(es *elasticsearch.TypedClient, name string) error {
+	ctx := context.Background()
+	ok, err := es.Indices.Exists(name).Do(ctx)
+	if err != nil {
+		return err
+	}
+	if ok {
+		return nil
+	}
+
+	res, err := es.Indices.Create(name).Request(&create.Request{
+		Mappings: esmodel.ContentMapping,
+		Settings: buildSettings(),
+	}).Do(ctx)
+	if err != nil {
+		return err
+	}
+	if !res.Acknowledged {
+		return fmt.Errorf("creation of index '%s' not acknowledged", name)
+	}
+	return err
+}
+
+func buildSettings() *types.IndexSettings {
+	return &types.IndexSettings{
+		Analysis: &types.IndexSettingsAnalysis{
+			Analyzer: map[string]types.Analyzer{
+				"german_stemming_analyzer": &types.CustomAnalyzer{
+					Tokenizer: "standard",
+					Filter: []string{
+						"lowercase",            // only case-insensitive
+						"german_normalization", // normalize Umlauts and ß
+						"german_stemmer",       // see below
+					},
+				},
+			},
+			Filter: map[string]types.TokenFilter{
+				"german_stemmer": &types.StemmerTokenFilter{
+					Type:     "stemmer",
+					Language: commonutil.StrPtr("german"),
+				},
+			},
+		},
+	}
 }
 
 func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) error {

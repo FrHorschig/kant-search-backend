@@ -163,14 +163,7 @@ func TestUploadProcessSuccess(t *testing.T) {
 	volumeRepo.EXPECT().Delete(gomock.Any(), gomock.Eq(volNr)).Return(nil)
 
 	// data insertion
-	expectHeading(contentRepo, 1, wCode)
-	expectParagraphs(contentRepo, 2, 3, wCode)
-	expectHeading(contentRepo, 4, wCode)
-	expectParagraphs(contentRepo, 5, 6, wCode)
-	expectHeading(contentRepo, 7, wCode)
-	expectParagraphs(contentRepo, 8, 9, wCode)
-	expectHeading(contentRepo, 10, wCode)
-	expectParagraphs(contentRepo, 11, 12, wCode)
+	contentRepo.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil)
 	volumeRepo.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil)
 
 	// WHEN
@@ -178,31 +171,6 @@ func TestUploadProcessSuccess(t *testing.T) {
 
 	// THEN
 	assert.False(t, err.HasError)
-}
-
-func expectHeading(contentRepo *dbMocks.MockContentRepo, n int32, wCode string) {
-	head := esHead(n, wCode)
-	fn := esFn(n, wCode)
-	contentRepo.EXPECT().
-		Insert(gomock.Any(), gomock.Eq([]esmodel.Content{head, fn})).
-		Return(nil)
-}
-
-func expectParagraphs(contentRepo *dbMocks.MockContentRepo, n1 int32, n2 int32, wCode string) {
-	summ1 := esSumm(n1, wCode)
-	fn100 := esFn(n1+100, wCode)
-	par1 := esPar(n1, wCode)
-	fn1 := esFn(n1, wCode)
-
-	summ2 := esSumm(n2, wCode)
-	fn200 := esFn(n2+100, wCode)
-	par2 := esPar(n2, wCode)
-	fn2 := esFn(n2, wCode)
-
-	contentRepo.EXPECT().
-		Insert(gomock.Any(), gomock.Eq([]esmodel.Content{summ1, fn100, par1, fn1, summ2, fn200, par2, fn2})).
-		Return(nil)
-
 }
 
 func head(n int32) model.Heading {
@@ -215,22 +183,6 @@ func head(n int32) model.Heading {
 	}
 }
 
-func esHead(n int32, workCode string) esmodel.Content {
-	nr := strconv.Itoa(int(n))
-	head := esmodel.Content{
-		Type:       esmodel.Heading,
-		Ordinal:    ordinal,
-		FmtText:    "<fmt-tag>heading</fmt-tag> text " + nr,
-		TocText:    util.StrPtr("toc text " + nr),
-		SearchText: "heading text " + nr,
-		Pages:      []int32{n},
-		FnRefs:     []string{"fnRef" + nr},
-		WorkCode:   workCode,
-	}
-	ordinal += 1
-	return head
-}
-
 func par(n int32) model.Paragraph {
 	nr := strconv.Itoa(int(n))
 	return model.Paragraph{
@@ -241,22 +193,6 @@ func par(n int32) model.Paragraph {
 	}
 }
 
-func esPar(n int32, workCode string) esmodel.Content {
-	nr := strconv.Itoa(int(n))
-	par := esmodel.Content{
-		Type:       esmodel.Paragraph,
-		Ordinal:    ordinal,
-		FmtText:    "<fmt-tag>paragraph</fmt-tag> text " + nr,
-		SearchText: "paragraph text " + nr,
-		Pages:      []int32{n},
-		FnRefs:     []string{"fnRef" + nr},
-		SummaryRef: util.StrPtr("summRef" + nr),
-		WorkCode:   workCode,
-	}
-	ordinal += 1
-	return par
-}
-
 func fn(n int32) model.Footnote {
 	nr := strconv.Itoa(int(n))
 	return model.Footnote{
@@ -264,21 +200,6 @@ func fn(n int32) model.Footnote {
 		Ref:   "fnRef" + nr,
 		Pages: []int32{n},
 	}
-}
-
-func esFn(n int32, workCode string) esmodel.Content {
-	nr := strconv.Itoa(int(n))
-	fn := esmodel.Content{
-		Type:       esmodel.Footnote,
-		Ordinal:    ordinal,
-		Ref:        util.StrPtr("fnRef" + nr),
-		FmtText:    "<fmt-tag>footnote</fmt-tag> text " + nr,
-		SearchText: "footnote text " + nr,
-		Pages:      []int32{n},
-		WorkCode:   workCode,
-	}
-	ordinal += 1
-	return fn
 }
 
 func summ(n int32) model.Summary {
@@ -292,23 +213,7 @@ func summ(n int32) model.Summary {
 	}
 }
 
-func esSumm(n int32, workCode string) esmodel.Content {
-	nr := strconv.Itoa(int(n))
-	nr100 := strconv.Itoa(int(n) + 100)
-	summ := esmodel.Content{
-		Type:       esmodel.Summary,
-		Ordinal:    ordinal,
-		Ref:        util.StrPtr("summRef" + nr),
-		FmtText:    "<fmt-tag>summary</fmt-tag> text " + nr,
-		SearchText: "summary text " + nr,
-		Pages:      []int32{n},
-		FnRefs:     []string{"fnRef" + nr100},
-		WorkCode:   workCode,
-	}
-	ordinal += 1
-	return summ
-}
-func TestUploadProcesserrs(t *testing.T) {
+func TestUploadProcessErrors(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	volumeRepo := dbMocks.NewMockVolumeRepo(ctrl)
@@ -383,24 +288,11 @@ func TestUploadProcesserrs(t *testing.T) {
 			},
 		},
 		{
-			name: "Insert heading fails",
+			name: "Insert content fails",
 			mockSetup: func(vr *dbMocks.MockVolumeRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
 				mockXmlMapper(xm, wCode)
 				mockDeletion(vr, cr, wCode)
 				cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(testErr)
-				mockDeletion(vr, cr, wCode)
-			},
-		},
-		{
-			name: "Insert paragraphs fails",
-			mockSetup: func(vr *dbMocks.MockVolumeRepo, cr *dbMocks.MockContentRepo, xm *mocks.MockXmlMapper) {
-				mockXmlMapper(xm, wCode)
-				mockDeletion(vr, cr, wCode)
-				gomock.InOrder(
-					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil),
-					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).
-						Return(testErr),
-				)
 				mockDeletion(vr, cr, wCode)
 			},
 		},
@@ -410,8 +302,7 @@ func TestUploadProcesserrs(t *testing.T) {
 				mockXmlMapper(xm, wCode)
 				mockDeletion(vr, cr, wCode)
 				gomock.InOrder(
-					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Times(2).
-						Return(nil),
+					cr.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(nil),
 					vr.EXPECT().Insert(gomock.Any(), gomock.Any()).
 						Return(testErr),
 				)

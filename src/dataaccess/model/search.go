@@ -1,6 +1,6 @@
 package model
 
-// TODO move these models to core/search/internal and create new ones with only the necessary fields
+// TODO move these models to core/search/internal and create new ones with only the necessary fields; also check if phrase search works
 type AstNode struct {
 	Left  *AstNode
 	Right *AstNode

@@ -10,11 +10,11 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/deletebyquery"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/result"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/sortorder"
 	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
-	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
@@ -35,11 +35,33 @@ func NewVolumeRepo(dbClient *elasticsearch.TypedClient) VolumeRepo {
 		dbClient:  dbClient,
 		indexName: "volumes",
 	}
-	err := util.CreateIndex(repo.dbClient, repo.indexName, esmodel.VolumeMapping)
+	err := createVolumeIndex(repo.dbClient, repo.indexName)
 	if err != nil {
 		panic(err)
 	}
 	return repo
+}
+
+func createVolumeIndex(es *elasticsearch.TypedClient, name string) error {
+	ctx := context.Background()
+	ok, err := es.Indices.Exists(name).Do(ctx)
+	if err != nil {
+		return err
+	}
+	if ok {
+		return nil
+	}
+
+	res, err := es.Indices.Create(name).Request(&create.Request{
+		Mappings: esmodel.VolumeMapping,
+	}).Do(ctx)
+	if err != nil {
+		return err
+	}
+	if !res.Acknowledged {
+		return fmt.Errorf("creation of index '%s' not acknowledged", name)
+	}
+	return err
 }
 
 // TODO disallow partial results everywhere
