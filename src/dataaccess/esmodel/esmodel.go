@@ -104,12 +104,21 @@ type Content struct {
 
 var ContentMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
-		"type":       types.NewKeywordProperty(),
-		"ordinal":    types.NewIntegerNumberProperty(),
-		"ref":        &types.TextProperty{Index: util.FalsePtr()},
-		"fmtText":    &types.TextProperty{Index: util.FalsePtr()},
-		"tocText":    &types.TextProperty{Index: util.FalsePtr()},
-		"searchText": types.NewTextProperty(),
+		"type":    types.NewKeywordProperty(),
+		"ordinal": types.NewIntegerNumberProperty(),
+		"ref":     &types.TextProperty{Index: util.FalsePtr()},
+		"fmtText": &types.TextProperty{Index: util.FalsePtr()},
+		"tocText": &types.TextProperty{Index: util.FalsePtr()},
+		"searchText": types.TextProperty{
+			Fields: map[string]types.Property{
+				"no_stemming": &types.TextProperty{
+					Analyzer: util.StrPtr("no_stemming_analyzer"),
+				},
+				"german_stemming": &types.TextProperty{
+					Analyzer: util.StrPtr("german_analyzer"),
+				},
+			},
+		},
 		"pages":      &types.TextProperty{Index: util.FalsePtr()},
 		"fnRefs":     &types.TextProperty{Index: util.FalsePtr()},
 		"summaryRef": &types.TextProperty{Index: util.FalsePtr()},

@@ -77,13 +77,13 @@ func buildSettings() *types.IndexSettings {
 	return &types.IndexSettings{
 		Analysis: &types.IndexSettingsAnalysis{
 			Analyzer: map[string]types.Analyzer{
-				"german_stemming_analyzer": &types.CustomAnalyzer{
+				"german_analyzer": &types.CustomAnalyzer{
 					Tokenizer: "standard",
-					Filter: []string{
-						"lowercase",            // only case-insensitive
-						"german_normalization", // normalize Umlauts and ß
-						"german_stemmer",       // see below
-					},
+					Filter:    []string{"lowercase", "german_stemmer"},
+				},
+				"no_stemming_analyzer": &types.CustomAnalyzer{
+					Tokenizer: "standard",
+					Filter:    []string{"lowercase"},
 				},
 			},
 			Filter: map[string]types.TokenFilter{
@@ -259,7 +259,9 @@ func (rec *contentRepoImpl) DeleteByWork(ctx context.Context, workCode string) e
 		}
 		return fmt.Errorf("unable to delete work with code %s", workCode)
 	}
-	return nil
+
+	_, err = rec.dbClient.Indices.Refresh().Index(rec.indexName).Do(ctx)
+	return err
 }
 
 func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error) {
@@ -284,7 +286,7 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 			},
 			Sort:      util.CreateSortOptions(),
 			Highlight: util.CreateHighlightOptions(),
-			Size:      commonutil.IntPtr(10000), // TODO check: what to do when there are more results; and how to show them in the frontend
+			Size:      commonutil.IntPtr(10000),
 		}).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -297,9 +299,8 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 		if err != nil {
 			return nil, err
 		}
-		// TODO later: set numbers of fragments to zero, then extract the indices of the pre and post highlight tag, then map them to the fmtText field, use it with the indices for a) showing the full paragraph with highlighting and b) finding the exact page and line number of a match
 		results = append(results, model.SearchResult{
-			Snippets: createSnippets(hit.Highlight["searchText"]),
+			Snippets: hit.Highlight["searchText.german_stemming"],
 			Pages:    c.Pages,
 			Ordinal:  c.Ordinal,
 			WorkCode: c.WorkCode,
