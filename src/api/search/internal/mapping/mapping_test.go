@@ -16,9 +16,12 @@ func TestCriteriaToCoreModel(t *testing.T) {
 	criteria := models.SearchCriteria{
 		SearchTerms: "search terms",
 		Options: models.SearchOptions{
-			IncludeHeadings: false,
-			Scope:           models.SearchScope("PARAGRAPH"),
-			WorkCodes:       []string{"id1", "id2"},
+			IncludeHeadings:  false,
+			IncludeFootnotes: true,
+			IncludeSummaries: false,
+			Scope:            models.SearchScope("PARAGRAPH"),
+			WithStemming:     true,
+			WorkCodes:        []string{"id1", "id2"},
 		},
 	}
 
