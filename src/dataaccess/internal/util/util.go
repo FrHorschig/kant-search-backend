@@ -65,7 +65,7 @@ func CreateSortOptions() []types.SortCombinations {
 func CreateHighlightOptions() *types.Highlight {
 	return &types.Highlight{
 		Fields: map[string]types.HighlightField{
-			"searchText": {
+			"searchText.german_stemming": {
 				FragmentSize:      util.IntPtr(150),
 				NumberOfFragments: util.IntPtr(5),
 			},
@@ -164,7 +164,7 @@ func createPhraseQuery(phrase string) *types.Query {
 func createTextMatchQuery(term string) *types.Query {
 	return &types.Query{
 		Match: map[string]types.MatchQuery{
-			"searchText": {Query: term},
+			"searchText.german_stemming": {Query: term},
 		},
 	}
 }

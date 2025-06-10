@@ -152,5 +152,7 @@ func (rec *volumeRepoImpl) Delete(ctx context.Context, volNr int32) error {
 		}
 		return fmt.Errorf("unable to delete volume %d", volNr)
 	}
-	return nil
+
+	_, err = rec.dbClient.Indices.Refresh().Index(rec.indexName).Do(ctx)
+	return err
 }
