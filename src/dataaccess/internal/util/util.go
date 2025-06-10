@@ -30,21 +30,21 @@ func CreateContentQuery(workCode string, cType []esmodel.Type) *types.Query {
 	}
 }
 
-func CreateSearchQuery(node *model.AstNode) (*types.Query, error) {
+func CreateSearchQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Query, error) {
 	if node == nil {
 		return nil, nil
 	}
 	if node.Token.IsAnd {
-		return createAndQuery(node)
+		return createAndQuery(node, analyzer)
 	}
 	if node.Token.IsOr {
-		return createOrQuery(node)
+		return createOrQuery(node, analyzer)
 	}
 	if node.Token.IsNot {
-		return createNotQuery(node)
+		return createNotQuery(node, analyzer)
 	}
 	if node.Token.IsWord {
-		return createTextMatchQuery(node.Token.Text), nil
+		return createTextMatchQuery(node.Token.Text, analyzer), nil
 	}
 	if node.Token.IsPhrase {
 		return createPhraseQuery(node.Token.Text), nil
@@ -62,10 +62,10 @@ func CreateSortOptions() []types.SortCombinations {
 	}
 }
 
-func CreateHighlightOptions() *types.Highlight {
+func CreateHighlightOptions(analyzer esmodel.Analyzer) *types.Highlight {
 	return &types.Highlight{
 		Fields: map[string]types.HighlightField{
-			"searchText.german_stemming": {
+			"searchText." + string(analyzer): {
 				FragmentSize:      util.IntPtr(150),
 				NumberOfFragments: util.IntPtr(5),
 			},
@@ -97,12 +97,12 @@ func CreateOrdinalQuery(ordinals []int32) types.Query {
 	}
 }
 
-func createAndQuery(node *model.AstNode) (*types.Query, error) {
-	q1, err := CreateSearchQuery(node.Left)
+func createAndQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Query, error) {
+	q1, err := CreateSearchQuery(node.Left, analyzer)
 	if err != nil {
 		return nil, err
 	}
-	q2, err := CreateSearchQuery(node.Right)
+	q2, err := CreateSearchQuery(node.Right, analyzer)
 	if err != nil {
 		return nil, err
 	}
@@ -114,12 +114,12 @@ func createAndQuery(node *model.AstNode) (*types.Query, error) {
 	}}, nil
 }
 
-func createOrQuery(node *model.AstNode) (*types.Query, error) {
-	q1, err := CreateSearchQuery(node.Left)
+func createOrQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Query, error) {
+	q1, err := CreateSearchQuery(node.Left, analyzer)
 	if err != nil {
 		return nil, err
 	}
-	q2, err := CreateSearchQuery(node.Right)
+	q2, err := CreateSearchQuery(node.Right, analyzer)
 	if err != nil {
 		return nil, err
 	}
@@ -131,13 +131,13 @@ func createOrQuery(node *model.AstNode) (*types.Query, error) {
 	}}, nil
 }
 
-func createNotQuery(node *model.AstNode) (*types.Query, error) {
-	q1, err := CreateSearchQuery(node.Left)
+func createNotQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Query, error) {
+	q1, err := CreateSearchQuery(node.Left, analyzer)
 	if err != nil {
 		return nil, err
 	}
 	if q1 == nil {
-		q2, err := CreateSearchQuery(node.Right)
+		q2, err := CreateSearchQuery(node.Right, analyzer)
 		if err != nil {
 			return nil, err
 		}
@@ -156,15 +156,15 @@ func createNotQuery(node *model.AstNode) (*types.Query, error) {
 func createPhraseQuery(phrase string) *types.Query {
 	return &types.Query{
 		MatchPhrase: map[string]types.MatchPhraseQuery{
-			"searchText": {Query: phrase},
+			"searchText.": {Query: phrase},
 		},
 	}
 }
 
-func createTextMatchQuery(term string) *types.Query {
+func createTextMatchQuery(term string, analyzer esmodel.Analyzer) *types.Query {
 	return &types.Query{
 		Match: map[string]types.MatchQuery{
-			"searchText.german_stemming": {Query: term},
+			"searchText." + string(analyzer): {Query: term},
 		},
 	}
 }

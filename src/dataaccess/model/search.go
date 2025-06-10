@@ -29,6 +29,7 @@ type SearchOptions struct {
 	IncludeFootnotes bool
 	IncludeSummaries bool
 	Scope            SearchScope
+	WithStemming     bool
 	WorkCodes        []string
 }
 

@@ -77,17 +77,17 @@ func buildSettings() *types.IndexSettings {
 	return &types.IndexSettings{
 		Analysis: &types.IndexSettingsAnalysis{
 			Analyzer: map[string]types.Analyzer{
-				"german_analyzer": &types.CustomAnalyzer{
-					Tokenizer: "standard",
-					Filter:    []string{"lowercase", "german_stemmer"},
-				},
-				"no_stemming_analyzer": &types.CustomAnalyzer{
+				string(esmodel.NoStemming): &types.CustomAnalyzer{
 					Tokenizer: "standard",
 					Filter:    []string{"lowercase"},
 				},
+				string(esmodel.GermanStemming): &types.CustomAnalyzer{
+					Tokenizer: "standard",
+					Filter:    []string{"lowercase", string(esmodel.GermanStemming)},
+				},
 			},
 			Filter: map[string]types.TokenFilter{
-				"german_stemmer": &types.StemmerTokenFilter{
+				string(esmodel.GermanStemming): &types.StemmerTokenFilter{
 					Type:     "stemmer",
 					Language: commonutil.StrPtr("german"),
 				},
@@ -265,7 +265,11 @@ func (rec *contentRepoImpl) DeleteByWork(ctx context.Context, workCode string) e
 }
 
 func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error) {
-	searchQuery, err := util.CreateSearchQuery(ast)
+	analyzer := esmodel.NoStemming
+	if options.WithStemming {
+		analyzer = esmodel.GermanStemming
+	}
+	searchQuery, err := util.CreateSearchQuery(ast, analyzer)
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +279,6 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 	}
 	optionQueries := util.CreateOptionQueries(options)
 
-	// TODO check if sorting make this so slow
 	res, err := rec.dbClient.Search().Index(rec.indexName).Request(
 		&search.Request{
 			Query: &types.Query{
@@ -285,7 +288,7 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 				},
 			},
 			Sort:      util.CreateSortOptions(),
-			Highlight: util.CreateHighlightOptions(),
+			Highlight: util.CreateHighlightOptions(analyzer),
 			Size:      commonutil.IntPtr(10000),
 		}).Do(ctx)
 	if err != nil {
@@ -300,7 +303,7 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 			return nil, err
 		}
 		results = append(results, model.SearchResult{
-			Snippets: hit.Highlight["searchText.german_stemming"],
+			Snippets: hit.Highlight["searchText."+string(analyzer)],
 			Pages:    c.Pages,
 			Ordinal:  c.Ordinal,
 			WorkCode: c.WorkCode,

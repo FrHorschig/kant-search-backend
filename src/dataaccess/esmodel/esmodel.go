@@ -89,6 +89,13 @@ const (
 	Summary   Type = "summary"
 )
 
+type Analyzer string
+
+const (
+	NoStemming     Analyzer = "noStemming"
+	GermanStemming Analyzer = "germanStemming"
+)
+
 type Content struct {
 	Type       Type     `json:"type"`
 	Ordinal    int32    `json:"ordinal"` // used for sorting search results
@@ -111,11 +118,11 @@ var ContentMapping = &types.TypeMapping{
 		"tocText": &types.TextProperty{Index: util.FalsePtr()},
 		"searchText": types.TextProperty{
 			Fields: map[string]types.Property{
-				"no_stemming": &types.TextProperty{
-					Analyzer: util.StrPtr("no_stemming_analyzer"),
+				string(NoStemming): &types.TextProperty{
+					Analyzer: util.StrPtr(string(NoStemming)),
 				},
-				"german_stemming": &types.TextProperty{
-					Analyzer: util.StrPtr("german_analyzer"),
+				string(GermanStemming): &types.TextProperty{
+					Analyzer: util.StrPtr(string(GermanStemming)),
 				},
 			},
 		},

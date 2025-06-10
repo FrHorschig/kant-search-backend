@@ -11,6 +11,7 @@ func CriteriaToCoreModel(in *models.SearchCriteria) (string, model.SearchOptions
 		IncludeFootnotes: in.Options.IncludeFootnotes,
 		IncludeSummaries: in.Options.IncludeSummaries,
 		Scope:            model.SearchScope(in.Options.Scope),
+		WithStemming:     in.Options.WithStemming,
 		WorkCodes:        in.Options.WorkCodes,
 	}
 }
