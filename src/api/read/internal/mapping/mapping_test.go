@@ -21,7 +21,7 @@ func TestVolumesToApiModels(t *testing.T) {
 					Code:         "C1",
 					Abbreviation: util.StrPtr("abbr"),
 					Title:        "The Work",
-					Year:         util.StrPtr("2024"),
+					Year:         "2024",
 					Sections: []esmodel.Section{
 						{
 							Heading:    1,

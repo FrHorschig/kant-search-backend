@@ -47,7 +47,7 @@ func TestUploadProcessSuccess(t *testing.T) {
 		Code:         wCode,
 		Abbreviation: util.StrPtr("abbrev"),
 		Title:        "work title",
-		Year:         util.StrPtr("1785"),
+		Year:         "1785",
 		Sections: []model.Section{
 			{
 				Heading: head(1),
@@ -176,7 +176,7 @@ func TestUploadProcessSuccess(t *testing.T) {
 func head(n int32) model.Heading {
 	nr := strconv.Itoa(int(n))
 	return model.Heading{
-		Text:    "<fmt-tag>heading</fmt-tag> text " + nr,
+		Text:    "<ks-fmt-h1>heading</ks-fmt-h1> text " + nr,
 		TocText: "toc text " + nr,
 		Pages:   []int32{n},
 		FnRefs:  []string{"fnRef" + nr},
@@ -186,7 +186,7 @@ func head(n int32) model.Heading {
 func par(n int32) model.Paragraph {
 	nr := strconv.Itoa(int(n))
 	return model.Paragraph{
-		Text:       "<fmt-tag>paragraph</fmt-tag> text " + nr,
+		Text:       "<ks-fmt-bold>paragraph</ks-fmt-bold> text " + nr,
 		Pages:      []int32{n},
 		FnRefs:     []string{"fnRef" + nr},
 		SummaryRef: util.StrPtr("summRef" + nr),
@@ -196,7 +196,7 @@ func par(n int32) model.Paragraph {
 func fn(n int32) model.Footnote {
 	nr := strconv.Itoa(int(n))
 	return model.Footnote{
-		Text:  "<fmt-tag>footnote</fmt-tag> text " + nr,
+		Text:  "<ks-fmt-emph>footnote</ks-fmt-emph> text " + nr,
 		Ref:   "fnRef" + nr,
 		Pages: []int32{n},
 	}
@@ -206,7 +206,7 @@ func summ(n int32) model.Summary {
 	nr := strconv.Itoa(int(n))
 	nr100 := strconv.Itoa(int(n) + 100)
 	return model.Summary{
-		Text:   "<fmt-tag>summary</fmt-tag> text " + nr,
+		Text:   "<ks-fmt-tracked>summary</ks-fmt-tracked> text " + nr,
 		Ref:    "summRef" + nr,
 		Pages:  []int32{n},
 		FnRefs: []string{"fnRef" + nr100},
@@ -327,7 +327,7 @@ func mockXmlMapper(mapper *mocks.MockXmlMapper, wCode string) {
 			Code:         wCode,
 			Title:        "t",
 			Abbreviation: util.StrPtr("abbr"),
-			Year:         util.StrPtr("2024"),
+			Year:         "2024",
 			Sections: []model.Section{{
 				Heading: head(1),
 				Paragraphs: []model.Paragraph{

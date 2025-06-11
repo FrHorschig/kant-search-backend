@@ -25,7 +25,7 @@ func TestVolumeRepo(t *testing.T) {
 			Code:         "GMS",
 			Abbreviation: util.StrPtr("GMS"),
 			Title:        "Grundlegung zur Metaphysik der Sitten",
-			Year:         util.StrPtr("1785"),
+			Year:         "1785",
 			Ordinal:      1,
 			Sections: []esmodel.Section{{
 				Heading:    1,
@@ -45,7 +45,7 @@ func TestVolumeRepo(t *testing.T) {
 			Code:         "KPV",
 			Abbreviation: util.StrPtr("KPV"),
 			Title:        "Kritik der praktischen Vernunft",
-			Year:         util.StrPtr("1788"),
+			Year:         "1788",
 			Ordinal:      1,
 			Sections: []esmodel.Section{{
 				Heading:    1,

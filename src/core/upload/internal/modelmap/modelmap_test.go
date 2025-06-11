@@ -20,11 +20,12 @@ func TestModelMapping(t *testing.T) {
 		model       []model.Work
 		expectError bool
 	}{
+		// TODO re-add all the deleted tests from here!!!
 		{
 			name: "Merge summaries into paragraphs",
 			volume: metadata.VolumeMetadata{
 				VolumeNumber: 1,
-				Works:        []metadata.WorkMetadata{{Code: "code"}, {Code: "code2"}},
+				Works:        []metadata.WorkMetadata{{Code: "code", Year: commonutil.StrPtr("1234")}, {Code: "code2", Year: commonutil.StrPtr("5678")}},
 			},
 			sections: []model.TreeSection{
 				{
@@ -56,6 +57,7 @@ func TestModelMapping(t *testing.T) {
 				{
 					Title: "work",
 					Code:  "code",
+					Year:  "1234",
 					Sections: []model.Section{{
 						Heading: model.Heading{Text: "h1", Pages: []int32{1}},
 						Paragraphs: []model.Paragraph{
@@ -77,6 +79,7 @@ func TestModelMapping(t *testing.T) {
 				{
 					Title: "work2",
 					Code:  "code2",
+					Year:  "5678",
 					Sections: []model.Section{{
 						Heading: model.Heading{Text: page(102) + "2h1", Pages: []int32{102}},
 						Paragraphs: []model.Paragraph{
@@ -114,7 +117,7 @@ func TestModelMapping(t *testing.T) {
 func assertWork(t *testing.T, exp model.Work, act model.Work) {
 	assert.NotNil(t, exp)
 	assert.NotNil(t, act)
-	assert.Equal(t, commonutil.StrVal(exp.Year), commonutil.StrVal(act.Year))
+	assert.Equal(t, exp.Year, act.Year)
 
 	assert.Equal(t, len(exp.Sections), len(act.Sections))
 	for i := range exp.Sections {

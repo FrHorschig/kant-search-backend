@@ -34,6 +34,7 @@ type VolumeMetadata struct {
 type WorkMetadata struct {
 	Code         string  `json:"code"`
 	Abbreviation *string `json:"abbreviation,omitempty"`
+	Year         *string `json:"year,omitempty"`
 }
 
 func (rec *metadataImpl) Read(volNr int32) (VolumeMetadata, error) {

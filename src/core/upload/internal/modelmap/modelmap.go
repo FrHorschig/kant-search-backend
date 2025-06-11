@@ -64,18 +64,24 @@ func mapWork(h0 model.TreeSection, metadata metadata.VolumeMetadata, index int) 
 	work.Code = metadata.Works[index].Code
 	work.Abbreviation = metadata.Works[index].Abbreviation
 	work.Title = h0.Heading.TocTitle
-	work.Year = &h0.Heading.Year
+	if h0.Heading.Year != "" {
+		work.Year = h0.Heading.Year
+	} else if metadata.Works[index].Year != nil {
+		work.Year = *metadata.Works[index].Year
+	} else {
+		return model.Work{}, errs.New(fmt.Errorf("the year for the work '%s' can neither be found in the XML data nor in the volume metadata", work.Title), nil)
+	}
 	for _, p := range h0.Paragraphs {
 		par, err := mapParagraph(p)
 		if err.HasError {
-			return work, err
+			return model.Work{}, err
 		}
 		work.Paragraphs = append(work.Paragraphs, par)
 	}
 	for _, s := range h0.Sections {
 		sec, err := mapSection(s)
 		if err.HasError {
-			return work, err
+			return model.Work{}, err
 		}
 		work.Sections = append(work.Sections, sec)
 	}

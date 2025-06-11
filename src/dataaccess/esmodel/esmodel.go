@@ -17,7 +17,7 @@ type Work struct {
 	Code         string    `json:"code"`
 	Abbreviation *string   `json:"abbreviation"`
 	Title        string    `json:"title"`
-	Year         *string   `json:"year"`
+	Year         string    `json:"year"`
 	Ordinal      int32     `json:"ordinal"`
 	Paragraphs   []int32   `json:"paragraphs"`
 	Sections     []Section `json:"sections"`
