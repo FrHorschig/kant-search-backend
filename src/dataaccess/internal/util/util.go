@@ -47,7 +47,7 @@ func CreateSearchQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Q
 		return createTextMatchQuery(node.Token.Text, analyzer), nil
 	}
 	if node.Token.IsPhrase {
-		return createPhraseQuery(node.Token.Text), nil
+		return createPhraseQuery(node.Token.Text, analyzer), nil
 	}
 	return nil, errors.New("invalid token type")
 }
@@ -153,10 +153,10 @@ func createNotQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Quer
 	}}, nil
 }
 
-func createPhraseQuery(phrase string) *types.Query {
+func createPhraseQuery(phrase string, analyzer esmodel.Analyzer) *types.Query {
 	return &types.Query{
 		MatchPhrase: map[string]types.MatchPhraseQuery{
-			"searchText.": {Query: phrase},
+			"searchText." + string(analyzer): {Query: phrase},
 		},
 	}
 }

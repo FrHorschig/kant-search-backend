@@ -226,7 +226,6 @@ func TestSearch(t *testing.T) {
 			},
 			hitCount: 2,
 		},
-		// TODO: test phrase search
 	}
 
 	for _, tc := range testdata {
