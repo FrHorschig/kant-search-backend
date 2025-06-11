@@ -10,7 +10,7 @@ type Work struct {
 	Code         string
 	Abbreviation *string
 	Title        string
-	Year         *string
+	Year         string
 	Paragraphs   []Paragraph
 	Sections     []Section
 	Footnotes    []Footnote

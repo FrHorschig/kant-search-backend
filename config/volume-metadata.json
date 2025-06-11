@@ -29,7 +29,7 @@
       { "code": "NG", "abbreviation": "NG" },
       { "code": "GSE", "abbreviation": "GSE" },
       { "code": "VKK", "abbreviation": "VKK" },
-      { "code": "REZ_SIL_2", "abbreviation": "" },
+      { "code": "REZ_SIL_2" },
       { "code": "UD", "abbreviation": "UD" },
       { "code": "NEV", "abbreviation": "NEV" },
       { "code": "TG", "abbreviation": "TG" },
@@ -43,7 +43,7 @@
   {
     "volumeNumber": 3,
     "title": "Kritik der reinen Vernunft (2. Aufl. 1787)",
-    "works": [{ "code": "KRV_B", "abbreviation": "KrV B" }]
+    "works": [{ "code": "KRV_B", "abbreviation": "KrV B", "year": "1787" }]
   },
   {
     "volumeNumber": 4,
@@ -83,34 +83,34 @@
     "volumeNumber": 8,
     "title": "Abhandlungen nach 1781",
     "works": [
-      { "code": "LAMBERT_BRIEFWECHSEL", "abbreviation": "" },
-      { "code": "NACHRICHT_AERZTE", "abbreviation": "" },
+      { "code": "LAMBERT_BRIEFWECHSEL" },
+      { "code": "NACHRICHT_AERZTE" },
       { "code": "REZ_SCHULZ", "abbreviation": "RezSchulz" },
-      { "code": "IDEE_GESCHICHTE", "abbreviation": "" },
-      { "code": "FRAGE_AUFKLAERUNG", "abbreviation": "" },
+      { "code": "IDEE_GESCHICHTE" },
+      { "code": "FRAGE_AUFKLAERUNG" },
       { "code": "REZ_HERDER", "abbreviation": "RezHerder" },
-      { "code": "VULKANE", "abbreviation": "" },
+      { "code": "VULKANE" },
       { "code": "VUB", "abbreviation": "VUB" },
-      { "code": "MENSCHENRACE", "abbreviation": "" },
-      { "code": "MENSCHENGESCH", "abbreviation": "" },
+      { "code": "MENSCHENRACE" },
+      { "code": "MENSCHENGESCH" },
       { "code": "REZ_HUFELAND", "abbreviation": "RezHufeland" },
       { "code": "WDO", "abbreviation": "WDO" },
-      { "code": "BEM_MORGEN", "abbreviation": "" },
+      { "code": "BEM_MORGEN" },
       { "code": "UEGTP", "abbreviation": "ÜGTP" },
       { "code": "UEE", "abbreviation": "ÜE" },
-      { "code": "THEODICEE", "abbreviation": "" },
+      { "code": "THEODICEE" },
       { "code": "TP", "abbreviation": "TP" },
-      { "code": "WITTERUNG", "abbreviation": "" },
-      { "code": "EAD", "abbreviation": "" },
+      { "code": "WITTERUNG" },
+      { "code": "EAD" },
       { "code": "ZEF", "abbreviation": "ZeF" },
       { "code": "VT", "abbreviation": "VT" },
-      { "code": "AUSGLEICH", "abbreviation": "" },
+      { "code": "AUSGLEICH" },
       { "code": "VNAEF", "abbreviation": "VNAEF" },
       { "code": "VRML", "abbreviation": "VRML" },
-      { "code": "BUCHMACHEREI", "abbreviation": "" },
-      { "code": "REL_PHIL", "abbreviation": "" },
-      { "code": "WOERTERBUCH", "abbreviation": "" },
-      { "code": "REZ_SIL_8", "abbreviation": "" },
+      { "code": "BUCHMACHEREI" },
+      { "code": "REL_PHIL" },
+      { "code": "WOERTERBUCH" },
+      { "code": "REZ_SIL_8" },
       { "code": "REZ_ULRICH", "abbreviation": "RezUlrich" }
     ]
   },
@@ -118,9 +118,9 @@
     "volumeNumber": 9,
     "title": "Logik. Physische Geographie, Pädagogik",
     "works": [
-      { "code": "LOG", "abbreviation": "Log" },
-      { "code": "PG", "abbreviation": "PG" },
-      { "code": "PAED", "abbreviation": "Päd" }
+      { "code": "LOG", "abbreviation": "Log", "year": "1800" },
+      { "code": "PG", "abbreviation": "PG", "year": "1802" },
+      { "code": "PAED", "abbreviation": "Päd", "year": "1803" }
     ]
   }
 ]

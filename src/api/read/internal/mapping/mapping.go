@@ -22,7 +22,7 @@ func VolumesToApiModels(in []esmodel.Volume) []models.Volume {
 					Code:         wIn.Code,
 					Abbreviation: util.StrVal(wIn.Abbreviation),
 					Title:        wIn.Title,
-					Year:         util.StrVal(wIn.Year),
+					Year:         wIn.Year,
 					Paragraphs:   wIn.Paragraphs,
 					Sections:     mapSections(wIn.Sections),
 				},
