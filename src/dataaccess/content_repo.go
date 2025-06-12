@@ -303,12 +303,13 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 			return nil, err
 		}
 		results = append(results, model.SearchResult{
-			Snippets: hit.Highlight["searchText."+string(analyzer)],
-			Pages:    c.Pages,
-			Ordinal:  c.Ordinal,
-			WorkCode: c.WorkCode,
-			FmtText:  c.FmtText,
-			RawText:  c.SearchText,
+			Snippets:     hit.Highlight["searchText."+string(analyzer)],
+			Pages:        c.Pages,
+			Ordinal:      c.Ordinal,
+			WorkCode:     c.WorkCode,
+			FmtText:      c.FmtText,
+			RawText:      c.SearchText,
+			WordIndexMap: c.WordIndexMap,
 		})
 	}
 	return results, nil

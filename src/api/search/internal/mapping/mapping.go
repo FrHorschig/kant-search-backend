@@ -1,6 +1,8 @@
 package mapping
 
 import (
+	"fmt"
+
 	"github.com/frhorschig/kant-search-api/src/go/models"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
@@ -19,12 +21,18 @@ func CriteriaToCoreModel(in *models.SearchCriteria) (string, model.SearchOptions
 func HitsToApiModels(hits []model.SearchResult) []models.SearchResult {
 	resultByWorkCode := make(map[string][]models.Hit)
 	for _, hit := range hits {
+		wim := make(map[string]int32)
+		for k, v := range hit.WordIndexMap {
+			wim[fmt.Sprint(k)] = v
+		}
+
 		apiHit := models.Hit{
-			Snippets: hit.Snippets,
-			Pages:    hit.Pages,
-			Ordinal:  hit.Ordinal,
-			FmtText:  hit.FmtText,
-			RawText:  hit.RawText,
+			Snippets:     hit.Snippets,
+			Pages:        hit.Pages,
+			Ordinal:      hit.Ordinal,
+			FmtText:      hit.FmtText,
+			RawText:      hit.RawText,
+			WordIndexMap: wim,
 		}
 
 		arr, exists := resultByWorkCode[hit.WorkCode]

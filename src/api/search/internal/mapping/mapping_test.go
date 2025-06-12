@@ -36,6 +36,15 @@ func TestCriteriaToCoreModel(t *testing.T) {
 }
 
 func TestHitsToApiModels(t *testing.T) {
+	wimInt := make(map[int32]int32)
+	wimInt[3] = 5
+	wimInt[9] = 47
+	wimInt[36] = 184
+	wimStr := make(map[string]int32)
+	wimStr["3"] = 5
+	wimStr["9"] = 47
+	wimStr["36"] = 184
+
 	tests := []struct {
 		name     string
 		input    []model.SearchResult
@@ -50,35 +59,72 @@ func TestHitsToApiModels(t *testing.T) {
 			name: "single result",
 			input: []model.SearchResult{
 				{
-					WorkCode: "w1",
-					Snippets: []string{"snippet1"},
-					Pages:    []int32{1},
-					Ordinal:  1,
-					FmtText:  "fmtText",
-					RawText:  "rawText",
+					WorkCode:     "w1",
+					Snippets:     []string{"snippet1"},
+					Pages:        []int32{1},
+					Ordinal:      1,
+					FmtText:      "fmtText",
+					RawText:      "rawText",
+					WordIndexMap: wimInt,
 				},
 			},
 			expected: []models.SearchResult{
 				{
 					WorkCode: "w1",
-					Hits:     []models.Hit{{Snippets: []string{"snippet1"}, Pages: []int32{1}, Ordinal: 1, FmtText: "fmtText", RawText: "rawText"}},
+					Hits: []models.Hit{{
+						Snippets:     []string{"snippet1"},
+						Pages:        []int32{1},
+						Ordinal:      1,
+						FmtText:      "fmtText",
+						RawText:      "rawText",
+						WordIndexMap: wimStr,
+					}},
 				},
 			},
 		},
 		{
 			name: "multiple results",
 			input: []model.SearchResult{
-				{WorkCode: "w1", Snippets: []string{"a"}, Pages: []int32{1}, Ordinal: 1, FmtText: "fmtText", RawText: "rawText"},
-				{WorkCode: "w2", Snippets: []string{"b"}, Pages: []int32{2}, Ordinal: 2, FmtText: "fmtText", RawText: "rawText"},
+				{
+					WorkCode:     "w1",
+					Snippets:     []string{"a"},
+					Pages:        []int32{1},
+					Ordinal:      1,
+					FmtText:      "fmtText",
+					RawText:      "rawText",
+					WordIndexMap: wimInt,
+				},
+				{WorkCode: "w2",
+					Snippets:     []string{"b"},
+					Pages:        []int32{2},
+					Ordinal:      2,
+					FmtText:      "fmtText",
+					RawText:      "rawText",
+					WordIndexMap: wimInt,
+				},
 			},
 			expected: []models.SearchResult{
 				{
 					WorkCode: "w1",
-					Hits:     []models.Hit{{Snippets: []string{"a"}, Pages: []int32{1}, Ordinal: 1, FmtText: "fmtText", RawText: "rawText"}},
+					Hits: []models.Hit{{
+						Snippets:     []string{"a"},
+						Pages:        []int32{1},
+						Ordinal:      1,
+						FmtText:      "fmtText",
+						RawText:      "rawText",
+						WordIndexMap: wimStr,
+					}},
 				},
 				{
 					WorkCode: "w2",
-					Hits:     []models.Hit{{Snippets: []string{"b"}, Pages: []int32{2}, Ordinal: 2, FmtText: "fmtText", RawText: "rawText"}},
+					Hits: []models.Hit{{
+						Snippets:     []string{"b"},
+						Pages:        []int32{2},
+						Ordinal:      2,
+						FmtText:      "fmtText",
+						RawText:      "rawText",
+						WordIndexMap: wimStr,
+					}},
 				},
 			},
 		},
