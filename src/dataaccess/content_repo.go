@@ -307,7 +307,8 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 			Pages:    c.Pages,
 			Ordinal:  c.Ordinal,
 			WorkCode: c.WorkCode,
-			Text:     c.SearchText,
+			FmtText:  c.FmtText,
+			RawText:  c.SearchText,
 		})
 	}
 	return results, nil

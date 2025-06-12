@@ -23,7 +23,8 @@ func HitsToApiModels(hits []model.SearchResult) []models.SearchResult {
 			Snippets: hit.Snippets,
 			Pages:    hit.Pages,
 			Ordinal:  hit.Ordinal,
-			Text:     hit.Text,
+			FmtText:  hit.FmtText,
+			RawText:  hit.RawText,
 		}
 
 		arr, exists := resultByWorkCode[hit.WorkCode]
