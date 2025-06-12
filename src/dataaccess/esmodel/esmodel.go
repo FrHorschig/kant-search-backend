@@ -101,24 +101,26 @@ const (
 )
 
 type Content struct {
+	// text data
+	FmtText    string  `json:"fmtText"`
+	TocText    *string `json:"tocText"` // only for headings
+	SearchText string  `json:"searchText"`
+
+	// metadata
 	Type         Type            `json:"type"`
-	Ordinal      int32           `json:"ordinal"` // for sorting search results
-	Ref          *string         `json:"ref"`     // for footnotes and summaries
-	FmtText      string          `json:"fmtText"`
-	TocText      *string         `json:"tocText"`
-	SearchText   string          `json:"searchText"`
+	Ordinal      int32           `json:"ordinal"` // for sorting search hits
 	WordIndexMap map[int32]int32 `json:"wordIndexMap"`
 	Pages        []int32         `json:"pages"`
 	FnRefs       []string        `json:"fnRefs"`     // not for footnotes
 	SummaryRef   *string         `json:"summaryRef"` // only for paragraphs
-	WorkCode     string          `json:"workCode"`
+	Ref          *string         `json:"ref"`        // for fns and summaries
+
+	// "foreign key" to the work the text is part of
+	WorkCode string `json:"workCode"`
 }
 
 var ContentMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
-		"type":    types.NewKeywordProperty(),
-		"ordinal": types.NewIntegerNumberProperty(),
-		"ref":     &types.TextProperty{Index: util.FalsePtr()},
 		"fmtText": &types.TextProperty{Index: util.FalsePtr()},
 		"tocText": &types.TextProperty{Index: util.FalsePtr()},
 		"searchText": types.TextProperty{
@@ -131,10 +133,15 @@ var ContentMapping = &types.TypeMapping{
 				},
 			},
 		},
+
+		"type":         types.NewKeywordProperty(),
+		"ordinal":      types.NewIntegerNumberProperty(),
 		"wordIndexMap": &types.ObjectProperty{Enabled: util.FalsePtr()},
 		"pages":        &types.TextProperty{Index: util.FalsePtr()},
 		"fnRefs":       &types.TextProperty{Index: util.FalsePtr()},
 		"summaryRef":   &types.TextProperty{Index: util.FalsePtr()},
-		"workCode":     types.NewKeywordProperty(),
+		"ref":          &types.TextProperty{Index: util.FalsePtr()},
+
+		"workCode": types.NewKeywordProperty(),
 	},
 }
