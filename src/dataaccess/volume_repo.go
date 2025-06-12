@@ -14,14 +14,14 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/result"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/sortorder"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/rs/zerolog/log"
 )
 
 type VolumeRepo interface {
-	Insert(ctx context.Context, data *esmodel.Volume) error
-	GetAll(ctx context.Context) ([]esmodel.Volume, error)
-	GetByVolumeNumber(ctx context.Context, volNum int32) (*esmodel.Volume, error)
+	Insert(ctx context.Context, data *model.Volume) error
+	GetAll(ctx context.Context) ([]model.Volume, error)
+	GetByVolumeNumber(ctx context.Context, volNum int32) (*model.Volume, error)
 	Delete(ctx context.Context, volNr int32) error
 }
 
@@ -53,7 +53,7 @@ func createVolumeIndex(es *elasticsearch.TypedClient, name string) error {
 	}
 
 	res, err := es.Indices.Create(name).Request(&create.Request{
-		Mappings: esmodel.VolumeMapping,
+		Mappings: model.VolumeMapping,
 	}).Do(ctx)
 	if err != nil {
 		return err
@@ -66,7 +66,7 @@ func createVolumeIndex(es *elasticsearch.TypedClient, name string) error {
 
 // TODO disallow partial results everywhere
 
-func (rec *volumeRepoImpl) Insert(ctx context.Context, data *esmodel.Volume) error {
+func (rec *volumeRepoImpl) Insert(ctx context.Context, data *model.Volume) error {
 	existing, err := rec.GetByVolumeNumber(ctx, data.VolumeNumber)
 	if err != nil {
 		return err
@@ -85,7 +85,7 @@ func (rec *volumeRepoImpl) Insert(ctx context.Context, data *esmodel.Volume) err
 	return err
 }
 
-func (rec *volumeRepoImpl) GetAll(ctx context.Context) ([]esmodel.Volume, error) {
+func (rec *volumeRepoImpl) GetAll(ctx context.Context) ([]model.Volume, error) {
 	res, err := rec.dbClient.Search().Index(rec.indexName).
 		Request(&search.Request{
 			Query: &types.Query{MatchAll: &types.MatchAllQuery{}},
@@ -101,9 +101,9 @@ func (rec *volumeRepoImpl) GetAll(ctx context.Context) ([]esmodel.Volume, error)
 		return nil, err
 	}
 
-	volumes := []esmodel.Volume{}
+	volumes := []model.Volume{}
 	for _, hit := range res.Hits.Hits {
-		var vol esmodel.Volume
+		var vol model.Volume
 		err = json.Unmarshal(hit.Source_, &vol)
 		if err != nil {
 			return nil, err
@@ -113,7 +113,7 @@ func (rec *volumeRepoImpl) GetAll(ctx context.Context) ([]esmodel.Volume, error)
 	return volumes, nil
 }
 
-func (rec *volumeRepoImpl) GetByVolumeNumber(ctx context.Context, volNum int32) (*esmodel.Volume, error) {
+func (rec *volumeRepoImpl) GetByVolumeNumber(ctx context.Context, volNum int32) (*model.Volume, error) {
 	res, err := rec.dbClient.Search().Index(rec.indexName).
 		Request(&search.Request{
 			Query: createTermQuery("volumeNumber", volNum),
@@ -129,7 +129,7 @@ func (rec *volumeRepoImpl) GetByVolumeNumber(ctx context.Context, volNum int32) 
 		return nil, fmt.Errorf("more than one volume with volume number %d found", volNum)
 	}
 
-	var vol esmodel.Volume
+	var vol model.Volume
 	err = json.Unmarshal(res.Hits.Hits[0].Source_, &vol)
 	if err != nil {
 		return nil, err

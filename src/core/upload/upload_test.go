@@ -14,8 +14,8 @@ import (
 	"github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/mocks"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	dbMocks "github.com/frhorschig/kant-search-backend/dataaccess/mocks"
+	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -126,22 +126,22 @@ func TestUploadProcessSuccess(t *testing.T) {
 	// data deletion
 	volumeRepo.EXPECT().
 		GetByVolumeNumber(gomock.Any(), gomock.Eq(volNr)).
-		Return(&esmodel.Volume{
+		Return(&dbmodel.Volume{
 			VolumeNumber: vol.VolumeNumber,
 			Section:      vol.Section,
 			Title:        vol.Title,
-			Works: []esmodel.Work{{
+			Works: []dbmodel.Work{{
 				Code:         work.Code,
 				Abbreviation: work.Abbreviation,
 				Title:        work.Title,
 				Year:         work.Year,
 				Ordinal:      1,
 				Paragraphs:   []int32{},
-				Sections: []esmodel.Section{
+				Sections: []dbmodel.Section{
 					{
 						Heading:    1,
 						Paragraphs: []int32{5, 9},
-						Sections: []esmodel.Section{
+						Sections: []dbmodel.Section{
 							{
 								Heading:    11,
 								Paragraphs: []int32{15, 19},
@@ -263,8 +263,8 @@ func TestUploadProcessErrors(t *testing.T) {
 				mockXmlMapper(xm, wCode)
 				gomock.InOrder(
 					vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).
-						Return(&esmodel.Volume{
-							Works: []esmodel.Work{{Code: wCode}},
+						Return(&dbmodel.Volume{
+							Works: []dbmodel.Work{{Code: wCode}},
 						}, nil),
 					cr.EXPECT().DeleteByWork(gomock.Any(), wCode).
 						Return(testErr),
@@ -277,8 +277,8 @@ func TestUploadProcessErrors(t *testing.T) {
 				mockXmlMapper(xm, wCode)
 				gomock.InOrder(
 					vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).
-						Return(&esmodel.Volume{
-							Works: []esmodel.Work{{Code: wCode}},
+						Return(&dbmodel.Volume{
+							Works: []dbmodel.Work{{Code: wCode}},
 						}, nil),
 					cr.EXPECT().DeleteByWork(gomock.Any(), wCode).
 						Return(nil),
@@ -340,7 +340,7 @@ func mockXmlMapper(mapper *mocks.MockXmlMapper, wCode string) {
 
 func mockDeletion(vr *dbMocks.MockVolumeRepo, cr *dbMocks.MockContentRepo, wCode string) {
 	vr.EXPECT().GetByVolumeNumber(gomock.Any(), gomock.Any()).Return(
-		&esmodel.Volume{Works: []esmodel.Work{{Code: wCode}}},
+		&dbmodel.Volume{Works: []dbmodel.Work{{Code: wCode}}},
 		nil,
 	)
 	cr.EXPECT().DeleteByWork(gomock.Any(), wCode).Return(nil)

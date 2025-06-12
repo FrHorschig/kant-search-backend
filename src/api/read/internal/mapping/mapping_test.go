@@ -6,27 +6,27 @@ import (
 
 	"github.com/frhorschig/kant-search-api/src/go/models"
 	"github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
 func TestVolumesToApiModels(t *testing.T) {
-	in := []esmodel.Volume{
+	in := []model.Volume{
 		{
 			VolumeNumber: 1,
 			Section:      2,
 			Title:        "Volume One",
-			Works: []esmodel.Work{
+			Works: []model.Work{
 				{
 					Ordinal:      1,
 					Code:         "C1",
 					Abbreviation: util.StrPtr("abbr"),
 					Title:        "The Work",
 					Year:         "2024",
-					Sections: []esmodel.Section{
+					Sections: []model.Section{
 						{
 							Heading:    1,
 							Paragraphs: []int32{2, 3},
-							Sections:   []esmodel.Section{},
+							Sections:   []model.Section{},
 						},
 					},
 				},
@@ -64,7 +64,7 @@ func TestVolumesToApiModels(t *testing.T) {
 }
 
 func TestFootnotesToApiModels(t *testing.T) {
-	in := []esmodel.Content{
+	in := []model.Content{
 		{Ordinal: 1, Ref: util.StrPtr("ref1"), FmtText: "Footnote text"},
 	}
 	expected := []models.Footnote{
@@ -78,7 +78,7 @@ func TestFootnotesToApiModels(t *testing.T) {
 }
 
 func TestHeadingsToApiModels(t *testing.T) {
-	in := []esmodel.Content{
+	in := []model.Content{
 		{Ordinal: 1, FmtText: "Heading text", TocText: util.StrPtr("toc text"), Pages: []int32{34}, FnRefs: []string{"fn1"}},
 	}
 	expected := []models.Heading{
@@ -92,7 +92,7 @@ func TestHeadingsToApiModels(t *testing.T) {
 }
 
 func TestParagraphsToApiModels(t *testing.T) {
-	in := []esmodel.Content{
+	in := []model.Content{
 		{Ordinal: 1, FmtText: "Paragraph text", FnRefs: []string{"fn1"}, SummaryRef: util.StrPtr("s1")},
 	}
 	expected := []models.Paragraph{
@@ -106,7 +106,7 @@ func TestParagraphsToApiModels(t *testing.T) {
 }
 
 func TestSummariesToApiModels(t *testing.T) {
-	in := []esmodel.Content{
+	in := []model.Content{
 		{Ordinal: 1, Ref: util.StrPtr("ref1"), FmtText: "Summary text", FnRefs: []string{"fn1"}},
 	}
 	expected := []models.Summary{

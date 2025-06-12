@@ -1,4 +1,4 @@
-package esmodel
+package model
 
 import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
@@ -119,11 +119,6 @@ type Content struct {
 
 	// "foreign key" to the work the text is part of
 	WorkCode string `json:"workCode"`
-}
-
-type IndexNumberPair struct {
-	I   int32
-	Num int32
 }
 
 var ContentMapping = &types.TypeMapping{

@@ -14,7 +14,6 @@ import (
 	"github.com/frhorschig/kant-search-api/src/go/models"
 	"github.com/frhorschig/kant-search-backend/core/search/errors"
 	"github.com/frhorschig/kant-search-backend/core/search/mocks"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -126,8 +125,8 @@ func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mo
 	matches := []model.SearchResult{{
 		HighlightText: "highlightText",
 		FmtText:       "fmtText",
-		PageByIndex:   []esmodel.IndexNumberPair{{I: 12, Num: 37}},
-		LineByIndex:   []esmodel.IndexNumberPair{{I: 8, Num: 2481}},
+		PageByIndex:   []model.IndexNumberPair{{I: 12, Num: 37}},
+		LineByIndex:   []model.IndexNumberPair{{I: 8, Num: 2481}},
 		Ordinal:       1,
 		WorkCode:      "workCode",
 	}}

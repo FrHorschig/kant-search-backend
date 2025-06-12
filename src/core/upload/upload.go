@@ -17,7 +17,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
+	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
 type UploadProcessor interface {
@@ -54,7 +54,7 @@ func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml st
 		return errs.New(nil, errDelete)
 	}
 
-	// TODO extract esmodel building code to separate interface-impl
+	// TODO extract dbmodel building code to separate interface-impl
 
 	err = insertNewData(ctx, rec.volumeRepo, rec.contentRepo, vol, works)
 	if err.HasError {
@@ -90,17 +90,17 @@ type loopVariables struct {
 	summByRef map[string]model.Summary
 	workCode  string
 	ordinal   int32
-	contents  []esmodel.Content
+	contents  []dbmodel.Content
 }
 
 func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, contentRepo dataaccess.ContentRepo, v *model.Volume, works []model.Work) errs.UploadError {
-	vol := esmodel.Volume{
+	vol := dbmodel.Volume{
 		VolumeNumber: v.VolumeNumber,
 		Title:        v.Title,
 	}
 
 	loopVars := &loopVariables{
-		contents: []esmodel.Content{},
+		contents: []dbmodel.Content{},
 	}
 	for i, w := range works {
 		loopVars.fnByRef = createFnByRef(w.Footnotes)
@@ -145,8 +145,8 @@ func createSummsByRef(summaries []model.Summary) map[string]model.Summary {
 	}
 	return result
 }
-func createWork(w model.Work, ordinal int32, pars []int32, secs []esmodel.Section) esmodel.Work {
-	return esmodel.Work{
+func createWork(w model.Work, ordinal int32, pars []int32, secs []dbmodel.Section) dbmodel.Work {
+	return dbmodel.Work{
 		Ordinal:      ordinal,
 		Code:         w.Code,
 		Abbreviation: w.Abbreviation,
@@ -157,8 +157,8 @@ func createWork(w model.Work, ordinal int32, pars []int32, secs []esmodel.Sectio
 	}
 }
 
-func buildContents(lv *loopVariables, sections []model.Section) ([]esmodel.Section, error) {
-	result := []esmodel.Section{}
+func buildContents(lv *loopVariables, sections []model.Section) ([]dbmodel.Section, error) {
+	result := []dbmodel.Section{}
 	for _, s := range sections {
 		headOrdinal, err := buildHeading(lv, s.Heading)
 		if err != nil {
@@ -172,7 +172,7 @@ func buildContents(lv *loopVariables, sections []model.Section) ([]esmodel.Secti
 		if err != nil {
 			return nil, err
 		}
-		resultSection := esmodel.Section{
+		resultSection := dbmodel.Section{
 			Heading:    headOrdinal,
 			Paragraphs: parOrdinals,
 		}
@@ -185,7 +185,7 @@ func buildContents(lv *loopVariables, sections []model.Section) ([]esmodel.Secti
 }
 
 func buildHeading(lv *loopVariables, heading model.Heading) (int32, error) {
-	contents := make([]esmodel.Content, len(heading.FnRefs)+1)
+	contents := make([]dbmodel.Content, len(heading.FnRefs)+1)
 	h, err := createHeading(lv, heading)
 	if err != nil {
 		return 0, err
@@ -207,7 +207,7 @@ func buildParagraphs(lv *loopVariables, paragraphs []model.Paragraph) ([]int32, 
 		return []int32{}, nil
 	}
 	parOrds := make([]int32, len(paragraphs))
-	toInsert := []esmodel.Content{}
+	toInsert := []dbmodel.Content{}
 	for i, par := range paragraphs {
 		if par.SummaryRef != nil {
 			summ := lv.summByRef[*par.SummaryRef]
@@ -242,22 +242,22 @@ func buildParagraphs(lv *loopVariables, paragraphs []model.Paragraph) ([]int32, 
 	return parOrds, nil
 }
 
-func createHeading(lv *loopVariables, h model.Heading) (esmodel.Content, error) {
+func createHeading(lv *loopVariables, h model.Heading) (dbmodel.Content, error) {
 	searchText := util.RemoveTags(h.Text)
 	wordIndexMap, err := findWordIndexMap(searchText, h.Text)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
 	pageByIndex, err := findNumberByIndex(h.Text, util.PageMatch)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
 	lineByIndex, err := findNumberByIndex(h.Text, util.LineMatch)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
-	heading := esmodel.Content{
-		Type:         esmodel.Heading,
+	heading := dbmodel.Content{
+		Type:         dbmodel.Heading,
 		Ordinal:      lv.ordinal,
 		FmtText:      h.Text,
 		TocText:      commonutil.StrPtr(h.TocText),
@@ -273,22 +273,22 @@ func createHeading(lv *loopVariables, h model.Heading) (esmodel.Content, error) 
 	return heading, nil
 }
 
-func createParagraph(lv *loopVariables, p model.Paragraph) (esmodel.Content, error) {
+func createParagraph(lv *loopVariables, p model.Paragraph) (dbmodel.Content, error) {
 	searchText := util.RemoveTags(p.Text)
 	wordIndexMap, err := findWordIndexMap(searchText, p.Text)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
 	pageByIndex, err := findNumberByIndex(p.Text, util.PageMatch)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
 	lineByIndex, err := findNumberByIndex(p.Text, util.LineMatch)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
-	paragraph := esmodel.Content{
-		Type:         esmodel.Paragraph,
+	paragraph := dbmodel.Content{
+		Type:         dbmodel.Paragraph,
 		Ordinal:      lv.ordinal,
 		FmtText:      p.Text,
 		SearchText:   searchText,
@@ -304,22 +304,22 @@ func createParagraph(lv *loopVariables, p model.Paragraph) (esmodel.Content, err
 	return paragraph, nil
 }
 
-func createFootnote(lv *loopVariables, f model.Footnote) (esmodel.Content, error) {
+func createFootnote(lv *loopVariables, f model.Footnote) (dbmodel.Content, error) {
 	searchText := util.RemoveTags(f.Text)
 	wordIndexMap, err := findWordIndexMap(searchText, f.Text)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
 	pageByIndex, err := findNumberByIndex(f.Text, util.PageMatch)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
 	lineByIndex, err := findNumberByIndex(f.Text, util.LineMatch)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
-	footnote := esmodel.Content{
-		Type:         esmodel.Footnote,
+	footnote := dbmodel.Content{
+		Type:         dbmodel.Footnote,
 		Ordinal:      lv.ordinal,
 		Ref:          &f.Ref,
 		FmtText:      f.Text,
@@ -334,22 +334,22 @@ func createFootnote(lv *loopVariables, f model.Footnote) (esmodel.Content, error
 	return footnote, nil
 }
 
-func createSummary(lv *loopVariables, s model.Summary) (esmodel.Content, error) {
+func createSummary(lv *loopVariables, s model.Summary) (dbmodel.Content, error) {
 	searchText := util.RemoveTags(s.Text)
 	wordIndexMap, err := findWordIndexMap(searchText, s.Text)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
 	pageByIndex, err := findNumberByIndex(s.Text, util.PageMatch)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
 	lineByIndex, err := findNumberByIndex(s.Text, util.LineMatch)
 	if err != nil {
-		return esmodel.Content{}, err
+		return dbmodel.Content{}, err
 	}
-	summary := esmodel.Content{
-		Type:         esmodel.Summary,
+	summary := dbmodel.Content{
+		Type:         dbmodel.Summary,
 		Ordinal:      lv.ordinal,
 		Ref:          &s.Ref,
 		FmtText:      s.Text,
@@ -417,15 +417,15 @@ func extractWordData(text string) []WordData {
 	return words
 }
 
-func findNumberByIndex(text string, matcher string) ([]esmodel.IndexNumberPair, error) {
-	result := []esmodel.IndexNumberPair{}
+func findNumberByIndex(text string, matcher string) ([]dbmodel.IndexNumberPair, error) {
+	result := []dbmodel.IndexNumberPair{}
 	re := regexp.MustCompile(matcher)
 	for _, match := range re.FindAllStringSubmatchIndex(text, -1) {
 		num, err := strconv.ParseInt(text[match[2]:match[3]], 10, 32)
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, esmodel.IndexNumberPair{
+		result = append(result, dbmodel.IndexNumberPair{
 			I:   int32(match[0]),
 			Num: int32(num),
 		})

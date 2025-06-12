@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/frhorschig/kant-search-api/src/go/models"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -63,8 +62,8 @@ func TestHitsToApiModels(t *testing.T) {
 					HighlightText: "highlightText",
 					FmtText:       "fmtText",
 					Ordinal:       1,
-					PageByIndex:   []esmodel.IndexNumberPair{{I: 1, Num: 2}, {I: 4, Num: 183}},
-					LineByIndex:   []esmodel.IndexNumberPair{{I: 32, Num: 54}},
+					PageByIndex:   []model.IndexNumberPair{{I: 1, Num: 2}, {I: 4, Num: 183}},
+					LineByIndex:   []model.IndexNumberPair{{I: 32, Num: 54}},
 					WordIndexMap:  wimInt,
 					WorkCode:      "w1",
 				},
@@ -90,8 +89,8 @@ func TestHitsToApiModels(t *testing.T) {
 					HighlightText: "highlightText",
 					FmtText:       "fmtText",
 					Ordinal:       1,
-					PageByIndex:   []esmodel.IndexNumberPair{{I: 1, Num: 2}, {I: 4, Num: 183}},
-					LineByIndex:   []esmodel.IndexNumberPair{{I: 32, Num: 54}},
+					PageByIndex:   []model.IndexNumberPair{{I: 1, Num: 2}, {I: 4, Num: 183}},
+					LineByIndex:   []model.IndexNumberPair{{I: 32, Num: 54}},
 					WordIndexMap:  wimInt,
 					WorkCode:      "w1",
 				},
@@ -99,8 +98,8 @@ func TestHitsToApiModels(t *testing.T) {
 					HighlightText: "highlightText2",
 					FmtText:       "fmtText2",
 					Ordinal:       2,
-					PageByIndex:   []esmodel.IndexNumberPair{{I: 12, Num: 37}},
-					LineByIndex:   []esmodel.IndexNumberPair{{I: 8, Num: 2481}},
+					PageByIndex:   []model.IndexNumberPair{{I: 12, Num: 37}},
+					LineByIndex:   []model.IndexNumberPair{{I: 8, Num: 2481}},
 					WordIndexMap:  wimInt,
 					WorkCode:      "w2",
 				},
