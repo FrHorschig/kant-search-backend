@@ -1,5 +1,7 @@
 package model
 
+import "github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
+
 // TODO move these models to core/search/internal and create new ones with only the necessary fields; also check if phrase search works
 type AstNode struct {
 	Left  *AstNode
@@ -36,7 +38,8 @@ type SearchOptions struct {
 type SearchResult struct {
 	HighlightText string
 	FmtText       string
-	Pages         []int32
+	PageByIndex   []esmodel.IndexNumberPair
+	LineByIndex   []esmodel.IndexNumberPair
 	Ordinal       int32
 	WorkCode      string
 	WordIndexMap  map[int32]int32

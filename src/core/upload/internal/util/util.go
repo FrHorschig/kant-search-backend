@@ -152,7 +152,7 @@ func ExtractNumericAttribute(el *etree.Element, attr string) (int32, errs.Upload
 		return 0, errs.New(fmt.Errorf("missing '%s' attribute in '%s' element", attr, el.Tag), nil)
 	}
 
-	// TODO make this configurable at runtime
+	// TODO how to best handle this special case?
 	if slices.Contains([]string{"272a", "272c", "272d"}, nStr) {
 		nStr = "272"
 	}

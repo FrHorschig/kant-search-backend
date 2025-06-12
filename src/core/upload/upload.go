@@ -5,6 +5,8 @@ package upload
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -51,6 +53,8 @@ func (rec *uploadProcessorImpl) Process(ctx context.Context, volNr int32, xml st
 	if errDelete != nil {
 		return errs.New(nil, errDelete)
 	}
+
+	// TODO extract esmodel building code to separate interface-impl
 
 	err = insertNewData(ctx, rec.volumeRepo, rec.contentRepo, vol, works)
 	if err.HasError {
@@ -103,11 +107,11 @@ func insertNewData(ctx context.Context, volRepo dataaccess.VolumeRepo, contentRe
 		loopVars.summByRef = createSummsByRef(w.Summaries)
 		loopVars.workCode = w.Code
 		loopVars.ordinal = int32(1)
-		paragraphs, err := insertParagraphs(loopVars, w.Paragraphs)
+		paragraphs, err := buildParagraphs(loopVars, w.Paragraphs)
 		if err != nil {
 			return errs.New(nil, err)
 		}
-		sections, err := insertContents(loopVars, w.Sections)
+		sections, err := buildContents(loopVars, w.Sections)
 		if err != nil {
 			return errs.New(nil, err)
 		}
@@ -153,18 +157,18 @@ func createWork(w model.Work, ordinal int32, pars []int32, secs []esmodel.Sectio
 	}
 }
 
-func insertContents(lv *loopVariables, sections []model.Section) ([]esmodel.Section, error) {
+func buildContents(lv *loopVariables, sections []model.Section) ([]esmodel.Section, error) {
 	result := []esmodel.Section{}
 	for _, s := range sections {
-		headOrdinal, err := insertHeading(lv, s.Heading)
+		headOrdinal, err := buildHeading(lv, s.Heading)
 		if err != nil {
 			return nil, err
 		}
-		parOrdinals, err := insertParagraphs(lv, s.Paragraphs)
+		parOrdinals, err := buildParagraphs(lv, s.Paragraphs)
 		if err != nil {
 			return nil, err
 		}
-		secs, err := insertContents(lv, s.Sections)
+		secs, err := buildContents(lv, s.Sections)
 		if err != nil {
 			return nil, err
 		}
@@ -180,7 +184,7 @@ func insertContents(lv *loopVariables, sections []model.Section) ([]esmodel.Sect
 	return result, nil
 }
 
-func insertHeading(lv *loopVariables, heading model.Heading) (int32, error) {
+func buildHeading(lv *loopVariables, heading model.Heading) (int32, error) {
 	contents := make([]esmodel.Content, len(heading.FnRefs)+1)
 	h, err := createHeading(lv, heading)
 	if err != nil {
@@ -198,7 +202,7 @@ func insertHeading(lv *loopVariables, heading model.Heading) (int32, error) {
 	return contents[0].Ordinal, nil
 }
 
-func insertParagraphs(lv *loopVariables, paragraphs []model.Paragraph) ([]int32, error) {
+func buildParagraphs(lv *loopVariables, paragraphs []model.Paragraph) ([]int32, error) {
 	if len(paragraphs) == 0 {
 		return []int32{}, nil
 	}
@@ -244,6 +248,14 @@ func createHeading(lv *loopVariables, h model.Heading) (esmodel.Content, error) 
 	if err != nil {
 		return esmodel.Content{}, err
 	}
+	pageByIndex, err := findNumberByIndex(h.Text, util.PageMatch)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
+	lineByIndex, err := findNumberByIndex(h.Text, util.LineMatch)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
 	heading := esmodel.Content{
 		Type:         esmodel.Heading,
 		Ordinal:      lv.ordinal,
@@ -251,6 +263,8 @@ func createHeading(lv *loopVariables, h model.Heading) (esmodel.Content, error) 
 		TocText:      commonutil.StrPtr(h.TocText),
 		SearchText:   searchText,
 		WordIndexMap: wordIndexMap,
+		PageByIndex:  pageByIndex,
+		LineByIndex:  lineByIndex,
 		Pages:        h.Pages,
 		FnRefs:       h.FnRefs,
 		WorkCode:     lv.workCode,
@@ -265,6 +279,14 @@ func createParagraph(lv *loopVariables, p model.Paragraph) (esmodel.Content, err
 	if err != nil {
 		return esmodel.Content{}, err
 	}
+	pageByIndex, err := findNumberByIndex(p.Text, util.PageMatch)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
+	lineByIndex, err := findNumberByIndex(p.Text, util.LineMatch)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
 	paragraph := esmodel.Content{
 		Type:         esmodel.Paragraph,
 		Ordinal:      lv.ordinal,
@@ -272,6 +294,8 @@ func createParagraph(lv *loopVariables, p model.Paragraph) (esmodel.Content, err
 		SearchText:   searchText,
 		WordIndexMap: wordIndexMap,
 		Pages:        p.Pages,
+		PageByIndex:  pageByIndex,
+		LineByIndex:  lineByIndex,
 		FnRefs:       p.FnRefs,
 		SummaryRef:   p.SummaryRef,
 		WorkCode:     lv.workCode,
@@ -286,6 +310,14 @@ func createFootnote(lv *loopVariables, f model.Footnote) (esmodel.Content, error
 	if err != nil {
 		return esmodel.Content{}, err
 	}
+	pageByIndex, err := findNumberByIndex(f.Text, util.PageMatch)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
+	lineByIndex, err := findNumberByIndex(f.Text, util.LineMatch)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
 	footnote := esmodel.Content{
 		Type:         esmodel.Footnote,
 		Ordinal:      lv.ordinal,
@@ -294,6 +326,8 @@ func createFootnote(lv *loopVariables, f model.Footnote) (esmodel.Content, error
 		SearchText:   searchText,
 		WordIndexMap: wordIndexMap,
 		Pages:        f.Pages,
+		PageByIndex:  pageByIndex,
+		LineByIndex:  lineByIndex,
 		WorkCode:     lv.workCode,
 	}
 	lv.ordinal += 1
@@ -306,6 +340,14 @@ func createSummary(lv *loopVariables, s model.Summary) (esmodel.Content, error) 
 	if err != nil {
 		return esmodel.Content{}, err
 	}
+	pageByIndex, err := findNumberByIndex(s.Text, util.PageMatch)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
+	lineByIndex, err := findNumberByIndex(s.Text, util.LineMatch)
+	if err != nil {
+		return esmodel.Content{}, err
+	}
 	summary := esmodel.Content{
 		Type:         esmodel.Summary,
 		Ordinal:      lv.ordinal,
@@ -314,6 +356,8 @@ func createSummary(lv *loopVariables, s model.Summary) (esmodel.Content, error) 
 		SearchText:   searchText,
 		WordIndexMap: wordIndexMap,
 		Pages:        s.Pages,
+		PageByIndex:  pageByIndex,
+		LineByIndex:  lineByIndex,
 		FnRefs:       s.FnRefs,
 		WorkCode:     lv.workCode,
 	}
@@ -330,7 +374,7 @@ func findWordIndexMap(rawText string, fmtText string) (map[int32]int32, error) {
 	rawWords := extractWordData(rawText)
 	fmtWords := extractWordData(util.MaskTags(fmtText)) // we mask the tags here so that no word from a tag in fmtText may be accidentally matched to a normal word in rawText; this could happen if we later introduce tags with metadata (like image or table tags)
 	if len(rawWords) != len(fmtWords) {
-		// and because we mask all known tags, we (should) get the exact same number of words in both cases
+		// and because we mask all known tags, we (should) get the exact same number of words in both cases...
 		return nil, fmt.Errorf("unequal number of words in searchText and fmtText: {%s} vs {%s}", fmtText, rawText)
 	}
 
@@ -340,6 +384,7 @@ func findWordIndexMap(rawText string, fmtText string) (map[int32]int32, error) {
 		if rawWord.Text != fmtWord.Text { // just one more sanity check
 			return nil, fmt.Errorf("unequal matched words '%s' at index %d in searchText and '%s' at %d in fmtText", rawWord.Text, rawWord.Index, fmtWord.Text, fmtWord.Index)
 		}
+		// ...which then makes it super simple to map the indices
 		result[rawWord.Index] = fmtWord.Index
 	}
 	return result, nil
@@ -370,4 +415,20 @@ func extractWordData(text string) []WordData {
 		})
 	}
 	return words
+}
+
+func findNumberByIndex(text string, matcher string) ([]esmodel.IndexNumberPair, error) {
+	result := []esmodel.IndexNumberPair{}
+	re := regexp.MustCompile(matcher)
+	for _, match := range re.FindAllStringSubmatchIndex(text, -1) {
+		num, err := strconv.ParseInt(text[match[2]:match[3]], 10, 32)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, esmodel.IndexNumberPair{
+			I:   int32(match[0]),
+			Num: int32(num),
+		})
+	}
+	return result, nil
 }
