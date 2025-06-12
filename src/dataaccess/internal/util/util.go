@@ -66,8 +66,7 @@ func CreateHighlightOptions(analyzer esmodel.Analyzer) *types.Highlight {
 	return &types.Highlight{
 		Fields: map[string]types.HighlightField{
 			"searchText." + string(analyzer): {
-				FragmentSize:      util.IntPtr(150),
-				NumberOfFragments: util.IntPtr(5),
+				NumberOfFragments: util.IntPtr(0),
 			},
 		},
 		PreTags:  []string{"<ks-meta-hit>"},
