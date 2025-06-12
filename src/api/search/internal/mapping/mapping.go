@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
@@ -29,7 +30,8 @@ func HitsToApiModels(hits []model.SearchResult) []models.SearchResult {
 		apiHit := models.Hit{
 			HighlightText: hit.HighlightText,
 			FmtText:       hit.FmtText,
-			Pages:         hit.Pages,
+			PageByIndex:   mapIndexByNumberPairs(hit.PageByIndex),
+			LineByIndex:   mapIndexByNumberPairs(hit.LineByIndex),
 			Ordinal:       hit.Ordinal,
 			WordIndexMap:  wim,
 		}
@@ -51,4 +53,14 @@ func HitsToApiModels(hits []model.SearchResult) []models.SearchResult {
 		})
 	}
 	return results
+}
+
+func mapIndexByNumberPairs(in []esmodel.IndexNumberPair) []models.IndexNumberPair {
+	result := []models.IndexNumberPair{}
+	for _, pair := range in {
+		result = append(result,
+			models.IndexNumberPair{I: pair.I, Num: pair.Num},
+		)
+	}
+	return result
 }

@@ -107,16 +107,23 @@ type Content struct {
 	SearchText string  `json:"searchText"`
 
 	// metadata
-	Type         Type            `json:"type"`
-	Ordinal      int32           `json:"ordinal"` // for sorting search hits
-	WordIndexMap map[int32]int32 `json:"wordIndexMap"`
-	Pages        []int32         `json:"pages"`
-	FnRefs       []string        `json:"fnRefs"`     // not for footnotes
-	SummaryRef   *string         `json:"summaryRef"` // only for paragraphs
-	Ref          *string         `json:"ref"`        // for fns and summaries
+	Type         Type              `json:"type"`
+	Ordinal      int32             `json:"ordinal"`
+	WordIndexMap map[int32]int32   `json:"wordIndexMap"`
+	Pages        []int32           `json:"pages"`
+	PageByIndex  []IndexNumberPair `json:"pageByIndex"`
+	LineByIndex  []IndexNumberPair `json:"lineByIndex"`
+	FnRefs       []string          `json:"fnRefs"`     // not for footnotes
+	SummaryRef   *string           `json:"summaryRef"` // only for paragraphs
+	Ref          *string           `json:"ref"`        // for fns and summaries
 
 	// "foreign key" to the work the text is part of
 	WorkCode string `json:"workCode"`
+}
+
+type IndexNumberPair struct {
+	I   int32
+	Num int32
 }
 
 var ContentMapping = &types.TypeMapping{
@@ -138,6 +145,8 @@ var ContentMapping = &types.TypeMapping{
 		"ordinal":      types.NewIntegerNumberProperty(),
 		"wordIndexMap": &types.ObjectProperty{Enabled: util.FalsePtr()},
 		"pages":        &types.TextProperty{Index: util.FalsePtr()},
+		"pageByIndex":  &types.ObjectProperty{Enabled: util.FalsePtr()},
+		"lineByIndex":  &types.ObjectProperty{Enabled: util.FalsePtr()},
 		"fnRefs":       &types.TextProperty{Index: util.FalsePtr()},
 		"summaryRef":   &types.TextProperty{Index: util.FalsePtr()},
 		"ref":          &types.TextProperty{Index: util.FalsePtr()},
