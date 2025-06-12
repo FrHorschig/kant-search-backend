@@ -27,12 +27,11 @@ func HitsToApiModels(hits []model.SearchResult) []models.SearchResult {
 		}
 
 		apiHit := models.Hit{
-			Snippets:     hit.Snippets,
-			Pages:        hit.Pages,
-			Ordinal:      hit.Ordinal,
-			FmtText:      hit.FmtText,
-			RawText:      hit.RawText,
-			WordIndexMap: wim,
+			HighlightText: hit.HighlightText,
+			FmtText:       hit.FmtText,
+			Pages:         hit.Pages,
+			Ordinal:       hit.Ordinal,
+			WordIndexMap:  wim,
 		}
 
 		arr, exists := resultByWorkCode[hit.WorkCode]
