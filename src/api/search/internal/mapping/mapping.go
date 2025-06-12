@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/frhorschig/kant-search-api/src/go/models"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
@@ -55,7 +54,7 @@ func HitsToApiModels(hits []model.SearchResult) []models.SearchResult {
 	return results
 }
 
-func mapIndexByNumberPairs(in []esmodel.IndexNumberPair) []models.IndexNumberPair {
+func mapIndexByNumberPairs(in []model.IndexNumberPair) []models.IndexNumberPair {
 	result := []models.IndexNumberPair{}
 	for _, pair := range in {
 		result = append(result,

@@ -7,7 +7,6 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/sortorder"
 	"github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
@@ -19,7 +18,7 @@ func CreateWorkCodeQuery(workCode string) types.Query {
 	}
 }
 
-func CreateContentQuery(workCode string, cType []esmodel.Type) *types.Query {
+func CreateContentQuery(workCode string, cType []model.Type) *types.Query {
 	return &types.Query{
 		Bool: &types.BoolQuery{
 			Filter: []types.Query{
@@ -30,7 +29,7 @@ func CreateContentQuery(workCode string, cType []esmodel.Type) *types.Query {
 	}
 }
 
-func CreateSearchQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Query, error) {
+func CreateSearchQuery(node *model.AstNode, analyzer model.Analyzer) (*types.Query, error) {
 	if node == nil {
 		return nil, nil
 	}
@@ -62,7 +61,7 @@ func CreateSortOptions() []types.SortCombinations {
 	}
 }
 
-func CreateHighlightOptions(analyzer esmodel.Analyzer) *types.Highlight {
+func CreateHighlightOptions(analyzer model.Analyzer) *types.Highlight {
 	return &types.Highlight{
 		Fields: map[string]types.HighlightField{
 			"searchText." + string(analyzer): {
@@ -74,7 +73,7 @@ func CreateHighlightOptions(analyzer esmodel.Analyzer) *types.Highlight {
 	}
 }
 
-func createTypeQuery(cType []esmodel.Type) types.Query {
+func createTypeQuery(cType []model.Type) types.Query {
 	return types.Query{Terms: &types.TermsQuery{
 		TermsQuery: map[string]types.TermsQueryField{
 			"type": cType,
@@ -96,7 +95,7 @@ func CreateOrdinalQuery(ordinals []int32) types.Query {
 	}
 }
 
-func createAndQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Query, error) {
+func createAndQuery(node *model.AstNode, analyzer model.Analyzer) (*types.Query, error) {
 	q1, err := CreateSearchQuery(node.Left, analyzer)
 	if err != nil {
 		return nil, err
@@ -113,7 +112,7 @@ func createAndQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Quer
 	}}, nil
 }
 
-func createOrQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Query, error) {
+func createOrQuery(node *model.AstNode, analyzer model.Analyzer) (*types.Query, error) {
 	q1, err := CreateSearchQuery(node.Left, analyzer)
 	if err != nil {
 		return nil, err
@@ -130,7 +129,7 @@ func createOrQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Query
 	}}, nil
 }
 
-func createNotQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Query, error) {
+func createNotQuery(node *model.AstNode, analyzer model.Analyzer) (*types.Query, error) {
 	q1, err := CreateSearchQuery(node.Left, analyzer)
 	if err != nil {
 		return nil, err
@@ -152,7 +151,7 @@ func createNotQuery(node *model.AstNode, analyzer esmodel.Analyzer) (*types.Quer
 	}}, nil
 }
 
-func createPhraseQuery(phrase string, analyzer esmodel.Analyzer) *types.Query {
+func createPhraseQuery(phrase string, analyzer model.Analyzer) *types.Query {
 	return &types.Query{
 		MatchPhrase: map[string]types.MatchPhraseQuery{
 			"searchText." + string(analyzer): {Query: phrase},
@@ -160,7 +159,7 @@ func createPhraseQuery(phrase string, analyzer esmodel.Analyzer) *types.Query {
 	}
 }
 
-func createTextMatchQuery(term string, analyzer esmodel.Analyzer) *types.Query {
+func createTextMatchQuery(term string, analyzer model.Analyzer) *types.Query {
 	return &types.Query{
 		Match: map[string]types.MatchQuery{
 			"searchText." + string(analyzer): {Query: term},
@@ -169,15 +168,15 @@ func createTextMatchQuery(term string, analyzer esmodel.Analyzer) *types.Query {
 }
 
 func CreateOptionQueries(opts model.SearchOptions) []types.Query {
-	tps := []esmodel.Type{esmodel.Paragraph}
+	tps := []model.Type{model.Paragraph}
 	if opts.IncludeHeadings {
-		tps = append(tps, esmodel.Heading)
+		tps = append(tps, model.Heading)
 	}
 	if opts.IncludeFootnotes {
-		tps = append(tps, esmodel.Footnote)
+		tps = append(tps, model.Footnote)
 	}
 	if opts.IncludeSummaries {
-		tps = append(tps, esmodel.Summary)
+		tps = append(tps, model.Summary)
 	}
 	return []types.Query{
 		createWorkCodesQuery(opts.WorkCodes),

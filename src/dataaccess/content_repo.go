@@ -15,18 +15,17 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/operationtype"
 	commonutil "github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/rs/zerolog/log"
 )
 
 type ContentRepo interface {
-	Insert(ctx context.Context, data []esmodel.Content) error
-	GetFootnotesByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
-	GetHeadingsByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
-	GetParagraphsByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
-	GetSummariesByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error)
+	Insert(ctx context.Context, data []model.Content) error
+	GetFootnotesByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error)
+	GetHeadingsByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error)
+	GetParagraphsByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error)
+	GetSummariesByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error)
 	DeleteByWork(ctx context.Context, workCode string) error
 	Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error)
 }
@@ -61,7 +60,7 @@ func createContentIndex(es *elasticsearch.TypedClient, name string) error {
 	}
 
 	res, err := es.Indices.Create(name).Request(&create.Request{
-		Mappings: esmodel.ContentMapping,
+		Mappings: model.ContentMapping,
 		Settings: buildSettings(),
 	}).Do(ctx)
 	if err != nil {
@@ -77,17 +76,17 @@ func buildSettings() *types.IndexSettings {
 	return &types.IndexSettings{
 		Analysis: &types.IndexSettingsAnalysis{
 			Analyzer: map[string]types.Analyzer{
-				string(esmodel.NoStemming): &types.CustomAnalyzer{
+				string(model.NoStemming): &types.CustomAnalyzer{
 					Tokenizer: "standard",
 					Filter:    []string{"lowercase"},
 				},
-				string(esmodel.GermanStemming): &types.CustomAnalyzer{
+				string(model.GermanStemming): &types.CustomAnalyzer{
 					Tokenizer: "standard",
-					Filter:    []string{"lowercase", string(esmodel.GermanStemming)},
+					Filter:    []string{"lowercase", string(model.GermanStemming)},
 				},
 			},
 			Filter: map[string]types.TokenFilter{
-				string(esmodel.GermanStemming): &types.StemmerTokenFilter{
+				string(model.GermanStemming): &types.StemmerTokenFilter{
 					Type:     "stemmer",
 					Language: commonutil.StrPtr("german"),
 				},
@@ -96,7 +95,7 @@ func buildSettings() *types.IndexSettings {
 	}
 }
 
-func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) error {
+func (rec *contentRepoImpl) Insert(ctx context.Context, data []model.Content) error {
 	insert := rec.dbClient.Bulk().Index(rec.indexName)
 	for _, c := range data {
 		insert.CreateOp(*types.NewCreateOperation(), c)
@@ -118,10 +117,10 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []esmodel.Content) 
 	return nil
 }
 
-func (rec *contentRepoImpl) GetFootnotesByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetFootnotesByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
 	contentQuery := util.CreateContentQuery(
 		workCode,
-		[]esmodel.Type{esmodel.Footnote},
+		[]model.Type{model.Footnote},
 	)
 	if len(ordinals) > 0 {
 		contentQuery.Bool.Filter = append(
@@ -137,9 +136,9 @@ func (rec *contentRepoImpl) GetFootnotesByWork(ctx context.Context, workCode str
 		return nil, err
 	}
 
-	contents := []esmodel.Content{}
+	contents := []model.Content{}
 	for _, hit := range res.Hits.Hits {
-		var c esmodel.Content
+		var c model.Content
 		err = json.Unmarshal(hit.Source_, &c)
 		if err != nil {
 			return nil, err
@@ -149,10 +148,10 @@ func (rec *contentRepoImpl) GetFootnotesByWork(ctx context.Context, workCode str
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) GetHeadingsByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetHeadingsByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
 	contentQuery := util.CreateContentQuery(
 		workCode,
-		[]esmodel.Type{esmodel.Heading},
+		[]model.Type{model.Heading},
 	)
 	if len(ordinals) > 0 {
 		contentQuery.Bool.Filter = append(
@@ -168,9 +167,9 @@ func (rec *contentRepoImpl) GetHeadingsByWork(ctx context.Context, workCode stri
 		return nil, err
 	}
 
-	contents := []esmodel.Content{}
+	contents := []model.Content{}
 	for _, hit := range res.Hits.Hits {
-		var c esmodel.Content
+		var c model.Content
 		err = json.Unmarshal(hit.Source_, &c)
 		if err != nil {
 			return nil, err
@@ -180,10 +179,10 @@ func (rec *contentRepoImpl) GetHeadingsByWork(ctx context.Context, workCode stri
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) GetParagraphsByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetParagraphsByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
 	contentQuery := util.CreateContentQuery(
 		workCode,
-		[]esmodel.Type{esmodel.Paragraph},
+		[]model.Type{model.Paragraph},
 	)
 	if len(ordinals) > 0 {
 		contentQuery.Bool.Filter = append(
@@ -199,9 +198,9 @@ func (rec *contentRepoImpl) GetParagraphsByWork(ctx context.Context, workCode st
 		return nil, err
 	}
 
-	contents := []esmodel.Content{}
+	contents := []model.Content{}
 	for _, hit := range res.Hits.Hits {
-		var c esmodel.Content
+		var c model.Content
 		err = json.Unmarshal(hit.Source_, &c)
 		if err != nil {
 			return nil, err
@@ -211,10 +210,10 @@ func (rec *contentRepoImpl) GetParagraphsByWork(ctx context.Context, workCode st
 	return contents, nil
 }
 
-func (rec *contentRepoImpl) GetSummariesByWork(ctx context.Context, workCode string, ordinals []int32) ([]esmodel.Content, error) {
+func (rec *contentRepoImpl) GetSummariesByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
 	contentQuery := util.CreateContentQuery(
 		workCode,
-		[]esmodel.Type{esmodel.Summary},
+		[]model.Type{model.Summary},
 	)
 	if len(ordinals) > 0 {
 		contentQuery.Bool.Filter = append(
@@ -230,9 +229,9 @@ func (rec *contentRepoImpl) GetSummariesByWork(ctx context.Context, workCode str
 		return nil, err
 	}
 
-	contents := []esmodel.Content{}
+	contents := []model.Content{}
 	for _, hit := range res.Hits.Hits {
-		var c esmodel.Content
+		var c model.Content
 		err = json.Unmarshal(hit.Source_, &c)
 		if err != nil {
 			return nil, err
@@ -265,9 +264,9 @@ func (rec *contentRepoImpl) DeleteByWork(ctx context.Context, workCode string) e
 }
 
 func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error) {
-	analyzer := esmodel.NoStemming
+	analyzer := model.NoStemming
 	if options.WithStemming {
-		analyzer = esmodel.GermanStemming
+		analyzer = model.GermanStemming
 	}
 	searchQuery, err := util.CreateSearchQuery(ast, analyzer)
 	if err != nil {
@@ -297,7 +296,7 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 
 	results := []model.SearchResult{}
 	for _, hit := range res.Hits.Hits {
-		var c esmodel.Content
+		var c model.Content
 		err = json.Unmarshal(hit.Source_, &c)
 		if err != nil {
 			return nil, err

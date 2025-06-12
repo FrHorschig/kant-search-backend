@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,40 +17,40 @@ func TestVolumeRepo(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	repo := NewVolumeRepo(dbClient)
-	vol := esmodel.Volume{
+	vol := model.Volume{
 		VolumeNumber: 1,
 		Section:      2,
 		Title:        "volume title",
-		Works: []esmodel.Work{{
+		Works: []model.Work{{
 			Code:         "GMS",
 			Abbreviation: util.StrPtr("GMS"),
 			Title:        "Grundlegung zur Metaphysik der Sitten",
 			Year:         "1785",
 			Ordinal:      1,
-			Sections: []esmodel.Section{{
+			Sections: []model.Section{{
 				Heading:    1,
 				Paragraphs: []int32{2, 3, 4},
-				Sections: []esmodel.Section{{
+				Sections: []model.Section{{
 					Heading:    5,
 					Paragraphs: []int32{6, 7},
 				}},
 			}},
 		}},
 	}
-	vol2 := esmodel.Volume{
+	vol2 := model.Volume{
 		VolumeNumber: 2,
 		Section:      3,
 		Title:        "volume title 2",
-		Works: []esmodel.Work{{
+		Works: []model.Work{{
 			Code:         "KPV",
 			Abbreviation: util.StrPtr("KPV"),
 			Title:        "Kritik der praktischen Vernunft",
 			Year:         "1788",
 			Ordinal:      1,
-			Sections: []esmodel.Section{{
+			Sections: []model.Section{{
 				Heading:    1,
 				Paragraphs: []int32{2, 3, 4},
-				Sections: []esmodel.Section{{
+				Sections: []model.Section{{
 					Heading:    5,
 					Paragraphs: []int32{6, 7},
 				}},

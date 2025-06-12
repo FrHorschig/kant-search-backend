@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/mocks"
 	dbMocks "github.com/frhorschig/kant-search-backend/dataaccess/mocks"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -54,17 +54,17 @@ func TestReadProcessor(t *testing.T) {
 }
 
 func testProcessVolumes(t *testing.T, sut *readProcessorImpl, volumeRepo *mocks.MockVolumeRepo, ctx context.Context) {
-	vol := esmodel.Volume{
+	vol := model.Volume{
 		VolumeNumber: 1,
 		Section:      2,
 		Title:        "volume title",
-		Works: []esmodel.Work{{
+		Works: []model.Work{{
 			Code:  "workCode",
 			Title: "work title",
 		}},
 	}
 	// GIVEN
-	volumeRepo.EXPECT().GetAll(gomock.Any()).Return([]esmodel.Volume{vol}, nil)
+	volumeRepo.EXPECT().GetAll(gomock.Any()).Return([]model.Volume{vol}, nil)
 	// WHEN
 	res, err := sut.ProcessVolumes(ctx)
 	// THEN
@@ -86,8 +86,8 @@ func testProcessVolumesError(t *testing.T, sut *readProcessorImpl, volumeRepo *m
 
 func testProcessFootnotes(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
 	workCode := "workCode"
-	fn := esmodel.Content{
-		Type:       esmodel.Footnote,
+	fn := model.Content{
+		Type:       model.Footnote,
 		Ref:        util.StrPtr("A121"),
 		FmtText:    "formatted text 1",
 		SearchText: "search text 1",
@@ -97,7 +97,7 @@ func testProcessFootnotes(t *testing.T, sut *readProcessorImpl, contentRepo *moc
 	// GIVEN
 	contentRepo.EXPECT().
 		GetFootnotesByWork(gomock.Any(), workCode, []int32{}).
-		Return([]esmodel.Content{fn}, nil)
+		Return([]model.Content{fn}, nil)
 	// WHEN
 	res, err := sut.ProcessFootnotes(ctx, workCode, []int32{})
 	// THEN
@@ -120,8 +120,8 @@ func testProcessFootnotesError(t *testing.T, sut *readProcessorImpl, contentRepo
 
 func testProcessHeadings(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
 	workCode := "workCode"
-	head := esmodel.Content{
-		Type:       esmodel.Heading,
+	head := model.Content{
+		Type:       model.Heading,
 		FmtText:    "formatted text 2",
 		SearchText: "search text 2",
 		Pages:      []int32{1, 2, 3},
@@ -131,7 +131,7 @@ func testProcessHeadings(t *testing.T, sut *readProcessorImpl, contentRepo *mock
 	// GIVEN
 	contentRepo.EXPECT().
 		GetHeadingsByWork(gomock.Any(), workCode, []int32{}).
-		Return([]esmodel.Content{head}, nil)
+		Return([]model.Content{head}, nil)
 	// WHEN
 	res, err := sut.ProcessHeadings(ctx, workCode, []int32{})
 	// THEN
@@ -154,8 +154,8 @@ func testProcessHeadingsError(t *testing.T, sut *readProcessorImpl, contentRepo 
 
 func testProcessParagraphs(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
 	workCode := "workCode"
-	par := esmodel.Content{
-		Type:       esmodel.Paragraph,
+	par := model.Content{
+		Type:       model.Paragraph,
 		Ref:        util.StrPtr("A124"),
 		FmtText:    "formatted text 3",
 		SearchText: "search text 3",
@@ -166,7 +166,7 @@ func testProcessParagraphs(t *testing.T, sut *readProcessorImpl, contentRepo *mo
 	// GIVEN
 	contentRepo.EXPECT().
 		GetParagraphsByWork(gomock.Any(), workCode, []int32{}).
-		Return([]esmodel.Content{par}, nil)
+		Return([]model.Content{par}, nil)
 	// WHEN
 	res, err := sut.ProcessParagraphs(ctx, workCode, []int32{})
 	// THEN
@@ -189,8 +189,8 @@ func testProcessParagraphsError(t *testing.T, sut *readProcessorImpl, contentRep
 
 func testProcessSummaries(t *testing.T, sut *readProcessorImpl, contentRepo *mocks.MockContentRepo, ctx context.Context) {
 	workCode := "workCode"
-	summ := esmodel.Content{
-		Type:       esmodel.Summary,
+	summ := model.Content{
+		Type:       model.Summary,
 		Ref:        util.StrPtr("A125"),
 		FmtText:    "formatted text 5",
 		SearchText: "search text 5",
@@ -200,7 +200,7 @@ func testProcessSummaries(t *testing.T, sut *readProcessorImpl, contentRepo *moc
 	// GIVEN
 	contentRepo.EXPECT().
 		GetSummariesByWork(gomock.Any(), workCode, []int32{}).
-		Return([]esmodel.Content{summ}, nil)
+		Return([]model.Content{summ}, nil)
 	// WHEN
 	res, err := sut.ProcessSummaries(ctx, workCode, []int32{})
 	// THEN

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,9 +19,9 @@ func TestContentInsertGetDelete(t *testing.T) {
 	sut := NewContentRepo(dbClient)
 
 	workCode := "work123"
-	contents := []esmodel.Content{
+	contents := []model.Content{
 		{
-			Type:       esmodel.Footnote,
+			Type:       model.Footnote,
 			Ordinal:    1,
 			Ref:        util.StrPtr("A121"),
 			FmtText:    "formatted text 1",
@@ -31,7 +30,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 			WorkCode:   workCode,
 		},
 		{
-			Type:       esmodel.Heading,
+			Type:       model.Heading,
 			Ordinal:    2,
 			FmtText:    "formatted text 2",
 			SearchText: "search text 2",
@@ -40,7 +39,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 			WorkCode:   workCode,
 		},
 		{
-			Type:       esmodel.Paragraph,
+			Type:       model.Paragraph,
 			Ordinal:    3,
 			FmtText:    "formatted text 3",
 			SearchText: "search text 3",
@@ -49,7 +48,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 			WorkCode:   workCode,
 		},
 		{
-			Type:       esmodel.Paragraph,
+			Type:       model.Paragraph,
 			Ordinal:    4,
 			FmtText:    "formatted text 4",
 			SearchText: "search text 4",
@@ -58,7 +57,7 @@ func TestContentInsertGetDelete(t *testing.T) {
 			WorkCode:   workCode,
 		},
 		{
-			Type:       esmodel.Summary,
+			Type:       model.Summary,
 			Ordinal:    5,
 			Ref:        util.StrPtr("A125"),
 			FmtText:    "formatted text 5",
@@ -145,22 +144,22 @@ func TestSearch(t *testing.T) {
 	workCode2 := "456work"
 	testdata := []struct {
 		name        string
-		dbInput     []esmodel.Content
+		dbInput     []model.Content
 		searchTerms *model.AstNode
 		options     model.SearchOptions
 		hitCount    int
 	}{
 		{
 			name: "test complex query",
-			dbInput: []esmodel.Content{
-				{Type: esmodel.Paragraph, SearchText: "dog night bird", WorkCode: workCode},
-				{Type: esmodel.Paragraph, SearchText: "cat night bird", WorkCode: workCode},
-				{Type: esmodel.Paragraph, SearchText: "dog mice night bird", WorkCode: workCode},
-				{Type: esmodel.Paragraph, SearchText: "dog mouse night bird", WorkCode: workCode},
-				{Type: esmodel.Paragraph, SearchText: "dog knight bird", WorkCode: workCode},
-				{Type: esmodel.Paragraph, SearchText: "cat night burd", WorkCode: workCode},
-				{Type: esmodel.Paragraph, SearchText: "dog night bird 2", WorkCode: workCode2},
-				{Type: esmodel.Paragraph, SearchText: "cat night bird 2", WorkCode: workCode2},
+			dbInput: []model.Content{
+				{Type: model.Paragraph, SearchText: "dog night bird", WorkCode: workCode},
+				{Type: model.Paragraph, SearchText: "cat night bird", WorkCode: workCode},
+				{Type: model.Paragraph, SearchText: "dog mice night bird", WorkCode: workCode},
+				{Type: model.Paragraph, SearchText: "dog mouse night bird", WorkCode: workCode},
+				{Type: model.Paragraph, SearchText: "dog knight bird", WorkCode: workCode},
+				{Type: model.Paragraph, SearchText: "cat night burd", WorkCode: workCode},
+				{Type: model.Paragraph, SearchText: "dog night bird 2", WorkCode: workCode2},
+				{Type: model.Paragraph, SearchText: "cat night bird 2", WorkCode: workCode2},
 			},
 			searchTerms: &model.AstNode{ // (dog | cat) & !mouse & "night bird"
 				Token: newAnd(),
@@ -183,11 +182,11 @@ func TestSearch(t *testing.T) {
 		},
 		{
 			name: "test includeHeadings option",
-			dbInput: []esmodel.Content{
-				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
-				{Type: esmodel.Heading, SearchText: "heading text", WorkCode: workCode},
-				{Type: esmodel.Footnote, SearchText: "footnote text", WorkCode: workCode},
-				{Type: esmodel.Summary, SearchText: "summary text", WorkCode: workCode},
+			dbInput: []model.Content{
+				{Type: model.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
+				{Type: model.Heading, SearchText: "heading text", WorkCode: workCode},
+				{Type: model.Footnote, SearchText: "footnote text", WorkCode: workCode},
+				{Type: model.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
 			searchTerms: &model.AstNode{Token: newWord("text")},
 			options: model.SearchOptions{
@@ -198,11 +197,11 @@ func TestSearch(t *testing.T) {
 		},
 		{
 			name: "test includeFootnotes option",
-			dbInput: []esmodel.Content{
-				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
-				{Type: esmodel.Heading, SearchText: "heading text", WorkCode: workCode},
-				{Type: esmodel.Footnote, SearchText: "footnote text", WorkCode: workCode},
-				{Type: esmodel.Summary, SearchText: "summary text", WorkCode: workCode},
+			dbInput: []model.Content{
+				{Type: model.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
+				{Type: model.Heading, SearchText: "heading text", WorkCode: workCode},
+				{Type: model.Footnote, SearchText: "footnote text", WorkCode: workCode},
+				{Type: model.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
 			searchTerms: &model.AstNode{Token: newWord("text")},
 			options: model.SearchOptions{
@@ -213,11 +212,11 @@ func TestSearch(t *testing.T) {
 		},
 		{
 			name: "test includeSummaries option",
-			dbInput: []esmodel.Content{
-				{Type: esmodel.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
-				{Type: esmodel.Heading, SearchText: "heading text", WorkCode: workCode},
-				{Type: esmodel.Footnote, SearchText: "footnote text", WorkCode: workCode},
-				{Type: esmodel.Summary, SearchText: "summary text", WorkCode: workCode},
+			dbInput: []model.Content{
+				{Type: model.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
+				{Type: model.Heading, SearchText: "heading text", WorkCode: workCode},
+				{Type: model.Footnote, SearchText: "footnote text", WorkCode: workCode},
+				{Type: model.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
 			searchTerms: &model.AstNode{Token: newWord("text")},
 			options: model.SearchOptions{

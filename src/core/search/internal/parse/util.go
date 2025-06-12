@@ -1,6 +1,8 @@
 package parse
 
-import "github.com/frhorschig/kant-search-backend/dataaccess/model"
+import (
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
+)
 
 func newAnd() model.Token {
 	return model.Token{IsAnd: true, Text: "&"}

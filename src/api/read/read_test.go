@@ -11,7 +11,7 @@ import (
 
 	"github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/core/read/mocks"
-	"github.com/frhorschig/kant-search-backend/dataaccess/esmodel"
+	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -49,11 +49,11 @@ func TestReadHandler(t *testing.T) {
 }
 
 func testReadVolumes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
-	vol := esmodel.Volume{
+	vol := model.Volume{
 		VolumeNumber: 1,
 		Section:      2,
 		Title:        "volume title",
-		Works: []esmodel.Work{{
+		Works: []model.Work{{
 			Code:  "A123",
 			Title: "work title",
 		}},
@@ -62,7 +62,7 @@ func testReadVolumes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.Mo
 	req := httptest.NewRequest(echo.GET, "/api/v1/volumes", nil)
 	res := httptest.NewRecorder()
 	ctx := echo.New().NewContext(req, res)
-	readProcessor.EXPECT().ProcessVolumes(gomock.Any()).Return([]esmodel.Volume{vol}, nil)
+	readProcessor.EXPECT().ProcessVolumes(gomock.Any()).Return([]model.Volume{vol}, nil)
 	// WHEN
 	sut.ReadVolumes(ctx)
 	// THEN
@@ -87,8 +87,8 @@ func testReadVolumesError(t *testing.T, sut *readHandlerImpl, readProcessor *moc
 
 func testReadFootnotes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := "A123"
-	fn := esmodel.Content{
-		Type:       esmodel.Footnote,
+	fn := model.Content{
+		Type:       model.Footnote,
 		Ref:        util.StrPtr("A121"),
 		FmtText:    "formatted text 1",
 		SearchText: "search text 1",
@@ -101,7 +101,7 @@ func testReadFootnotes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
 		ProcessFootnotes(gomock.Any(), workCode, []int32{}).
-		Return([]esmodel.Content{fn}, nil)
+		Return([]model.Content{fn}, nil)
 	// WHEN
 	sut.ReadFootnotes(ctx)
 	// THEN
@@ -140,8 +140,8 @@ func testReadFootnotesError(t *testing.T, sut *readHandlerImpl, readProcessor *m
 
 func testReadHeadings(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := "A123"
-	head := esmodel.Content{
-		Type:       esmodel.Heading,
+	head := model.Content{
+		Type:       model.Heading,
 		FmtText:    "formatted text 2",
 		SearchText: "search text 2",
 		Pages:      []int32{1, 2, 3},
@@ -154,7 +154,7 @@ func testReadHeadings(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.M
 	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
 		ProcessHeadings(gomock.Any(), workCode, []int32{}).
-		Return([]esmodel.Content{head}, nil)
+		Return([]model.Content{head}, nil)
 	// WHEN
 	sut.ReadHeadings(ctx)
 	// THEN
@@ -193,8 +193,8 @@ func testReadHeadingsError(t *testing.T, sut *readHandlerImpl, readProcessor *mo
 
 func testReadParagraphs(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := "A123"
-	par := esmodel.Content{
-		Type:       esmodel.Paragraph,
+	par := model.Content{
+		Type:       model.Paragraph,
 		Ref:        util.StrPtr("A124"),
 		FmtText:    "formatted text 3",
 		SearchText: "search text 3",
@@ -208,7 +208,7 @@ func testReadParagraphs(t *testing.T, sut *readHandlerImpl, readProcessor *mocks
 	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
 		ProcessParagraphs(gomock.Any(), workCode, []int32{}).
-		Return([]esmodel.Content{par}, nil)
+		Return([]model.Content{par}, nil)
 	// WHEN
 	sut.ReadParagraphs(ctx)
 	// THEN
@@ -218,8 +218,8 @@ func testReadParagraphs(t *testing.T, sut *readHandlerImpl, readProcessor *mocks
 
 func testReadParagraphsWithOrdinals(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := "A123"
-	par := esmodel.Content{
-		Type:       esmodel.Paragraph,
+	par := model.Content{
+		Type:       model.Paragraph,
 		Ref:        util.StrPtr("A124"),
 		FmtText:    "formatted text 3",
 		SearchText: "search text 3",
@@ -233,7 +233,7 @@ func testReadParagraphsWithOrdinals(t *testing.T, sut *readHandlerImpl, readProc
 	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
 		ProcessParagraphs(gomock.Any(), workCode, []int32{2, 99, 485}).
-		Return([]esmodel.Content{par}, nil)
+		Return([]model.Content{par}, nil)
 	// WHEN
 	sut.ReadParagraphs(ctx)
 	// THEN
@@ -272,8 +272,8 @@ func testReadParagraphsError(t *testing.T, sut *readHandlerImpl, readProcessor *
 
 func testReadSummaries(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	workCode := "A123"
-	summ := esmodel.Content{
-		Type:       esmodel.Summary,
+	summ := model.Content{
+		Type:       model.Summary,
 		Ref:        util.StrPtr("A125"),
 		FmtText:    "formatted text 5",
 		SearchText: "search text 5",
@@ -286,7 +286,7 @@ func testReadSummaries(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.
 	ctx := createCtxWithWorkCode(req, res, workCode)
 	readProcessor.EXPECT().
 		ProcessSummaries(gomock.Any(), workCode, []int32{}).
-		Return([]esmodel.Content{summ}, nil)
+		Return([]model.Content{summ}, nil)
 	// WHEN
 	sut.ReadSummaries(ctx)
 	// THEN
