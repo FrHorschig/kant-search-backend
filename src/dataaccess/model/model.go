@@ -34,10 +34,11 @@ type SearchOptions struct {
 }
 
 type SearchResult struct {
-	Snippets []string
-	Pages    []int32
-	Ordinal  int32
-	WorkCode string
-	FmtText  string
-	RawText  string
+	Snippets     []string
+	Pages        []int32
+	Ordinal      int32
+	WorkCode     string
+	FmtText      string
+	RawText      string
+	WordIndexMap map[int32]int32
 }
