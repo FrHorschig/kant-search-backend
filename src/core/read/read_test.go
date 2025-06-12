@@ -56,7 +56,6 @@ func TestReadProcessor(t *testing.T) {
 func testProcessVolumes(t *testing.T, sut *readProcessorImpl, volumeRepo *mocks.MockVolumeRepo, ctx context.Context) {
 	vol := model.Volume{
 		VolumeNumber: 1,
-		Section:      2,
 		Title:        "volume title",
 		Works: []model.Work{{
 			Code:  "workCode",

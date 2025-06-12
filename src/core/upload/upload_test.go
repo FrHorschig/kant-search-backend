@@ -128,7 +128,6 @@ func TestUploadProcessSuccess(t *testing.T) {
 		GetByVolumeNumber(gomock.Any(), gomock.Eq(volNr)).
 		Return(&dbmodel.Volume{
 			VolumeNumber: vol.VolumeNumber,
-			Section:      vol.Section,
 			Title:        vol.Title,
 			Works: []dbmodel.Work{{
 				Code:         work.Code,

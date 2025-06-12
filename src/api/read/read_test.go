@@ -51,7 +51,6 @@ func TestReadHandler(t *testing.T) {
 func testReadVolumes(t *testing.T, sut *readHandlerImpl, readProcessor *mocks.MockReadProcessor) {
 	vol := model.Volume{
 		VolumeNumber: 1,
-		Section:      2,
 		Title:        "volume title",
 		Works: []model.Work{{
 			Code:  "A123",

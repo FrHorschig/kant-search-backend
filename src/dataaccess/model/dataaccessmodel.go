@@ -36,6 +36,7 @@ type SearchOptions struct {
 type SearchResult struct {
 	HighlightText string
 	FmtText       string
+	Pages         []int32
 	PageByIndex   []IndexNumberPair
 	LineByIndex   []IndexNumberPair
 	Ordinal       int32
