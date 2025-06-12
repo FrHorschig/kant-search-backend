@@ -29,6 +29,7 @@ func HitsToApiModels(hits []model.SearchResult) []models.SearchResult {
 		apiHit := models.Hit{
 			HighlightText: hit.HighlightText,
 			FmtText:       hit.FmtText,
+			Pages:         hit.Pages,
 			PageByIndex:   mapIndexByNumberPairs(hit.PageByIndex),
 			LineByIndex:   mapIndexByNumberPairs(hit.LineByIndex),
 			Ordinal:       hit.Ordinal,

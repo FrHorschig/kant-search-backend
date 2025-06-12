@@ -11,7 +11,6 @@ func VolumesToApiModels(in []model.Volume) []models.Volume {
 	for _, vIn := range in {
 		vOut := models.Volume{
 			VolumeNumber: vIn.VolumeNumber,
-			Section:      vIn.Section,
 			Title:        vIn.Title,
 			Works:        []models.Work{},
 		}

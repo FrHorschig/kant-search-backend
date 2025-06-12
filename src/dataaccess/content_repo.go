@@ -304,6 +304,7 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 		results = append(results, model.SearchResult{
 			HighlightText: hit.Highlight["searchText."+string(analyzer)][0],
 			FmtText:       c.FmtText,
+			Pages:         c.Pages,
 			PageByIndex:   c.PageByIndex,
 			LineByIndex:   c.LineByIndex,
 			Ordinal:       c.Ordinal,

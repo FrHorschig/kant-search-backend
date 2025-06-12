@@ -19,7 +19,6 @@ func TestVolumeRepo(t *testing.T) {
 	repo := NewVolumeRepo(dbClient)
 	vol := model.Volume{
 		VolumeNumber: 1,
-		Section:      2,
 		Title:        "volume title",
 		Works: []model.Work{{
 			Code:         "GMS",
@@ -39,7 +38,6 @@ func TestVolumeRepo(t *testing.T) {
 	}
 	vol2 := model.Volume{
 		VolumeNumber: 2,
-		Section:      3,
 		Title:        "volume title 2",
 		Works: []model.Work{{
 			Code:         "KPV",

@@ -125,6 +125,7 @@ func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mo
 	matches := []model.SearchResult{{
 		HighlightText: "highlightText",
 		FmtText:       "fmtText",
+		Pages:         []int32{1},
 		PageByIndex:   []model.IndexNumberPair{{I: 12, Num: 37}},
 		LineByIndex:   []model.IndexNumberPair{{I: 8, Num: 2481}},
 		Ordinal:       1,
@@ -144,6 +145,7 @@ func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mo
 	assert.Contains(t, res.Body.String(), "hits")
 	assert.Contains(t, res.Body.String(), "highlightText")
 	assert.Contains(t, res.Body.String(), "fmtText")
+	assert.Contains(t, res.Body.String(), "pages")
 	assert.Contains(t, res.Body.String(), "pageByIndex")
 	assert.Contains(t, res.Body.String(), "lineByIndex")
 	assert.Contains(t, res.Body.String(), "1")

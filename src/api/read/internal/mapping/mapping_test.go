@@ -13,7 +13,6 @@ func TestVolumesToApiModels(t *testing.T) {
 	in := []model.Volume{
 		{
 			VolumeNumber: 1,
-			Section:      2,
 			Title:        "Volume One",
 			Works: []model.Work{
 				{
@@ -36,7 +35,6 @@ func TestVolumesToApiModels(t *testing.T) {
 	expected := []models.Volume{
 		{
 			VolumeNumber: 1,
-			Section:      2,
 			Title:        "Volume One",
 			Works: []models.Work{
 				{

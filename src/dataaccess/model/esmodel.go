@@ -8,7 +8,6 @@ import (
 // structs for volume-works metadata
 type Volume struct {
 	VolumeNumber int32  `json:"volumeNumber"`
-	Section      int32  `json:"section"`
 	Title        string `json:"title"`
 	Works        []Work `json:"works"`
 }
@@ -32,8 +31,8 @@ type Section struct {
 var VolumeMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
 		"volumeNumber": types.NewIntegerNumberProperty(),
-		"section":      &types.IntegerNumberProperty{Index: util.FalsePtr()},
 		"title":        &types.TextProperty{Index: util.FalsePtr()},
+		// TODO do we really need this here, would ObjectProperty not be enough?
 		"works": &types.TypeMapping{
 			Properties: map[string]types.Property{
 				"code":         types.NewKeywordProperty(),
