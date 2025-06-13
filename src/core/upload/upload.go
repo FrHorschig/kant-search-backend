@@ -394,7 +394,8 @@ func extractWordData(text string) []WordData {
 	words := []WordData{}
 	var currentWord strings.Builder
 	startIndex := 0
-	for i, r := range text {
+	i := 0
+	for _, r := range text {
 		if unicode.IsLetter(r) {
 			if currentWord.Len() == 0 {
 				startIndex = i
@@ -407,6 +408,7 @@ func extractWordData(text string) []WordData {
 			})
 			currentWord.Reset()
 		}
+		i++
 	}
 	if currentWord.Len() > 0 {
 		words = append(words, WordData{
