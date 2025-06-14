@@ -163,7 +163,7 @@ func TestRemoveTags(t *testing.T) {
 		},
 		{
 			name:     "Text with mixed tags",
-			text:     "Mixed " + fnRef(1, 2) + " and <b>HTML</b> tags " + page(3) + ".",
+			text:     "Mixed " + fnRef(1, 2) + " and <ks-fmt-bold>HTML</ks-fmt-bold> tags " + page(3) + ".",
 			expected: "Mixed and HTML tags .",
 		},
 		{
@@ -180,11 +180,6 @@ func TestRemoveTags(t *testing.T) {
 			name:     "Text with malformed HTML tags",
 			text:     "Malformed <tag text.",
 			expected: "Malformed <tag text.",
-		},
-		{
-			name:     "Text with self-closing HTML tags",
-			text:     "Image: <img src='image.jpg'/> here.",
-			expected: "Image: here.",
 		},
 	}
 

@@ -71,7 +71,7 @@ func TestHx(t *testing.T) {
 			text:              "Test text",
 			child:             createElement("name", nil, "nameText", nil),
 			expectedTocTitle:  "Test text nameText",
-			expectedTextTitle: "Test text nameText",
+			expectedTextTitle: "Test text " + util.FmtName("nameText"),
 		},
 		{
 			name:              "Text with op child element",
@@ -180,7 +180,7 @@ func TestHu(t *testing.T) {
 			name:     "Text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: "Test text nameText",
+			expected: "Test text " + util.FmtName("nameText"),
 		},
 		{
 			name:     "Text with op child element",
@@ -301,7 +301,7 @@ func TestP(t *testing.T) {
 			name:     "Text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: "Test text nameText",
+			expected: "Test text " + util.FmtName("nameText"),
 		},
 		{
 			name:     "Text with op child element",
