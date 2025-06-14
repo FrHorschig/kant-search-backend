@@ -116,7 +116,6 @@ func testSearchSuccess(t *testing.T, sut *searchHandlerImpl, searchProcessor *mo
 	body, err := json.Marshal(models.SearchCriteria{
 		SearchTerms: "string",
 		Options: models.SearchOptions{
-			Scope:     models.SearchScope("PARAGRAPH"),
 			WorkCodes: []string{"workCode"},
 		}})
 	if err != nil {

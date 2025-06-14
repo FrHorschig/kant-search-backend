@@ -19,7 +19,6 @@ func TestCriteriaToCoreModel(t *testing.T) {
 			IncludeHeadings:  false,
 			IncludeFootnotes: true,
 			IncludeSummaries: false,
-			Scope:            models.SearchScope("PARAGRAPH"),
 			WithStemming:     true,
 			WorkCodes:        []string{"id1", "id2"},
 		},
@@ -29,7 +28,6 @@ func TestCriteriaToCoreModel(t *testing.T) {
 
 	assert.Equal(t, ss, criteria.SearchTerms)
 	assert.Equal(t, opts.WorkCodes, criteria.Options.WorkCodes)
-	assert.Equal(t, string(opts.Scope), string(criteria.Options.Scope))
 	assert.Equal(t, opts.IncludeHeadings, criteria.Options.IncludeHeadings)
 	assert.Equal(t, opts.IncludeFootnotes, criteria.Options.IncludeFootnotes)
 	assert.Equal(t, opts.IncludeSummaries, criteria.Options.IncludeSummaries)

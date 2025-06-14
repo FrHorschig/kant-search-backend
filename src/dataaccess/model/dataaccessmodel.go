@@ -18,17 +18,10 @@ type Token struct {
 	Text     string
 }
 
-type SearchScope string
-
-const (
-	ParagraphScope SearchScope = "PARAGRAPH"
-)
-
 type SearchOptions struct {
 	IncludeHeadings  bool
 	IncludeFootnotes bool
 	IncludeSummaries bool
-	Scope            SearchScope
 	WithStemming     bool
 	WorkCodes        []string
 }
