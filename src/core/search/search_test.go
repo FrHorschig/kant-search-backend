@@ -23,7 +23,7 @@ func TestSearchProcessor(t *testing.T) {
 }
 
 func testSearchSyntaxError(t *testing.T, sut *searchProcessorImpl, contentRepo *dbMocks.MockContentRepo) {
-	// body, err := json.Marshal(models.SearchCriteria{WorkIds: []string{"id1"}, SearchString: "& test", Options: models.SearchOptions{Scope: models.SearchScope("PARAGRAPH")}})
+	// body, err := json.Marshal(models.SearchCriteria{WorkIds: []string{"id1"}, SearchString: "& test", Options: models.SearchOptions{}})
 	//
 	//	if err != nil {
 	//		t.Fatal(err)
