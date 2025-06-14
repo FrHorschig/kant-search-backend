@@ -89,6 +89,8 @@ func extractText(elem *etree.Element, switchFn func(el *etree.Element) (string, 
 
 func contractSpaces(s string) string {
 	re := regexp.MustCompile(`\s+`)
-	contracted := re.ReplaceAllString(s, " ")
-	return strings.TrimSpace(contracted)
+	s = re.ReplaceAllString(s, " ")
+	re = regexp.MustCompile(`\s+([.,:;?!])`)
+	s = re.ReplaceAllString(s, `$1`)
+	return strings.TrimSpace(s)
 }

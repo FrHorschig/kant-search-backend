@@ -204,7 +204,6 @@ func replaceCustomEntities(xml string) string {
 }
 
 func preprocess(xml string) string {
-	// TODO find a better solution that this (without it, `trenn` tags are replaced by spaces in the end result)
 	re := regexp.MustCompile(`\s*<trenn/>\s*`)
 	return re.ReplaceAllString(xml, "")
 }

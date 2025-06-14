@@ -50,6 +50,9 @@ const (
 	headMatchEnd    = `</ks-fmt-h\d>`
 	headMatch       = headMatchStart + `%s` + headMatchEnd
 	langFmt         = `%s`
+	nameFmtStart    = "<ks-fmt-name>"
+	nameFmtEnd      = "</ks-fmt-name>"
+	nameFmt         = nameFmtStart + "%s" + nameFmtEnd
 	parHeadFmtStart = "<ks-fmt-hpar>"
 	parHeadFmtEnd   = "</ks-fmt-hpar>"
 	parHeadFmt      = parHeadFmtStart + "%s" + parHeadFmtEnd
@@ -82,6 +85,10 @@ func FmtLang(lang string) string {
 	return lang
 }
 
+func FmtName(content string) string {
+	return fmt.Sprintf(nameFmt, content)
+}
+
 func FmtParHeading(content string) string {
 	return fmt.Sprintf(parHeadFmt, content)
 }
@@ -100,18 +107,38 @@ func FmtImage(src, desc string) string {
 	return "" // ignore for now
 }
 
-func RemoveTags(text string) string {
+func RemoveTags(input string) string {
 	re := regexp.MustCompile(FnRefMatch)
-	text = re.ReplaceAllString(text, "")
+	input = re.ReplaceAllString(input, "")
 	re = regexp.MustCompile(LineMatch)
-	text = re.ReplaceAllString(text, "")
+	input = re.ReplaceAllString(input, "")
 	re = regexp.MustCompile(PageMatch)
-	text = re.ReplaceAllString(text, "")
+	input = re.ReplaceAllString(input, "")
+	re = regexp.MustCompile(headMatchStart)
+	input = re.ReplaceAllString(input, "")
+	re = regexp.MustCompile(headMatchEnd)
+	input = re.ReplaceAllString(input, "")
+
+	input = strings.ReplaceAll(input, boldFmtStart, "")
+	input = strings.ReplaceAll(input, boldFmtEnd, "")
+	input = strings.ReplaceAll(input, emphFmtStart, "")
+	input = strings.ReplaceAll(input, emphFmtEnd, "")
+	input = strings.ReplaceAll(input, emph2FmtStart, "")
+	input = strings.ReplaceAll(input, emph2FmtEnd, "")
+	input = strings.ReplaceAll(input, formulaFmtStart, "")
+	input = strings.ReplaceAll(input, formulaFmtEnd, "")
+	input = strings.ReplaceAll(input, nameFmtStart, "")
+	input = strings.ReplaceAll(input, nameFmtEnd, "")
+	input = strings.ReplaceAll(input, parHeadFmtStart, "")
+	input = strings.ReplaceAll(input, parHeadFmtEnd, "")
+	input = strings.ReplaceAll(input, trackedFmtStart, "")
+	input = strings.ReplaceAll(input, trackedFmtEnd, "")
+
 	re = regexp.MustCompile(`<[^>]*>`)
-	text = re.ReplaceAllString(text, "")
+	input = re.ReplaceAllString(input, "")
 	re = regexp.MustCompile(`\s+`)
-	text = re.ReplaceAllString(text, " ")
-	return strings.TrimSpace(text)
+	input = re.ReplaceAllString(input, " ")
+	return strings.TrimSpace(input)
 }
 
 func MaskTags(input string) string {
@@ -134,6 +161,8 @@ func MaskTags(input string) string {
 	input = strings.ReplaceAll(input, emph2FmtEnd, mask(emph2FmtEnd))
 	input = strings.ReplaceAll(input, formulaFmtStart, mask(formulaFmtStart))
 	input = strings.ReplaceAll(input, formulaFmtEnd, mask(formulaFmtEnd))
+	input = strings.ReplaceAll(input, nameFmtStart, mask(trackedFmtStart))
+	input = strings.ReplaceAll(input, nameFmtEnd, mask(trackedFmtEnd))
 	input = strings.ReplaceAll(input, parHeadFmtStart, mask(parHeadFmtStart))
 	input = strings.ReplaceAll(input, parHeadFmtEnd, mask(parHeadFmtEnd))
 	input = strings.ReplaceAll(input, trackedFmtStart, mask(trackedFmtStart))

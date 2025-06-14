@@ -40,7 +40,7 @@ func TestAntiqua(t *testing.T) {
 			name:     "Text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: "Test text nameText",
+			expected: "Test text " + util.FmtName("nameText"),
 		},
 		{
 			name:     "Text with seite child element",
@@ -169,7 +169,7 @@ func TestEm2(t *testing.T) {
 			name:     "Text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: util.FmtEmph2("Test text nameText"),
+			expected: util.FmtEmph2("Test text " + util.FmtName("nameText")),
 		},
 		{
 			name:     "Text with romzahl child element",
@@ -429,7 +429,7 @@ func TestFremdsprache(t *testing.T) {
 			name:     "Text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: util.FmtLang("Test text nameText"),
+			expected: util.FmtLang("Test text " + util.FmtName("nameText")),
 		},
 		{
 			name:     "Text with romzahl child element",
@@ -504,7 +504,7 @@ func TestGesperrt(t *testing.T) {
 			name:     "Text with name child element",
 			text:     "Test text",
 			child:    createElement("name", nil, "nameText", nil),
-			expected: util.FmtTracked("Test text nameText"),
+			expected: util.FmtTracked("Test text " + util.FmtName("nameText")),
 		},
 		{
 			name:     "Text with seite child element",
@@ -558,31 +558,31 @@ func TestName(t *testing.T) {
 		{
 			name:     "Pure text",
 			text:     "Some name",
-			expected: "Some name",
+			expected: util.FmtName("Some name"),
 		},
 		{
 			name:     "Text with seite child element",
 			text:     "Test text",
 			child:    createElement("seite", map[string]string{"nr": "384"}, "", nil),
-			expected: "Test text " + util.FmtPage(384),
+			expected: util.FmtName("Test text " + util.FmtPage(384)),
 		},
 		{
 			name:     "Text with trenn child element",
 			text:     "Test text",
 			child:    createElement("trenn", nil, "trennText", nil),
-			expected: "Test text",
+			expected: util.FmtName("Test text"),
 		},
 		{
 			name:     "Text with zeile child element",
 			text:     "Test text",
 			child:    createElement("zeile", map[string]string{"nr": "328"}, "", nil),
-			expected: "Test text " + util.FmtLine(328),
+			expected: util.FmtName("Test text " + util.FmtLine(328)),
 		},
 		{
 			name:     "Text with leading and trailing spaces",
 			text:     "   Test text       ",
 			child:    nil,
-			expected: "Test text",
+			expected: util.FmtName("Test text"),
 		},
 		{
 			name:        "Text with unknown child element",

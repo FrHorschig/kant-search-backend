@@ -213,7 +213,11 @@ func name(elem *etree.Element) (string, errs.UploadError) {
 			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
 		}
 	}
-	return extractText(elem, switchFn)
+	extracted, err := extractText(elem, switchFn)
+	if err.HasError {
+		return "", err
+	}
+	return util.FmtName(extracted), errs.Nil()
 }
 
 func romzahl(elem *etree.Element) (string, errs.UploadError) {
