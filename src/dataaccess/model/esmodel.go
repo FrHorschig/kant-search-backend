@@ -13,13 +13,13 @@ type Volume struct {
 }
 
 type Work struct {
-	Code         string    `json:"code"`
-	Abbreviation *string   `json:"abbreviation,omitempty"`
-	Title        string    `json:"title"`
-	Year         string    `json:"year"`
-	Ordinal      int32     `json:"ordinal"`
-	Paragraphs   []int32   `json:"paragraphs"`
-	Sections     []Section `json:"sections"`
+	Code       string    `json:"code"`
+	Siglum     *string   `json:"siglum,omitempty"`
+	Title      string    `json:"title"`
+	Year       string    `json:"year"`
+	Ordinal    int32     `json:"ordinal"`
+	Paragraphs []int32   `json:"paragraphs"`
+	Sections   []Section `json:"sections"`
 }
 
 type Section struct {
@@ -35,12 +35,12 @@ var VolumeMapping = &types.TypeMapping{
 		// TODO do we really need this here, would ObjectProperty not be enough?
 		"works": &types.TypeMapping{
 			Properties: map[string]types.Property{
-				"code":         types.NewKeywordProperty(),
-				"abbreviation": &types.TextProperty{Index: util.FalsePtr()},
-				"title":        &types.TextProperty{Index: util.FalsePtr()},
-				"year":         &types.TextProperty{Index: util.FalsePtr()},
-				"ordinal":      &types.TextProperty{Index: util.FalsePtr()},
-				"paragraphs":   &types.IntegerNumberProperty{Index: util.FalsePtr()},
+				"code":       types.NewKeywordProperty(),
+				"siglum":     &types.TextProperty{Index: util.FalsePtr()},
+				"title":      &types.TextProperty{Index: util.FalsePtr()},
+				"year":       &types.TextProperty{Index: util.FalsePtr()},
+				"ordinal":    &types.TextProperty{Index: util.FalsePtr()},
+				"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
 				"sections": &types.NestedProperty{
 					Properties: map[string]types.Property{
 						"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},

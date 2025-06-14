@@ -16,11 +16,11 @@ func TestVolumesToApiModels(t *testing.T) {
 			Title:        "Volume One",
 			Works: []model.Work{
 				{
-					Ordinal:      1,
-					Code:         "C1",
-					Abbreviation: util.StrPtr("abbr"),
-					Title:        "The Work",
-					Year:         "2024",
+					Ordinal: 1,
+					Code:    "C1",
+					Siglum:  util.StrPtr("abbr"),
+					Title:   "The Work",
+					Year:    "2024",
 					Sections: []model.Section{
 						{
 							Heading:    1,
@@ -38,11 +38,11 @@ func TestVolumesToApiModels(t *testing.T) {
 			Title:        "Volume One",
 			Works: []models.Work{
 				{
-					Ordinal:      1,
-					Code:         "C1",
-					Abbreviation: "abbr",
-					Title:        "The Work",
-					Year:         "2024",
+					Ordinal: 1,
+					Code:    "C1",
+					Siglum:  "abbr",
+					Title:   "The Work",
+					Year:    "2024",
 					Sections: []models.Section{
 						{
 							Heading:    1,

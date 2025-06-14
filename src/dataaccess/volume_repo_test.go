@@ -21,11 +21,11 @@ func TestVolumeRepo(t *testing.T) {
 		VolumeNumber: 1,
 		Title:        "volume title",
 		Works: []model.Work{{
-			Code:         "GMS",
-			Abbreviation: util.StrPtr("GMS"),
-			Title:        "Grundlegung zur Metaphysik der Sitten",
-			Year:         "1785",
-			Ordinal:      1,
+			Code:    "GMS",
+			Siglum:  util.StrPtr("GMS"),
+			Title:   "Grundlegung zur Metaphysik der Sitten",
+			Year:    "1785",
+			Ordinal: 1,
 			Sections: []model.Section{{
 				Heading:    1,
 				Paragraphs: []int32{2, 3, 4},
@@ -40,11 +40,11 @@ func TestVolumeRepo(t *testing.T) {
 		VolumeNumber: 2,
 		Title:        "volume title 2",
 		Works: []model.Work{{
-			Code:         "KPV",
-			Abbreviation: util.StrPtr("KPV"),
-			Title:        "Kritik der praktischen Vernunft",
-			Year:         "1788",
-			Ordinal:      1,
+			Code:    "KPV",
+			Siglum:  util.StrPtr("KPV"),
+			Title:   "Kritik der praktischen Vernunft",
+			Year:    "1788",
+			Ordinal: 1,
 			Sections: []model.Section{{
 				Heading:    1,
 				Paragraphs: []int32{2, 3, 4},

@@ -17,13 +17,13 @@ func VolumesToApiModels(in []model.Volume) []models.Volume {
 		for _, wIn := range vIn.Works {
 			vOut.Works = append(vOut.Works,
 				models.Work{
-					Ordinal:      wIn.Ordinal,
-					Code:         wIn.Code,
-					Abbreviation: util.StrVal(wIn.Abbreviation),
-					Title:        wIn.Title,
-					Year:         wIn.Year,
-					Paragraphs:   wIn.Paragraphs,
-					Sections:     mapSections(wIn.Sections),
+					Ordinal:    wIn.Ordinal,
+					Code:       wIn.Code,
+					Siglum:     util.StrVal(wIn.Siglum),
+					Title:      wIn.Title,
+					Year:       wIn.Year,
+					Paragraphs: wIn.Paragraphs,
+					Sections:   mapSections(wIn.Sections),
 				},
 			)
 		}

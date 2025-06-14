@@ -62,7 +62,7 @@ func MapToModel(metadata metadata.VolumeMetadata, sections []model.TreeSection, 
 func mapWork(h0 model.TreeSection, metadata metadata.VolumeMetadata, index int) (model.Work, errs.UploadError) {
 	work := model.Work{}
 	work.Code = metadata.Works[index].Code
-	work.Abbreviation = metadata.Works[index].Abbreviation
+	work.Siglum = metadata.Works[index].Siglum
 	work.Title = h0.Heading.TocTitle
 	if h0.Heading.Year != "" {
 		work.Year = h0.Heading.Year
