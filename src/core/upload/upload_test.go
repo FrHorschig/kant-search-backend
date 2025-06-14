@@ -44,10 +44,10 @@ func TestUploadProcessSuccess(t *testing.T) {
 		Title:        "volume title",
 	}
 	work := model.Work{
-		Code:         wCode,
-		Abbreviation: util.StrPtr("abbrev"),
-		Title:        "work title",
-		Year:         "1785",
+		Code:   wCode,
+		Siglum: util.StrPtr("siglum"),
+		Title:  "work title",
+		Year:   "1785",
 		Sections: []model.Section{
 			{
 				Heading: head(1),
@@ -130,12 +130,12 @@ func TestUploadProcessSuccess(t *testing.T) {
 			VolumeNumber: vol.VolumeNumber,
 			Title:        vol.Title,
 			Works: []dbmodel.Work{{
-				Code:         work.Code,
-				Abbreviation: work.Abbreviation,
-				Title:        work.Title,
-				Year:         work.Year,
-				Ordinal:      1,
-				Paragraphs:   []int32{},
+				Code:       work.Code,
+				Siglum:     work.Siglum,
+				Title:      work.Title,
+				Year:       work.Year,
+				Ordinal:    1,
+				Paragraphs: []int32{},
 				Sections: []dbmodel.Section{
 					{
 						Heading:    1,
@@ -323,10 +323,10 @@ func mockXmlMapper(mapper *mocks.MockXmlMapper, wCode string) {
 	mapper.EXPECT().MapVolume(gomock.Any(), gomock.Any()).Return(&model.Volume{}, errs.Nil())
 	mapper.EXPECT().MapWorks(gomock.Any(), gomock.Any()).Return([]model.Work{
 		{
-			Code:         wCode,
-			Title:        "t",
-			Abbreviation: util.StrPtr("abbr"),
-			Year:         "2024",
+			Code:   wCode,
+			Title:  "t",
+			Siglum: util.StrPtr("abbr"),
+			Year:   "2024",
 			Sections: []model.Section{{
 				Heading: head(1),
 				Paragraphs: []model.Paragraph{

@@ -7,14 +7,14 @@ type Volume struct {
 }
 
 type Work struct {
-	Code         string
-	Abbreviation *string
-	Title        string
-	Year         string
-	Paragraphs   []Paragraph
-	Sections     []Section
-	Footnotes    []Footnote
-	Summaries    []Summary
+	Code       string
+	Siglum     *string
+	Title      string
+	Year       string
+	Paragraphs []Paragraph
+	Sections   []Section
+	Footnotes  []Footnote
+	Summaries  []Summary
 }
 
 type Section struct {

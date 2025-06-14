@@ -147,13 +147,13 @@ func createSummsByRef(summaries []model.Summary) map[string]model.Summary {
 }
 func createWork(w model.Work, ordinal int32, pars []int32, secs []dbmodel.Section) dbmodel.Work {
 	return dbmodel.Work{
-		Ordinal:      ordinal,
-		Code:         w.Code,
-		Abbreviation: w.Abbreviation,
-		Title:        w.Title,
-		Year:         w.Year,
-		Paragraphs:   pars,
-		Sections:     secs,
+		Ordinal:    ordinal,
+		Code:       w.Code,
+		Siglum:     w.Siglum,
+		Title:      w.Title,
+		Year:       w.Year,
+		Paragraphs: pars,
+		Sections:   secs,
 	}
 }
 
