@@ -114,7 +114,7 @@ func hx(elem *etree.Element) (model.TreeHeading, errs.UploadError) {
 				}
 				textTitle += line
 			default:
-				return model.TreeHeading{}, errs.New(fmt.Errorf("unknown tag '%s' in hauptteil element", el.Tag), nil)
+				return model.TreeHeading{}, errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 			}
 		}
 		tocTitle += " "
@@ -157,7 +157,7 @@ func hu(elem *etree.Element) (string, errs.UploadError) {
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
@@ -201,7 +201,7 @@ func p(elem *etree.Element) (string, errs.UploadError) {
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
@@ -225,7 +225,7 @@ func footnote(elem *etree.Element) (model.TreeFootnote, errs.UploadError) {
 		case "p":
 			return p(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	text, err := extractText(elem, switchFn)
@@ -253,7 +253,7 @@ func summary(elem *etree.Element) (model.TreeSummary, errs.UploadError) {
 		case "p":
 			return p(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	text, err := extractText(elem, switchFn)
