@@ -202,7 +202,7 @@ func postprocessParagraph(par *model.Paragraph, latestPage *int32) {
 		}
 
 	} else {
-		// this happens when a paragraph is fully inside a page and at least on line away from the page start and end
+		// this happens when a paragraph is fully inside a page
 		par.Pages = []int32{*latestPage}
 	}
 }
@@ -369,14 +369,12 @@ func findSummaryParagraph(summary *model.Summary, sections []model.Section) (*mo
 				return p, errs.Nil()
 			}
 		}
-		for iS := range s.Sections {
-			p, err := findSummaryParagraph(summary, s.Sections[iS].Sections)
-			if err.HasError {
-				return nil, err
-			}
-			if p != nil {
-				return p, errs.Nil()
-			}
+		p, err := findSummaryParagraph(summary, s.Sections)
+		if err.HasError {
+			return nil, err
+		}
+		if p != nil {
+			return p, errs.Nil()
 		}
 	}
 	return nil, errs.Nil()
