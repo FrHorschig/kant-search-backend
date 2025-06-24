@@ -27,7 +27,7 @@ func antiqua(elem *etree.Element) (string, errs.UploadError) {
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
@@ -76,7 +76,7 @@ func em2(elem *etree.Element) (string, errs.UploadError) {
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
@@ -96,7 +96,7 @@ func fett(elem *etree.Element) (string, errs.UploadError) {
 		case "trenn":
 			return "", errs.Nil()
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
@@ -112,7 +112,7 @@ func formel(elem *etree.Element) (string, errs.UploadError) {
 		case "em1":
 			return em1(el), errs.Nil()
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
@@ -166,7 +166,7 @@ func fremdsprache(elem *etree.Element) (string, errs.UploadError) {
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
@@ -190,7 +190,7 @@ func gesperrt(elem *etree.Element) (string, errs.UploadError) {
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
@@ -209,8 +209,10 @@ func name(elem *etree.Element) (string, errs.UploadError) {
 			return zeile(el)
 		case "trenn":
 			return "", errs.Nil()
+		case "fett":
+			return fett(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in %s element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
 		}
 	}
 	extracted, err := extractText(elem, switchFn)
