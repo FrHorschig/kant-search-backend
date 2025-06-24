@@ -33,7 +33,7 @@ func findSections(hauptteil *etree.Element) ([]model.TreeSection, errs.UploadErr
 	currentYear := ""
 	pagePrefix := ""
 	for _, el := range hauptteil.ChildElements() {
-		// TODO (later): If <seite> occurs after a word with <trenn>, the page break is inside the word. Improve the handling of these situations.
+		// Something to improve later: If <seite> occurs after a word with <trenn>, the page break is inside the word. Improve the handling of these situations.
 		switch el.Tag {
 		case "h1":
 			hx, err := transform.Hx(el)
