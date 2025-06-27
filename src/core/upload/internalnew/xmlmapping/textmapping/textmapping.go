@@ -59,7 +59,7 @@ func mapHeading(heading *model.Heading) errs.UploadError {
 
 func mapParagraphs(paragraphs []model.Paragraph) errs.UploadError {
 	for i := range paragraphs {
-		p := paragraphs[i]
+		p := &paragraphs[i]
 		pText, err := p.Text, errs.Nil()
 		if strings.HasPrefix(pText, "<hu>") {
 			pText, err = trafo.Hu(pText)

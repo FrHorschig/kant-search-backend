@@ -7,31 +7,8 @@ import (
 
 	"github.com/beevik/etree"
 	"github.com/frhorschig/kant-search-backend/common/errs"
-	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/model"
 	"github.com/rs/zerolog/log"
 )
-
-func level(el *etree.Element) model.TreeLevel {
-	switch el.Tag {
-	case "h1":
-		return model.HWork
-	case "h2":
-		return model.H1
-	case "h3":
-		return model.H2
-	case "h4":
-		return model.H3
-	case "h5":
-		return model.H4
-	case "h6":
-		return model.H5
-	case "h7":
-		return model.H6
-	case "h8":
-		return model.H7
-	}
-	return model.H8
-}
 
 func arabicToRoman(number int64) string {
 	conversions := []struct {

@@ -16,11 +16,11 @@ func MapTree(xml string) ([]model.Work, []model.Footnote, []model.Summary, errs.
 	if err.HasError {
 		return nil, nil, nil, err
 	}
-	summaries, err := findSummaries(doc.FindElement("//randtexte"))
+	footnotes, err := findFootnotes(doc.FindElement("//fussnoten"))
 	if err.HasError {
 		return nil, nil, nil, err
 	}
-	footnotes, err := findFootnotes(doc.FindElement("//fussnoten"))
+	summaries, err := findSummaries(doc.FindElement("//randtexte"))
 	if err.HasError {
 		return nil, nil, nil, err
 	}
@@ -52,10 +52,15 @@ func findWorks(hauptteil *etree.Element) ([]model.Work, errs.UploadError) {
 				Sections:   []model.Section{},
 			}
 			works = append(works, work)
-			currPars = &work.Paragraphs
-			updateSectionList(&sectionList, &work.Sections, 1)
+			w := &works[len(works)-1]
+			currPars = &w.Paragraphs
+			updateSectionList(&sectionList, &w.Sections, 1)
 
 		case "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9":
+			if pagePrefix != "" {
+				elStr = elStr[0:len(el.Tag)+2] + pagePrefix + elStr[len(el.Tag)+2:]
+				pagePrefix = ""
+			}
 			sec := model.Section{
 				Heading:    model.Heading{Text: elStr},
 				Paragraphs: []model.Paragraph{},
@@ -66,17 +71,16 @@ func findWorks(hauptteil *etree.Element) ([]model.Work, errs.UploadError) {
 				return nil, errs.New(fmt.Errorf("the difference between the heading level %s for heading '%s' and the heading before is greater than 1", el.Tag, sec.Heading.Text), nil)
 			}
 			*sectionList[lvl-1] = append(*sectionList[lvl-1], sec)
-			currPars = &sec.Paragraphs
-			updateSectionList(&sectionList, &sec.Sections, lvl)
+			s := &((*(sectionList[lvl-1]))[len(*sectionList[lvl-1])-1])
+			currPars = &s.Paragraphs
+			updateSectionList(&sectionList, &s.Sections, lvl)
 
 		case "hu", "p", "table":
 			if pagePrefix != "" {
-				*currPars = append(*currPars, model.Paragraph{
-					Text: pagePrefix + elStr,
-				})
-			} else {
-				*currPars = append(*currPars, model.Paragraph{Text: elStr})
+				elStr = elStr[0:len(el.Tag)+2] + pagePrefix + elStr[len(el.Tag)+2:]
+				pagePrefix = ""
 			}
+			*currPars = append(*currPars, model.Paragraph{Text: elStr})
 
 		case "op":
 			continue
@@ -91,21 +95,6 @@ func findWorks(hauptteil *etree.Element) ([]model.Work, errs.UploadError) {
 	return works, errs.Nil()
 }
 
-func findSummaries(randtexte *etree.Element) ([]model.Summary, errs.UploadError) {
-	if randtexte == nil {
-		return []model.Summary{}, errs.Nil()
-	}
-	result := make([]model.Summary, 0)
-	for _, el := range randtexte.ChildElements() {
-		elStr, err := elemToString(el)
-		if err != nil {
-			return nil, errs.New(nil, fmt.Errorf("error writing element '%s' to string: %v", el.Tag, err))
-		}
-		result = append(result, model.Summary{Text: elStr})
-	}
-	return result, errs.Nil()
-}
-
 func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errs.UploadError) {
 	if fussnoten == nil {
 		return []model.Footnote{}, errs.Nil()
@@ -117,6 +106,21 @@ func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errs.UploadError
 			return nil, errs.New(nil, fmt.Errorf("error writing element '%s' to string: %v", el.Tag, err))
 		}
 		result = append(result, model.Footnote{Text: elStr})
+	}
+	return result, errs.Nil()
+}
+
+func findSummaries(randtexte *etree.Element) ([]model.Summary, errs.UploadError) {
+	if randtexte == nil {
+		return []model.Summary{}, errs.Nil()
+	}
+	result := make([]model.Summary, 0)
+	for _, el := range randtexte.ChildElements() {
+		elStr, err := elemToString(el)
+		if err != nil {
+			return nil, errs.New(nil, fmt.Errorf("error writing element '%s' to string: %v", el.Tag, err))
+		}
+		result = append(result, model.Summary{Text: elStr})
 	}
 	return result, errs.Nil()
 }
