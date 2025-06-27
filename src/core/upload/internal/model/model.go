@@ -24,6 +24,7 @@ type Section struct {
 }
 
 type Heading struct {
+	Ordinal int32
 	Text    string
 	TocText string
 	Pages   []int32
@@ -31,6 +32,7 @@ type Heading struct {
 }
 
 type Paragraph struct {
+	Ordinal    int32
 	Text       string
 	Pages      []int32
 	FnRefs     []string
@@ -38,14 +40,16 @@ type Paragraph struct {
 }
 
 type Footnote struct {
-	Ref   string
-	Text  string
-	Pages []int32
+	Ordinal int32
+	Ref     string
+	Text    string
+	Pages   []int32
 }
 
 type Summary struct {
-	Ref    string
-	Text   string
-	Pages  []int32
-	FnRefs []string
+	Ordinal int32
+	Ref     string
+	Text    string
+	Pages   []int32
+	FnRefs  []string
 }
