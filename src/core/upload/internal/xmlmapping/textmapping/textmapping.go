@@ -31,45 +31,47 @@ func mapWorks(works []model.Work) errs.UploadError {
 			return err
 		}
 		works[i].Title = tocText
-		for j := range works[i].Paragraphs {
-			mapParagraph(&works[i].Paragraphs[j])
-		}
-		for j := range works[i].Sections {
-			mapSection(&works[i].Sections[j])
-		}
+		mapParagraphs(works[i].Paragraphs)
+		mapSections(works[i].Sections)
 	}
 	return errs.Nil()
 }
 
-func mapParagraph(p *model.Paragraph) errs.UploadError {
-	pText, err := p.Text, errs.Nil()
-	if strings.HasPrefix(pText, "<hu>") {
-		pText, err = trafo.Hu(pText)
-	} else if strings.HasPrefix(pText, "<table>") {
-		pText, err = trafo.Table(pText)
-	} else {
-		pText, err = trafo.P(pText)
+func mapSections(sections []model.Section) errs.UploadError {
+	for i := range sections {
+		s := &sections[i]
+		mapHeading(&s.Heading)
+		mapParagraphs(s.Paragraphs)
+		mapSections(s.Sections)
 	}
-	if err.HasError {
-		return err
-	}
-	p.Text = pText
 	return errs.Nil()
 }
 
-func mapSection(s *model.Section) errs.UploadError {
-	fmtText, tocText, err := trafo.Hx(s.Heading.Text)
+func mapHeading(heading *model.Heading) errs.UploadError {
+	fmtText, tocText, err := trafo.Hx(heading.Text)
 	if err.HasError {
 		return err
 	}
-	s.Heading.Text = fmtText
-	s.Heading.TocText = tocText
+	heading.Text = fmtText
+	heading.TocText = tocText
+	return errs.Nil()
+}
 
-	for i := range s.Paragraphs {
-		mapParagraph(&s.Paragraphs[i])
-	}
-	for i := range s.Sections {
-		mapSection(&s.Sections[i])
+func mapParagraphs(paragraphs []model.Paragraph) errs.UploadError {
+	for i := range paragraphs {
+		p := paragraphs[i]
+		pText, err := p.Text, errs.Nil()
+		if strings.HasPrefix(pText, "<hu>") {
+			pText, err = trafo.Hu(pText)
+		} else if strings.HasPrefix(pText, "<table>") {
+			pText, err = trafo.Table(pText)
+		} else {
+			pText, err = trafo.P(pText)
+		}
+		if err.HasError {
+			return err
+		}
+		p.Text = pText
 	}
 	return errs.Nil()
 }
