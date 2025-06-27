@@ -14,40 +14,44 @@ import (
 func ExtractMetadata(works []model.Work, footnotes []model.Footnote, summaries []model.Summary) errs.UploadError {
 	latestPage := int32(1)
 	for i := range works {
-		for j := range works[i].Paragraphs {
-			p := &works[i].Paragraphs[j]
-			err := extractMetadata(p.Text, &p.Pages, &p.FnRefs, &latestPage)
-			if err.HasError {
-				return err
-			}
+		err := processParagraphs(works[i].Paragraphs, &latestPage)
+		if err.HasError {
+			return err
 		}
-		for j := range works[i].Sections {
-			err := processSection(&works[i].Sections[j], &latestPage)
-			if err.HasError {
-				return err
-			}
+		err = processSections(works[i].Sections, &latestPage)
+		if err.HasError {
+			return err
 		}
 	}
 	return errs.Nil()
 }
 
-func processSection(section *model.Section, latestPage *int32) errs.UploadError {
-	h := &section.Heading
-	err := extractMetadata(h.Text, &h.Pages, &h.FnRefs, latestPage)
-	if err.HasError {
-		return err
-	}
-
-	for i := range section.Paragraphs {
-		p := &section.Paragraphs[i]
-		err := extractMetadata(p.Text, &p.Pages, &p.FnRefs, latestPage)
+func processSections(sections []model.Section, latestPage *int32) errs.UploadError {
+	for i := range sections {
+		h := &sections[i].Heading
+		err := extractMetadata(h.Text, &h.Pages, &h.FnRefs, latestPage)
+		if err.HasError {
+			return err
+		}
+		err = processParagraphs(sections[i].Paragraphs, latestPage)
+		if err.HasError {
+			return err
+		}
+		err = processSections(sections[i].Sections, latestPage)
 		if err.HasError {
 			return err
 		}
 	}
+	return errs.Nil()
+}
 
-	for i := range section.Sections {
-		processSection(&section.Sections[i], latestPage)
+func processParagraphs(paragraphs []model.Paragraph, latestPage *int32) errs.UploadError {
+	for i := range paragraphs {
+		p := &paragraphs[i]
+		err := extractMetadata(p.Text, &p.Pages, &p.FnRefs, latestPage)
+		if err.HasError {
+			return err
+		}
 	}
 	return errs.Nil()
 }
