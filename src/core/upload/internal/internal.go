@@ -10,6 +10,7 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/modelmap"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/treemap"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/metadataextraction"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/ordering"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/referencemapping"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/textmapping"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/treemapping"
@@ -92,6 +93,10 @@ func (rec *xmlMapperNewImpl) MapWorks(volNr int32, xml string) ([]model.Work, er
 		return nil, err
 	}
 	err = referencemapping.MapReferences(works, fns, summs)
+	if err.HasError {
+		return nil, err
+	}
+	err = ordering.Order(works)
 	if err.HasError {
 		return nil, err
 	}
