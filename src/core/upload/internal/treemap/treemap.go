@@ -57,6 +57,7 @@ func findSections(hauptteil *etree.Element) ([]model.TreeSection, errs.UploadErr
 			}
 			if hx.TocTitle == "" {
 				// this happens if hx only has an hu element, which is the part of the heading that is not displayed in the TOC
+				// TODO this never happens in volumes 1-9, which makes sense: a heading not in the TOC should not be counted as a heading in the sense that it is starting a new section/subsection -> throw a bad-request error instead with this explanation
 				currentSec.Paragraphs = append(currentSec.Paragraphs, util.FmtParHeading(hx.TextTitle))
 				continue
 			}

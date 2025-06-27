@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/frhorschig/kant-search-backend/common/errs"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/metadata"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/metadatamapping/metadatamapping/metadata"
 )
 
 func MapMetadata(volumeNumber int32, works []model.Work, metadata metadata.Metadata) (string, errs.UploadError) {

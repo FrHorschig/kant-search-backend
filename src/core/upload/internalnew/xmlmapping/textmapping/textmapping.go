@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/frhorschig/kant-search-backend/common/errs"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
-	trafo "github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/textmapping/texttransform"
+	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/model"
+	trafo "github.com/frhorschig/kant-search-backend/core/upload/internalnew/xmlmapping/textmapping/texttransform"
 )
 
 func MapText(works []model.Work, footnotes []model.Footnote, summaries []model.Summary) errs.UploadError {

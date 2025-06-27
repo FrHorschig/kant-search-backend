@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/beevik/etree"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
+	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/util"
 	"github.com/stretchr/testify/assert"
 )
 
