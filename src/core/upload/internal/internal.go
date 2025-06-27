@@ -9,6 +9,10 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/modelmap"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/treemap"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/metadataextraction"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/referencemapping"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/textmapping"
+	"github.com/frhorschig/kant-search-backend/core/upload/internal/xmlmapping/treemapping"
 )
 
 type XmlMapper interface {
@@ -54,6 +58,40 @@ func (rec *xmlMapperImpl) MapWorks(volNr int32, xml string) ([]model.Work, errs.
 	}
 
 	works, err := modelmap.MapToModel(metadata, sections, summaries, footnotes)
+	if err.HasError {
+		return nil, err
+	}
+	return works, errs.Nil()
+}
+
+// =============================================================================
+
+type XmlMapperNew interface {
+	MapWorks(volNr int32, xml string) ([]model.Work, errs.UploadError)
+}
+
+type xmlMapperNewImpl struct {
+}
+
+func NewXmlMapperNew() XmlMapperNew {
+	impl := xmlMapperNewImpl{}
+	return &impl
+}
+
+func (rec *xmlMapperNewImpl) MapWorks(volNr int32, xml string) ([]model.Work, errs.UploadError) {
+	works, fns, summs, err := treemapping.MapTree(xml)
+	if err.HasError {
+		return nil, err
+	}
+	err = textmapping.MapText(works, fns, summs)
+	if err.HasError {
+		return nil, err
+	}
+	err = metadataextraction.ExtractMetadata(works, fns, summs)
+	if err.HasError {
+		return nil, err
+	}
+	err = referencemapping.MapReferences(works, fns, summs)
 	if err.HasError {
 		return nil, err
 	}
