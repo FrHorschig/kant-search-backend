@@ -9,7 +9,6 @@ import (
 	"os"
 )
 
-// TODO keep in sync with <frontend-dir>/src/app/search/util/works-select-util.ts
 type Metadata interface {
 	Read(volNr int32) (VolumeMetadata, error)
 }

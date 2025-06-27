@@ -1,8 +1,8 @@
 package flattening
 
 import (
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
+	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/util"
 	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 

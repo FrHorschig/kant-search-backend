@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/frhorschig/kant-search-backend/common/errs"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
-	"github.com/frhorschig/kant-search-backend/core/upload/internal/util"
+	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/model"
+	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/util"
 	"github.com/rs/zerolog/log"
 )
 
