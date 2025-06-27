@@ -23,6 +23,14 @@ func ExtractMetadata(works []model.Work, footnotes []model.Footnote, summaries [
 			return err
 		}
 	}
+	err := processFootnotes(footnotes)
+	if err.HasError {
+		return err
+	}
+	err = processSummaries(summaries)
+	if err.HasError {
+		return err
+	}
 	return errs.Nil()
 }
 
@@ -107,12 +115,71 @@ func supplementPages(pages *[]int32, text string, latestPage *int32) {
 		}
 	} else {
 		// this happens when a heading is fully inside a page and at least on line away from the page start and end
-		pages = &[]int32{*latestPage}
+		*pages = []int32{*latestPage}
 	}
 }
 
 func startsWithPageRef(text, pageRef string) bool {
 	index := strings.Index(text, pageRef)
+	if index < 0 {
+		return false
+	}
 	cleaned := util.RemoveTags(text[:index])
 	return cleaned == "" // in this case the text before page ref is only formatting code, so the actual text content starts with the page ref
+}
+
+func processFootnotes(footnotes []model.Footnote) errs.UploadError {
+	for i, f := range footnotes {
+		pages, err := util.ExtractPages(f.Text)
+		if err.HasError {
+			return err
+		}
+		refPage, err := getPageFromRef(f.Ref)
+		if err.HasError {
+			return err
+		}
+		if len(pages) == 0 {
+			pages = []int32{refPage}
+		} else if !startsWithPageRef(f.Text, util.FmtPage(pages[0])) {
+			pages = append([]int32{pages[0] - 1}, pages...)
+		}
+		if pages[0] != refPage {
+			return errs.New(fmt.Errorf("footnote page %d does not match the first page of the footnote %d", refPage, pages[0]), nil)
+		}
+		footnotes[i].Pages = pages
+	}
+	return errs.Nil()
+}
+
+func processSummaries(summaries []model.Summary) errs.UploadError {
+	for i, s := range summaries {
+		pages, err := util.ExtractPages(s.Text)
+		if err.HasError {
+			return err
+		}
+		refPage, err := getPageFromRef(s.Ref)
+		if err.HasError {
+			return err
+		}
+		if len(pages) == 0 {
+			pages = []int32{refPage}
+		} else if !startsWithPageRef(s.Text, util.FmtPage(pages[0])) {
+			pages = append([]int32{pages[0] - 1}, pages...)
+		}
+		if pages[0] != refPage {
+			return errs.New(fmt.Errorf("summary page %d does not match the first page of the summary %d", refPage, pages[0]), nil)
+		}
+		summaries[i].Pages = pages
+		summaries[i].FnRefs = extractFnRefs(s.Text)
+	}
+	return errs.Nil()
+}
+
+func getPageFromRef(ref string) (int32, errs.UploadError) {
+	parts := strings.Split(ref, ".")
+	page, err := strconv.ParseInt(parts[0], 10, 32)
+	if err != nil {
+		return 0, errs.New(nil, fmt.Errorf("unable to convert page '%s' from ref to number", parts[0]))
+	}
+	return int32(page), errs.Nil()
 }

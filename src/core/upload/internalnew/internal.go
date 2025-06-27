@@ -55,6 +55,7 @@ func (rec *xmlMapperImpl) MapXml(volNr int32, xml string) (dbmodel.Volume, []dbm
 	if err.HasError {
 		return dbmodel.Volume{}, nil, err
 	}
+	// use common/model/Volume instead of string
 	volTitle, err := metadatamapping.MapMetadata(volNr, works, rec.metadata)
 	if err.HasError {
 		return dbmodel.Volume{}, nil, err
