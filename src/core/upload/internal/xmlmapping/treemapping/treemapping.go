@@ -9,7 +9,9 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/model"
 )
 
-func MapTree(doc *etree.Document) ([]model.Work, []model.Footnote, []model.Summary, errs.UploadError) {
+func MapTree(xml string) ([]model.Work, []model.Footnote, []model.Summary, errs.UploadError) {
+	doc := etree.NewDocument()
+	doc.ReadFromString(xml)
 	works, err := findWorks(doc.FindElement("//hauptteil"))
 	if err.HasError {
 		return nil, nil, nil, err
