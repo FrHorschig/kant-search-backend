@@ -120,116 +120,45 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []model.Content) er
 }
 
 func (rec *contentRepoImpl) GetFootnotesByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
-	contentQuery := createContentQuery(
+	query := createContentQuery(
 		workCode,
 		[]model.Type{model.Footnote},
 	)
-	if len(ordinals) > 0 {
-		contentQuery.Bool.Filter = append(
-			contentQuery.Bool.Filter,
-			createOrdinalQuery(ordinals),
-		)
-	}
-	res, err := rec.dbClient.Search().
-		AllowPartialSearchResults(false).
-		Request(&search.Request{
-			Query: contentQuery,
-			Size:  util.IntPtr(resultsSize),
-		}).Do(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	contents := []model.Content{}
-	for _, hit := range res.Hits.Hits {
-		var c model.Content
-		err = json.Unmarshal(hit.Source_, &c)
-		if err != nil {
-			return nil, err
-		}
-		contents = append(contents, c)
-	}
-	return contents, nil
+	return getContents(ctx, query, ordinals, rec.dbClient)
 }
 
 func (rec *contentRepoImpl) GetHeadingsByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
-	contentQuery := createContentQuery(
+	query := createContentQuery(
 		workCode,
 		[]model.Type{model.Heading},
 	)
-	if len(ordinals) > 0 {
-		contentQuery.Bool.Filter = append(
-			contentQuery.Bool.Filter,
-			createOrdinalQuery(ordinals),
-		)
-	}
-	res, err := rec.dbClient.Search().
-		AllowPartialSearchResults(false).
-		Request(&search.Request{
-			Query: contentQuery,
-			Size:  util.IntPtr(resultsSize),
-		}).Do(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	contents := []model.Content{}
-	for _, hit := range res.Hits.Hits {
-		var c model.Content
-		err = json.Unmarshal(hit.Source_, &c)
-		if err != nil {
-			return nil, err
-		}
-		contents = append(contents, c)
-	}
-	return contents, nil
+	return getContents(ctx, query, ordinals, rec.dbClient)
 }
 
 func (rec *contentRepoImpl) GetParagraphsByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
-	contentQuery := createContentQuery(
+	query := createContentQuery(
 		workCode,
 		[]model.Type{model.Paragraph},
 	)
-	if len(ordinals) > 0 {
-		contentQuery.Bool.Filter = append(
-			contentQuery.Bool.Filter,
-			createOrdinalQuery(ordinals),
-		)
-	}
-	res, err := rec.dbClient.Search().
-		AllowPartialSearchResults(false).
-		Request(&search.Request{
-			Query: contentQuery,
-			Size:  util.IntPtr(resultsSize),
-		}).Do(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	contents := []model.Content{}
-	for _, hit := range res.Hits.Hits {
-		var c model.Content
-		err = json.Unmarshal(hit.Source_, &c)
-		if err != nil {
-			return nil, err
-		}
-		contents = append(contents, c)
-	}
-	return contents, nil
+	return getContents(ctx, query, ordinals, rec.dbClient)
 }
 
 func (rec *contentRepoImpl) GetSummariesByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
-	contentQuery := createContentQuery(
+	query := createContentQuery(
 		workCode,
 		[]model.Type{model.Summary},
 	)
+	return getContents(ctx, query, ordinals, rec.dbClient)
+}
+
+func getContents(ctx context.Context, contentQuery *types.Query, ordinals []int32, dbClient *elasticsearch.TypedClient) ([]model.Content, error) {
 	if len(ordinals) > 0 {
 		contentQuery.Bool.Filter = append(
 			contentQuery.Bool.Filter,
 			createOrdinalQuery(ordinals),
 		)
 	}
-	res, err := rec.dbClient.Search().
+	res, err := dbClient.Search().
 		AllowPartialSearchResults(false).
 		Request(&search.Request{
 			Query: contentQuery,
