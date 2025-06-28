@@ -4,6 +4,7 @@ package internalnew
 
 import (
 	"github.com/frhorschig/kant-search-backend/common/errs"
+	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/model"
 	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/dbmapping/flattening"
 	dbmetadataextraction "github.com/frhorschig/kant-search-backend/core/upload/internalnew/dbmapping/metadataextraction"
 	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/metadatamapping/metadatamapping"
@@ -55,18 +56,14 @@ func (rec *xmlMapperImpl) MapXml(volNr int32, xml string) (dbmodel.Volume, []dbm
 	if err.HasError {
 		return dbmodel.Volume{}, nil, err
 	}
-	// use common/model/Volume instead of string
-	volTitle, err := metadatamapping.MapMetadata(volNr, works, rec.metadata)
+	vol := model.Volume{VolumeNumber: volNr}
+	err = metadatamapping.MapMetadata(&vol, works, rec.metadata)
 	if err.HasError {
 		return dbmodel.Volume{}, nil, err
 	}
 
 	// map to db model
-	dbWorks, contents := flattening.Flatten(works)
+	dbVol, contents := flattening.Flatten(vol, works)
 	dbmetadataextraction.ExtractMetadata(contents)
-	return dbmodel.Volume{
-		VolumeNumber: volNr,
-		Title:        volTitle,
-		Works:        dbWorks,
-	}, contents, errs.Nil()
+	return dbVol, contents, errs.Nil()
 }

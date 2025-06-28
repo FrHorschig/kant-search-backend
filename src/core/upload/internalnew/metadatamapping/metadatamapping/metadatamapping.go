@@ -8,16 +8,18 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/metadatamapping/metadatamapping/metadata"
 )
 
-func MapMetadata(volumeNumber int32, works []model.Work, metadata metadata.Metadata) (string, errs.UploadError) {
-	md, mdErr := metadata.Read(volumeNumber)
+func MapMetadata(volume *model.Volume, works []model.Work, metadata metadata.Metadata) errs.UploadError {
+	md, mdErr := metadata.Read(volume.VolumeNumber)
 	if mdErr != nil {
-		return "", errs.New(nil, mdErr)
+		return errs.New(nil, mdErr)
 	}
+	volume.Title = md.Title
+
 	err := addWorkMetadata(works, md)
 	if err.HasError {
-		return "", err
+		return err
 	}
-	return md.Title, errs.Nil()
+	return errs.Nil()
 }
 
 func addWorkMetadata(works []model.Work, metadata metadata.VolumeMetadata) errs.UploadError {
