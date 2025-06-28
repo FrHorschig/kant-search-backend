@@ -39,7 +39,7 @@ func MapReferences(works []model.Work, footnotes []model.Footnote, summaries []m
 	return errs.Nil()
 }
 
-func addFnsToWorks(works []model.Work, fns []model.Footnote) errs.UploadError {
+func addFnsToWorks(works []model.Work, footnotes []model.Footnote) errs.UploadError {
 	prevMax := int32(1)
 	for i := range works {
 		var min int32 = prevMax
@@ -48,13 +48,13 @@ func addFnsToWorks(works []model.Work, fns []model.Footnote) errs.UploadError {
 		if min < prevMax {
 			return errs.New(fmt.Errorf("minimum page number %d of work '%s' is smaller than the maximum page number %d of the previous work", min, works[i].Title, prevMax), nil)
 		}
-		for j := range fns {
-			pages := fns[j].Pages
-			if pages[0] >= min && pages[len(pages)-1] <= max {
-				works[i].Footnotes = append(works[i].Footnotes, fns[j])
+		for j := range footnotes {
+			pages := footnotes[j].Pages
+			if pages[0] >= min && pages[0] <= max {
+				works[i].Footnotes = append(works[i].Footnotes, footnotes[j])
 			}
 		}
-		prevMax = max
+		prevMax = max + 1
 	}
 	return errs.Nil()
 }
