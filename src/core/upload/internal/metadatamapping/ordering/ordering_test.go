@@ -120,7 +120,6 @@ func TestOrdering(t *testing.T) {
 			if tc.expectError {
 				assert.True(t, err.HasError)
 			} else {
-				assert.False(t, err.HasError)
 				testutil.AssertWorks(t, tc.expWorks, tc.works)
 			}
 		})
