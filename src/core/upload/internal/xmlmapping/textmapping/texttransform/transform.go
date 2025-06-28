@@ -10,6 +10,8 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/common/util"
 )
 
+const unknownTagMsg = "unknown tag '%s' in '%s' element"
+
 // returns the fmtText, the tocText and an error
 func Hx(xml string) (string, string, errs.UploadError) {
 	return hx(createElement(xml))
@@ -49,74 +51,52 @@ func hx(elem *etree.Element) (string, string, errs.UploadError) {
 			textTitle += strings.TrimSpace(str.Data)
 			tocTitle += " " + str.Data
 		} else if el, ok := ch.(*etree.Element); ok {
+			var elText string
+			var err errs.UploadError
 			switch el.Tag {
 			case "fett":
-				fett, err := fett(el)
-				if err.HasError {
-					return "", "", err
-				}
-				tocTitle += fett
-				textTitle += fett
+				elText, err = fett(el)
+				tocTitle += elText
+				textTitle += elText
 			case "fr":
-				fr, err := fr(el)
-				if err.HasError {
-					return "", "", err
-				}
-				textTitle += fr
+				elText, err = fr(el)
+				textTitle += elText
 			case "fremdsprache":
-				fremdsprache, err := fremdsprache(el)
-				if err.HasError {
-					return "", "", err
-				}
-				tocTitle += fremdsprache
-				textTitle += fremdsprache
+				elText, err = fremdsprache(el)
+				tocTitle += elText
+				textTitle += elText
 			case "gesperrt":
-				gesperrt, err := gesperrt(el)
-				if err.HasError {
-					return "", "", err
-				}
-				tocTitle += gesperrt
-				textTitle += gesperrt
+				elText, err = gesperrt(el)
+				tocTitle += elText
+				textTitle += elText
 			case "hi":
 				tocTitle += strings.TrimSpace(el.Text())
 			case "hu":
-				hu, err := hu(el)
-				if err.HasError {
-					return "", "", err
-				}
-				textTitle += hu
+				elText, err = hu(el)
+				textTitle += elText
 			case "name":
-				name, err := name(el)
-				if err.HasError {
-					return "", "", err
-				}
-				tocTitle += name
-				textTitle += name
+				elText, err = name(el)
+				tocTitle += elText
+				textTitle += elText
 			case "op":
 				continue
 			case "romzahl":
-				romzahl, err := romzahl(el)
-				if err.HasError {
-					return "", "", err
-				}
-				tocTitle += romzahl
-				textTitle += romzahl
+				elText, err = romzahl(el)
+				tocTitle += elText
+				textTitle += elText
 			case "seite":
-				page, err := seite(el)
-				if err.HasError {
-					return "", "", err
-				}
-				textTitle += page
+				elText, err = seite(el)
+				textTitle += elText
 			case "trenn":
 				continue
 			case "zeile":
-				line, err := zeile(el)
-				if err.HasError {
-					return "", "", err
-				}
-				textTitle += line
+				elText, err = zeile(el)
+				textTitle += elText
 			default:
-				return "", "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
+				err = errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
+			}
+			if err.HasError {
+				return "", "", err
 			}
 		}
 		tocTitle += " "
@@ -155,7 +135,7 @@ func hu(elem *etree.Element) (string, errs.UploadError) {
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
@@ -199,7 +179,7 @@ func p(elem *etree.Element) (string, errs.UploadError) {
 		case "zeile":
 			return zeile(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
 		}
 	}
 	return extractText(elem, switchFn)
@@ -223,7 +203,7 @@ func footnote(elem *etree.Element) (string, string, errs.UploadError) {
 		case "p":
 			return p(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
 		}
 	}
 	text, err := extractText(elem, switchFn)
@@ -247,7 +227,7 @@ func summary(elem *etree.Element) (string, string, errs.UploadError) {
 		case "p":
 			return p(el)
 		default:
-			return "", errs.New(fmt.Errorf("unknown tag '%s' in '%s' element", el.Tag, elem.Tag), nil)
+			return "", errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
 		}
 	}
 	text, err := extractText(elem, switchFn)

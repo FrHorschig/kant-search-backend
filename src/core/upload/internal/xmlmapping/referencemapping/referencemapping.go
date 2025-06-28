@@ -127,37 +127,28 @@ func findLeftoverSumms(works []model.Work, summaries []model.Summary) []string {
 
 func findMinMaxPages(paragraphs []model.Paragraph, sections []model.Section, min, max *int32) {
 	for _, p := range paragraphs {
-		if len(p.Pages) > 0 {
-			if p.Pages[0] < *min {
-				*min = p.Pages[0]
-			}
-			if p.Pages[len(p.Pages)-1] > *max {
-				*max = p.Pages[len(p.Pages)-1]
-			}
-		}
+		findMinMaxParagraphHeadingPages(p.Pages, min, max)
 	}
 	for _, s := range sections {
-		if len(s.Heading.Pages) > 0 {
-			if s.Heading.Pages[0] < *min {
-				*min = s.Heading.Pages[0]
-			}
-			if s.Heading.Pages[len(s.Heading.Pages)-1] > *max {
-				*max = s.Heading.Pages[len(s.Heading.Pages)-1]
-			}
-		}
+		findMinMaxParagraphHeadingPages(s.Heading.Pages, min, max)
 		findMinMaxPages(s.Paragraphs, s.Sections, min, max)
+	}
+}
+
+func findMinMaxParagraphHeadingPages(pages []int32, min, max *int32) {
+	if len(pages) > 0 {
+		if pages[0] < *min {
+			*min = pages[0]
+		}
+		if pages[len(pages)-1] > *max {
+			*max = pages[len(pages)-1]
+		}
 	}
 }
 
 func insertSummaryRef(summary *model.Summary, paragraphs []model.Paragraph, sections []model.Section) errs.UploadError {
 	page, line := findPageLine(summary.Ref)
-	p, err := findSummaryParagraph(summary, paragraphs, sections)
-	if err.HasError {
-		// in this case the summary starts in the middle of a paragraph, this is probably an error in the text, so we ignore the summary
-		// TODO improve this behavior
-		log.Debug().Msgf("found summary in the middle of a paragraph: %d.%d", page, line)
-		return errs.Nil()
-	}
+	p := findSummaryParagraph(summary, paragraphs, sections)
 	if p == nil {
 		return errs.New(fmt.Errorf("could not find a paragraph for summary on page %d line %d", page, line), nil)
 	}
@@ -172,29 +163,23 @@ func insertSummaryRef(summary *model.Summary, paragraphs []model.Paragraph, sect
 	return errs.Nil()
 }
 
-func findSummaryParagraph(summary *model.Summary, paragraphs []model.Paragraph, sections []model.Section) (*model.Paragraph, errs.UploadError) {
+func findSummaryParagraph(summary *model.Summary, paragraphs []model.Paragraph, sections []model.Section) *model.Paragraph {
 	page, line := findPageLine(summary.Ref)
 	for i := range paragraphs {
 		p := &paragraphs[i]
-		ok, err := isSummaryParagraph(p, page, line)
-		if err.HasError {
-			return nil, err
-		}
+		ok := isSummaryParagraph(p, page, line)
 		if ok {
-			return p, errs.Nil()
+			return p
 		}
 	}
 	for i := range sections {
 		s := &sections[i]
-		p, err := findSummaryParagraph(summary, s.Paragraphs, s.Sections)
-		if err.HasError {
-			return nil, err
-		}
+		p := findSummaryParagraph(summary, s.Paragraphs, s.Sections)
 		if p != nil {
-			return p, errs.Nil()
+			return p
 		}
 	}
-	return nil, errs.Nil()
+	return nil
 }
 
 func findPageLine(name string) (int32, int32) {
@@ -205,9 +190,9 @@ func findPageLine(name string) (int32, int32) {
 	return int32(page), int32(line)
 }
 
-func isSummaryParagraph(p *model.Paragraph, page, line int32) (bool, errs.UploadError) {
+func isSummaryParagraph(p *model.Paragraph, page, line int32) bool {
 	if !slices.Contains(p.Pages, page) {
-		return false, errs.Nil()
+		return false
 	}
 	pageIndex := strings.Index(p.Text, util.FmtPage(page))
 	if pageIndex == -1 { // paragraph starts in the middle of the page
@@ -215,13 +200,15 @@ func isSummaryParagraph(p *model.Paragraph, page, line int32) (bool, errs.Upload
 	}
 	lineIndex := strings.Index(p.Text[pageIndex:], util.FmtLine(line))
 	if lineIndex == -1 {
-		return false, errs.Nil()
+		return false
 	}
 	index := pageIndex + lineIndex + len(util.FmtLine(line))
 	if !isSummaryAtStart(p.Text, index) {
-		return false, errs.New(fmt.Errorf("summary on page %d line %d is not at the start of paragraph", page, line), nil)
+		// TODO in this case the summary starts in the middle of a paragraph; this makes things complicated, so we simplify here and ignore it (we may improve this later)
+		log.Debug().Msgf("found summary in the middle of a paragraph: %d.%d", page, line)
+		return false
 	}
-	return true, errs.Nil()
+	return true
 }
 
 func isSummaryAtStart(text string, startIndex int) bool {

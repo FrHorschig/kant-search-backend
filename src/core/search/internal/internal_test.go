@@ -19,67 +19,67 @@ func TestAstParser(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
-		expected *model.AstNode
+		expected *model.SearchTermNode
 	}{
 		{
 			name:  "Multiple space separated words",
 			input: "hello parsing world",
-			expected: &model.AstNode{
+			expected: &model.SearchTermNode{
 				Token: newAnd(),
-				Left: &model.AstNode{
+				Left: &model.SearchTermNode{
 					Token: newWord("hello"),
 				},
-				Right: &model.AstNode{
+				Right: &model.SearchTermNode{
 					Token: newAnd(),
-					Left:  &model.AstNode{Token: newWord("parsing")},
-					Right: &model.AstNode{Token: newWord("world")},
+					Left:  &model.SearchTermNode{Token: newWord("parsing")},
+					Right: &model.SearchTermNode{Token: newWord("world")},
 				},
 			},
 		},
 		{
 			name:  "Simple AND",
 			input: "hello & world",
-			expected: &model.AstNode{
+			expected: &model.SearchTermNode{
 				Token: newAnd(),
-				Left:  &model.AstNode{Token: newWord("hello")},
-				Right: &model.AstNode{Token: newWord("world")},
+				Left:  &model.SearchTermNode{Token: newWord("hello")},
+				Right: &model.SearchTermNode{Token: newWord("world")},
 			},
 		},
 		{
 			name:  "Simple OR",
 			input: "hello & world",
-			expected: &model.AstNode{
+			expected: &model.SearchTermNode{
 				Token: newOr(),
-				Left:  &model.AstNode{Token: newWord("hello")},
-				Right: &model.AstNode{Token: newWord("world")},
+				Left:  &model.SearchTermNode{Token: newWord("hello")},
+				Right: &model.SearchTermNode{Token: newWord("world")},
 			},
 		},
 		{
 			name:  "Simple NOT",
 			input: "!hello",
-			expected: &model.AstNode{
+			expected: &model.SearchTermNode{
 				Token: newNot(),
-				Left:  &model.AstNode{Token: newWord("hello")},
+				Left:  &model.SearchTermNode{Token: newWord("hello")},
 			},
 		},
 		{
 			name:  "Complex search query",
 			input: "(dog | cat) & !mouse & \"night bird\"",
-			expected: &model.AstNode{
+			expected: &model.SearchTermNode{
 				Token: newAnd(),
-				Left: &model.AstNode{
+				Left: &model.SearchTermNode{
 					Token: newAnd(),
-					Left: &model.AstNode{
+					Left: &model.SearchTermNode{
 						Token: newOr(),
-						Left:  &model.AstNode{Token: newWord("dog")},
-						Right: &model.AstNode{Token: newWord("cat")},
+						Left:  &model.SearchTermNode{Token: newWord("dog")},
+						Right: &model.SearchTermNode{Token: newWord("cat")},
 					},
-					Right: &model.AstNode{
+					Right: &model.SearchTermNode{
 						Token: newNot(),
-						Left:  &model.AstNode{Token: newWord("mouse")},
+						Left:  &model.SearchTermNode{Token: newWord("mouse")},
 					},
 				},
-				Right: &model.AstNode{Token: newPhrase("night bird")},
+				Right: &model.SearchTermNode{Token: newPhrase("night bird")},
 			},
 		},
 	}

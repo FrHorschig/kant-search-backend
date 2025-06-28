@@ -145,7 +145,7 @@ func TestSearch(t *testing.T) {
 	testdata := []struct {
 		name        string
 		dbInput     []model.Content
-		searchTerms *model.AstNode
+		searchTerms *model.SearchTermNode
 		options     model.SearchOptions
 		hitCount    int
 	}{
@@ -161,21 +161,21 @@ func TestSearch(t *testing.T) {
 				{Type: model.Paragraph, SearchText: "dog night bird 2", WorkCode: workCode2},
 				{Type: model.Paragraph, SearchText: "cat night bird 2", WorkCode: workCode2},
 			},
-			searchTerms: &model.AstNode{ // (dog | cat) & !mouse & "night bird"
+			searchTerms: &model.SearchTermNode{ // (dog | cat) & !mouse & "night bird"
 				Token: newAnd(),
-				Left: &model.AstNode{
+				Left: &model.SearchTermNode{
 					Token: newAnd(),
-					Left: &model.AstNode{
+					Left: &model.SearchTermNode{
 						Token: newOr(),
-						Left:  &model.AstNode{Token: newWord("dog")},
-						Right: &model.AstNode{Token: newWord("cat")},
+						Left:  &model.SearchTermNode{Token: newWord("dog")},
+						Right: &model.SearchTermNode{Token: newWord("cat")},
 					},
-					Right: &model.AstNode{
+					Right: &model.SearchTermNode{
 						Token: newNot(),
-						Left:  &model.AstNode{Token: newWord("mouse")},
+						Left:  &model.SearchTermNode{Token: newWord("mouse")},
 					},
 				},
-				Right: &model.AstNode{Token: newPhrase("night bird")},
+				Right: &model.SearchTermNode{Token: newPhrase("night bird")},
 			},
 			options:  model.SearchOptions{WorkCodes: []string{workCode}},
 			hitCount: 3,
@@ -188,7 +188,7 @@ func TestSearch(t *testing.T) {
 				{Type: model.Footnote, SearchText: "footnote text", WorkCode: workCode},
 				{Type: model.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
-			searchTerms: &model.AstNode{Token: newWord("text")},
+			searchTerms: &model.SearchTermNode{Token: newWord("text")},
 			options: model.SearchOptions{
 				WorkCodes:       []string{workCode},
 				IncludeHeadings: true,
@@ -203,7 +203,7 @@ func TestSearch(t *testing.T) {
 				{Type: model.Footnote, SearchText: "footnote text", WorkCode: workCode},
 				{Type: model.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
-			searchTerms: &model.AstNode{Token: newWord("text")},
+			searchTerms: &model.SearchTermNode{Token: newWord("text")},
 			options: model.SearchOptions{
 				WorkCodes:        []string{workCode},
 				IncludeFootnotes: true,
@@ -218,7 +218,7 @@ func TestSearch(t *testing.T) {
 				{Type: model.Footnote, SearchText: "footnote text", WorkCode: workCode},
 				{Type: model.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
-			searchTerms: &model.AstNode{Token: newWord("text")},
+			searchTerms: &model.SearchTermNode{Token: newWord("text")},
 			options: model.SearchOptions{
 				WorkCodes:        []string{workCode},
 				IncludeSummaries: true,

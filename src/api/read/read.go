@@ -14,6 +14,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	emptyCodeMsg      = "empty work code"
+	invalidOrdinalMsg = "invalid ordinal values: %v"
+)
+
 type ReadHandler interface {
 	ReadVolumes(ctx echo.Context) error
 	ReadFootnotes(ctx echo.Context) error
@@ -47,15 +52,14 @@ func (rec *readHandlerImpl) ReadVolumes(ctx echo.Context) error {
 func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
 	workCode := ctx.Param("workCode")
 	if workCode == "" {
-		msg := "empty work code"
-		log.Error().Msg(msg)
-		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
+		log.Error().Msg(emptyCodeMsg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, emptyCodeMsg)
 	}
 
 	ordsParam := ctx.QueryParam("ordinals")
 	ordinals, err := findOrdinals(ordsParam)
 	if err != nil {
-		msg := fmt.Sprintf("invalid ordinal values: %v", ordsParam)
+		msg := fmt.Sprintf(invalidOrdinalMsg, ordsParam)
 		log.Error().Err(err).Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
@@ -72,15 +76,14 @@ func (rec *readHandlerImpl) ReadFootnotes(ctx echo.Context) error {
 func (rec *readHandlerImpl) ReadHeadings(ctx echo.Context) error {
 	workCode := ctx.Param("workCode")
 	if workCode == "" {
-		msg := "empty work code"
-		log.Error().Msg(msg)
-		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
+		log.Error().Msg(emptyCodeMsg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, emptyCodeMsg)
 	}
 
 	ordsParam := ctx.QueryParam("ordinals")
 	ordinals, err := findOrdinals(ordsParam)
 	if err != nil {
-		msg := fmt.Sprintf("invalid ordinal values: %v", ordsParam)
+		msg := fmt.Sprintf(invalidOrdinalMsg, ordsParam)
 		log.Error().Err(err).Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
@@ -97,15 +100,14 @@ func (rec *readHandlerImpl) ReadHeadings(ctx echo.Context) error {
 func (rec *readHandlerImpl) ReadParagraphs(ctx echo.Context) error {
 	workCode := ctx.Param("workCode")
 	if workCode == "" {
-		msg := "empty work code"
-		log.Error().Msg(msg)
-		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
+		log.Error().Msg(emptyCodeMsg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, emptyCodeMsg)
 	}
 
 	ordsParam := ctx.QueryParam("ordinals")
 	ordinals, err := findOrdinals(ordsParam)
 	if err != nil {
-		msg := fmt.Sprintf("invalid ordinal values: %v", ordsParam)
+		msg := fmt.Sprintf(invalidOrdinalMsg, ordsParam)
 		log.Error().Err(err).Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}
@@ -122,15 +124,14 @@ func (rec *readHandlerImpl) ReadParagraphs(ctx echo.Context) error {
 func (rec *readHandlerImpl) ReadSummaries(ctx echo.Context) error {
 	workCode := ctx.Param("workCode")
 	if workCode == "" {
-		msg := "empty work code"
-		log.Error().Msg(msg)
-		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
+		log.Error().Msg(emptyCodeMsg)
+		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, emptyCodeMsg)
 	}
 
 	ordsParam := ctx.QueryParam("ordinals")
 	ordinals, err := findOrdinals(ordsParam)
 	if err != nil {
-		msg := fmt.Sprintf("invalid ordinal values: %v", ordsParam)
+		msg := fmt.Sprintf(invalidOrdinalMsg, ordsParam)
 		log.Error().Err(err).Msg(msg)
 		return errors.BadRequest(ctx, models.BAD_REQUEST_GENERIC, msg)
 	}

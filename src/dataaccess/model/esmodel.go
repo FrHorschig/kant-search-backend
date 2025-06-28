@@ -32,53 +32,7 @@ var VolumeMapping = &types.TypeMapping{
 	Properties: map[string]types.Property{
 		"volumeNumber": types.NewIntegerNumberProperty(),
 		"title":        &types.TextProperty{Index: util.FalsePtr()},
-		// TODO do we really need this here, would ObjectProperty not be enough?
-		"works": &types.TypeMapping{
-			Properties: map[string]types.Property{
-				"code":       types.NewKeywordProperty(),
-				"siglum":     &types.TextProperty{Index: util.FalsePtr()},
-				"title":      &types.TextProperty{Index: util.FalsePtr()},
-				"year":       &types.TextProperty{Index: util.FalsePtr()},
-				"ordinal":    &types.TextProperty{Index: util.FalsePtr()},
-				"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
-				"sections": &types.NestedProperty{
-					Properties: map[string]types.Property{
-						"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
-						"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
-						"sections": &types.NestedProperty{
-							Properties: map[string]types.Property{
-								"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
-								"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
-								"sections": &types.NestedProperty{
-									Properties: map[string]types.Property{
-										"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
-										"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
-										"sections": &types.NestedProperty{
-											Properties: map[string]types.Property{
-												"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
-												"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
-												"sections": &types.NestedProperty{
-													Properties: map[string]types.Property{
-														"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
-														"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
-														"sections": &types.NestedProperty{
-															Properties: map[string]types.Property{
-																"heading":    &types.IntegerNumberProperty{Index: util.FalsePtr()},
-																"paragraphs": &types.IntegerNumberProperty{Index: util.FalsePtr()},
-															},
-														},
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+		"works":        &types.ObjectProperty{Enabled: util.FalsePtr()},
 	},
 }
 
