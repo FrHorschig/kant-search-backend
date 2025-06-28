@@ -1,6 +1,8 @@
 package ordering
 
 import (
+	"fmt"
+
 	"github.com/frhorschig/kant-search-backend/common/errs"
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/common/model"
 )
@@ -10,8 +12,14 @@ func Order(works []model.Work) errs.UploadError {
 		ordinal := int32(0)
 		fnByRef := findFootnoteByRef(works[i].Footnotes)
 		summByRef := findSummaryByRef(works[i].Summaries)
-		addParagraphOrdinals(works[i].Paragraphs, &ordinal, fnByRef, summByRef)
-		addSectionOrdinals(works[i].Sections, &ordinal, fnByRef, summByRef)
+		err := addParagraphOrdinals(works[i].Paragraphs, &ordinal, fnByRef, summByRef)
+		if err.HasError {
+			return err
+		}
+		err = addSectionOrdinals(works[i].Sections, &ordinal, fnByRef, summByRef)
+		if err.HasError {
+			return err
+		}
 	}
 
 	return errs.Nil()
@@ -35,13 +43,20 @@ func findSummaryByRef(summaries []model.Summary) map[string]*model.Summary {
 	return result
 }
 
-func addSectionOrdinals(sections []model.Section, ordinal *int32, fnByRef map[string]*model.Footnote, summByRef map[string]*model.Summary) {
+func addSectionOrdinals(sections []model.Section, ordinal *int32, fnByRef map[string]*model.Footnote, summByRef map[string]*model.Summary) errs.UploadError {
 	for i := range sections {
 		s := &sections[i]
 		addHeadingOrdinals(&s.Heading, ordinal, fnByRef)
-		addParagraphOrdinals(s.Paragraphs, ordinal, fnByRef, summByRef)
-		addSectionOrdinals(s.Sections, ordinal, fnByRef, summByRef)
+		err := addParagraphOrdinals(s.Paragraphs, ordinal, fnByRef, summByRef)
+		if err.HasError {
+			return err
+		}
+		err = addSectionOrdinals(s.Sections, ordinal, fnByRef, summByRef)
+		if err.HasError {
+			return err
+		}
 	}
+	return errs.Nil()
 }
 
 func addHeadingOrdinals(heading *model.Heading, ordinal *int32, fnByRef map[string]*model.Footnote) {
@@ -53,7 +68,7 @@ func addHeadingOrdinals(heading *model.Heading, ordinal *int32, fnByRef map[stri
 		*ordinal += 1
 	}
 }
-func addParagraphOrdinals(paragraphs []model.Paragraph, ordinal *int32, fnByRef map[string]*model.Footnote, summByRef map[string]*model.Summary) {
+func addParagraphOrdinals(paragraphs []model.Paragraph, ordinal *int32, fnByRef map[string]*model.Footnote, summByRef map[string]*model.Summary) errs.UploadError {
 	for i := range paragraphs {
 		p := &paragraphs[i]
 		if p.SummaryRef != nil {
@@ -61,7 +76,12 @@ func addParagraphOrdinals(paragraphs []model.Paragraph, ordinal *int32, fnByRef 
 			summ.Ordinal = *ordinal
 			*ordinal += 1
 			for j := range summ.FnRefs {
-				fn := fnByRef[summ.FnRefs[j]]
+				fnRef := summ.FnRefs[j]
+				fn := fnByRef[fnRef]
+				if fn == nil {
+					return errs.New(fmt.Errorf("the footnote matching the summary footnote reference '%s' ('seite.nr') is missing", fnRef), nil)
+				}
+				fn.Ordinal = *ordinal
 				fn.Ordinal = *ordinal
 				*ordinal += 1
 			}
@@ -69,9 +89,14 @@ func addParagraphOrdinals(paragraphs []model.Paragraph, ordinal *int32, fnByRef 
 		p.Ordinal = *ordinal
 		*ordinal += 1
 		for j := range p.FnRefs {
-			fn := fnByRef[p.FnRefs[j]]
+			fnRef := p.FnRefs[j]
+			fn := fnByRef[fnRef]
+			if fn == nil {
+				return errs.New(fmt.Errorf("the footnote matching the paragraph footnote reference '%s' ('seite.nr') is missing", fnRef), nil)
+			}
 			fn.Ordinal = *ordinal
 			*ordinal += 1
 		}
 	}
+	return errs.Nil()
 }
