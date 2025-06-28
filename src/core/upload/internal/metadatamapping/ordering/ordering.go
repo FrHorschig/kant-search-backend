@@ -46,8 +46,11 @@ func findSummaryByRef(summaries []model.Summary) map[string]*model.Summary {
 func addSectionOrdinals(sections []model.Section, ordinal *int32, fnByRef map[string]*model.Footnote, summByRef map[string]*model.Summary) errs.UploadError {
 	for i := range sections {
 		s := &sections[i]
-		addHeadingOrdinals(&s.Heading, ordinal, fnByRef)
-		err := addParagraphOrdinals(s.Paragraphs, ordinal, fnByRef, summByRef)
+		err := addHeadingOrdinals(&s.Heading, ordinal, fnByRef)
+		if err.HasError {
+			return err
+		}
+		err = addParagraphOrdinals(s.Paragraphs, ordinal, fnByRef, summByRef)
 		if err.HasError {
 			return err
 		}
@@ -59,14 +62,18 @@ func addSectionOrdinals(sections []model.Section, ordinal *int32, fnByRef map[st
 	return errs.Nil()
 }
 
-func addHeadingOrdinals(heading *model.Heading, ordinal *int32, fnByRef map[string]*model.Footnote) {
+func addHeadingOrdinals(heading *model.Heading, ordinal *int32, fnByRef map[string]*model.Footnote) errs.UploadError {
 	heading.Ordinal = *ordinal
 	*ordinal += 1
 	for _, ref := range heading.FnRefs {
 		fn := fnByRef[ref]
+		if fn == nil {
+			return errs.New(fmt.Errorf("the footnote matching the heading footnote reference '%s' ('seite.nr') is missing", ref), nil)
+		}
 		fn.Ordinal = *ordinal
 		*ordinal += 1
 	}
+	return errs.Nil()
 }
 func addParagraphOrdinals(paragraphs []model.Paragraph, ordinal *int32, fnByRef map[string]*model.Footnote, summByRef map[string]*model.Summary) errs.UploadError {
 	for i := range paragraphs {

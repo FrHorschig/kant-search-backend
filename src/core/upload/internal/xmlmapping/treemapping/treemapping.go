@@ -60,7 +60,8 @@ func findWorks(hauptteil *etree.Element) ([]model.Work, errs.UploadError) {
 
 		case "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9":
 			if pagePrefix != "" {
-				elStr = elStr[0:len(el.Tag)+2] + pagePrefix + elStr[len(el.Tag)+2:]
+				i := strings.Index(elStr, ">")
+				elStr = elStr[0:i+1] + pagePrefix + elStr[i+1:]
 				pagePrefix = ""
 			}
 			sec := model.Section{
@@ -79,7 +80,8 @@ func findWorks(hauptteil *etree.Element) ([]model.Work, errs.UploadError) {
 
 		case "hu", "p", "table":
 			if pagePrefix != "" {
-				elStr = elStr[0:len(el.Tag)+2] + pagePrefix + elStr[len(el.Tag)+2:]
+				i := strings.Index(elStr, ">")
+				elStr = elStr[0:i+1] + pagePrefix + elStr[i+1:]
 				pagePrefix = ""
 			}
 			*currPars = append(*currPars, model.Paragraph{Text: elStr})
