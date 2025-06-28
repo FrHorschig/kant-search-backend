@@ -148,7 +148,12 @@ func findMinMaxParagraphHeadingPages(pages []int32, min, max *int32) {
 
 func insertSummaryRef(summary *model.Summary, paragraphs []model.Paragraph, sections []model.Section) errs.UploadError {
 	page, line := findPageLine(summary.Ref)
-	p := findSummaryParagraph(summary, paragraphs, sections)
+	p, err := findSummaryParagraph(summary, paragraphs, sections)
+	if err != nil {
+		// TODO in this case the summary starts in the middle of a paragraph; this makes things complicated, so we simplify here and ignore it (we may improve this later)
+		log.Debug().Msgf("found summary in the middle of a paragraph: %d.%d", page, line)
+		return errs.Nil()
+	}
 	if p == nil {
 		return errs.New(fmt.Errorf("could not find a paragraph for summary on page %d line %d", page, line), nil)
 	}
@@ -163,23 +168,29 @@ func insertSummaryRef(summary *model.Summary, paragraphs []model.Paragraph, sect
 	return errs.Nil()
 }
 
-func findSummaryParagraph(summary *model.Summary, paragraphs []model.Paragraph, sections []model.Section) *model.Paragraph {
+func findSummaryParagraph(summary *model.Summary, paragraphs []model.Paragraph, sections []model.Section) (*model.Paragraph, error) {
 	page, line := findPageLine(summary.Ref)
 	for i := range paragraphs {
 		p := &paragraphs[i]
-		ok := isSummaryParagraph(p, page, line)
+		ok, err := isSummaryParagraph(p, page, line)
+		if err != nil {
+			return nil, err
+		}
 		if ok {
-			return p
+			return p, nil
 		}
 	}
 	for i := range sections {
 		s := &sections[i]
-		p := findSummaryParagraph(summary, s.Paragraphs, s.Sections)
+		p, err := findSummaryParagraph(summary, s.Paragraphs, s.Sections)
+		if err != nil {
+			return nil, err
+		}
 		if p != nil {
-			return p
+			return p, nil
 		}
 	}
-	return nil
+	return nil, nil
 }
 
 func findPageLine(name string) (int32, int32) {
@@ -190,9 +201,9 @@ func findPageLine(name string) (int32, int32) {
 	return int32(page), int32(line)
 }
 
-func isSummaryParagraph(p *model.Paragraph, page, line int32) bool {
+func isSummaryParagraph(p *model.Paragraph, page, line int32) (bool, error) {
 	if !slices.Contains(p.Pages, page) {
-		return false
+		return false, nil
 	}
 	pageIndex := strings.Index(p.Text, util.FmtPage(page))
 	if pageIndex == -1 { // paragraph starts in the middle of the page
@@ -200,15 +211,13 @@ func isSummaryParagraph(p *model.Paragraph, page, line int32) bool {
 	}
 	lineIndex := strings.Index(p.Text[pageIndex:], util.FmtLine(line))
 	if lineIndex == -1 {
-		return false
+		return false, nil
 	}
 	index := pageIndex + lineIndex + len(util.FmtLine(line))
 	if !isSummaryAtStart(p.Text, index) {
-		// TODO in this case the summary starts in the middle of a paragraph; this makes things complicated, so we simplify here and ignore it (we may improve this later)
-		log.Debug().Msgf("found summary in the middle of a paragraph: %d.%d", page, line)
-		return false
+		return false, fmt.Errorf("found summary in the middle of a paragraph: %d.%d", page, line)
 	}
-	return true
+	return true, nil
 }
 
 func isSummaryAtStart(text string, startIndex int) bool {

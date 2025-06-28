@@ -110,8 +110,8 @@
       { "code": "BUCHMACHEREI" },
       { "code": "VORREDE_PHIL" },
       { "code": "WOERTERBUCH" },
-      { "code": "REZ_SIL_8" },
-      { "code": "REZ_ULRICH", "siglum": "RezUlrich" }
+      { "code": "REZ_SIL_8", "year": "1764" },
+      { "code": "REZ_ULRICH", "siglum": "RezUlrich", "year": "1788" }
     ]
   },
   {
