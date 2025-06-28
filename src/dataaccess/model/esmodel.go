@@ -99,6 +99,9 @@ const (
 	GermanStemming Analyzer = "germanStemming"
 )
 
+// PageByIndex is a map of FmtText string indices (rune, not byte indices) of the start of ks-meta-page tags to the page number inside the tag. This field is used to determine the page where a search hit starts.
+// LineByIndex is a map of FmtText string indices (rune, not byte indices) of the start of ks-meta-line tags to the line number inside the tag. This fields is used to determine the line where a search hit starts.
+// WordIndexMap is a map of SearchString string indices of the words of the text to FmtText string indices (both rune, not byte indices) of the same words. For example, the [k, v] pair [28, 847] would mean that the word at index 28 of SearchText is the same word as the one at index 847 in FmtText. This field is used to map ES search hit highlights, which are added to SearchText, to FmtText.
 type Content struct {
 	// text data
 	FmtText    string  `json:"fmtText"`
