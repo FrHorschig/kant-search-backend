@@ -6,10 +6,12 @@ import (
 	dbmodel "github.com/frhorschig/kant-search-backend/dataaccess/model"
 )
 
-func Flatten(works []model.Work) ([]dbmodel.Work, []dbmodel.Content) {
+func Flatten(volume model.Volume, works []model.Work) (dbmodel.Volume, []dbmodel.Content) {
 	dbWorks := mapWorks(works)
 	contents := mapContents(works)
-	return dbWorks, contents
+	return dbmodel.Volume{
+		VolumeNumber: volume.VolumeNumber, Title: volume.Title, Works: dbWorks,
+	}, contents
 }
 
 func mapWorks(works []model.Work) []dbmodel.Work {
@@ -17,36 +19,35 @@ func mapWorks(works []model.Work) []dbmodel.Work {
 	for i, w := range works {
 		pars := mapParagraphOrdinals(w.Paragraphs)
 		secs := mapSectionOrdinals(w.Sections)
-		results = append(results, dbmodel.Work{
-			Ordinal:    int32(i),
+		results[i] = dbmodel.Work{
+			Ordinal:    int32(i + 1),
 			Code:       w.Code,
 			Siglum:     w.Siglum,
 			Title:      w.Title,
 			Year:       w.Year,
 			Paragraphs: pars,
 			Sections:   secs,
-		})
+		}
 	}
 	return results
 }
 
 func mapSectionOrdinals(sections []model.Section) []dbmodel.Section {
 	results := make([]dbmodel.Section, len(sections))
-	for _, s := range sections {
-		sec := dbmodel.Section{
+	for i, s := range sections {
+		results[i] = dbmodel.Section{
 			Heading:    s.Heading.Ordinal,
 			Paragraphs: mapParagraphOrdinals(s.Paragraphs),
 			Sections:   mapSectionOrdinals(s.Sections),
 		}
-		results = append(results, sec)
 	}
 	return results
 }
 
 func mapParagraphOrdinals(paragraphs []model.Paragraph) []int32 {
 	results := make([]int32, len(paragraphs))
-	for _, p := range paragraphs {
-		results = append(results, p.Ordinal)
+	for i, p := range paragraphs {
+		results[i] = p.Ordinal
 	}
 	return results
 }
@@ -112,7 +113,7 @@ func addFootnotes(footnotes []model.Footnote, contents *[]dbmodel.Content, workC
 func addSummaries(summaries []model.Summary, contents *[]dbmodel.Content, workCode string) {
 	for _, s := range summaries {
 		*contents = append(*contents, dbmodel.Content{
-			Type:       dbmodel.Footnote,
+			Type:       dbmodel.Summary,
 			Ordinal:    s.Ordinal,
 			Ref:        &s.Ref,
 			FmtText:    s.Text,

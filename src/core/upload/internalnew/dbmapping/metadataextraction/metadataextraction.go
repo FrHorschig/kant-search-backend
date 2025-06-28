@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/frhorschig/kant-search-backend/common/errs"
 	"github.com/frhorschig/kant-search-backend/core/upload/internalnew/common/util"
@@ -97,7 +98,7 @@ func findNumberByIndex(text string, matcher string) ([]model.IndexNumberPair, er
 			return nil, err
 		}
 		result = append(result, model.IndexNumberPair{
-			I:   int32(match[0]),
+			I:   int32(utf8.RuneCountInString(text[:match[0]])),
 			Num: int32(num),
 		})
 	}

@@ -2,7 +2,6 @@ package model
 
 type Volume struct {
 	VolumeNumber int32
-	Section      int32
 	Title        string
 }
 
