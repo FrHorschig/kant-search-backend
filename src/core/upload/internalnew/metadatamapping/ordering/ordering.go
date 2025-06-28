@@ -47,8 +47,8 @@ func addSectionOrdinals(sections []model.Section, ordinal *int32, fnByRef map[st
 func addHeadingOrdinals(heading *model.Heading, ordinal *int32, fnByRef map[string]*model.Footnote) {
 	heading.Ordinal = *ordinal
 	*ordinal += 1
-	for i := range heading.FnRefs {
-		fn := fnByRef[heading.FnRefs[i]]
+	for _, ref := range heading.FnRefs {
+		fn := fnByRef[ref]
 		fn.Ordinal = *ordinal
 		*ordinal += 1
 	}
