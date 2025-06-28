@@ -9,6 +9,8 @@ import (
 	"github.com/frhorschig/kant-search-backend/core/upload/internal/common/model"
 )
 
+const writingErrorMsg = "error writing element '%s' to string: %v"
+
 func MapTree(xml string) ([]model.Work, []model.Footnote, []model.Summary, errs.UploadError) {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
@@ -37,7 +39,7 @@ func findWorks(hauptteil *etree.Element) ([]model.Work, errs.UploadError) {
 	for _, el := range hauptteil.ChildElements() {
 		elStr, err := elemToString(el)
 		if err != nil {
-			return nil, errs.New(nil, fmt.Errorf("error writing element '%s' to string: %v", el.Tag, err))
+			return nil, errs.New(nil, fmt.Errorf(writingErrorMsg, el.Tag, err))
 		}
 
 		switch el.Tag {
@@ -103,7 +105,7 @@ func findFootnotes(fussnoten *etree.Element) ([]model.Footnote, errs.UploadError
 	for _, el := range fussnoten.ChildElements() {
 		elStr, err := elemToString(el)
 		if err != nil {
-			return nil, errs.New(nil, fmt.Errorf("error writing element '%s' to string: %v", el.Tag, err))
+			return nil, errs.New(nil, fmt.Errorf(writingErrorMsg, el.Tag, err))
 		}
 		result = append(result, model.Footnote{Text: elStr})
 	}
@@ -118,7 +120,7 @@ func findSummaries(randtexte *etree.Element) ([]model.Summary, errs.UploadError)
 	for _, el := range randtexte.ChildElements() {
 		elStr, err := elemToString(el)
 		if err != nil {
-			return nil, errs.New(nil, fmt.Errorf("error writing element '%s' to string: %v", el.Tag, err))
+			return nil, errs.New(nil, fmt.Errorf(writingErrorMsg, el.Tag, err))
 		}
 		result = append(result, model.Summary{Text: elStr})
 	}

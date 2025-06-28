@@ -1,9 +1,8 @@
 package model
 
-// TODO move these models to core/search/internal and create new ones with only the necessary fields; also check if phrase search works
-type AstNode struct {
-	Left  *AstNode
-	Right *AstNode
+type SearchTermNode struct {
+	Left  *SearchTermNode
+	Right *SearchTermNode
 	Token *Token
 }
 
@@ -11,8 +10,6 @@ type Token struct {
 	IsAnd    bool
 	IsOr     bool
 	IsNot    bool
-	IsOpen   bool
-	IsClose  bool
 	IsWord   bool
 	IsPhrase bool
 	Text     string

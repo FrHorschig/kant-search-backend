@@ -2,7 +2,7 @@ package parse
 
 import (
 	"github.com/frhorschig/kant-search-backend/core/search/errors"
-	"github.com/frhorschig/kant-search-backend/dataaccess/model"
+	"github.com/frhorschig/kant-search-backend/core/search/internal/model"
 )
 
 func Parse(tokens []model.Token) (*model.AstNode, *errors.SyntaxError) {

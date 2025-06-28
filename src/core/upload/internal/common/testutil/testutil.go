@@ -122,29 +122,37 @@ func AssertDbContents(t *testing.T, exp []dbmodel.Content, act []dbmodel.Content
 		for j := range exp[i].Pages {
 			assert.Equal(t, exp[i].Pages[j], act[i].Pages[j])
 		}
-		assert.Equal(t, len(exp[i].PageByIndex), len(act[i].PageByIndex))
-		for j := range exp[i].PageByIndex {
-			assert.Equal(t, exp[i].PageByIndex[j].I, act[i].PageByIndex[j].I)
-			assert.Equal(t, exp[i].PageByIndex[j].Num, act[i].PageByIndex[j].Num)
-		}
-		assert.Equal(t, len(exp[i].LineByIndex), len(act[i].LineByIndex))
-		for j := range exp[i].LineByIndex {
-			assert.Equal(t, exp[i].LineByIndex[j].I, act[i].LineByIndex[j].I)
-			assert.Equal(t, exp[i].LineByIndex[j].Num, act[i].LineByIndex[j].Num)
-		}
-		assert.Equal(t, len(exp[i].WordIndexMap), len(act[i].WordIndexMap))
-		for k, v := range exp[i].WordIndexMap {
-			assert.Equal(t, v, act[i].WordIndexMap[k])
-		}
-		assert.Equal(t, len(exp[i].FnRefs), len(act[i].FnRefs))
-		for j := range exp[i].FnRefs {
-			assert.Equal(t, exp[i].FnRefs[j], act[i].FnRefs[j])
-		}
-		if exp[i].SummaryRef != nil {
-			assert.Equal(t, exp[i].SummaryRef, act[i].SummaryRef)
-		}
-		if exp[i].Ref != nil {
-			assert.Equal(t, exp[i].Ref, act[i].Ref)
-		}
+		assertContentMaps(t, exp[i], act[i])
+		assertContentReferences(t, exp[i], act[i])
+	}
+}
+
+func assertContentMaps(t *testing.T, exp dbmodel.Content, act dbmodel.Content) {
+	assert.Equal(t, len(exp.PageByIndex), len(act.PageByIndex))
+	for j := range exp.PageByIndex {
+		assert.Equal(t, exp.PageByIndex[j].I, act.PageByIndex[j].I)
+		assert.Equal(t, exp.PageByIndex[j].Num, act.PageByIndex[j].Num)
+	}
+	assert.Equal(t, len(exp.LineByIndex), len(act.LineByIndex))
+	for j := range exp.LineByIndex {
+		assert.Equal(t, exp.LineByIndex[j].I, act.LineByIndex[j].I)
+		assert.Equal(t, exp.LineByIndex[j].Num, act.LineByIndex[j].Num)
+	}
+	assert.Equal(t, len(exp.WordIndexMap), len(act.WordIndexMap))
+	for k, v := range exp.WordIndexMap {
+		assert.Equal(t, v, act.WordIndexMap[k])
+	}
+}
+
+func assertContentReferences(t *testing.T, exp dbmodel.Content, act dbmodel.Content) {
+	assert.Equal(t, len(exp.FnRefs), len(act.FnRefs))
+	for j := range exp.FnRefs {
+		assert.Equal(t, exp.FnRefs[j], act.FnRefs[j])
+	}
+	if exp.SummaryRef != nil {
+		assert.Equal(t, exp.SummaryRef, act.SummaryRef)
+	}
+	if exp.Ref != nil {
+		assert.Equal(t, exp.Ref, act.Ref)
 	}
 }

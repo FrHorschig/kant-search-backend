@@ -64,8 +64,6 @@ func createVolumeIndex(es *elasticsearch.TypedClient, name string) error {
 	return err
 }
 
-// TODO disallow partial results everywhere
-
 func (rec *volumeRepoImpl) Insert(ctx context.Context, data *model.Volume) error {
 	existing, err := rec.GetByVolumeNumber(ctx, data.VolumeNumber)
 	if err != nil {
@@ -87,6 +85,7 @@ func (rec *volumeRepoImpl) Insert(ctx context.Context, data *model.Volume) error
 
 func (rec *volumeRepoImpl) GetAll(ctx context.Context) ([]model.Volume, error) {
 	res, err := rec.dbClient.Search().Index(rec.indexName).
+		AllowPartialSearchResults(false).
 		Request(&search.Request{
 			Query: &types.Query{MatchAll: &types.MatchAllQuery{}},
 			Sort: []types.SortCombinations{
@@ -115,6 +114,7 @@ func (rec *volumeRepoImpl) GetAll(ctx context.Context) ([]model.Volume, error) {
 
 func (rec *volumeRepoImpl) GetByVolumeNumber(ctx context.Context, volNum int32) (*model.Volume, error) {
 	res, err := rec.dbClient.Search().Index(rec.indexName).
+		AllowPartialSearchResults(false).
 		Request(&search.Request{
 			Query: createTermQuery("volumeNumber", volNum),
 		}).Do(ctx)

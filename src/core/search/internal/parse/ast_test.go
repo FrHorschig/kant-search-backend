@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/frhorschig/kant-search-backend/core/search/errors"
-	"github.com/frhorschig/kant-search-backend/dataaccess/model"
+	"github.com/frhorschig/kant-search-backend/core/search/internal/model"
 	"github.com/stretchr/testify/assert"
 )
 

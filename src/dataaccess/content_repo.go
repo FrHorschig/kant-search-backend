@@ -14,11 +14,13 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/operationtype"
-	commonutil "github.com/frhorschig/kant-search-backend/common/util"
-	"github.com/frhorschig/kant-search-backend/dataaccess/internal/util"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/sortorder"
+	"github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 	"github.com/rs/zerolog/log"
 )
+
+const analyzerPrefix = "searchText."
 
 type ContentRepo interface {
 	Insert(ctx context.Context, data []model.Content) error
@@ -27,7 +29,7 @@ type ContentRepo interface {
 	GetParagraphsByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error)
 	GetSummariesByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error)
 	DeleteByWork(ctx context.Context, workCode string) error
-	Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error)
+	Search(ctx context.Context, ast *model.SearchTermNode, options model.SearchOptions) ([]model.SearchResult, error)
 }
 
 const resultsSize = 10000
@@ -88,7 +90,7 @@ func buildSettings() *types.IndexSettings {
 			Filter: map[string]types.TokenFilter{
 				string(model.GermanStemming): &types.StemmerTokenFilter{
 					Type:     "stemmer",
-					Language: commonutil.StrPtr("german"),
+					Language: util.StrPtr("german"),
 				},
 			},
 		},
@@ -118,20 +120,22 @@ func (rec *contentRepoImpl) Insert(ctx context.Context, data []model.Content) er
 }
 
 func (rec *contentRepoImpl) GetFootnotesByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
-	contentQuery := util.CreateContentQuery(
+	contentQuery := createContentQuery(
 		workCode,
 		[]model.Type{model.Footnote},
 	)
 	if len(ordinals) > 0 {
 		contentQuery.Bool.Filter = append(
 			contentQuery.Bool.Filter,
-			util.CreateOrdinalQuery(ordinals),
+			createOrdinalQuery(ordinals),
 		)
 	}
-	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: contentQuery,
-		Size:  commonutil.IntPtr(resultsSize),
-	}).Do(ctx)
+	res, err := rec.dbClient.Search().
+		AllowPartialSearchResults(false).
+		Request(&search.Request{
+			Query: contentQuery,
+			Size:  util.IntPtr(resultsSize),
+		}).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -149,20 +153,22 @@ func (rec *contentRepoImpl) GetFootnotesByWork(ctx context.Context, workCode str
 }
 
 func (rec *contentRepoImpl) GetHeadingsByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
-	contentQuery := util.CreateContentQuery(
+	contentQuery := createContentQuery(
 		workCode,
 		[]model.Type{model.Heading},
 	)
 	if len(ordinals) > 0 {
 		contentQuery.Bool.Filter = append(
 			contentQuery.Bool.Filter,
-			util.CreateOrdinalQuery(ordinals),
+			createOrdinalQuery(ordinals),
 		)
 	}
-	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: contentQuery,
-		Size:  commonutil.IntPtr(resultsSize),
-	}).Do(ctx)
+	res, err := rec.dbClient.Search().
+		AllowPartialSearchResults(false).
+		Request(&search.Request{
+			Query: contentQuery,
+			Size:  util.IntPtr(resultsSize),
+		}).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -180,20 +186,22 @@ func (rec *contentRepoImpl) GetHeadingsByWork(ctx context.Context, workCode stri
 }
 
 func (rec *contentRepoImpl) GetParagraphsByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
-	contentQuery := util.CreateContentQuery(
+	contentQuery := createContentQuery(
 		workCode,
 		[]model.Type{model.Paragraph},
 	)
 	if len(ordinals) > 0 {
 		contentQuery.Bool.Filter = append(
 			contentQuery.Bool.Filter,
-			util.CreateOrdinalQuery(ordinals),
+			createOrdinalQuery(ordinals),
 		)
 	}
-	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: contentQuery,
-		Size:  commonutil.IntPtr(resultsSize),
-	}).Do(ctx)
+	res, err := rec.dbClient.Search().
+		AllowPartialSearchResults(false).
+		Request(&search.Request{
+			Query: contentQuery,
+			Size:  util.IntPtr(resultsSize),
+		}).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -211,20 +219,22 @@ func (rec *contentRepoImpl) GetParagraphsByWork(ctx context.Context, workCode st
 }
 
 func (rec *contentRepoImpl) GetSummariesByWork(ctx context.Context, workCode string, ordinals []int32) ([]model.Content, error) {
-	contentQuery := util.CreateContentQuery(
+	contentQuery := createContentQuery(
 		workCode,
 		[]model.Type{model.Summary},
 	)
 	if len(ordinals) > 0 {
 		contentQuery.Bool.Filter = append(
 			contentQuery.Bool.Filter,
-			util.CreateOrdinalQuery(ordinals),
+			createOrdinalQuery(ordinals),
 		)
 	}
-	res, err := rec.dbClient.Search().Request(&search.Request{
-		Query: contentQuery,
-		Size:  commonutil.IntPtr(resultsSize),
-	}).Do(ctx)
+	res, err := rec.dbClient.Search().
+		AllowPartialSearchResults(false).
+		Request(&search.Request{
+			Query: contentQuery,
+			Size:  util.IntPtr(resultsSize),
+		}).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -242,9 +252,10 @@ func (rec *contentRepoImpl) GetSummariesByWork(ctx context.Context, workCode str
 }
 
 func (rec *contentRepoImpl) DeleteByWork(ctx context.Context, workCode string) error {
-	res, err := rec.dbClient.DeleteByQuery(rec.indexName).Request(&deletebyquery.Request{
-		Query: createTermQuery("workCode", workCode),
-	}).Do(ctx)
+	res, err := rec.dbClient.DeleteByQuery(rec.indexName).
+		Request(&deletebyquery.Request{
+			Query: createTermQuery("workCode", workCode),
+		}).Do(ctx)
 	if err != nil {
 		return err
 	}
@@ -263,12 +274,12 @@ func (rec *contentRepoImpl) DeleteByWork(ctx context.Context, workCode string) e
 	return err
 }
 
-func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, options model.SearchOptions) ([]model.SearchResult, error) {
+func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.SearchTermNode, options model.SearchOptions) ([]model.SearchResult, error) {
 	analyzer := model.NoStemming
 	if options.WithStemming {
 		analyzer = model.GermanStemming
 	}
-	searchQuery, err := util.CreateSearchQuery(ast, analyzer)
+	searchQuery, err := createSearchQuery(ast, analyzer)
 	if err != nil {
 		return nil, err
 	}
@@ -276,20 +287,22 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 		// empty search term (== nil searchQueries) is catched in api layer, so if this is the case, the error is technical, not a user error
 		return nil, errors.New("search AST must not be nil")
 	}
-	optionQueries := util.CreateOptionQueries(options)
+	optionQueries := createOptionQueries(options)
 
-	res, err := rec.dbClient.Search().Index(rec.indexName).Request(
-		&search.Request{
-			Query: &types.Query{
-				Bool: &types.BoolQuery{
-					Must:   []types.Query{*searchQuery},
-					Filter: optionQueries,
+	res, err := rec.dbClient.Search().Index(rec.indexName).
+		AllowPartialSearchResults(false).
+		Request(
+			&search.Request{
+				Query: &types.Query{
+					Bool: &types.BoolQuery{
+						Must:   []types.Query{*searchQuery},
+						Filter: optionQueries,
+					},
 				},
-			},
-			Sort:      util.CreateSortOptions(),
-			Highlight: util.CreateHighlightOptions(analyzer),
-			Size:      commonutil.IntPtr(10000),
-		}).Do(ctx)
+				Sort:      createSortOptions(),
+				Highlight: createHighlightOptions(analyzer),
+				Size:      util.IntPtr(10000),
+			}).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -313,4 +326,186 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.AstNode, opti
 		})
 	}
 	return results, nil
+}
+
+func createWorkCodeQuery(workCode string) types.Query {
+	return types.Query{
+		Term: map[string]types.TermQuery{
+			"workCode": {Value: workCode},
+		},
+	}
+}
+
+func createContentQuery(workCode string, cType []model.Type) *types.Query {
+	return &types.Query{
+		Bool: &types.BoolQuery{
+			Filter: []types.Query{
+				createWorkCodeQuery(workCode),
+				createTypeQuery(cType),
+			},
+		},
+	}
+}
+
+func createSearchQuery(node *model.SearchTermNode, analyzer model.Analyzer) (*types.Query, error) {
+	if node == nil {
+		return nil, nil
+	}
+	if node.Token.IsAnd {
+		return createAndQuery(node, analyzer)
+	}
+	if node.Token.IsOr {
+		return createOrQuery(node, analyzer)
+	}
+	if node.Token.IsNot {
+		return createNotQuery(node, analyzer)
+	}
+	if node.Token.IsWord {
+		return createTextMatchQuery(node.Token.Text, analyzer), nil
+	}
+	if node.Token.IsPhrase {
+		return createPhraseQuery(node.Token.Text, analyzer), nil
+	}
+	return nil, errors.New("invalid token type")
+}
+
+func createSortOptions() []types.SortCombinations {
+	return []types.SortCombinations{
+		types.SortOptions{
+			SortOptions: map[string]types.FieldSort{
+				"ordinal": {Order: &sortorder.Asc},
+			},
+		},
+	}
+}
+
+func createHighlightOptions(analyzer model.Analyzer) *types.Highlight {
+	return &types.Highlight{
+		Fields: map[string]types.HighlightField{
+			analyzerPrefix + string(analyzer): {
+				NumberOfFragments: util.IntPtr(0),
+			},
+		},
+		PreTags:  []string{"<ks-meta-hit>"},
+		PostTags: []string{"</ks-meta-hit>"},
+	}
+}
+
+func createTypeQuery(cType []model.Type) types.Query {
+	return types.Query{Terms: &types.TermsQuery{
+		TermsQuery: map[string]types.TermsQueryField{
+			"type": cType,
+		},
+	}}
+}
+
+func createOrdinalQuery(ordinals []int32) types.Query {
+	values := make([]interface{}, len(ordinals))
+	for i, v := range ordinals {
+		values[i] = v
+	}
+	return types.Query{
+		Terms: &types.TermsQuery{
+			TermsQuery: map[string]types.TermsQueryField{
+				"ordinal": values,
+			},
+		},
+	}
+}
+
+func createAndQuery(node *model.SearchTermNode, analyzer model.Analyzer) (*types.Query, error) {
+	q1, err := createSearchQuery(node.Left, analyzer)
+	if err != nil {
+		return nil, err
+	}
+	q2, err := createSearchQuery(node.Right, analyzer)
+	if err != nil {
+		return nil, err
+	}
+	if q1 == nil || q2 == nil {
+		return nil, errors.New("AND nodes must have both a left and a right child")
+	}
+	return &types.Query{Bool: &types.BoolQuery{
+		Must: []types.Query{*q1, *q2},
+	}}, nil
+}
+
+func createOrQuery(node *model.SearchTermNode, analyzer model.Analyzer) (*types.Query, error) {
+	q1, err := createSearchQuery(node.Left, analyzer)
+	if err != nil {
+		return nil, err
+	}
+	q2, err := createSearchQuery(node.Right, analyzer)
+	if err != nil {
+		return nil, err
+	}
+	if q1 == nil || q2 == nil {
+		return nil, errors.New("OR nodes must have both a left and a right child")
+	}
+	return &types.Query{Bool: &types.BoolQuery{
+		Should: []types.Query{*q1, *q2},
+	}}, nil
+}
+
+func createNotQuery(node *model.SearchTermNode, analyzer model.Analyzer) (*types.Query, error) {
+	q1, err := createSearchQuery(node.Left, analyzer)
+	if err != nil {
+		return nil, err
+	}
+	if q1 == nil {
+		q2, err := createSearchQuery(node.Right, analyzer)
+		if err != nil {
+			return nil, err
+		}
+		if q2 == nil {
+			return nil, errors.New("NOT nodes must have either a left and a right child")
+		}
+		return &types.Query{Bool: &types.BoolQuery{
+			MustNot: []types.Query{*q2},
+		}}, nil
+	}
+	return &types.Query{Bool: &types.BoolQuery{
+		MustNot: []types.Query{*q1},
+	}}, nil
+}
+
+func createPhraseQuery(phrase string, analyzer model.Analyzer) *types.Query {
+	return &types.Query{
+		MatchPhrase: map[string]types.MatchPhraseQuery{
+			analyzerPrefix + string(analyzer): {Query: phrase},
+		},
+	}
+}
+
+func createTextMatchQuery(term string, analyzer model.Analyzer) *types.Query {
+	return &types.Query{
+		Match: map[string]types.MatchQuery{
+			analyzerPrefix + string(analyzer): {Query: term},
+		},
+	}
+}
+
+func createOptionQueries(opts model.SearchOptions) []types.Query {
+	tps := []model.Type{model.Paragraph}
+	if opts.IncludeHeadings {
+		tps = append(tps, model.Heading)
+	}
+	if opts.IncludeFootnotes {
+		tps = append(tps, model.Footnote)
+	}
+	if opts.IncludeSummaries {
+		tps = append(tps, model.Summary)
+	}
+	return []types.Query{
+		createWorkCodesQuery(opts.WorkCodes),
+		createTypeQuery(tps),
+	}
+}
+
+func createWorkCodesQuery(workCodes []string) types.Query {
+	return types.Query{Terms: &types.TermsQuery{
+		TermsQuery: map[string]types.TermsQueryField{
+			"workCode": workCodes,
+		},
+	}}
 }
