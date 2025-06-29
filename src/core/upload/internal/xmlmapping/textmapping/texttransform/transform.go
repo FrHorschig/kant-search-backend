@@ -106,7 +106,8 @@ func hx(elem *etree.Element) (string, string, errs.UploadError) {
 	tocTitle = strings.TrimSpace(tocTitle)
 	tocTitle = removeTrailingPunctuation(tocTitle)
 	tocTitle = fixCapitalization(tocTitle)
-	return strings.TrimSpace(textTitle), tocTitle, errs.Nil()
+	textTitle = transformHeadingTextTitle(elem.Tag, textTitle)
+	return textTitle, tocTitle, errs.Nil()
 }
 
 func hu(elem *etree.Element) (string, errs.UploadError) {
@@ -138,7 +139,11 @@ func hu(elem *etree.Element) (string, errs.UploadError) {
 			return "", errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
 		}
 	}
-	return extractText(elem, switchFn)
+	text, err := extractText(elem, switchFn)
+	if err.HasError {
+		return "", err
+	}
+	return util.FmtParHeading(text), errs.Nil()
 }
 
 func p(elem *etree.Element) (string, errs.UploadError) {
@@ -243,6 +248,29 @@ func summary(elem *etree.Element) (string, string, errs.UploadError) {
 		return "", "", err
 	}
 	return text, fmt.Sprintf("%d.%d", page, line), errs.Nil()
+}
+
+func transformHeadingTextTitle(hTag string, text string) string {
+	level := int32(0)
+	switch hTag {
+	case "h2":
+		level = int32(1)
+	case "h3":
+		level = int32(2)
+	case "h4":
+		level = int32(3)
+	case "h5":
+		level = int32(4)
+	case "h6":
+		level = int32(5)
+	case "h7":
+		level = int32(6)
+	case "h8":
+		level = int32(7)
+	case "h9":
+		level = int32(8)
+	}
+	return util.FmtHeading(level, strings.TrimSpace(text))
 }
 
 func removeTrailingPunctuation(s string) string {
