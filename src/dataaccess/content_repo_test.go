@@ -220,8 +220,8 @@ func TestSearch(t *testing.T) {
 			},
 			searchTerms: &model.SearchTermNode{Token: newWord("text")},
 			options: model.SearchOptions{
-				WorkCodes:        []string{workCode},
-				IncludeSummaries: true,
+				WorkCodes:         []string{workCode},
+				IncludeParagraphs: true,
 			},
 			hitCount: 2,
 		},

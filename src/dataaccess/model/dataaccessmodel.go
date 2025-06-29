@@ -16,11 +16,11 @@ type Token struct {
 }
 
 type SearchOptions struct {
-	IncludeHeadings  bool
-	IncludeFootnotes bool
-	IncludeSummaries bool
-	WithStemming     bool
-	WorkCodes        []string
+	IncludeHeadings   bool
+	IncludeParagraphs bool
+	IncludeFootnotes  bool
+	WithStemming      bool
+	WorkCodes         []string
 }
 
 type SearchResult struct {
