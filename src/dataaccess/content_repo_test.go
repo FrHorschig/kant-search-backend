@@ -177,7 +177,7 @@ func TestSearch(t *testing.T) {
 				},
 				Right: &model.SearchTermNode{Token: newPhrase("night bird")},
 			},
-			options:  model.SearchOptions{WorkCodes: []string{workCode}},
+			options:  model.SearchOptions{WorkCodes: []string{workCode}, IncludeParagraphs: true},
 			hitCount: 3,
 		},
 		{
@@ -190,8 +190,9 @@ func TestSearch(t *testing.T) {
 			},
 			searchTerms: &model.SearchTermNode{Token: newWord("text")},
 			options: model.SearchOptions{
-				WorkCodes:       []string{workCode},
-				IncludeHeadings: true,
+				WorkCodes:         []string{workCode},
+				IncludeHeadings:   true,
+				IncludeParagraphs: true,
 			},
 			hitCount: 2,
 		},
@@ -205,25 +206,25 @@ func TestSearch(t *testing.T) {
 			},
 			searchTerms: &model.SearchTermNode{Token: newWord("text")},
 			options: model.SearchOptions{
-				WorkCodes:        []string{workCode},
-				IncludeFootnotes: true,
+				WorkCodes:         []string{workCode},
+				IncludeParagraphs: true,
+				IncludeFootnotes:  true,
 			},
 			hitCount: 2,
 		},
 		{
-			name: "test includeSummaries option",
+			name: "test not searching in paragraphs option",
 			dbInput: []model.Content{
 				{Type: model.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
+				{Type: model.Paragraph, SearchText: "paragraph 2 text", WorkCode: workCode},
 				{Type: model.Heading, SearchText: "heading text", WorkCode: workCode},
-				{Type: model.Footnote, SearchText: "footnote text", WorkCode: workCode},
-				{Type: model.Summary, SearchText: "summary text", WorkCode: workCode},
 			},
 			searchTerms: &model.SearchTermNode{Token: newWord("text")},
 			options: model.SearchOptions{
-				WorkCodes:         []string{workCode},
-				IncludeParagraphs: true,
+				WorkCodes:       []string{workCode},
+				IncludeHeadings: true,
 			},
-			hitCount: 2,
+			hitCount: 1,
 		},
 	}
 

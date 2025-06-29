@@ -19,103 +19,104 @@ func TestHx(t *testing.T) {
 	}{
 		{
 			name:              "Pure text",
-			text:              "Some text",
+			text:              "<h2>Some text</h2>",
 			expectedTocTitle:  "Some text",
-			expectedTextTitle: "Some text",
+			expectedTextTitle: "<ks-fmt-h1>Some text</ks-fmt-h1>",
 		},
 		{
 			name:              "Text with fett child element",
-			text:              "Test text",
+			text:              "<h3>Test text</h3>",
 			child:             elem("fett", nil, "fettText", nil),
 			expectedTocTitle:  "Test text " + "fettText",
-			expectedTextTitle: "Test text " + util.FmtBold("fettText"),
+			expectedTextTitle: "<ks-fmt-h2>Test text " + util.FmtBold("fettText") + "</ks-fmt-h2>",
 		},
 		{
 			name:              "Text with fr child element",
-			text:              "Test text",
+			text:              "<h4>Test text</h4>",
 			child:             elem("fr", map[string]string{"seite": "1", "nr": "2"}, "", nil),
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "Test text " + util.FmtFnRef(1, 2),
+			expectedTextTitle: "<ks-fmt-h3>Test text " + util.FmtFnRef(1, 2) + "</ks-fmt-h3>",
 		},
 		{
 			name:              "Text with fremdsprache child element",
-			text:              "Test text",
+			text:              "<h5>Test text</h5>",
 			child:             elem("fremdsprache", nil, "fremdspracheText", nil),
 			expectedTocTitle:  "Test text " + util.FmtLang("fremdspracheText"),
-			expectedTextTitle: "Test text " + util.FmtLang("fremdspracheText"),
+			expectedTextTitle: "<ks-fmt-h4>Test text " + util.FmtLang("fremdspracheText") + "</ks-fmt-h4>",
 		},
 		{
 			name:              "Text with gesperrt child element",
-			text:              "Test text",
+			text:              "<h6>Test text</h6>",
 			child:             elem("gesperrt", nil, "gesperrtText", nil),
 			expectedTocTitle:  "Test text " + "gesperrtText",
-			expectedTextTitle: "Test text " + util.FmtTracked("gesperrtText"),
+			expectedTextTitle: "<ks-fmt-h5>Test text " + util.FmtTracked("gesperrtText") + "</ks-fmt-h5>",
 		},
 		{
 			name:              "Text with hi child element",
-			text:              "Test text",
+			text:              "<h7>Test text</h7>",
 			child:             elem("hi", nil, "hiText", nil),
 			expectedTocTitle:  "Test text hiText",
-			expectedTextTitle: "Test text",
+			expectedTextTitle: "<ks-fmt-h6>Test text</ks-fmt-h6>",
 		},
 		{
 			name:              "Text with hu child element",
-			text:              "Test text",
+			text:              "<h8>Test text</h8>",
 			child:             elem("hu", nil, "huText", nil),
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "Test text huText",
+			expectedTextTitle: "<ks-fmt-h7>Test text <ks-fmt-hpar>huText</ks-fmt-hpar></ks-fmt-h7>",
 		},
 		{
 			name:              "Text with name child element",
-			text:              "Test text",
+			text:              "<h9>Test text</h9>",
 			child:             elem("name", nil, "nameText", nil),
 			expectedTocTitle:  "Test text nameText",
-			expectedTextTitle: "Test text " + util.FmtName("nameText"),
+			expectedTextTitle: "<ks-fmt-h8>Test text " + util.FmtName("nameText") + "</ks-fmt-h8>",
 		},
 		{
 			name:              "Text with op child element",
-			text:              "Test text",
+			text:              "<h2>Test text</h2>",
 			child:             elem("op", nil, "opText", nil),
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "Test text",
+			expectedTextTitle: "<ks-fmt-h1>Test text</ks-fmt-h1>",
 		},
 		{
 			name:              "Text with romzahl child element",
-			text:              "Test text",
+			text:              "<h2>Test text</h2>",
 			child:             elem("romzahl", nil, "2.", nil),
 			expectedTocTitle:  "Test text II",
-			expectedTextTitle: "Test text II.",
+			expectedTextTitle: "<ks-fmt-h1>Test text II.</ks-fmt-h1>",
 		},
 		{
 			name:              "Text with seite child element",
-			text:              "Test text",
+			text:              "<h2>Test text</h2>",
 			child:             elem("seite", map[string]string{"nr": "384"}, "", nil),
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "Test text " + util.FmtPage(384) + "",
+			expectedTextTitle: "<ks-fmt-h1>Test text " + util.FmtPage(384) + "</ks-fmt-h1>",
 		},
 		{
 			name:              "Text with trenn child element",
-			text:              "Test text",
+			text:              "<h2>Test text</h2>",
 			child:             elem("trenn", nil, "trennText", nil),
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "Test text",
+			expectedTextTitle: "<ks-fmt-h1>Test text</ks-fmt-h1>",
 		},
 		{
 			name:              "Text with zeile child element",
-			text:              "Test text",
+			text:              "<h2>Test text</h2>",
 			child:             elem("zeile", map[string]string{"nr": "328"}, "", nil),
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "Test text " + util.FmtLine(328),
+			expectedTextTitle: "<ks-fmt-h1>Test text " + util.FmtLine(328) + "</ks-fmt-h1>",
 		},
 		{
 			name:              "Text with leading and trailing spaces",
-			text:              "   Test text       ",
+			text:              "   <h2>Test text    </h2>   ",
 			child:             nil,
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "Test text",
+			expectedTextTitle: "<ks-fmt-h1>Test text</ks-fmt-h1>",
 		},
 		{
 			name:        "Text with unknown child element",
+			text:        "<h2>h</h2>",
 			child:       elem("my-custom-tag", nil, "", nil),
 			expectError: true,
 		},
@@ -123,11 +124,13 @@ func TestHx(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			el := elem("element", nil, tc.text, tc.child)
+			el := el(tc.text, nil, tc.child)
 			fmtResult, tocResult, err := hx(el)
 			assert.Equal(t, tc.expectError, err.HasError)
-			assert.Equal(t, tc.expectedTocTitle, tocResult)
-			assert.Equal(t, tc.expectedTextTitle, fmtResult)
+			if !tc.expectError {
+				assert.Equal(t, tc.expectedTocTitle, tocResult)
+				assert.Equal(t, tc.expectedTextTitle, fmtResult)
+			}
 		})
 	}
 }
@@ -229,7 +232,9 @@ func TestHu(t *testing.T) {
 			el := elem("element", nil, tc.text, tc.child)
 			result, err := hu(el)
 			assert.Equal(t, tc.expectError, err.HasError)
-			assert.Equal(t, tc.expected, result)
+			if !tc.expectError {
+				assert.Equal(t, "<ks-fmt-hpar>"+tc.expected+"</ks-fmt-hpar>", result)
+			}
 		})
 	}
 }
@@ -551,6 +556,17 @@ func TestFootnote(t *testing.T) {
 			assert.Equal(t, tc.expectedRef, ref)
 		})
 	}
+}
+
+func el(xml string, attrs map[string]string, child *etree.Element) *etree.Element {
+	el := createElement(xml)
+	for k, v := range attrs {
+		el.CreateAttr(k, v)
+	}
+	if child != nil {
+		el.AddChild(child)
+	}
+	return el
 }
 
 func elem(tag string, attrs map[string]string, text string, child *etree.Element) *etree.Element {

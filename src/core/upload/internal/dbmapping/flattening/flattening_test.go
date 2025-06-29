@@ -279,7 +279,7 @@ func TestFlattening(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			vols, contents := Flatten(tc.volume, tc.works)
-			testutil.AssertDbVolumes(t, tc.expVolume, vols)
+			testutil.AssertDbVolume(t, tc.expVolume, vols)
 			testutil.AssertDbContents(t, tc.expContent, contents)
 		})
 	}
