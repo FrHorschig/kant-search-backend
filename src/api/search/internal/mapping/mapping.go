@@ -9,11 +9,11 @@ import (
 
 func CriteriaToCoreModel(in *models.SearchCriteria) (string, model.SearchOptions) {
 	return in.SearchTerms, model.SearchOptions{
-		IncludeHeadings:  in.Options.IncludeHeadings,
-		IncludeFootnotes: in.Options.IncludeFootnotes,
-		IncludeSummaries: in.Options.IncludeSummaries,
-		WithStemming:     in.Options.WithStemming,
-		WorkCodes:        in.Options.WorkCodes,
+		IncludeHeadings:   in.Options.IncludeHeadings,
+		IncludeFootnotes:  in.Options.IncludeFootnotes,
+		IncludeParagraphs: in.Options.IncludeParagraphs,
+		WithStemming:      in.Options.WithStemming,
+		WorkCodes:         in.Options.WorkCodes,
 	}
 }
 

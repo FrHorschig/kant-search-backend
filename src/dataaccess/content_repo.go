@@ -415,15 +415,15 @@ func createTextMatchQuery(term string, analyzer model.Analyzer) *types.Query {
 }
 
 func createOptionQueries(opts model.SearchOptions) []types.Query {
-	tps := []model.Type{model.Paragraph}
+	tps := []model.Type{}
 	if opts.IncludeHeadings {
 		tps = append(tps, model.Heading)
 	}
+	if opts.IncludeParagraphs {
+		tps = append(tps, model.Paragraph)
+	}
 	if opts.IncludeFootnotes {
 		tps = append(tps, model.Footnote)
-	}
-	if opts.IncludeSummaries {
-		tps = append(tps, model.Summary)
 	}
 	return []types.Query{
 		createWorkCodesQuery(opts.WorkCodes),

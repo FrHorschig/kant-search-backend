@@ -16,11 +16,11 @@ func TestCriteriaToCoreModel(t *testing.T) {
 	criteria := models.SearchCriteria{
 		SearchTerms: "search terms",
 		Options: models.SearchOptions{
-			IncludeHeadings:  false,
-			IncludeFootnotes: true,
-			IncludeSummaries: false,
-			WithStemming:     true,
-			WorkCodes:        []string{"id1", "id2"},
+			IncludeHeadings:   false,
+			IncludeFootnotes:  true,
+			IncludeParagraphs: false,
+			WithStemming:      true,
+			WorkCodes:         []string{"id1", "id2"},
 		},
 	}
 
@@ -30,7 +30,7 @@ func TestCriteriaToCoreModel(t *testing.T) {
 	assert.Equal(t, opts.WorkCodes, criteria.Options.WorkCodes)
 	assert.Equal(t, opts.IncludeHeadings, criteria.Options.IncludeHeadings)
 	assert.Equal(t, opts.IncludeFootnotes, criteria.Options.IncludeFootnotes)
-	assert.Equal(t, opts.IncludeSummaries, criteria.Options.IncludeSummaries)
+	assert.Equal(t, opts.IncludeParagraphs, criteria.Options.IncludeParagraphs)
 }
 
 func TestHitsToApiModels(t *testing.T) {
