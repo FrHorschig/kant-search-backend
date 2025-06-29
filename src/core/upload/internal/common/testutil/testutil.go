@@ -66,7 +66,7 @@ func AssertSummaries(t *testing.T, exp []model.Summary, act []model.Summary) {
 	}
 }
 
-func AssertDbVolumes(t *testing.T, exp dbmodel.Volume, act dbmodel.Volume) {
+func AssertDbVolume(t *testing.T, exp dbmodel.Volume, act dbmodel.Volume) {
 	assert.Equal(t, exp.VolumeNumber, act.VolumeNumber)
 	assert.Equal(t, exp.Title, act.Title)
 	assertDbWorks(t, exp.Works, act.Works)

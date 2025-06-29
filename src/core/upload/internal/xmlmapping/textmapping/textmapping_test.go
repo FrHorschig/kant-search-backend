@@ -44,17 +44,17 @@ func TestTextMapping(t *testing.T) {
 					Title: "Work 1",
 					Sections: []model.Section{{
 						Heading: model.Heading{
-							Text:    "heading 2",
+							Text:    "<ks-fmt-h1>heading 2</ks-fmt-h1>",
 							TocText: "Heading 2",
 						},
 						Paragraphs: []model.Paragraph{
 							{Text: "<ks-meta-page>4</ks-meta-page> p paragraph"},
-							{Text: "hu paragraph"},
+							{Text: "<ks-fmt-hpar>hu paragraph</ks-fmt-hpar>"},
 							{Text: ""},
 						},
 						Sections: []model.Section{{
 							Heading: model.Heading{
-								Text:    "heading 3",
+								Text:    "<ks-fmt-h2>heading 3</ks-fmt-h2>",
 								TocText: "Heading 3",
 							},
 							Paragraphs: []model.Paragraph{},
