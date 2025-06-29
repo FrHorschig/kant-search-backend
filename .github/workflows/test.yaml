@@ -18,21 +18,11 @@ jobs:
       - name: make owner lowercase
         run: |
           echo "OWNER=$(echo $OWNER | awk '{print tolower($0)}')" >> $GITHUB_ENV
-      - name: set up python venv
-        run: |
-          cd src_py
-          python -m venv .venv
-          source .venv/bin/activate
-          pip install -U pip setuptools wheel
-          pip install -U spacy
-          python -m spacy download de_core_news_sm
-          deactivate
-          cd ../..
 
       - name: set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.21"
+          go-version: "1.24"
       - name: install mockgen
         run: go install github.com/golang/mock/mockgen@v1.6.0
       - name: generate
