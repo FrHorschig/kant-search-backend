@@ -117,8 +117,6 @@ func TestVolumeRepo(t *testing.T) {
 	assert.Nil(t, singleRes)
 }
 
-// TODO test GetAll
-
 func refreshVolumes(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()

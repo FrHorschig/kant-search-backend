@@ -110,14 +110,13 @@ func AssertDbContents(t *testing.T, exp []dbmodel.Content, act []dbmodel.Content
 	for i := range exp {
 		assert.Equal(t, exp[i].FmtText, act[i].FmtText)
 		if exp[i].TocText != nil {
-			assert.Equal(t, exp[i].TocText, act[i].TocText)
+			assert.NotNil(t, act[i].TocText)
+			assert.Equal(t, *exp[i].TocText, *act[i].TocText)
 		}
 		assert.Equal(t, exp[i].SearchText, act[i].SearchText)
 		assert.Equal(t, exp[i].Type, act[i].Type)
 		assert.Equal(t, exp[i].Ordinal, act[i].Ordinal)
 		assert.Equal(t, exp[i].WorkCode, act[i].WorkCode)
-		assert.Equal(t, exp[i].SearchText, act[i].SearchText)
-		assert.Equal(t, exp[i].SearchText, act[i].SearchText)
 		assert.Equal(t, len(exp[i].Pages), len(act[i].Pages))
 		for j := range exp[i].Pages {
 			assert.Equal(t, exp[i].Pages[j], act[i].Pages[j])
@@ -150,7 +149,7 @@ func assertContentReferences(t *testing.T, exp dbmodel.Content, act dbmodel.Cont
 		assert.Equal(t, exp.FnRefs[j], act.FnRefs[j])
 	}
 	if exp.SummaryRef != nil {
-		assert.Equal(t, exp.SummaryRef, act.SummaryRef)
+		assert.Equal(t, *exp.SummaryRef, *act.SummaryRef)
 	}
 	if exp.Ref != nil {
 		assert.Equal(t, exp.Ref, act.Ref)

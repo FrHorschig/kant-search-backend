@@ -9,7 +9,7 @@ import (
 
 func Order(works []model.Work) errs.UploadError {
 	for i := range works {
-		ordinal := int32(0)
+		ordinal := int32(1)
 		fnByRef := findFootnoteByRef(works[i].Footnotes)
 		summByRef := findSummaryByRef(works[i].Summaries)
 		err := addParagraphOrdinals(works[i].Paragraphs, &ordinal, fnByRef, summByRef)
