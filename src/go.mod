@@ -1,8 +1,6 @@
 module github.com/frhorschig/kant-search-backend
 
-go 1.23.0
-
-toolchain go1.24.1
+go 1.24
 
 require (
 	github.com/beevik/etree v1.4.1
