@@ -18,13 +18,17 @@ import (
 )
 
 func initEsConnection() *elasticsearch.TypedClient {
+	esCert, err := os.ReadFile(os.Getenv("KSDB_CERT"))
+	if err != nil {
+		panic(err)
+	}
 	es, err := elasticsearch.NewTypedClient(elasticsearch.Config{
 		Addresses: []string{fmt.Sprintf(
 			"%s:%s", os.Getenv("KSDB_URL"), os.Getenv("KSDB_PORT"),
 		)},
-		Username:               os.Getenv("KSDB_USER"),
-		Password:               os.Getenv("KSDB_PWD"),
-		CertificateFingerprint: os.Getenv("KSDB_CERT_HASH"),
+		Username: os.Getenv("KSDB_USERNAME"),
+		Password: os.Getenv("KSDB_PASSWORD"),
+		CACert:   esCert,
 	})
 	if err != nil {
 		panic(err)
@@ -93,6 +97,6 @@ func main() {
 	if os.Getenv("KSGO_DISABLE_SSL") == "true" {
 		e.Logger.Fatal(e.Start(":3000"))
 	} else {
-		e.Logger.Fatal(e.StartTLS(":3000", os.Getenv("KSGO_CERT_PATH"), os.Getenv("KSGO_KEY_PATH")))
+		e.Logger.Fatal(e.StartTLS(":3000", os.Getenv("KSGO_CERT"), os.Getenv("KSGO_KEY")))
 	}
 }
