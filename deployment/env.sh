@@ -2,8 +2,8 @@
 
 export KSGO_URL="localhost"
 export KSDB_PORT="9200"
-export KSDB_USER="kantsearch"
-export KSDB_PWD="kantsearch"
+export KSDB_USER=""
+export KSDB_PWD=""
 export KSGO_DB_SSLMODE="disable"
 export KSGO_ALLOW_ORIGINS="localhost"
 export KSGO_DISABLE_SSL="false"
