@@ -1,7 +1,7 @@
 package mapping
 
 import (
-	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/common/util"
 	"github.com/frhorschig/kant-search-backend/dataaccess/model"
 )

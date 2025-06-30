@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/frhorschig/kant-search-backend/api/read/internal/errors"
 	"github.com/frhorschig/kant-search-backend/api/read/internal/mapping"
 	"github.com/frhorschig/kant-search-backend/core/read"

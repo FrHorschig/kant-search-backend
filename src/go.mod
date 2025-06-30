@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/beevik/etree v1.4.1
 	github.com/elastic/go-elasticsearch/v8 v8.17.1
-	github.com/frhorschig/kant-search-api/src/go v0.17.1
+	github.com/frhorschig/kant-search-api/generated/go v0.80.0
 	github.com/golang/mock v1.6.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/rs/zerolog v1.33.0
@@ -75,5 +75,3 @@ require (
 	golang.org/x/time v0.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/frhorschig/kant-search-api/src/go => ./kant-search-api-generated
