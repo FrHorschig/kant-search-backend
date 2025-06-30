@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       OWNER: ${{ github.repository_owner }}
-      DB_IMG: ghcr.io/frhorschig/kant-search-database:latest
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -30,10 +29,7 @@ jobs:
         run: go generate ./...
       - name: get Go dependencies
         working-directory: src
-        env:
-          GOPRIVATE: "github.com/frhorschig/kant-search-api"
         run: |
-          git config --global url."https://${{ secrets.API_TAGS_PAT }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
           go clean -modcache
           go mod tidy
       - name: build
