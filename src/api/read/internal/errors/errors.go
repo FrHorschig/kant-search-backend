@@ -3,7 +3,7 @@ package errors
 import (
 	"net/http"
 
-	"github.com/frhorschig/kant-search-api/src/go/models"
+	"github.com/frhorschig/kant-search-api/generated/go/models"
 	"github.com/labstack/echo/v4"
 )
 
