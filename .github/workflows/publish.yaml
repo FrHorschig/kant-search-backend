@@ -28,7 +28,7 @@ jobs:
           go mod tidy
       - name: build application
         working-directory: src
-        run: go build
+        run: GOOS=linux GOARCH=amd64 go build -o kant-search-backend
       - name: upload the build artifact
         uses: actions/upload-artifact@v4
         with:
