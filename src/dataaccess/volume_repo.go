@@ -54,6 +54,7 @@ func createVolumeIndex(es *elasticsearch.TypedClient, name string) error {
 
 	res, err := es.Indices.Create(name).Request(&create.Request{
 		Mappings: model.VolumeMapping,
+		Settings: &types.IndexSettings{NumberOfReplicas: "0"},
 	}).Do(ctx)
 	if err != nil {
 		return err
