@@ -20,6 +20,7 @@ import (
 	db "github.com/frhorschig/kant-search-backend/dataaccess"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog/log"
 )
 
 func initEsConnection() *elasticsearch.TypedClient {
@@ -46,6 +47,7 @@ func initEsConnection() *elasticsearch.TypedClient {
 		if err == nil && health.Status == healthstatus.Green {
 			return es
 		}
+		log.Info().Msgf("waiting for ES to start after attempt %d", i)
 		time.Sleep(time.Duration(retryInterval) * time.Second)
 	}
 	panic("failed to connect to Elasticsearch after maximum number of attempts")
@@ -127,6 +129,6 @@ func main() {
 	if os.Getenv("KSGO_DISABLE_SSL") == "true" {
 		e.Logger.Fatal(e.Start(":3000"))
 	} else {
-		e.Logger.Fatal(e.StartTLS(":3000", os.Getenv("KSGO_CERT"), os.Getenv("KSGO_KEY")))
+		e.Logger.Fatal(e.StartTLS(":443", os.Getenv("KSGO_CERT"), os.Getenv("KSGO_KEY")))
 	}
 }

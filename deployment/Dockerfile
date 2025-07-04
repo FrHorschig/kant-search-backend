@@ -3,5 +3,4 @@ WORKDIR /app
 COPY src/kant-search-backend .
 RUN chmod +x kant-search-backend
 
-EXPOSE 3000
 CMD ["./kant-search-backend"]
