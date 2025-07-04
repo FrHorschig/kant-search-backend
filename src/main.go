@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
@@ -52,6 +53,9 @@ func initEchoServer() *echo.Echo {
 }
 
 func registerHandlers(e *echo.Echo, uploadHandler apiupload.UploadHandler, readHandler apiread.ReadHandler, searchHandler apisearch.SearchHandler) {
+	e.GET("/health", func(c echo.Context) error {
+		return c.String(http.StatusOK, "UP")
+	})
 	e.POST("/api/v1/upload", func(ctx echo.Context) error {
 		return uploadHandler.PostVolume(ctx)
 	})
