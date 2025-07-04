@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/healthstatus"
 	apiread "github.com/frhorschig/kant-search-backend/api/read"
 	apisearch "github.com/frhorschig/kant-search-backend/api/search"
 	apiupload "github.com/frhorschig/kant-search-backend/api/upload"
@@ -34,7 +38,29 @@ func initEsConnection() *elasticsearch.TypedClient {
 	if err != nil {
 		panic(err)
 	}
-	return es
+
+	retryCount := readIntConfig("KSGO_RETRY_COUNT")
+	retryInterval := readIntConfig("KSGO_RETRY_INTERVAL")
+	for i := 0; i < retryCount; i++ {
+		health, err := es.Cluster.Health().Do(context.Background())
+		if err == nil && health.Status == healthstatus.Green {
+			return es
+		}
+		time.Sleep(time.Duration(retryInterval) * time.Second)
+	}
+	panic("failed to connect to Elasticsearch after maximum number of attempts")
+}
+
+func readIntConfig(name string) int {
+	str := strings.TrimSpace(os.Getenv(name))
+	if str == "" {
+		panic("unknown environment variable " + name)
+	}
+	num, err := strconv.ParseInt(str, 10, 32)
+	if err != nil {
+		panic("unable to convert value '" + str + "' of environment variable '" + name + "' to a number")
+	}
+	return int(num)
 }
 
 func initEchoServer() *echo.Echo {

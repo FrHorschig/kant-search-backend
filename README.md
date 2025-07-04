@@ -21,6 +21,8 @@ These environment variables are necessary for the application to function proper
 - `KSDB_PORT` - the port of the database
 - `KSDB_USERNAME` - the name of the elasticsearch user
 - `KSDB_PASSWORD` - the password of the elasticsearch user
+- `KSGO_RETRY_COUNT` - the number of retrying the elasticsearch connection before panicking
+- `KSGO_RETRY_INTERVAL` - the number of seconds to wait between retries
 - `KSDB_CERT` - the path to the elasticsearch http certificate
 - `KSGO_ALLOW_ORIGINS` - comma separated list of URLs allowed to communicate with the backend (use `*` to allow all)
 - `KSGO_CONFIG_PATH` - path to the configuration directory
