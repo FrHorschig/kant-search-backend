@@ -115,8 +115,7 @@ func main() {
 	volumeRepo := db.NewVolumeRepo(es)
 	contentRepo := db.NewContentRepo(es)
 
-	configPath := os.Getenv("CONFIG_PATH")
-	uploadProcessor := coreupload.NewUploadProcessor(volumeRepo, contentRepo, configPath)
+	uploadProcessor := coreupload.NewUploadProcessor(volumeRepo, contentRepo, os.Getenv("KSGO_CONFIG_PATH"))
 	readProcessor := coreread.NewReadProcessor(volumeRepo, contentRepo)
 	searchProcessor := coresearch.NewSearchProcessor(contentRepo)
 
