@@ -71,7 +71,7 @@ func mapParagraphs(paragraphs []model.Paragraph) errs.UploadError {
 		if err.HasError {
 			return err
 		}
-		p.Text = pText
+		p.Text = postprocessText(pText)
 	}
 	return errs.Nil()
 }
@@ -82,19 +82,26 @@ func mapFootnotes(footnotes []model.Footnote) errs.UploadError {
 		if err.HasError {
 			return err
 		}
-		footnotes[i].Text = text
+		footnotes[i].Text = postprocessText(text)
 		footnotes[i].Ref = ref
 	}
 	return errs.Nil()
 }
+
 func mapSummaries(summaries []model.Summary) errs.UploadError {
 	for i := range summaries {
 		text, ref, err := trafo.Summary(summaries[i].Text)
 		if err.HasError {
 			return err
 		}
-		summaries[i].Text = text
+		summaries[i].Text = postprocessText(text)
 		summaries[i].Ref = ref
 	}
 	return errs.Nil()
+}
+
+func postprocessText(text string) string {
+	text = strings.ReplaceAll(text, "( ", "(")
+	text = strings.ReplaceAll(text, " )", ")")
+	return text
 }
