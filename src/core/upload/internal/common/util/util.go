@@ -12,16 +12,28 @@ import (
 )
 
 const (
-	fnRefFmt   = `<ks-meta-fnref>%d.%d</ks-meta-fnref>`
-	FnRefMatch = `<ks-meta-fnref>(\d+\.\d+)</ks-meta-fnref>`
-	lineFmt    = `<ks-meta-line>%d</ks-meta-line>`
-	LineMatch  = `<ks-meta-line>(\d+)</ks-meta-line>`
-	pageFmt    = `<ks-meta-page>%d</ks-meta-page>`
-	PageMatch  = `<ks-meta-page>(\d+)</ks-meta-page>`
+	fnRefFmt    = `<ks-meta-fnref>%d.%d</ks-meta-fnref>`
+	FnRefMatch  = `<ks-meta-fnref>(\d+\.\d+)</ks-meta-fnref>`
+	imgFmt      = `<fmt-meta-img src="%s" desc="%s"/>`
+	ImgMatch    = `<fmt-meta-img src=".+" desc=".+"/>`
+	imgRefFmt   = `<fmt-meta-imgref src="%s" desc="%s"/>`
+	ImgRefMatch = `<fmt-meta-imgref src=".+" desc=".+"/>`
+	lineFmt     = `<ks-meta-line>%d</ks-meta-line>`
+	LineMatch   = `<ks-meta-line>(\d+)</ks-meta-line>`
+	pageFmt     = `<ks-meta-page>%d</ks-meta-page>`
+	PageMatch   = `<ks-meta-page>(\d+)</ks-meta-page>`
 )
 
 func FmtFnRef(page int32, nr int32) string {
 	return fmt.Sprintf(fnRefFmt, page, nr)
+}
+
+func FmtImg(src, desc string) string {
+	return "" // ignore for now
+}
+
+func FmtImgRef(src, desc string) string {
+	return "" // ignore for now
 }
 
 func FmtLine(line int32) string {
@@ -48,14 +60,17 @@ const (
 	headingFmt      = "<ks-fmt-h%d>%s</ks-fmt-h%d>"
 	headMatchStart  = `<ks-fmt-h\d>`
 	headMatchEnd    = `</ks-fmt-h\d>`
-	headMatch       = headMatchStart + `%s` + headMatchEnd
-	langFmt         = `%s`
+	headMatch       = headMatchStart + "%s" + headMatchEnd
+	langFmt         = "%s"
 	nameFmtStart    = "<ks-fmt-name>"
 	nameFmtEnd      = "</ks-fmt-name>"
 	nameFmt         = nameFmtStart + "%s" + nameFmtEnd
 	parHeadFmtStart = "<ks-fmt-hpar>"
 	parHeadFmtEnd   = "</ks-fmt-hpar>"
 	parHeadFmt      = parHeadFmtStart + "%s" + parHeadFmtEnd
+	tableFmtStart   = `<ks-fmt-table>`
+	tableFmtEnd     = `</ks-fmt-table>`
+	tableFmt        = tableFmtStart + "%s" + tableFmtEnd
 	trackedFmtStart = "<ks-fmt-tracked>"
 	trackedFmtEnd   = "</ks-fmt-tracked>"
 	trackedFmt      = trackedFmtStart + "%s" + trackedFmtEnd
@@ -93,31 +108,22 @@ func FmtParHeading(content string) string {
 	return fmt.Sprintf(parHeadFmt, content)
 }
 
+func FmtTable(content string) string {
+	return fmt.Sprintf(tableFmt, content)
+}
+
 func FmtTracked(content string) string {
 	return fmt.Sprintf(trackedFmt, content)
 }
 
-const (
-	imageFmt      = `{extract-image src="%s" desc="%s"}`
-	ImageRefMatch = `{extract-image src=".+" desc=".+"}`
-	TableMatch    = `` // ignore for now
-)
-
-func FmtImage(src, desc string) string {
-	return "" // ignore for now
-}
-
 func RemoveTags(input string) string {
-	re := regexp.MustCompile(FnRefMatch)
-	input = re.ReplaceAllString(input, "")
-	re = regexp.MustCompile(LineMatch)
-	input = re.ReplaceAllString(input, "")
-	re = regexp.MustCompile(PageMatch)
-	input = re.ReplaceAllString(input, "")
-	re = regexp.MustCompile(headMatchStart)
-	input = re.ReplaceAllString(input, "")
-	re = regexp.MustCompile(headMatchEnd)
-	input = re.ReplaceAllString(input, "")
+	input = regexp.MustCompile(FnRefMatch).ReplaceAllString(input, "")
+	input = regexp.MustCompile(ImgMatch).ReplaceAllString(input, "")
+	input = regexp.MustCompile(ImgRefMatch).ReplaceAllString(input, "")
+	input = regexp.MustCompile(LineMatch).ReplaceAllString(input, "")
+	input = regexp.MustCompile(PageMatch).ReplaceAllString(input, "")
+	input = regexp.MustCompile(headMatchStart).ReplaceAllString(input, "")
+	input = regexp.MustCompile(headMatchEnd).ReplaceAllString(input, "")
 
 	input = strings.ReplaceAll(input, boldFmtStart, "")
 	input = strings.ReplaceAll(input, boldFmtEnd, "")
@@ -131,13 +137,17 @@ func RemoveTags(input string) string {
 	input = strings.ReplaceAll(input, nameFmtEnd, "")
 	input = strings.ReplaceAll(input, parHeadFmtStart, "")
 	input = strings.ReplaceAll(input, parHeadFmtEnd, "")
+	input = strings.ReplaceAll(input, tableFmtStart, "")
+	input = strings.ReplaceAll(input, tableFmtEnd, "")
+	input = strings.ReplaceAll(input, "<tr>", "")
+	input = strings.ReplaceAll(input, "</tr>", "")
+	input = regexp.MustCompile(`<td(?:\s+(?:colspan|rowspan)="[^"]*")*\s*>`).ReplaceAllString(input, "")
+	input = strings.ReplaceAll(input, "</td>", "")
 	input = strings.ReplaceAll(input, trackedFmtStart, "")
 	input = strings.ReplaceAll(input, trackedFmtEnd, "")
 
-	re = regexp.MustCompile(`<[^>]*>`)
-	input = re.ReplaceAllString(input, "")
-	re = regexp.MustCompile(`\s+`)
-	input = re.ReplaceAllString(input, " ")
+	input = regexp.MustCompile(`<[^>]*>`).ReplaceAllString(input, "")
+	input = regexp.MustCompile(`\s+`).ReplaceAllString(input, " ")
 	return strings.TrimSpace(input)
 }
 

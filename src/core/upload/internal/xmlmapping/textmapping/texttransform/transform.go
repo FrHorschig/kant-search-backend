@@ -18,7 +18,11 @@ func Hx(xml string) (string, string, errs.UploadError) {
 }
 
 func Hu(xml string) (string, errs.UploadError) {
-	return hu(createElement(xml))
+	text, err := hu(createElement(xml))
+	if err.HasError {
+		return "", err
+	}
+	return util.FmtParHeading(text), errs.Nil()
 }
 
 func P(xml string) (string, errs.UploadError) {
@@ -139,11 +143,7 @@ func hu(elem *etree.Element) (string, errs.UploadError) {
 			return "", errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
 		}
 	}
-	text, err := extractText(elem, switchFn)
-	if err.HasError {
-		return "", err
-	}
-	return util.FmtParHeading(text), errs.Nil()
+	return extractText(elem, switchFn)
 }
 
 func p(elem *etree.Element) (string, errs.UploadError) {
@@ -199,7 +199,85 @@ func seite(elem *etree.Element) (string, errs.UploadError) {
 }
 
 func table(elem *etree.Element) (string, errs.UploadError) {
-	return util.TableMatch, errs.Nil()
+	switchFn := func(el *etree.Element) (string, errs.UploadError) {
+		switch el.Tag {
+		case "seite":
+			return seite(el)
+		case "tr":
+			return tr(el)
+		default:
+			return "", errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
+		}
+	}
+	text, err := extractText(elem, switchFn)
+	if err.HasError {
+		return "", err
+	}
+	return util.FmtTable(text), errs.Nil()
+}
+
+func td(elem *etree.Element) (string, errs.UploadError) {
+	switchFn := func(el *etree.Element) (string, errs.UploadError) {
+		switch el.Tag {
+		case "bild":
+			return bildBildverweis(el), errs.Nil()
+		case "bildverweis":
+			return bildBildverweis(el), errs.Nil()
+		case "em1":
+			return em1(el), errs.Nil()
+		case "em2":
+			return em2(el)
+		case "fett":
+			return fett(el)
+		case "formel":
+			return formel(el)
+		case "fr":
+			return fr(el)
+		case "fremdsprache":
+			return fremdsprache(el)
+		case "gesperrt":
+			return gesperrt(el)
+		case "name":
+			return name(el)
+		case "op":
+			return "", errs.Nil()
+		case "p":
+			return p(el)
+		case "romzahl":
+			return romzahl(el)
+		case "seite":
+			return seite(el)
+		case "trenn":
+			return "", errs.Nil()
+		case "zeile":
+			return zeile(el)
+		default:
+			return "", errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
+		}
+	}
+	text, err := extractText(elem, switchFn)
+	if err.HasError {
+		return "", err
+	}
+	start, end := extractTagStartEnd(elem)
+	return start + text + end, err
+}
+
+func tr(elem *etree.Element) (string, errs.UploadError) {
+	switchFn := func(el *etree.Element) (string, errs.UploadError) {
+		switch el.Tag {
+		case "td":
+			return td(el)
+		default:
+			return "", errs.New(fmt.Errorf(unknownTagMsg, el.Tag, elem.Tag), nil)
+		}
+	}
+	text, err := extractText(elem, switchFn)
+	if err.HasError {
+		return "", err
+	}
+	start, end := extractTagStartEnd(elem)
+	return start + text + end, err
 }
 
 func footnote(elem *etree.Element) (string, string, errs.UploadError) {
@@ -306,4 +384,19 @@ func createElement(xml string) *etree.Element {
 	doc := etree.NewDocument()
 	doc.ReadFromString(xml)
 	return doc.Root()
+}
+
+func extractTagStartEnd(elem *etree.Element) (string, string) {
+	var sb strings.Builder
+	sb.WriteString("<")
+	sb.WriteString(elem.Tag)
+	for _, attr := range elem.Attr {
+		sb.WriteString(" ")
+		sb.WriteString(attr.Key)
+		sb.WriteString(`="`)
+		sb.WriteString(attr.Value)
+		sb.WriteString(`"`)
+	}
+	sb.WriteString(">")
+	return sb.String(), "</" + elem.Tag + ">"
 }

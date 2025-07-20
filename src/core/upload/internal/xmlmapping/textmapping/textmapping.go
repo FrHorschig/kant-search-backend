@@ -63,7 +63,7 @@ func mapParagraphs(paragraphs []model.Paragraph) errs.UploadError {
 		pText, err := p.Text, errs.Nil()
 		if strings.HasPrefix(pText, "<hu>") {
 			pText, err = trafo.Hu(pText)
-		} else if strings.HasPrefix(pText, "<table>") {
+		} else if strings.HasPrefix(pText, "<table>") || strings.HasPrefix(pText, "<table ") {
 			pText, err = trafo.Table(pText)
 		} else {
 			pText, err = trafo.P(pText)
