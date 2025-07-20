@@ -14,10 +14,8 @@ import (
 const (
 	fnRefFmt    = `<ks-meta-fnref>%d.%d</ks-meta-fnref>`
 	FnRefMatch  = `<ks-meta-fnref>(\d+\.\d+)</ks-meta-fnref>`
-	imgFmt      = `<fmt-meta-img src="%s" desc="%s"/>`
-	ImgMatch    = `<fmt-meta-img src=".+" desc=".+"/>`
-	imgRefFmt   = `<fmt-meta-imgref src="%s" desc="%s"/>`
-	ImgRefMatch = `<fmt-meta-imgref src=".+" desc=".+"/>`
+	imgRefFmt   = `<ks-meta-imgref src="%s" desc="%s"/>`
+	ImgRefMatch = `<ks-meta-imgref src=".+" desc=".+"/>`
 	lineFmt     = `<ks-meta-line>%d</ks-meta-line>`
 	LineMatch   = `<ks-meta-line>(\d+)</ks-meta-line>`
 	pageFmt     = `<ks-meta-page>%d</ks-meta-page>`
@@ -28,12 +26,8 @@ func FmtFnRef(page int32, nr int32) string {
 	return fmt.Sprintf(fnRefFmt, page, nr)
 }
 
-func FmtImg(src, desc string) string {
-	return "" // ignore for now
-}
-
 func FmtImgRef(src, desc string) string {
-	return "" // ignore for now
+	return fmt.Sprintf(imgRefFmt, src, desc)
 }
 
 func FmtLine(line int32) string {
@@ -118,7 +112,6 @@ func FmtTracked(content string) string {
 
 func RemoveTags(input string) string {
 	input = regexp.MustCompile(FnRefMatch).ReplaceAllString(input, "")
-	input = regexp.MustCompile(ImgMatch).ReplaceAllString(input, "")
 	input = regexp.MustCompile(ImgRefMatch).ReplaceAllString(input, "")
 	input = regexp.MustCompile(LineMatch).ReplaceAllString(input, "")
 	input = regexp.MustCompile(PageMatch).ReplaceAllString(input, "")
