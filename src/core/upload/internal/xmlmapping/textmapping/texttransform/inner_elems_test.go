@@ -126,14 +126,14 @@ func TestEm2(t *testing.T) {
 		{
 			name:     "Text with bild child element",
 			text:     "Test text",
-			child:    elem("bild", nil, "", nil),
-			expected: util.FmtEmph2("Test text" + util.FmtImg("src", "descr")),
+			child:    elem("bild", map[string]string{"src": "src", "beschreibung": "desc"}, "", nil),
+			expected: util.FmtEmph2("Test text " + util.FmtImgRef("src", "desc")),
 		},
 		{
 			name:     "Text with bildverweis child element",
 			text:     "Test text",
-			child:    elem("bildverweis", nil, "", nil),
-			expected: util.FmtEmph2("Test text" + util.FmtImgRef("src", "descr")),
+			child:    elem("bildverweis", map[string]string{"src": "src", "beschreibung": "desc"}, "", nil),
+			expected: util.FmtEmph2("Test text " + util.FmtImgRef("src", "desc")),
 		},
 		{
 			name:     "Text with em1 child element",
@@ -398,14 +398,14 @@ func TestFremdsprache(t *testing.T) {
 		{
 			name:     "Text with bild child element",
 			text:     "Test text",
-			child:    elem("bild", nil, "", nil),
-			expected: "Test text" + util.FmtImg("src", "descr"),
+			child:    elem("bild", map[string]string{"src": "src", "beschreibung": "desc"}, "", nil),
+			expected: "Test text " + util.FmtImgRef("src", "desc"),
 		},
 		{
 			name:     "Text with bildverweis child element",
 			text:     "Test text",
-			child:    elem("bildverweis", nil, "", nil),
-			expected: "Test text" + util.FmtImgRef("src", "descr"),
+			child:    elem("bildverweis", map[string]string{"src": "src", "beschreibung": "desc"}, "", nil),
+			expected: "Test text " + util.FmtImgRef("src", "desc"),
 		},
 		{
 			name:     "Text with em1 child element",
