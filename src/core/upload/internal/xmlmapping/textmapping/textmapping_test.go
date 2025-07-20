@@ -50,7 +50,7 @@ func TestTextMapping(t *testing.T) {
 						Paragraphs: []model.Paragraph{
 							{Text: "<ks-meta-page>4</ks-meta-page> p paragraph"},
 							{Text: "<ks-fmt-hpar>hu paragraph</ks-fmt-hpar>"},
-							{Text: ""},
+							{Text: "<ks-fmt-table>table paragraph</ks-fmt-table>"},
 						},
 						Sections: []model.Section{{
 							Heading: model.Heading{

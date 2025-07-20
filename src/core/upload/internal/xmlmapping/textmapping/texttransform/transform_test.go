@@ -63,7 +63,7 @@ func TestHx(t *testing.T) {
 			text:              "<h8>Test text</h8>",
 			child:             elem("hu", nil, "huText", nil),
 			expectedTocTitle:  "Test text",
-			expectedTextTitle: "<ks-fmt-h7>Test text <ks-fmt-hpar>huText</ks-fmt-hpar></ks-fmt-h7>",
+			expectedTextTitle: "<ks-fmt-h7>Test text huText</ks-fmt-h7>",
 		},
 		{
 			name:              "Text with name child element",
@@ -233,7 +233,7 @@ func TestHu(t *testing.T) {
 			result, err := hu(el)
 			assert.Equal(t, tc.expectError, err.HasError)
 			if !tc.expectError {
-				assert.Equal(t, "<ks-fmt-hpar>"+tc.expected+"</ks-fmt-hpar>", result)
+				assert.Equal(t, tc.expected, result)
 			}
 		})
 	}
@@ -258,6 +258,18 @@ func TestP(t *testing.T) {
 			text:     "Test text",
 			child:    elem("antiqua", nil, "antiquaText", nil),
 			expected: "Test text antiquaText",
+		},
+		{
+			name:     "Text with bild child element",
+			text:     "Test text",
+			child:    elem("bild", nil, "", nil),
+			expected: "Test text" + util.FmtImg("src", "descr"),
+		},
+		{
+			name:     "Text with bildverweis child element",
+			text:     "Test text",
+			child:    elem("bildverweis", nil, "", nil),
+			expected: "Test text" + util.FmtImgRef("src", "descr"),
 		},
 		{
 			name:     "Text with em1 child element",
@@ -329,7 +341,7 @@ func TestP(t *testing.T) {
 			name:     "Text with table child element",
 			text:     "Test text",
 			child:    elem("table", nil, "tableText", nil),
-			expected: "Test text",
+			expected: "Test text <ks-fmt-table>tableText</ks-fmt-table>",
 		},
 		{
 			name:     "Text with trenn child element",
@@ -423,9 +435,237 @@ func TestSeite(t *testing.T) {
 }
 
 func TestTable(t *testing.T) {
-	result, err := Table("xml")
-	assert.Equal(t, "", result)
-	assert.False(t, err.HasError)
+	testCases := []struct {
+		name        string
+		text        string
+		child       *etree.Element
+		expected    string
+		expectError bool
+	}{
+		{
+			name:     "Pure text",
+			text:     "Some text",
+			expected: util.FmtTable("Some text"),
+		},
+		{
+			name:     "Text with seite child element",
+			text:     "Test text",
+			child:    elem("seite", map[string]string{"nr": "384"}, "", nil),
+			expected: util.FmtTable("Test text " + util.FmtPage(384)),
+		},
+		{
+			name:     "Text with tr child element",
+			text:     "Test text",
+			child:    elem("tr", nil, "trText", nil),
+			expected: util.FmtTable("Test text " + "<tr>trText</tr>"),
+		},
+		{
+			name:     "Text with leading and trailing spaces",
+			text:     "   Test text       ",
+			child:    nil,
+			expected: util.FmtTable("Test text"),
+		},
+		{
+			name:        "Text with unknown child element",
+			child:       elem("my-custom-tag", nil, "", nil),
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			el := elem("element", nil, tc.text, tc.child)
+			result, err := table(el)
+			assert.Equal(t, tc.expectError, err.HasError)
+			if !tc.expectError {
+				assert.Equal(t, tc.expected, result)
+			}
+		})
+	}
+}
+
+func TestTr(t *testing.T) {
+	testCases := []struct {
+		name        string
+		text        string
+		child       *etree.Element
+		expected    string
+		expectError bool
+	}{
+		{
+			name:     "Pure text",
+			text:     "Some text",
+			expected: "<tr>Some text</tr>",
+		},
+		{
+			name:     "Text with td child element - no attrs",
+			text:     "Test text",
+			child:    elem("td", nil, "tdText", nil),
+			expected: "<tr>Test text " + "<td>tdText</td></tr>",
+		},
+		{
+			name:     "Text with td child element - with attrs",
+			text:     "Test text",
+			child:    elem("td", map[string]string{"any-attr": "attr-text abc123"}, "tdText", nil),
+			expected: "<tr>Test text " + `<td any-attr="attr-text abc123">tdText</td></tr>`,
+		},
+		{
+			name:     "Text with leading and trailing spaces",
+			text:     "     Test text  ",
+			child:    nil,
+			expected: "<tr>Test text</tr>",
+		},
+		{
+			name:        "Text with unknown child element",
+			child:       elem("my-custom-tag", nil, "", nil),
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			el := elem("tr", nil, tc.text, tc.child)
+			result, err := tr(el)
+			assert.Equal(t, tc.expectError, err.HasError)
+			if !tc.expectError {
+				assert.Equal(t, tc.expected, result)
+			}
+		})
+	}
+}
+
+func TestTd(t *testing.T) {
+	testCases := []struct {
+		name        string
+		text        string
+		child       *etree.Element
+		expected    string
+		expectError bool
+	}{
+		{
+			name:     "Pure text",
+			text:     "Some text",
+			expected: "<td>Some text</td>",
+		},
+		{
+			name:     "Text with bild child element",
+			text:     "Test text",
+			child:    elem("bild", nil, "", nil),
+			expected: "<td>Test text" + util.FmtImg("src", "descr") + "</td>",
+		},
+		{
+			name:     "Text with bildverweis child element",
+			text:     "Test text",
+			child:    elem("bildverweis", nil, "", nil),
+			expected: "<td>Test text" + util.FmtImgRef("src", "descr") + "</td>",
+		},
+		{
+			name:     "Text with em1 child element",
+			text:     "Test text",
+			child:    elem("em1", nil, "em1Text", nil),
+			expected: "<td>Test text " + util.FmtEmph("em1Text") + "</td>",
+		},
+		{
+			name:     "Text with em2 child element",
+			text:     "Test text",
+			child:    elem("em2", nil, "em2Text", nil),
+			expected: "<td>Test text " + util.FmtEmph2("em2Text") + "</td>",
+		},
+		{
+			name:     "Text with fett child element",
+			text:     "Test text",
+			child:    elem("fett", nil, "fettText", nil),
+			expected: "<td>Test text " + util.FmtBold("fettText") + "</td>",
+		},
+		{
+			name:     "Text with formel child element",
+			text:     "Test text",
+			child:    elem("formel", nil, "formelText", nil),
+			expected: "<td>Test text " + util.FmtFormula("formelText") + "</td>",
+		},
+		{
+			name:     "Text with fr child element",
+			text:     "Test text",
+			child:    elem("fr", map[string]string{"seite": "1", "nr": "2"}, "", nil),
+			expected: "<td>Test text " + util.FmtFnRef(1, 2) + "</td>",
+		},
+		{
+			name:     "Text with fremdsprache child element",
+			text:     "Test text",
+			child:    elem("fremdsprache", nil, "fremdspracheText", nil),
+			expected: "<td>Test text " + util.FmtLang("fremdspracheText") + "</td>",
+		},
+		{
+			name:     "Text with gesperrt child element",
+			text:     "Test text",
+			child:    elem("gesperrt", nil, "gesperrtText", nil),
+			expected: "<td>Test text " + util.FmtTracked("gesperrtText") + "</td>",
+		},
+		{
+			name:     "Text with name child element",
+			text:     "Test text",
+			child:    elem("name", nil, "nameText", nil),
+			expected: "<td>Test text " + util.FmtName("nameText") + "</td>",
+		},
+		{
+			name:     "Text with op child element",
+			text:     "Test text",
+			child:    elem("op", nil, "opText", nil),
+			expected: "<td>Test text</td>",
+		},
+		{
+			name:     "Text with p child element",
+			text:     "Test text",
+			child:    elem("p", nil, "pText", nil),
+			expected: "<td>Test text pText</td>",
+		},
+		{
+			name:     "Text with romzahl child element",
+			text:     "Test text",
+			child:    elem("romzahl", nil, "2.", nil),
+			expected: "<td>Test text II.</td>",
+		},
+		{
+			name:     "Text with seite child element",
+			text:     "Test text",
+			child:    elem("seite", map[string]string{"nr": "384"}, "", nil),
+			expected: "<td>Test text " + util.FmtPage(384) + "</td>",
+		},
+		{
+			name:     "Text with trenn child element",
+			text:     "Test text",
+			child:    elem("trenn", nil, "trennText", nil),
+			expected: "<td>Test text</td>",
+		},
+		{
+			name:     "Text with zeile child element",
+			text:     "Test text",
+			child:    elem("zeile", map[string]string{"nr": "328"}, "", nil),
+			expected: "<td>Test text " + util.FmtLine(328) + "</td>",
+		},
+		{
+			name:     "Text with leading and trailing spaces",
+			text:     "    Test text ",
+			child:    nil,
+			expected: "<td>Test text</td>",
+		},
+		{
+			name:        "Text with unknown child element",
+			child:       elem("my-custom-tag", nil, "", nil),
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			el := elem("td", nil, tc.text, tc.child)
+			result, err := td(el)
+			assert.Equal(t, tc.expectError, err.HasError)
+			if !tc.expectError {
+				assert.Equal(t, tc.expected, result)
+			}
+		})
+	}
 }
 
 func TestRandtext(t *testing.T) {
