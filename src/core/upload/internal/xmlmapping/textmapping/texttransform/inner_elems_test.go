@@ -124,6 +124,18 @@ func TestEm2(t *testing.T) {
 			expected: util.FmtEmph2("Some emph2 text"),
 		},
 		{
+			name:     "Text with bild child element",
+			text:     "Test text",
+			child:    elem("bild", nil, "", nil),
+			expected: util.FmtEmph2("Test text" + util.FmtImg("src", "descr")),
+		},
+		{
+			name:     "Text with bildverweis child element",
+			text:     "Test text",
+			child:    elem("bildverweis", nil, "", nil),
+			expected: util.FmtEmph2("Test text" + util.FmtImgRef("src", "descr")),
+		},
+		{
 			name:     "Text with em1 child element",
 			text:     "Test text",
 			child:    elem("em1", nil, "em1Text", nil),
@@ -382,6 +394,18 @@ func TestFremdsprache(t *testing.T) {
 			text:     "Some foreign language text",
 			attrs:    map[string]string{"sprache": "language", "zeichen": "some alphabet", "umschrift": "transcribed text"},
 			expected: util.FmtLang("Some foreign language text"),
+		},
+		{
+			name:     "Text with bild child element",
+			text:     "Test text",
+			child:    elem("bild", nil, "", nil),
+			expected: "Test text" + util.FmtImg("src", "descr"),
+		},
+		{
+			name:     "Text with bildverweis child element",
+			text:     "Test text",
+			child:    elem("bildverweis", nil, "", nil),
+			expected: "Test text" + util.FmtImgRef("src", "descr"),
 		},
 		{
 			name:     "Text with em1 child element",
