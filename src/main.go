@@ -44,7 +44,7 @@ func initEsConnection() *elasticsearch.TypedClient {
 	retryInterval := readIntConfig("KSGO_RETRY_INTERVAL")
 	for i := 0; i < retryCount; i++ {
 		health, err := es.Cluster.Health().Do(context.Background())
-		if err == nil && health.Status == healthstatus.Green {
+		if err == nil && health.Status != healthstatus.Red {
 			return es
 		}
 		log.Info().Msgf("waiting for ES to start after attempt %d", i)

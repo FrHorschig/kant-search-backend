@@ -76,7 +76,6 @@ func createContentIndex(es *elasticsearch.TypedClient, name string) error {
 
 func buildSettings() *types.IndexSettings {
 	return &types.IndexSettings{
-		NumberOfReplicas: "0",
 		Analysis: &types.IndexSettingsAnalysis{
 			Analyzer: map[string]types.Analyzer{
 				string(model.NoStemming): &types.CustomAnalyzer{
