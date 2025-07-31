@@ -40,6 +40,9 @@ func findWordIndexMap(rawText string, fmtText string) (map[int32]int32, error) {
 	fmtWords := extractWordData(util.MaskTags(fmtText)) // we mask the tags here so that no word from a tag in fmtText may be accidentally matched to a normal word in rawText; this could happen if there are tags with attributes (like image or table tags)
 	if len(rawWords) != len(fmtWords) {
 		// and because we mask all known tags, we (should) get the exact same number of words in both cases ...
+		for i := range rawWords {
+			println(rawWords[i].Text, fmtWords[i].Text)
+		}
 		return nil, fmt.Errorf("unequal number of words in searchText and fmtText: {%s} vs {%s}", fmtText, rawText)
 	}
 
