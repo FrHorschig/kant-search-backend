@@ -163,7 +163,7 @@ func TestRemoveTags(t *testing.T) {
 		},
 		{
 			name:     "Text with mixed tags",
-			text:     "Mixed " + fnRef(1, 2) + " and <ks-fmt-bold>HTML</ks-fmt-bold> tags " + page(3) + ".",
+			text:     "Mixed " + fnRef(1, 2) + " and <b>HTML</b> tags " + page(3) + ".",
 			expected: "Mixed and HTML tags .",
 		},
 		{
@@ -186,6 +186,62 @@ func TestRemoveTags(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			actual := RemoveTags(tc.text)
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestMaskTags(t *testing.T) {
+	tests := []struct {
+		name     string
+		text     string
+		expected string
+	}{
+		{
+			name:     "Text with footnote references",
+			text:     "This is a text with " + fnRef(1, 2) + " and " + fnRef(3, 4) + ".",
+			expected: "This is a text with ********************************** and **********************************.",
+		},
+		{
+			name:     "Text with line matches",
+			text:     "This is a text with " + line(12) + " tags.",
+			expected: "This is a text with ******************************* tags.",
+		},
+		{
+			name:     "Text with page matches",
+			text:     "This is a text with " + page(5) + " and " + page(10) + ".",
+			expected: "This is a text with ****************************** and *******************************.",
+		},
+		{
+			name:     "Text with HTML tags",
+			text:     "<div>This is <b>bold</b> and <i>italic</i>.</div>",
+			expected: "*****This is ***bold**** and ***italic****.******",
+		},
+		{
+			name:     "Text with mixed tags",
+			text:     "Mixed " + fnRef(1, 2) + " and <b>HTML</b> tags " + page(3) + ".",
+			expected: "Mixed ********************************** and ***HTML**** tags ******************************.",
+		},
+		{
+			name:     "Text with no tags",
+			text:     "Plain text without any tags.",
+			expected: "Plain text without any tags.",
+		},
+		{
+			name:     "Empty string",
+			text:     "",
+			expected: "",
+		},
+		{
+			name:     "Text with malformed HTML tags",
+			text:     "Malformed <tag text.",
+			expected: "Malformed <tag text.",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := MaskTags(tc.text)
 			assert.Equal(t, tc.expected, actual)
 		})
 	}
