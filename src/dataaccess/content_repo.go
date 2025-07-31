@@ -244,7 +244,7 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.SearchTermNod
 			return nil, err
 		}
 		results = append(results, model.SearchResult{
-			HighlightText: hit.Highlight["searchText."+string(analyzer)][0],
+			HighlightText: getHighlight(hit, analyzer, c.SearchText),
 			FmtText:       c.FmtText,
 			Pages:         c.Pages,
 			PageByIndex:   c.PageByIndex,
@@ -255,6 +255,14 @@ func (rec *contentRepoImpl) Search(ctx context.Context, ast *model.SearchTermNod
 		})
 	}
 	return results, nil
+}
+
+func getHighlight(hit types.Hit, analyzer model.Analyzer, searchText string) string {
+	hl := hit.Highlight["searchText."+string(analyzer)]
+	if len(hl) > 0 {
+		return hl[0]
+	}
+	return searchText
 }
 
 func createWorkCodeQuery(workCode string) types.Query {

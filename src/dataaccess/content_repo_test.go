@@ -226,6 +226,18 @@ func TestSearch(t *testing.T) {
 			},
 			hitCount: 1,
 		},
+		{
+			name: "test only !word term",
+			dbInput: []model.Content{
+				{Type: model.Paragraph, SearchText: "paragraph text", WorkCode: workCode},
+			},
+			searchTerms: &model.SearchTermNode{Token: newNot(), Right: &model.SearchTermNode{Token: newWord("abcdefg")}},
+			options: model.SearchOptions{
+				WorkCodes:         []string{workCode},
+				IncludeParagraphs: true,
+			},
+			hitCount: 1,
+		},
 	}
 
 	for _, tc := range testdata {
