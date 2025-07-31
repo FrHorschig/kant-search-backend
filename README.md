@@ -18,7 +18,6 @@ The configuration file `volume-metadata.json` contains metadata of the volumes a
 
 These environment variables are necessary for the application to function properly:
 - `KSDB_URL` - the host URL of the database
-- `KSDB_PORT` - the port of the database
 - `KSDB_USERNAME` - the name of the elasticsearch user
 - `KSDB_PASSWORD` - the password of the elasticsearch user
 - `KSDB_CERT` - the path to the elasticsearch http certificate

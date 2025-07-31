@@ -126,8 +126,8 @@ func main() {
 	e := initEchoServer()
 	registerHandlers(e, uploadHandler, readHandler, searchHandler)
 	if os.Getenv("KSGO_DISABLE_SSL") == "true" {
-		e.Logger.Fatal(e.Start(":3000"))
+		e.Logger.Fatal(e.Start(":5000"))
 	} else {
-		e.Logger.Fatal(e.StartTLS(":443", os.Getenv("KSGO_CERT"), os.Getenv("KSGO_KEY")))
+		e.Logger.Fatal(e.StartTLS(":5000", os.Getenv("KSGO_CERT"), os.Getenv("KSGO_KEY")))
 	}
 }
