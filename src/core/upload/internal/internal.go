@@ -64,6 +64,9 @@ func (rec *xmlMapperImpl) MapXml(volNr int32, xml string) (dbmodel.Volume, []dbm
 
 	// map to db model
 	dbVol, contents := flattening.Flatten(vol, works)
-	dbmetadataextraction.ExtractMetadata(contents)
+	err = dbmetadataextraction.ExtractMetadata(contents)
+	if err.HasError {
+		return dbmodel.Volume{}, nil, err
+	}
 	return dbVol, contents, errs.Nil()
 }

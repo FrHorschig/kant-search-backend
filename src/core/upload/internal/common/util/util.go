@@ -145,16 +145,12 @@ func RemoveTags(input string) string {
 }
 
 func MaskTags(input string) string {
-	re := regexp.MustCompile(FnRefMatch)
-	input = re.ReplaceAllStringFunc(input, mask)
-	re = regexp.MustCompile(LineMatch)
-	input = re.ReplaceAllStringFunc(input, mask)
-	re = regexp.MustCompile(PageMatch)
-	input = re.ReplaceAllStringFunc(input, mask)
-	re = regexp.MustCompile(headMatchStart)
-	input = re.ReplaceAllStringFunc(input, mask)
-	re = regexp.MustCompile(headMatchEnd)
-	input = re.ReplaceAllStringFunc(input, mask)
+	input = regexp.MustCompile(FnRefMatch).ReplaceAllStringFunc(input, mask)
+	input = regexp.MustCompile(ImgRefMatch).ReplaceAllStringFunc(input, mask)
+	input = regexp.MustCompile(LineMatch).ReplaceAllStringFunc(input, mask)
+	input = regexp.MustCompile(PageMatch).ReplaceAllStringFunc(input, mask)
+	input = regexp.MustCompile(headMatchStart).ReplaceAllStringFunc(input, mask)
+	input = regexp.MustCompile(headMatchEnd).ReplaceAllStringFunc(input, mask)
 
 	input = strings.ReplaceAll(input, boldFmtStart, mask(boldFmtStart))
 	input = strings.ReplaceAll(input, boldFmtEnd, mask(boldFmtEnd))
@@ -170,6 +166,14 @@ func MaskTags(input string) string {
 	input = strings.ReplaceAll(input, parHeadFmtEnd, mask(parHeadFmtEnd))
 	input = strings.ReplaceAll(input, trackedFmtStart, mask(trackedFmtStart))
 	input = strings.ReplaceAll(input, trackedFmtEnd, mask(trackedFmtEnd))
+	input = strings.ReplaceAll(input, tableFmtStart, mask(tableFmtStart))
+	input = strings.ReplaceAll(input, tableFmtEnd, mask(tableFmtEnd))
+	input = strings.ReplaceAll(input, "<tr>", mask("<tr>"))
+	input = strings.ReplaceAll(input, "</tr>", mask("</tr>"))
+	input = regexp.MustCompile(`<td(?:\s+(?:colspan|rowspan)="[^"]*")*\s*>`).ReplaceAllStringFunc(input, mask)
+	input = strings.ReplaceAll(input, "</td>", mask("</td>"))
+
+	input = regexp.MustCompile(`<[^>]*>`).ReplaceAllStringFunc(input, mask)
 	return input
 }
 
