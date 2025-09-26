@@ -58,14 +58,14 @@ const (
 // WordIndexMap is a map of SearchString string indices of the words of the text to FmtText string indices (both rune, not byte indices) of the same words. For example, the [k, v] pair [28, 847] would mean that the word at index 28 of SearchText is the same word as the one at index 847 in FmtText. This field is used to map ES search hit highlights, which are added to SearchText, to FmtText.
 type Content struct {
 	// text data
-	FmtText    string  `json:"fmtText"`
-	TocText    *string `json:"tocText"` // only for headings
-	SearchText string  `json:"searchText"`
+	FmtText    string  `json:"fmtText"`    // text with formatting data
+	TocText    *string `json:"tocText"`    // heading text to show in the TOC
+	SearchText string  `json:"searchText"` // pure text without any metadata
 
 	// sort and filter fields
 	Type     Type   `json:"type"`
-	Ordinal  int32  `json:"ordinal"`
-	WorkCode string `json:"workCode"`
+	Ordinal  int32  `json:"ordinal"`  // for ordering same-work search results
+	WorkCode string `json:"workCode"` // for filtering by work
 
 	// metadata
 	Pages        []int32           `json:"pages"`
