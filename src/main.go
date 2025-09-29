@@ -20,8 +20,30 @@ import (
 	db "github.com/frhorschig/kant-search-backend/dataaccess"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
+
+func configureLogs() {
+	logPath := os.Getenv("KSGO_LOG_PATH")
+	if logPath == "" {
+		logPath = "/var/log/kant-search-backend"
+	}
+
+	lumberjackLogger := &lumberjack.Logger{
+		Filename:  logPath + "/ks.log",
+		MaxSize:   500,
+		MaxAge:    28,
+		LocalTime: true,
+		Compress:  true,
+	}
+
+	log.Logger = zerolog.New(zerolog.MultiLevelWriter(
+		zerolog.ConsoleWriter{Out: os.Stderr},
+		zerolog.New(lumberjackLogger).With().Timestamp().Logger(),
+	)).With().Timestamp().Logger()
+}
 
 func initEsConnection() *elasticsearch.TypedClient {
 	esCert, err := os.ReadFile(os.Getenv("KSDB_CERT"))
@@ -40,8 +62,8 @@ func initEsConnection() *elasticsearch.TypedClient {
 		panic(err)
 	}
 
-	retryCount := readIntConfig("KSGO_RETRY_COUNT")
-	retryInterval := readIntConfig("KSGO_RETRY_INTERVAL")
+	retryCount := readIntConfig("KSGO_RETRY_COUNT", 50)
+	retryInterval := readIntConfig("KSGO_RETRY_INTERVAL", 5)
 	for i := 0; i < retryCount; i++ {
 		health, err := es.Cluster.Health().Do(context.Background())
 		if err == nil && health.Status != healthstatus.Red {
@@ -53,10 +75,10 @@ func initEsConnection() *elasticsearch.TypedClient {
 	panic("failed to connect to Elasticsearch after maximum number of attempts")
 }
 
-func readIntConfig(name string) int {
+func readIntConfig(name string, defaultVal int) int {
 	str := strings.TrimSpace(os.Getenv(name))
 	if str == "" {
-		panic("unknown environment variable " + name)
+		return defaultVal
 	}
 	num, err := strconv.ParseInt(str, 10, 32)
 	if err != nil {
@@ -110,6 +132,9 @@ func registerHandlers(e *echo.Echo, uploadHandler apiupload.UploadHandler, readH
 }
 
 func main() {
+	if os.Getenv("KSGO_DISABLE_LOGFILES") != "true" {
+		configureLogs()
+	}
 	es := initEsConnection()
 
 	volumeRepo := db.NewVolumeRepo(es)
@@ -125,9 +150,13 @@ func main() {
 
 	e := initEchoServer()
 	registerHandlers(e, uploadHandler, readHandler, searchHandler)
+	port := os.Getenv("KSGO_PORT")
+	if port == "" {
+		port = "5000"
+	}
 	if os.Getenv("KSGO_DISABLE_SSL") == "true" {
-		e.Logger.Fatal(e.Start(":5000"))
+		e.Logger.Fatal(e.Start(":" + port))
 	} else {
-		e.Logger.Fatal(e.StartTLS(":5000", os.Getenv("KSGO_CERT"), os.Getenv("KSGO_KEY")))
+		e.Logger.Fatal(e.StartTLS(":"+port, os.Getenv("KSGO_CERT"), os.Getenv("KSGO_KEY")))
 	}
 }

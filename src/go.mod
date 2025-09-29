@@ -12,6 +12,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go/modules/elasticsearch v0.38.0
 	golang.org/x/text v0.27.0
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (

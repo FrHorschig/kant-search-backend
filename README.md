@@ -21,13 +21,21 @@ These environment variables are necessary for the application to function proper
 - `KSDB_USERNAME` - the name of the elasticsearch user
 - `KSDB_PASSWORD` - the password of the elasticsearch user
 - `KSDB_CERT` - the path to the elasticsearch http certificate
-- `KSGO_RETRY_COUNT` - the number of retrying the elasticsearch connection before panicking
-- `KSGO_RETRY_INTERVAL` - the number of seconds to wait between retries
+- `KSGO_RETRY_COUNT` - the number of retrying the elasticsearch connection before panicking, default is `50`
+- `KSGO_RETRY_INTERVAL` - the number of seconds to wait between retries, default is `5`
 - `KSGO_CERT` - path to the SSL certificate
 - `KSGO_KEY` - path to the SSL key
 - `KSGO_ALLOW_ORIGINS` - comma separated list of URLs allowed to communicate with the backend (use `*` to allow all)
 - `KSGO_CONFIG_PATH` - path to the configuration directory
 
+These additional variables have default values that are needed by the Docker image. Therefore set them only if you are installing the application manually:
+- `KSGO_PORT` - port number, default `5000`
+- `KSGO_LOG_PATH` - path to the log directory, default `/var/log/kant-search-backend`
+
 ## Development setup
 
 Refer to the [parent project](https://github.com/FrHorschig/kant-search) for a general overview and scripts for helping with the development setup, including a script to start the backend locally together with the database and the frontend.
+
+The following additional environment variables should only be used in development.
+- `KSGO_DISABLE_SSL` - will disable SSL on the endpoints if set to `true`
+- `KSGO_DISABLE_LOGFILES` - will disable the writing of log files (the logs will still be written to stdout) if set to `true`
