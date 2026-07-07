@@ -5,7 +5,7 @@ go 1.26.4
 require (
 	github.com/beevik/etree v1.6.0
 	github.com/elastic/go-elasticsearch/v8 v8.19.6
-	github.com/frhorschig/kant-search-api/generated/go v0.80.0
+	github.com/frhorschig/kant-search-api/generated/go v1.0.0
 	github.com/golang/mock v1.6.0
 	github.com/labstack/echo/v4 v4.15.4
 	github.com/rs/zerolog v1.35.1
