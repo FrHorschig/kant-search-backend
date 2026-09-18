@@ -1,4 +1,4 @@
-FROM golang:1.24
+FROM golang:1.26
 
 LABEL org.opencontainers.image.title="kant-search-backend"
 LABEL org.opencontainers.image.source="https://github.com/FrHorschig/kant-search-backend"
